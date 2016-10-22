@@ -30,7 +30,7 @@
         <dependency>
             <groupId>com.github.Godson777</groupId>
             <artifactId>Commands4J</artifactId>
-            <version>52eae9e598</version>
+            <version>76d9fb0b99</version>
         </dependency>
 
         <dependency>
