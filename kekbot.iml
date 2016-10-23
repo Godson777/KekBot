@@ -36,7 +36,7 @@
     <orderEntry type="library" name="Maven: jflac:jflac:1.3" level="project" />
     <orderEntry type="library" name="Maven: com.googlecode.soundlibs:tritonus-share:0.3.7-3" level="project" />
     <orderEntry type="library" name="Maven: org.tritonus:tritonus-dsp:0.3.6" level="project" />
-    <orderEntry type="library" name="Maven: com.github.Godson777:Commands4J:76d9fb0b99" level="project" />
+    <orderEntry type="library" name="Maven: com.github.Godson777:Commands4J:52eae9e598" level="project" />
     <orderEntry type="library" name="Maven: ch.qos.logback:logback-classic:1.1.7" level="project" />
     <orderEntry type="library" name="Maven: ch.qos.logback:logback-core:1.1.7" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.2.3" level="project" />

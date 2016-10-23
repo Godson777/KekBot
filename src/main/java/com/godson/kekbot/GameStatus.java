@@ -2,6 +2,7 @@ package com.godson.kekbot;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jetty.util.StringUtil;
+import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.handle.obj.Status;
 
 import java.io.File;
@@ -13,6 +14,7 @@ public class GameStatus extends TimerTask {
 
     public GameStatus() {}
 
+    @Override
     public void run() {
         try {
             if (KekBot.client.isReady()) {

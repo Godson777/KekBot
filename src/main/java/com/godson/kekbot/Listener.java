@@ -43,8 +43,8 @@ public class Listener {
         //Announce Ready
         out.println("KekBot is ready to roll!");
         //Randomize the game the bot is playing.
-        Timer timer = new Timer();
-        timer.schedule(new GameStatus(), 0, TimeUnit.MINUTES.toMillis(10));
+        Timer gameStatusTimer = new Timer();
+        gameStatusTimer.schedule(new GameStatus(), 0, TimeUnit.MINUTES.toMillis(10));
         //Set startup time
         start = Calendar.getInstance().getTime();
     }
