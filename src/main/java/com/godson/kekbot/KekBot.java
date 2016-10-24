@@ -4,8 +4,8 @@ import com.darichey.discord.api.CommandRegistry;
 import com.godson.kekbot.command.UserStates;
 import com.godson.kekbot.command.commands.admin.*;
 import com.godson.kekbot.command.commands.fun.*;
+import com.godson.kekbot.command.commands.owner.*;
 import com.godson.kekbot.command.commands.general.*;
-import com.godson.kekbot.command.commands.general.Shutdown;
 import com.godson.kekbot.command.commands.meme.*;
 import com.godson.kekbot.command.commands.ping;
 import org.apache.commons.io.FileUtils;
@@ -67,7 +67,7 @@ public class KekBot {
             CommandRegistry.getForClient(client).register(Salt.salt);
             CommandRegistry.getForClient(client).register(JustRight.justRight);
             CommandRegistry.getForClient(client).register(Zombo.zombo);
-            CommandRegistry.getForClient(client).register(AssBan.assBan);
+            CommandRegistry.getForClient(client).register(GetInvite.getInvite);
             CommandRegistry.getForClient(client).register(Ban.ban);
             CommandRegistry.getForClient(client).register(Kick.kick);
             CommandRegistry.getForClient(client).register(Prefix.prefix);
@@ -84,6 +84,7 @@ public class KekBot {
             CommandRegistry.getForClient(client).register(AllowedUsers.allowedUsers);
             CommandRegistry.getForClient(client).register(CoinFlip.coinFlip);
             CommandRegistry.getForClient(client).register(Roll.roll);
+            CommandRegistry.getForClient(client).register(ListServers.listServers);
         } else {
             System.out.println("Token not found! (Make sure the filename is \"token.txt\", it's case sensitive.");
         }

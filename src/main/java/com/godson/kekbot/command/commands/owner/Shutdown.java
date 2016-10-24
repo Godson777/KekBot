@@ -1,4 +1,4 @@
-package com.godson.kekbot.command.commands.general;
+package com.godson.kekbot.command.commands.owner;
 
 import com.darichey.discord.api.Command;
 import com.godson.kekbot.KekBot;
