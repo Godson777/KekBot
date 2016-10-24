@@ -1,11 +1,13 @@
 package com.godson.kekbot.command.commands.owner;
 
 import com.darichey.discord.api.Command;
+import com.godson.kekbot.EasyMessage;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.XMLUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -16,7 +18,7 @@ public class ListServers {
                     List<String> guilds = new ArrayList<String>();
                     List<String> pages = new ArrayList<String>();
                     KekBot.client.getGuilds().forEach(guild -> {
-                        guilds.add(guild.getName() + "(in shard " + guild.getShard() + "/" + KekBot.client.getShardCount() + ")");
+                        guilds.add(guild.getName() + " <in shard " + (guild.getShard().getInfo()[0]+1) + "/" + KekBot.client.getShardCount() + ">");
                     });
                     for (int i = 0; i < KekBot.client.getGuilds().size(); i += 25) {
                         try {
@@ -25,6 +27,7 @@ public class ListServers {
                             pages.add(StringUtils.join(guilds.subList(i, guilds.size()), "\n"));
                         }
                     }
+                    EasyMessage.send(context.getMessage().getChannel(), "```md\n" + pages.get(0) + "```");
                 }
             });
 }

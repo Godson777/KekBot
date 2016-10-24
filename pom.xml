@@ -28,6 +28,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson-parent</artifactId>
+            <version>LATEST</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.github.Godson777</groupId>
             <artifactId>Commands4J</artifactId>
             <version>52eae9e598</version>
