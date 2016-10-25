@@ -9,18 +9,17 @@ import com.godson.kekbot.command.commands.meme.*;
 import com.godson.kekbot.command.commands.owner.*;
 import com.godson.kekbot.command.commands.owner.Shutdown;
 import com.godson.kekbot.command.commands.ping;
+import net.dv8tion.jda.JDA;
+import net.dv8tion.jda.JDABuilder;
 import org.apache.commons.io.FileUtils;
-import sx.blah.discord.Discord4J;
-import sx.blah.discord.api.ClientBuilder;
-import sx.blah.discord.api.IDiscordClient;
-import sx.blah.discord.util.DiscordException;
 
+import javax.security.auth.login.LoginException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
 public class KekBot {
-    public static IDiscordClient client;
+    public static JDA client;
     public static final String version;
     public static UserStates states = new UserStates();
 
@@ -37,8 +36,7 @@ public class KekBot {
         version = properties.getProperty("kekbot.version");
     }
 
-    public static void main(String[] args) throws DiscordException {
-        Discord4J.disableChannelWarnings();
+    public static void main(String[] args) throws LoginException, InterruptedException {
         String token = null;
         File tokenFile = new File("token.txt");
         if (tokenFile.exists()) {
@@ -47,8 +45,8 @@ public class KekBot {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            client = new ClientBuilder().withToken(token).login();
-            client.getDispatcher().registerListener(new Listener());
+            client = new JDABuilder().setBotToken(token).buildBlocking();
+            client.addEventListener(new Listener());
 
             CommandRegistry.getForClient(client).register(ping.test);
             CommandRegistry.getForClient(client).register(Help.help);

@@ -6,6 +6,8 @@ import com.darichey.discord.api.CommandRegistry;
 import com.godson.kekbot.EasyMessage;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.XMLUtils;
+import net.dv8tion.jda.Permission;
+import net.dv8tion.jda.entities.TextChannel;
 import org.jdom2.JDOMException;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.Permissions;
@@ -18,16 +20,16 @@ public class Announce {
             .withCategory(CommandCategory.ADMIN)
             .withDescription("Allows you to config various \"announcement\" settings, including the welcome message, farewell message, and KekBot's broadcasts.")
             .withUsage("{p}announce <welcome|farewell|broadcasts>")
-            .userRequiredPermissions(EnumSet.of(Permissions.ADMINISTRATOR))
+            .userRequiredPermissions(Permission.ADMINISTRATOR)
             .onExecuted(context -> {
-                IChannel channel = context.getMessage().getChannel();
+                TextChannel channel = context.getMessage().getTextChannel();
                 String prefix = CommandRegistry.getForClient(KekBot.client).getPrefixForGuild(context.getMessage().getGuild()) == null
                         ? CommandRegistry.getForClient(KekBot.client).getPrefix()
                         : CommandRegistry.getForClient(KekBot.client).getPrefixForGuild(context.getMessage().getGuild());
                 String rawSplit[] = context.getMessage().getContent().split(" ", 4);
                 String serverID = context.getMessage().getGuild().getID();
                 if (rawSplit.length == 1) {
-                    EasyMessage.send(channel, "```md\n[Command](announce)" +
+                    channel.sendMessage("```md\n[Command](announce)" +
                             "\n\n[Category](Administration)" +
                             "\n\n[Description](Allows you to config various \"announcement\" settings, including the welcome message, farewell message, and KekBot's broadcasts.)" +
                             "\n\n# Paramaters (<> Required, {} Optional)" +
@@ -37,7 +39,7 @@ public class Announce {
                         switch (rawSplit[1]) {
                             case "welcome":
                                 if (rawSplit.length == 2) {
-                                    EasyMessage.send(channel, "```md\n[Subcommand](announce welcome)" +
+                                    channel.sendMessage("```md\n[Subcommand](announce welcome)" +
                                             "\n\n[Description](Allows the user to set the welcome message, the channel the message will be sent to, as well as review their server's settings.)" +
                                             "\n\n# Paramaters (<> Required, {} Optional)" +
                                             "\n[Usage](" + prefix + "announce welcome <message|channel|review>)```");
@@ -47,28 +49,28 @@ public class Announce {
                                             if (rawSplit.length >= 4) {
                                                 if (rawSplit[3].equals("reset")) {
                                                     XMLUtils.deleteWelcomeMessage(serverID);
-                                                    EasyMessage.send(channel, "Done, I will no longer remember what to tell people when they join this server.");
+                                                    channel.sendMessage("Done, I will no longer remember what to tell people when they join this server.");
                                                 } else {
                                                     XMLUtils.setWelcomeMessage(serverID, channel, rawSplit[3]);
                                                 }
                                             } else {
-                                                EasyMessage.send(channel, "What's the message? :neutral_face:");
+                                                channel.sendMessage("What's the message? :neutral_face:");
                                             }
                                             break;
                                         case "channel":
                                             if (rawSplit.length >= 4) {
                                                 if (rawSplit[3].equals("reset")) {
                                                     XMLUtils.deleteWelcomeChannel(serverID);
-                                                    EasyMessage.send(channel, "Done, I will no longer remember what channel to welcome people in.");
+                                                    channel.sendMessage("Done, I will no longer remember what channel to welcome people in.");
                                                 } else {
                                                     if (context.getMessage().getChannelMentions().size() == 0) {
-                                                        EasyMessage.send(channel, "The channel you want to assign welcomes to *must* be in the form of a mention1");
+                                                        channel.sendMessage("The channel you want to assign welcomes to *must* be in the form of a mention1");
                                                     } else {
                                                         XMLUtils.setWelcomeChannel(serverID, channel, context.getMessage().getChannelMentions().get(0));
                                                     }
                                                 }
                                             } else {
-                                                EasyMessage.send(channel, "Where am I supposed to welcome new people? :neutral_face:");
+                                                channel.sendMessage("Where am I supposed to welcome new people? :neutral_face:");
                                             }
                                             break;
                                         case "review":
