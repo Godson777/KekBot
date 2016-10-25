@@ -24,7 +24,7 @@
         <dependency>
             <groupId>com.github.austinv11</groupId>
             <artifactId>Discord4j</artifactId>
-            <version>11196c9</version>
+            <version>175a23a</version>
         </dependency>
 
         <dependency>

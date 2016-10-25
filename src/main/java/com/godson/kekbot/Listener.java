@@ -38,7 +38,7 @@ public class Listener {
     SimpleDateFormat ft2 = new SimpleDateFormat("[HH:mm:ss]: ");
     Date start = new Date();
 
-    @EventSubscriber
+    /*@EventSubscriber
     public void onReady(ReadyEvent event) {
         //Announce Ready
         out.println("KekBot is ready to roll!");
@@ -47,7 +47,7 @@ public class Listener {
         gameStatusTimer.schedule(new GameStatus(), 0, TimeUnit.MINUTES.toMillis(10));
         //Set startup time
         start = Calendar.getInstance().getTime();
-    }
+    }*/
 
     @EventSubscriber
     public void logMessage(MessageReceivedEvent event) {
@@ -559,7 +559,6 @@ public class Listener {
 
         }
     }
-
 
     @EventSubscriber
     public void onInviteEvent(InviteReceivedEvent event) {
