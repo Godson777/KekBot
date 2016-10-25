@@ -47,7 +47,7 @@ public class KekBot {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            client = new ClientBuilder().withToken(token).withShards(2).login();
+            client = new ClientBuilder().withToken(token).login();
             client.getDispatcher().registerListener(new Listener());
 
             CommandRegistry.getForClient(client).register(ping.test);
