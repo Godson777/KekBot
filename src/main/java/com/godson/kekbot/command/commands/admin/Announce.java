@@ -3,17 +3,13 @@ package com.godson.kekbot.command.commands.admin;
 import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
 import com.darichey.discord.api.CommandRegistry;
-import com.godson.kekbot.EasyMessage;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.XMLUtils;
 import net.dv8tion.jda.Permission;
 import net.dv8tion.jda.entities.TextChannel;
 import org.jdom2.JDOMException;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.Permissions;
 
 import java.io.IOException;
-import java.util.EnumSet;
 
 public class Announce {
     public static Command announce = new Command("announce")
@@ -22,12 +18,12 @@ public class Announce {
             .withUsage("{p}announce <welcome|farewell|broadcasts>")
             .userRequiredPermissions(Permission.ADMINISTRATOR)
             .onExecuted(context -> {
-                TextChannel channel = context.getMessage().getTextChannel();
-                String prefix = CommandRegistry.getForClient(KekBot.client).getPrefixForGuild(context.getMessage().getGuild()) == null
+                TextChannel channel = context.getTextChannel();
+                String prefix = CommandRegistry.getForClient(KekBot.client).getPrefixForGuild(context.getGuild()) == null
                         ? CommandRegistry.getForClient(KekBot.client).getPrefix()
-                        : CommandRegistry.getForClient(KekBot.client).getPrefixForGuild(context.getMessage().getGuild());
+                        : CommandRegistry.getForClient(KekBot.client).getPrefixForGuild(context.getGuild());
                 String rawSplit[] = context.getMessage().getContent().split(" ", 4);
-                String serverID = context.getMessage().getGuild().getID();
+                String serverID = context.getGuild().getId();
                 if (rawSplit.length == 1) {
                     channel.sendMessage("```md\n[Command](announce)" +
                             "\n\n[Category](Administration)" +
@@ -63,10 +59,10 @@ public class Announce {
                                                     XMLUtils.deleteWelcomeChannel(serverID);
                                                     channel.sendMessage("Done, I will no longer remember what channel to welcome people in.");
                                                 } else {
-                                                    if (context.getMessage().getChannelMentions().size() == 0) {
+                                                    if (context.getMessage().getMentionedChannels().size() == 0) {
                                                         channel.sendMessage("The channel you want to assign welcomes to *must* be in the form of a mention1");
                                                     } else {
-                                                        XMLUtils.setWelcomeChannel(serverID, channel, context.getMessage().getChannelMentions().get(0));
+                                                        XMLUtils.setWelcomeChannel(serverID, channel, context.getMessage().getMentionedChannels().get(0));
                                                     }
                                                 }
                                             } else {
@@ -82,7 +78,7 @@ public class Announce {
                                 break;
                             case "farewell":
                                 if (rawSplit.length == 2) {
-                                    EasyMessage.send(channel, "```md\n[Subcommand](announce farewell)" +
+                                    channel.sendMessage("```md\n[Subcommand](announce farewell)" +
                                             "\n\n[Description](Allows the user to set the farewell message, the channel the message will be sent to, as well as review their server's settings.)" +
                                             "\n\n# Paramaters (<> Required, {} Optional)" +
                                             "\n[Usage](" + prefix + "announce farewell <message|channel|review>)```");
@@ -92,29 +88,29 @@ public class Announce {
                                             if (rawSplit.length == 4) {
                                                 if (rawSplit[3].equals("reset")) {
                                                     XMLUtils.deleteGoodbyeMessage(serverID);
-                                                    EasyMessage.send(channel, "Done, I will go back to using the default message.");
+                                                    channel.sendMessage("Done, I will go back to using the default message.");
                                                 } else {
                                                     XMLUtils.setGoodbyeMessage(serverID, channel, rawSplit[3]);
                                                 }
                                             } else {
-                                                EasyMessage.send(channel, "What do you want me to tell everyone when people leave? :neutral_face:");
+                                                channel.sendMessage("What do you want me to tell everyone when people leave? :neutral_face:");
                                             }
                                             break;
                                         case "channel":
                                             if (rawSplit.length == 4) {
                                                 if (rawSplit[3].equals("reset")) {
                                                     XMLUtils.deleteGoodbyeChannel(serverID);
-                                                    EasyMessage.send(channel, "Done, I will no longer remember where to announce people leaving this server.");
+                                                    channel.sendMessage("Done, I will no longer remember where to announce people leaving this server.");
                                                 } else {
-                                                    if (context.getMessage().getChannelMentions().size() == 0) {
-                                                        EasyMessage.send(channel, "The channel you want to assign welcomes to *must* be in the form of a mention1");
+                                                    if (context.getMessage().getMentionedChannels().size() == 0) {
+                                                        channel.sendMessage("The channel you want to assign welcomes to *must* be in the form of a mention1");
                                                     } else {
-                                                        XMLUtils.setGoodbyeChannel(serverID, channel, context.getMessage().getChannelMentions().get(0));
-                                                        EasyMessage.send(channel, "Alright, I will let everyone know when someone leaves in " + context.getMessage().getChannelMentions().get(0).mention() + ". :thumbsup:");
+                                                        XMLUtils.setGoodbyeChannel(serverID, channel, context.getMessage().getMentionedChannels().get(0));
+                                                        channel.sendMessage("Alright, I will let everyone know when someone leaves in " + context.getMessage().getMentionedChannels().get(0).getAsMention() + ". :thumbsup:");
                                                     }
                                                 }
                                             } else {
-                                                EasyMessage.send(channel, "Where do you want me to tell everyone about people leaving? :neutral_face:");
+                                                channel.sendMessage("Where do you want me to tell everyone about people leaving? :neutral_face:");
                                             }
                                             break;
                                         case "review":
@@ -125,7 +121,7 @@ public class Announce {
                                 break;
                             case "broadcasts":
                                 if (rawSplit.length == 2) {
-                                    EasyMessage.send(channel, "```md\n[Subcommand](announce broadcasts)" +
+                                    channel.sendMessage("```md\n[Subcommand](announce broadcasts)" +
                                             "\n\n[Description](Allows the user to enable or disabled KekBot's broadcasts, set the channel KekBot's broadcats will be sent to, as well as review their server's settings.)" +
                                             "\n\n# Paramaters (<> Required, {} Optional)" +
                                             "\n[Usage](" + prefix + "announce broadcasts <channel|enable|disable|review>)```");
@@ -135,17 +131,17 @@ public class Announce {
                                             if (rawSplit.length == 4) {
                                                 if (rawSplit[3].equals("reset")) {
                                                     XMLUtils.deleteBroadcastsChannel(serverID);
-                                                    EasyMessage.send(channel, "Done, I will revert to using the first channel I find.");
+                                                    channel.sendMessage("Done, I will revert to using the first channel I find.");
                                                 } else {
-                                                    if (context.getMessage().getChannelMentions().size() == 0) {
-                                                        EasyMessage.send(channel, "The channel you want to assign welcomes to *must* be in the form of a mention1");
+                                                    if (context.getMessage().getMentionedChannels().size() == 0) {
+                                                        channel.sendMessage("The channel you want to assign welcomes to *must* be in the form of a mention1");
                                                     } else {
-                                                        XMLUtils.setBroadcastsChannel(serverID, context.getMessage().getChannelMentions().get(0).getID());
-                                                        EasyMessage.send(channel, "Alright, all future broadcasts will be posted in " + context.getMessage().getChannelMentions().get(0).mention() + ". :thumbsup:");
+                                                        XMLUtils.setBroadcastsChannel(serverID, context.getMessage().getMentionedChannels().get(0).getId());
+                                                        channel.sendMessage("Alright, all future broadcasts will be posted in " + context.getMessage().getMentionedChannels().get(0).getAsMention() + ". :thumbsup:");
                                                     }
                                                 }
                                             } else {
-                                                EasyMessage.send(channel, "Where do you want Broadcasts to be sent? :neutral_face:");
+                                                channel.sendMessage("Where do you want Broadcasts to be sent? :neutral_face:");
                                             }
                                             break;
                                         case "enable":
@@ -165,6 +161,6 @@ public class Announce {
                     }
                 }
             })
-            .onFailure((context, reason) -> EasyMessage.send(context.getMessage().getChannel(), context.getMessage().getAuthor().mention() + ", you don't have the `Administrator` permission!")
+            .onFailure((context, reason) -> context.getTextChannel().sendMessage(context.getMessage().getAuthor().getAsMention() + ", you don't have the `Administrator` permission!")
             );
 }
