@@ -69,9 +69,9 @@ public class Emojify {
             .onExecuted(context -> {
                 String rawSplit[] = context.getMessage().getContent().split(" ", 2);
                 if (rawSplit.length == 1) {
-                    EasyMessage.send(context.getMessage().getChannel(), "No message specified! :cry:");
+                    context.getTextChannel().sendMessage("No message specified! :cry:");
                 } else {
-                    EasyMessage.send(context.getMessage().getChannel(), emojify(rawSplit[1]));
+                    context.getTextChannel().sendMessage(emojify(rawSplit[1]));
                 }
             });
 }

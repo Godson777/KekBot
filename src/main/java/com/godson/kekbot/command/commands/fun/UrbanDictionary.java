@@ -4,11 +4,10 @@ import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.godson.kekbot.EasyMessage;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import sx.blah.discord.handle.obj.IChannel;
+import net.dv8tion.jda.entities.TextChannel;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,9 +21,9 @@ public class UrbanDictionary {
             .withUsage("{p}ud <term>")
             .onExecuted(context -> {
                 String rawSplit[] = context.getMessage().getContent().split(" ", 2);
-                IChannel channel = context.getMessage().getChannel();
+                TextChannel channel = context.getTextChannel();
                 if (rawSplit.length == 1) {
-                    EasyMessage.send(channel, "Next time, supply a word or phrase for me to look up!");
+                    channel.sendMessage("Next time, supply a word or phrase for me to look up!");
                 } else {
                     try {
                         HttpResponse<String> response = Unirest.get("https://mashape-community-urban-dictionary.p.mashape.com/define?term=" + rawSplit[1].replace(" ", "-"))
@@ -48,13 +47,13 @@ public class UrbanDictionary {
                                     "*\n\nDefinition: " + dictionary.path("definition").textValue() +
                                     "\n\nExamples: " + dictionary.path("example").textValue() + "\n\n" + dictionary.path("permalink").textValue();
                             if (ud.length() > 2000) {
-                                EasyMessage.send(channel, "The definition I found is too long! Either try again to get receive a different one, or visit this link to see the" +
+                                channel.sendMessage("The definition I found is too long! Either try again to get receive a different one, or visit this link to see the" +
                                         "definition I found! \n" + dictionary.path("permalink").textValue());
                             } else {
-                                EasyMessage.send(channel, ud);
+                                channel.sendMessage(ud);
                             }
                         } else {
-                            EasyMessage.send(channel, "No definition found.");
+                            channel.sendMessage("No definition found.");
                         }
                     } catch (UnirestException | IOException e) {
                         e.printStackTrace();

@@ -17,13 +17,13 @@ public class Roll {
                 int specifiedDie = 0;
                 String args[] = context.getArgs();
                 if (args.length == 0) {
-                    EasyMessage.send(context.getMessage().getChannel(), Emojify.emojify(String.valueOf(defaultDie)));
+                    context.getTextChannel().sendMessage(Emojify.emojify(String.valueOf(defaultDie)));
                 } else {
                     try {
                         specifiedDie = random.nextInt(Integer.valueOf(args[0]));
-                        EasyMessage.send(context.getMessage().getChannel(), Emojify.emojify(String.valueOf(specifiedDie)));
+                        context.getTextChannel().sendMessage(Emojify.emojify(String.valueOf(specifiedDie)));
                     } catch (NumberFormatException e) {
-                        EasyMessage.send(context.getMessage().getChannel(), "\"" + args[0] + "\" is not a valid number!");
+                        context.getTextChannel().sendMessage("\"" + args[0] + "\" is not a valid number!");
                     }
                 }
             });

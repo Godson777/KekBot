@@ -10,5 +10,5 @@ public class Shrug {
             .withDescription("\"¯\\_(ツ)_/¯\"")
             .withUsage("{p}lenny")
             .deleteCommand(true)
-            .onExecuted(context -> EasyMessage.send(context.getMessage().getChannel(), "¯\\_(ツ)_/¯"));
+            .onExecuted(context -> context.getTextChannel().sendMessage("¯\\_(ツ)_/¯"));
 }

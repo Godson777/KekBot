@@ -10,5 +10,5 @@ public class Lenny {
             .withDescription("\"( ͡° ͜ʖ ͡°)\"")
             .withUsage("{p}lenny")
             .deleteCommand(true)
-            .onExecuted(context -> EasyMessage.send(context.getMessage().getChannel(), "( ͡° ͜ʖ ͡°)"));
+            .onExecuted(context -> context.getTextChannel().sendMessage("( ͡° ͜ʖ ͡°)"));
 }

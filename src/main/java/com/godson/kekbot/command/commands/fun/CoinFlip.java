@@ -21,6 +21,6 @@ public class CoinFlip {
                 } else {
                     coin = "**TAILS!**";
                 }
-                EasyMessage.send(context.getMessage().getChannel(), context.getMessage().getAuthor().mention() + " Flipped the coin and it landed on... " + coin);
+                context.getTextChannel().sendMessage(context.getMessage().getAuthor().getAsMention() + " Flipped the coin and it landed on... " + coin);
             });
 }
