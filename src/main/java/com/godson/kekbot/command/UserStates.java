@@ -2,25 +2,25 @@ package com.godson.kekbot.command;
 
 import com.darichey.discord.api.CommandRegistry;
 import com.godson.kekbot.KekBot;
-import sx.blah.discord.handle.obj.IGuild;
-import sx.blah.discord.handle.obj.IUser;
+import net.dv8tion.jda.entities.Guild;
+import net.dv8tion.jda.entities.User;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class UserStates {
 
-    private Map<String, Map<IGuild, UserState>> assignedUsers = new HashMap<>();
+    private Map<String, Map<Guild, UserState>> assignedUsers = new HashMap<>();
 
     public UserStates() {}
 
-    public void setUserState(IUser user, IGuild guild, UserState state) {
-        String userID = user.getID();
+    public void setUserState(User user, Guild guild, UserState state) {
+        String userID = user.getId();
         if (!assignedUsers.containsKey(userID)) {
             assignedUsers.put(userID, new HashMap<>());
         }
 
-        Map<IGuild, UserState> assignedGuilds = assignedUsers.get(userID);
+        Map<Guild, UserState> assignedGuilds = assignedUsers.get(userID);
 
         if (!assignedGuilds.containsKey(guild)) {
             assignedGuilds.put(guild, state);
@@ -31,8 +31,8 @@ public class UserStates {
         }
     }
 
-    public void unsetUserState(IUser user, IGuild guild) {
-        String userID = user.getID();
+    public void unsetUserState(User user, Guild guild) {
+        String userID = user.getId();
         if (assignedUsers.containsKey(userID)) {
             if (assignedUsers.get(userID).containsKey(guild)) {
                 assignedUsers.get(userID).remove(guild);
@@ -41,13 +41,13 @@ public class UserStates {
         }
     }
 
-    public void changeUserState(IUser user, IGuild guild, UserState newState) {
+    public void changeUserState(User user, Guild guild, UserState newState) {
         unsetUserState(user, guild);
         setUserState(user, guild, newState);
     }
 
-    public UserState checkUserState(IUser user, IGuild guild) {
-        String userID = user.getID();
+    public UserState checkUserState(User user, Guild guild) {
+        String userID = user.getId();
         if (assignedUsers.containsKey(userID)) {
             if (assignedUsers.get(userID).containsKey(guild)) {
                 return assignedUsers.get(userID).get(guild);
