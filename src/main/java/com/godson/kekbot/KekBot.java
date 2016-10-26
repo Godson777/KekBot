@@ -45,7 +45,7 @@ public class KekBot {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            client = new JDABuilder().setBotToken(token).buildBlocking();
+            client = new JDABuilder().setBotToken(token).buildAsync();
             client.addEventListener(new Listener());
 
             CommandRegistry.getForClient(client).register(ping.test);

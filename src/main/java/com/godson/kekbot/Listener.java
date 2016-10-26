@@ -11,6 +11,8 @@ import net.dv8tion.jda.entities.TextChannel;
 import net.dv8tion.jda.entities.VoiceChannel;
 import net.dv8tion.jda.events.InviteReceivedEvent;
 import net.dv8tion.jda.events.ReadyEvent;
+import net.dv8tion.jda.events.guild.GenericGuildEvent;
+import net.dv8tion.jda.events.guild.GuildAvailableEvent;
 import net.dv8tion.jda.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.events.guild.GuildUpdateEvent;
 import net.dv8tion.jda.events.guild.member.GuildMemberJoinEvent;
@@ -47,12 +49,86 @@ public class Listener extends ListenerAdapter {
     @Override
     public void onReady(ReadyEvent event) {
         //Announce Ready
-        out.println("KekBot is ready to roll!");
+        System.out.println("KekBot is ready to roll!");
         //Randomize the game the bot is playing.
         Timer gameStatusTimer = new Timer();
         gameStatusTimer.schedule(new GameStatus(), 0, TimeUnit.MINUTES.toMillis(10));
         //Set startup time
         start = Calendar.getInstance().getTime();
+
+        KekBot.client.getGuilds().forEach(guild -> {
+            out.println(ft2.format(time) + "Joined/Created server: \"" + guild.getName() + "\" (ID: " + guild.getId() + ")");
+            try {
+                String server = guild.getId();
+                Document document = null;
+                Element root = null;
+                File xmlFile = new File("settings\\" + server + ".xml");
+                if (xmlFile.exists()) {
+                    // try to load document from xml file if it exist
+                    // create a file input stream
+                    FileInputStream fis = new FileInputStream(xmlFile);
+                    // create a sax builder to parse the document
+                    SAXBuilder sb = new SAXBuilder();
+                    // parse the xml content provided by the file input stream and create a Document object
+                    document = sb.build(fis);
+                    // get the root element of the document
+                    root = document.getRootElement();
+                    fis.close();
+                } else {
+                    // if it does not exist create a new document and new root
+                    document = new Document();
+                    root = new Element("settings");
+                    guild.getTextChannels().get(0).sendMessage("Thanks for inviting me!");
+                }
+
+                if (root.getChild("name") != null) {
+                    if (!root.getChild("name").getText().equals(guild.getName())) {
+                        root.getChild("name").setText(guild.getName());
+
+                        document.setContent(root);
+                        try {
+                            FileWriter writer = new FileWriter("settings\\" + server + ".xml");
+                            XMLOutputter outputter = new XMLOutputter();
+                            outputter.setFormat(Format.getPrettyFormat());
+                            outputter.output(document, writer);
+                            writer.close(); // close writer
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                } else {
+                    root.addContent(new Element("name").setText(guild.getName()));
+                    document.setContent(root);
+                    try {
+                        FileWriter writer = new FileWriter("settings\\" + server + ".xml");
+                        XMLOutputter outputter = new XMLOutputter();
+                        outputter.setFormat(Format.getPrettyFormat());
+                        outputter.output(document, writer);
+                        writer.close(); // close writer
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            } catch (IOException | JDOMException e) {
+                e.printStackTrace();
+            }
+
+            if (XMLUtils.getPrefix(guild) != null) {
+                CommandRegistry.getForClient(KekBot.client).setPrefixForGuild(guild, XMLUtils.getPrefix(guild));
+            }
+
+            if (guild.getId().equals("221910104495095808")) {
+                CommandRegistry.getForClient(KekBot.client).customRegister(new Command("customTest")
+                        .withCategory(TEST)
+                        .withDescription("Just a test command.")
+                        .withUsage("{p}test")
+                        .caseSensitive(true)
+                        .onExecuted(context -> {
+                            context.getTextChannel().sendMessage("Test Successful! Custom Comands now work!");
+                        }), KekBot.client.getGuildById("221910104495095808"));
+            }
+        });
     }
 
     @Override
@@ -314,7 +390,7 @@ public class Listener extends ListenerAdapter {
                             }
                         }
 
-                        if (message.equals("<@213151748855037953> prefix") || message.equals("<@!213151748855037953> prefix")) {
+                        if (message.equals(KekBot.client.getSelfInfo().getAsMention() + " prefix")) {
                             channel.sendMessage("The prefix for __**" + server.getName() + "**__ is: **" + prefix + "**");
                         }
 
@@ -527,7 +603,7 @@ public class Listener extends ListenerAdapter {
 
     }
 
-    @Override
+    /*@Override
     public void onGuildJoin(GuildJoinEvent event) {
         out.println(ft2.format(time) + "Joined/Created server: \"" + event.getGuild().getName() + "\" (ID: " + event.getGuild().getId() + ")");
         try {
@@ -600,7 +676,7 @@ public class Listener extends ListenerAdapter {
                         context.getTextChannel().sendMessage("Test Successful! Custom Comands now work!");
                     }), KekBot.client.getGuildById("221910104495095808"));
         }
-    }
+    }*/
 
     /*@EventSubscriber
     public void onTrackFinishEvent(TrackFinishEvent event) {
