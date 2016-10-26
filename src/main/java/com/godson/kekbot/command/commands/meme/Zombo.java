@@ -2,13 +2,10 @@ package com.godson.kekbot.command.commands.meme;
 
 import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
-import com.godson.kekbot.EasyMessage;
 import com.godson.kekbot.KekBot;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IGuild;
-import sx.blah.discord.handle.obj.IRole;
-import sx.blah.discord.util.MissingPermissionsException;
-import sx.blah.discord.util.audio.AudioPlayer;
+import net.dv8tion.jda.entities.Guild;
+import net.dv8tion.jda.entities.Role;
+import net.dv8tion.jda.entities.TextChannel;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.File;
@@ -22,15 +19,15 @@ public class Zombo {
             .withDescription("Welcome, to zombocom...")
             .withUsage("{p}zombo")
             .onExecuted(context -> {
-                IGuild server = context.getMessage().getGuild();
-                IChannel channel = context.getMessage().getChannel();
-                List<IRole> checkForMeme = server.getRolesByName("Living Meme");
+                Guild server = context.getGuild();
+                TextChannel channel = context.getTextChannel();
+                List<Role> checkForMeme = server.getRolesByName("Living Meme");
                 if (checkForMeme.size() == 0) {
-                    EasyMessage.send(channel, ":exclamation: __**Living Meme**__ role not found! Please add this role and assign it to me!");
-                } else if (checkForMeme.size() == 1) {
-                    IRole meme = checkForMeme.get(0);
-                    if (KekBot.client.getOurUser().getRolesForGuild(server).contains(meme)) {
-                        if (context.getMessage().getAuthor().getConnectedVoiceChannels().size() == 0) {
+                    channel.sendMessage(":exclamation: __**Living Meme**__ role not found! Please add this role and assign it to me!");
+                } else {
+                    Role meme = checkForMeme.get(0);
+                    if (server.getRolesForUser(KekBot.client.getSelfInfo()).contains(meme)) {
+                        /*if (context.getMessage().getAuthor().getConnectedVoiceChannels().size() == 0) {
                             EasyMessage.send(channel, "This command requires you to be in a voice channel!");
                         } else {
                             if (context.getMessage().getAuthor().getConnectedVoiceChannels().get(0).getGuild() == server) {
@@ -74,9 +71,9 @@ public class Zombo {
                             } else {
                                 EasyMessage.send(channel, "This command requires you to be in a voice channel!");
                             }
-                        }
+                        }*/
                     } else {
-                        EasyMessage.send(channel, ":exclamation: This command requires me to have the __**Living Meme**__ role.");
+                        channel.sendMessage(":exclamation: This command requires me to have the __**Living Meme**__ role.");
                     }
                 }
             });

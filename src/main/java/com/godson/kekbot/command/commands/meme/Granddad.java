@@ -4,11 +4,9 @@ import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
 import com.godson.kekbot.EasyMessage;
 import com.godson.kekbot.KekBot;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IGuild;
-import sx.blah.discord.handle.obj.IRole;
-import sx.blah.discord.util.MissingPermissionsException;
-import sx.blah.discord.util.audio.AudioPlayer;
+import net.dv8tion.jda.entities.Guild;
+import net.dv8tion.jda.entities.Role;
+import net.dv8tion.jda.entities.TextChannel;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.File;
@@ -22,15 +20,15 @@ public class Granddad {
             .withDescription("FLEEENSTONES!?")
             .withUsage("{p}granddad")
             .onExecuted(context -> {
-                IChannel channel = context.getMessage().getChannel();
-                IGuild server = context.getMessage().getGuild();
-                List<IRole> checkForMeme = server.getRolesByName("Living Meme");
+                TextChannel channel = context.getTextChannel();
+                Guild server = context.getGuild();
+                List<Role> checkForMeme = server.getRolesByName("Living Meme");
                 if (checkForMeme.size() == 0) {
-                    EasyMessage.send(channel, ":exclamation: __**Living Meme**__ role not found! Please add this role and assign it to me!");
+                    channel.sendMessage(":exclamation: __**Living Meme**__ role not found! Please add this role and assign it to me!");
                 } else {
-                    IRole meme = checkForMeme.get(0);
-                    if (KekBot.client.getOurUser().getRolesForGuild(server).contains(meme)) {
-                        if (new File("Granddad").isDirectory()) {
+                    Role meme = checkForMeme.get(0);
+                    if (server.getRolesForUser(KekBot.client.getSelfInfo()).contains(meme)) {
+                        /*if (new File("Granddad").isDirectory()) {
                             File granddads[] = new File("Granddad").listFiles();
                             Random random = new Random();
                             int index = random.nextInt(granddads.length);
@@ -80,9 +78,10 @@ public class Granddad {
                                     EasyMessage.send(channel, "This command requies you to be in a voice channel!");
                                 }
                             }
-                        }
+                        }*/
+                        channel.sendMessage("Currently not available, testing JDA things. :cry:");
                     } else {
-                        EasyMessage.send(channel, ":exclamation: This command requires me to have the __**Living Meme**__ role.");
+                        channel.sendMessage(":exclamation: This command requires me to have the __**Living Meme**__ role.");
                     }
                 }
             });
