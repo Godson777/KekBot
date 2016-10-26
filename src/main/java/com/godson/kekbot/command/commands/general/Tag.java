@@ -6,10 +6,11 @@ import com.darichey.discord.api.CommandRegistry;
 import com.godson.kekbot.EasyMessage;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.XMLUtils;
+import net.dv8tion.jda.Permission;
+import net.dv8tion.jda.entities.TextChannel;
+import net.dv8tion.jda.utils.PermissionUtil;
 import org.jdom2.IllegalNameException;
 import org.jdom2.JDOMException;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.Permissions;
 
 import java.io.IOException;
 
@@ -21,17 +22,17 @@ public class Tag {
             .withUsage("{p}tag {list|add|remove|list} <tag name>")
             .onExecuted(context -> {
                 String rawSplit[] = context.getMessage().getContent().split(" ", 4);
-                IChannel channel = context.getMessage().getChannel();
-                String serverID = context.getMessage().getGuild().getID();
-                String prefix = CommandRegistry.getForClient(KekBot.client).getPrefixForGuild(context.getMessage().getGuild()) == null
+                TextChannel channel = context.getTextChannel();
+                String serverID = context.getGuild().getId();
+                String prefix = CommandRegistry.getForClient(KekBot.client).getPrefixForGuild(context.getGuild()) == null
                         ? CommandRegistry.getForClient(KekBot.client).getPrefix()
-                        : CommandRegistry.getForClient(KekBot.client).getPrefixForGuild(context.getMessage().getGuild());
+                        : CommandRegistry.getForClient(KekBot.client).getPrefixForGuild(context.getGuild());
                 if (rawSplit.length == 1) {
-                    EasyMessage.send(channel, "Not enough parameters. Check " + prefix + "help for usage on this command!");
+                    channel.sendMessage("Not enough parameters. Check " + prefix + "help for usage on this command!");
                 } else if (rawSplit.length >= 2) {
                     switch (rawSplit[1]) {
                         case "add":
-                            if (channel.getModifiedPermissions(KekBot.client.getOurUser()).contains(Permissions.SEND_MESSAGES)) {
+                            if (PermissionUtil.checkPermission(channel, KekBot.client.getSelfInfo(), Permission.MESSAGE_WRITE)) {
                                 if (rawSplit.length >= 3) {
                                     if (rawSplit.length == 4) {
                                         try {
@@ -39,13 +40,13 @@ public class Tag {
                                         } catch (IOException | JDOMException e) {
                                             e.printStackTrace();
                                         } catch (IllegalNameException e) {
-                                            EasyMessage.send(channel, "Tag names must not contain any symbols such as `<, [, {, etc...` and cannot start with a number!");
+                                            channel.sendMessage("Tag names must not contain any symbols such as `<, [, {, etc...` and cannot start with a number!");
                                         }
                                     } else {
-                                        EasyMessage.send(channel, "No value specified for \"" + rawSplit[2] + "\"!");
+                                        channel.sendMessage("No value specified for \"" + rawSplit[2] + "\"!");
                                     }
                                 } else {
-                                    EasyMessage.send(channel, "```md" +
+                                    channel.sendMessage("```md" +
                                             "\n[Subcommand](tag add)" +
                                             "\n\n[Description](Adds a tag to this server.)" +
                                             "\n\n# Paramaters (<> Required, {} Optional)" +
@@ -55,7 +56,7 @@ public class Tag {
                             break;
                         case "remove":
                             if (rawSplit.length == 2) {
-                                EasyMessage.send(channel, "```md" +
+                                channel.sendMessage("```md" +
                                         "\n[Subcommand](tag remove)" +
                                         "\n\n[Description](Removes a tag from this server, provided if it's your tag, or you have the \"Administrator\" permission.)" +
                                         "\n\n# Paramaters (<> Required, {} Optional)" +
@@ -70,14 +71,14 @@ public class Tag {
                             break;
                         case "list":
                             try {
-                                XMLUtils.listTags(context.getMessage().getGuild(), channel);
+                                XMLUtils.listTags(context.getGuild(), channel);
                             } catch (JDOMException | IOException e) {
                                 e.printStackTrace();
                             }
                             break;
                         case "info":
                             if (rawSplit.length == 2) {
-                                EasyMessage.send(channel, "```md" +
+                                channel.sendMessage("```md" +
                                         "\n[Subcommand](tag info)" +
                                         "\n\n[Description](Gets information on a specified tag, if it exists.)" +
                                         "\n\n# Paramaters (<> Required, {} Optional)" +

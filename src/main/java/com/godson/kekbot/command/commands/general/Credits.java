@@ -6,13 +6,13 @@ import com.godson.kekbot.KekBot;
 
 public class Credits {
     public static Command credits = new Command("credits")
-            .onExecuted(context -> EasyMessage.send(context.getMessage().getChannel(),
+            .onExecuted(context -> context.getTextChannel().sendMessage(
                     "```md" +
-                            "\nCredits:\n\n# Coded By: #\n" + KekBot.client.getUserByID("99405418077364224").getName() +
-                            "\n\n# Memes Supplied By: #\n" + KekBot.client.getUserByID("159671787683184640").getName() +
-                            "\n" + KekBot.client.getUserByID("194197898584391680").getName() +
-                            "\n" + KekBot.client.getUserByID("174713102628028416").getName() +
-                            "\n" + KekBot.client.getUserByID("181569245253992448").getName() +
+                            "\nCredits:\n\n# Coded By: #\n" + KekBot.client.getUserById("99405418077364224").getUsername() +
+                            "\n\n# Memes Supplied By: #\n" + KekBot.client.getUserById("159671787683184640").getUsername() +
+                            "\n" + KekBot.client.getUserById("194197898584391680").getUsername() +
+                            "\n" + KekBot.client.getUserById("174713102628028416").getUsername() +
+                            "\n" + KekBot.client.getUserById("181569245253992448").getUsername() +
                             "\n\n# Special thanks to: #\n" +
                             "Discord4J Team for making D4J in the first place" +
                             "\nPanda for making Command4J" +

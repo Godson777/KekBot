@@ -47,25 +47,25 @@ public class Help {
                         }
                     }
 
-                    EasyMessage.send(context.getMessage().getAuthor(), "__**KekBot**__\n*Your helpful meme-based bot!*\n" +
+                    context.getMessage().getAuthor().getPrivateChannel().sendMessage("__**KekBot**__\n*Your helpful meme-based bot!*\n" +
                             "```md\n" + pages.get(0) + "\n\n" + "[Page](1" + "/" + pages.size() + ")\n" +
                             "# Type \"help <number>\" to view that page!" + "```");
-                    EasyMessage.send(context.getMessage().getChannel(), context.getMessage().getAuthor().mention() + " Alright, check your PMs! :thumbsup:");
+                    context.getTextChannel().sendMessage(context.getMessage().getAuthor().getAsMention() + " Alright, check your PMs! :thumbsup:");
                 } else {
                     String name = args[0].toLowerCase();
                     Optional<Command> cmd = CommandRegistry.getForClient(KekBot.client).getCommandByName(args[0], true);
                     if (cmd.isPresent()) {
                         Command command = cmd.get();
                         Set<String> set = cmd.get().getAliases();
-                        EasyMessage.send(context.getMessage().getChannel(), "```md\n[Command](" + command.getName() + ")" +
+                        context.getTextChannel().sendMessage("```md\n[Command](" + command.getName() + ")" +
                                         (command.getAliases().size() != 0 ? "\n\n[Aliases](" + StringUtils.join(set, ", ") + ")" : "") +
                                 "\n\n[Category](" + command.getCategory() + ")" +
                                 "\n\n[Description](" + command.getDescription() + ")" +
                                 "\n\n# Paramaters (<> Required, {} Optional)" +
-                                "\n[Usage](" + command.getUsage().replace("{p}", (CommandRegistry.getForClient(KekBot.client).getPrefixForGuild(context.getMessage().getGuild()) != null ? CommandRegistry.getForClient(KekBot.client).getPrefixForGuild(context.getMessage().getGuild()) : "$")) + ")```"
+                                "\n[Usage](" + command.getUsage().replace("{p}", (CommandRegistry.getForClient(KekBot.client).getPrefixForGuild(context.getGuild()) != null ? CommandRegistry.getForClient(KekBot.client).getPrefixForGuild(context.getGuild()) : "$")) + ")```"
                         );
                     } else {
-                        EasyMessage.send(context.getMessage().getChannel(), "Command not found.");
+                        context.getTextChannel().sendMessage("Command not found.");
                     }
                 }
 }
