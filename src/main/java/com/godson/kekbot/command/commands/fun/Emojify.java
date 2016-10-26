@@ -2,7 +2,6 @@ package com.godson.kekbot.command.commands.fun;
 
 import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
-import com.godson.kekbot.EasyMessage;
 
 public class Emojify {
     private static final String[] REPLACEMENT = new String[Character.MAX_VALUE+1];

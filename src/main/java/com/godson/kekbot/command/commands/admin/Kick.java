@@ -2,11 +2,8 @@ package com.godson.kekbot.command.commands.admin;
 
 import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
-import com.darichey.discord.api.Command;
 import com.darichey.discord.api.FailureReason;
-import com.godson.kekbot.EasyMessage;
 import com.godson.kekbot.KekBot;
-import net.dv8tion.jda.entities.Channel;
 import net.dv8tion.jda.entities.Guild;
 import net.dv8tion.jda.entities.TextChannel;
 import net.dv8tion.jda.exceptions.PermissionException;

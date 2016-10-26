@@ -42,7 +42,7 @@
         <dependency>
             <groupId>com.github.Godson777</groupId>
             <artifactId>Commands4J</artifactId>
-            <version>22752e8</version>
+            <version>612c8436d8</version>
         </dependency>
 
         <dependency>

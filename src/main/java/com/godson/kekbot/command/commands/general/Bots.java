@@ -2,7 +2,6 @@ package com.godson.kekbot.command.commands.general;
 
 import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
-import com.godson.kekbot.EasyMessage;
 import net.dv8tion.jda.entities.User;
 import org.apache.commons.lang3.StringUtils;
 

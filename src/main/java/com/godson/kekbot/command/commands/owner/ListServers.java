@@ -1,15 +1,12 @@
 package com.godson.kekbot.command.commands.owner;
 
 import com.darichey.discord.api.Command;
-import com.godson.kekbot.EasyMessage;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.XMLUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 public class ListServers {
     public static Command listServers = new Command("listservers")

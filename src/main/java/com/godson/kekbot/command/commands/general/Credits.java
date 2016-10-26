@@ -1,7 +1,6 @@
 package com.godson.kekbot.command.commands.general;
 
 import com.darichey.discord.api.Command;
-import com.godson.kekbot.EasyMessage;
 import com.godson.kekbot.KekBot;
 
 public class Credits {

@@ -2,17 +2,12 @@ package com.godson.kekbot.command.commands.meme;
 
 import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
-import com.godson.kekbot.EasyMessage;
 import com.godson.kekbot.KekBot;
 import net.dv8tion.jda.entities.Guild;
 import net.dv8tion.jda.entities.Role;
 import net.dv8tion.jda.entities.TextChannel;
 
-import javax.sound.sampled.UnsupportedAudioFileException;
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
-import java.util.Random;
 
 public class Granddad {
     public static Command granddad = new Command("granddad")

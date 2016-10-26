@@ -1,14 +1,8 @@
 package com.godson.kekbot;
 
-
-import sx.blah.discord.Discord4J;
-
-import java.io.IOException;
-import java.io.InputStream;
-
 public class Properties {
 
-    public static String getDiscordVersion() {
+    /*public static String getDiscordVersion() {
         java.util.Properties properties = new java.util.Properties();
         InputStream stream = Discord4J.class.getClassLoader().getResourceAsStream("app.properties");
         try {
@@ -18,9 +12,5 @@ public class Properties {
             e.printStackTrace();
         }
         return properties.getProperty("application.version");
-    }
-
-    public static String getBotVersion() {
-        return null;
-    }
+    }*/
 }

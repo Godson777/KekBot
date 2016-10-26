@@ -3,8 +3,6 @@ package com.godson.kekbot.command.commands.admin;
 import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
 import com.darichey.discord.api.FailureReason;
-import com.godson.kekbot.EasyMessage;
-import net.dv8tion.jda.MessageHistory;
 import net.dv8tion.jda.Permission;
 import net.dv8tion.jda.entities.Message;
 import net.dv8tion.jda.entities.TextChannel;
