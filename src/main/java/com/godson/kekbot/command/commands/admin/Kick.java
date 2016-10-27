@@ -4,6 +4,7 @@ import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
 import com.darichey.discord.api.FailureReason;
 import com.godson.kekbot.KekBot;
+import net.dv8tion.jda.Permission;
 import net.dv8tion.jda.entities.Guild;
 import net.dv8tion.jda.entities.TextChannel;
 import net.dv8tion.jda.exceptions.PermissionException;
@@ -18,8 +19,8 @@ public class Kick {
             .withCategory(CommandCategory.ADMIN)
             .withDescription("Kicks a specified user or users.")
             .withUsage("{p}kick <@user> {can @mention more than one person}")
-            .userRequiredPermissions()
-            .botRequiredPermissions()
+            .userRequiredPermissions(Permission.KICK_MEMBERS)
+            .botRequiredPermissions(Permission.KICK_MEMBERS)
             .onExecuted(context -> {
                 String rawSplit[] = context.getMessage().getContent().split(" ", 2);
                 TextChannel channel = context.getTextChannel();

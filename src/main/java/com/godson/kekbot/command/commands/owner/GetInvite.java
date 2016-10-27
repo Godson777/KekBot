@@ -26,7 +26,7 @@ public class GetInvite {
                                         invite[0] = InviteUtil.createInvite(channel, InviteUtil.InviteDuration.THIRTY_MINUTES, 1, false);
                                         break;
                                     } catch (PermissionException e) {
-                                        e.printStackTrace();
+                                        //¯\_(ツ)_/¯
                                     }
                             }
                             if (invite[0] != null) context.getTextChannel().sendMessage("http://discord.gg/" + invite[0].getCode());

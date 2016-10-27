@@ -41,8 +41,8 @@ public class UrbanDictionary {
                         ObjectMapper objectMapper = new ObjectMapper();
                         JsonNode rootNode = objectMapper.readTree(mapData);
                         Random random = new Random();
-                        JsonNode dictionary = rootNode.path("list").get(random.nextInt(rootNode.path("list").size()));
                         if (!rootNode.path("result_type").textValue().equals("no_results")) {
+                            JsonNode dictionary = rootNode.path("list").get(random.nextInt(rootNode.path("list").size()));
                             String ud = "**Term:** *" + dictionary.path("word").textValue() +
                                     "*\n\nDefinition: " + dictionary.path("definition").textValue() +
                                     "\n\nExamples: " + dictionary.path("example").textValue() + "\n\n" + dictionary.path("permalink").textValue();

@@ -8,6 +8,7 @@ public class Say {
             .withCategory(CommandCategory.FUN)
             .withDescription("Makes KekBot say whatever you want it to say.")
             .withUsage("{p}say <message>")
+            .deleteCommand(true)
             .onExecuted(context -> {
                 String[] contents = context.getMessage().getContent().split(" ", 2);
                 if (contents.length == 1) {

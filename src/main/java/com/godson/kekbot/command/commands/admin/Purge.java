@@ -31,14 +31,14 @@ public class Purge {
                                 try {
                                     List<Message> messages = channel.getHistory().retrieve(purge+2);
                                     messages.remove(msg);
-                                    messages.remove(0);
+                                    messages.remove(context.getMessage());
                                     channel.deleteMessages(messages);
                                     msg.updateMessage("Sucessfully purged `" + purge + "` messages.");
                                 } catch (IndexOutOfBoundsException e) {
                                     int remaining = channel.getHistory().retrieve().size();
                                     List<Message> messages = channel.getHistory().retrieve();
                                     messages.remove(msg);
-                                    messages.remove(0);
+                                    messages.remove(context.getMessage());
                                     try {
                                         channel.deleteMessages(messages);
                                         msg.updateMessage("Sucessfully purged `" + remaining + "` messages.");

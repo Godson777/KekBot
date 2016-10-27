@@ -5,10 +5,7 @@ import com.darichey.discord.api.CommandCategory;
 import com.darichey.discord.api.CommandRegistry;
 import com.godson.kekbot.command.UserState;
 import net.dv8tion.jda.Permission;
-import net.dv8tion.jda.entities.Channel;
-import net.dv8tion.jda.entities.Guild;
-import net.dv8tion.jda.entities.TextChannel;
-import net.dv8tion.jda.entities.VoiceChannel;
+import net.dv8tion.jda.entities.*;
 import net.dv8tion.jda.events.InviteReceivedEvent;
 import net.dv8tion.jda.events.ReadyEvent;
 import net.dv8tion.jda.events.guild.GenericGuildEvent;
@@ -18,6 +15,7 @@ import net.dv8tion.jda.events.guild.GuildUpdateEvent;
 import net.dv8tion.jda.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.events.guild.member.GuildMemberLeaveEvent;
 import net.dv8tion.jda.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.exceptions.BlockedException;
 import net.dv8tion.jda.exceptions.PermissionException;
 import net.dv8tion.jda.hooks.ListenerAdapter;
@@ -543,55 +541,60 @@ public class Listener extends ListenerAdapter {
                 //End of Owner-Only PM Based command
             }
             //End of PM Based command
-            if (message.startsWith("help")) {
-                String rawSplit[] = message.split(" ", 2);
-                List<String> commands = new ArrayList<String>();
-                List<String> pages = new ArrayList<String>();
-                CommandRegistry registry = CommandRegistry.getForClient(KekBot.client);
-                EnumSet<CommandCategory> categories = EnumSet.allOf(CommandCategory.class);
-                commands.add("# KekBot's default prefix for commands is \"$\". However, the server you're on might have it use a different prefix. If you're unsure, feel free to go a server and say \"@KekBot prefix\"");
-                commands.add("# To add me to your server, send me an invite link!\n");
-                categories.forEach(category -> {
-                    commands.add("# " + category.toString());
-                    for (int i = 0; i < registry.getCommands().size(); i++) {
-                        Set<String> aliases = registry.getCommands().get(i).getAliases();
-                        if (registry.getCommands().get(i).getCategory() != null) {
-                            if (registry.getCommands().get(i).getCategory().equals(category)) {
-                                commands.add("[$" + registry.getCommands().get(i).getName() +
-                                        (registry.getCommands().get(i).getAliases().size() != 0 ? " | " + StringUtils.join(aliases, " | ") : "") + "](" + registry.getCommands().get(i).getDescription() + ")");
-                            }
+
+        }
+    }
+
+    @Override
+    public void onPrivateMessageReceived(PrivateMessageReceivedEvent event) {
+        PrivateChannel channel = event.getChannel();
+        if (event.getMessage().getContent().startsWith("help")) {
+            String rawSplit[] = event.getMessage().getContent().split(" ", 2);
+            List<String> commands = new ArrayList<String>();
+            List<String> pages = new ArrayList<String>();
+            CommandRegistry registry = CommandRegistry.getForClient(KekBot.client);
+            EnumSet<CommandCategory> categories = EnumSet.allOf(CommandCategory.class);
+            commands.add("# KekBot's default prefix for commands is \"$\". However, the server you're on might have it use a different prefix. If you're unsure, feel free to go a server and say \"@KekBot prefix\"");
+            commands.add("# To add me to your server, send me an invite link!\n");
+            categories.forEach(category -> {
+                commands.add("# " + category.toString());
+                for (int i = 0; i < registry.getCommands().size(); i++) {
+                    Set<String> aliases = registry.getCommands().get(i).getAliases();
+                    if (registry.getCommands().get(i).getCategory() != null) {
+                        if (registry.getCommands().get(i).getCategory().equals(category)) {
+                            commands.add("[$" + registry.getCommands().get(i).getName() +
+                                    (registry.getCommands().get(i).getAliases().size() != 0 ? " | " + StringUtils.join(aliases, " | ") : "") + "](" + registry.getCommands().get(i).getDescription() + ")");
                         }
-                    }
-                    commands.add("");
-                });
-                for (int i = 0; i < registry.getCommands().size(); i += 25) {
-                    try {
-                        pages.add(StringUtils.join(commands.subList(i, i + 25), "\n"));
-                    } catch (IndexOutOfBoundsException e) {
-                        pages.add(StringUtils.join(commands.subList(i, commands.size()), "\n"));
                     }
                 }
-                if (rawSplit[0].equals("help")) {
-                    if (rawSplit.length == 1) {
-                        channel.sendMessage("__**KekBot**__\n*Your helpful meme-based bot!*\n" +
-                                "```md\n" + pages.get(0) + "\n\n" + "[Page](1" + "/" + pages.size() + ")\n" +
-                                "# Type \"help <number>\" to view that page!" + "```");
-                    } else {
-                        try {
-                            if (Integer.valueOf(rawSplit[1]) > pages.size()) {
-                                channel.sendMessage("Specified page does not exist!");
-                            } else {
-                                channel.sendMessage("__**KekBot**__\n*Your helpful meme-based bot!*\n" +
-                                        "```md\n" + pages.get(Integer.valueOf(rawSplit[1]) - 1) + "\n\n[Page](" + rawSplit[1] + "/" + pages.size() + ")\n" +
-                                        "# Type \"help <number>\" to view that page!" + "```");
-                            }
-                        } catch (NumberFormatException e) {
-                            channel.sendMessage("\"" + rawSplit[1] + "\" is not a number!");
+                commands.add("");
+            });
+            for (int i = 0; i < registry.getCommands().size(); i += 25) {
+                try {
+                    pages.add(StringUtils.join(commands.subList(i, i + 25), "\n"));
+                } catch (IndexOutOfBoundsException e) {
+                    pages.add(StringUtils.join(commands.subList(i, commands.size()), "\n"));
+                }
+            }
+            if (rawSplit[0].equals("help")) {
+                if (rawSplit.length == 1) {
+                    channel.sendMessage("__**KekBot**__\n*Your helpful meme-based bot!*\n" +
+                            "```md\n" + pages.get(0) + "\n\n" + "[Page](1" + "/" + pages.size() + ")\n" +
+                            "# Type \"help <number>\" to view that page!" + "```");
+                } else {
+                    try {
+                        if (Integer.valueOf(rawSplit[1]) > pages.size()) {
+                            channel.sendMessage("Specified page does not exist!");
+                        } else {
+                            channel.sendMessage("__**KekBot**__\n*Your helpful meme-based bot!*\n" +
+                                    "```md\n" + pages.get(Integer.valueOf(rawSplit[1]) - 1) + "\n\n[Page](" + rawSplit[1] + "/" + pages.size() + ")\n" +
+                                    "# Type \"help <number>\" to view that page!" + "```");
                         }
+                    } catch (NumberFormatException e) {
+                        channel.sendMessage("\"" + rawSplit[1] + "\" is not a number!");
                     }
                 }
             }
-
         }
     }
 
