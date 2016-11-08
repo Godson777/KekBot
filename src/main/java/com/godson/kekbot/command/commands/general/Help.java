@@ -15,13 +15,14 @@ public class Help {
     public static Command help = new Command("help")
             .withCategory(CommandCategory.GENERAL)
             .withDescription("Sends you this message. Can also provide with more info on a specified command.")
+            .withUsage("{p}help {command}")
             .caseSensitive(true)
             .onExecuted(context -> {
                 String args[] = context.getArgs();
                 if (args.length == 0) {
                     List<String> commands = new ArrayList<String>();
                     List<String> pages = new ArrayList<String>();
-                    CommandRegistry registry = CommandRegistry.getForClient(KekBot.client);
+                    CommandRegistry registry = CommandRegistry.getForClient(context.getJDA());
                     EnumSet<CommandCategory> categories = EnumSet.allOf(CommandCategory.class);
                     commands.add("# KekBot's default prefix for commands is \"$\". However, the server you're on might have it use a different prefix. If you're unsure, feel free to go a server and say \"@KekBot prefix\"");
                     commands.add("# To add me to your server, send me an invite link!\n");
@@ -46,25 +47,25 @@ public class Help {
                         }
                     }
 
-                    context.getMessage().getAuthor().getPrivateChannel().sendMessage("__**KekBot**__\n*Your helpful meme-based bot!*\n" +
+                    context.getMessage().getAuthor().getPrivateChannel().sendMessageAsync("__**KekBot**__\n*Your helpful meme-based bot!*\n" +
                             "```md\n" + pages.get(0) + "\n\n" + "[Page](1" + "/" + pages.size() + ")\n" +
-                            "# Type \"help <number>\" to view that page!" + "```");
-                    context.getTextChannel().sendMessage(context.getMessage().getAuthor().getAsMention() + " Alright, check your PMs! :thumbsup:");
+                            "# Type \"help <number>\" to view that page!" + "```", null);
+                    context.getTextChannel().sendMessageAsync(context.getMessage().getAuthor().getAsMention() + " Alright, check your PMs! :thumbsup:", null);
                 } else {
                     String name = args[0].toLowerCase();
-                    Optional<Command> cmd = CommandRegistry.getForClient(KekBot.client).getCommandByName(args[0], true);
+                    Optional<Command> cmd = CommandRegistry.getForClient(context.getJDA()).getCommandByName(args[0], true);
                     if (cmd.isPresent()) {
                         Command command = cmd.get();
                         Set<String> set = cmd.get().getAliases();
-                        context.getTextChannel().sendMessage("```md\n[Command](" + command.getName() + ")" +
+                        context.getTextChannel().sendMessageAsync("```md\n[Command](" + command.getName() + ")" +
                                         (command.getAliases().size() != 0 ? "\n\n[Aliases](" + StringUtils.join(set, ", ") + ")" : "") +
                                 "\n\n[Category](" + command.getCategory() + ")" +
                                 "\n\n[Description](" + command.getDescription() + ")" +
                                 "\n\n# Paramaters (<> Required, {} Optional)" +
-                                "\n[Usage](" + command.getUsage().replace("{p}", (CommandRegistry.getForClient(KekBot.client).getPrefixForGuild(context.getGuild()) != null ? CommandRegistry.getForClient(KekBot.client).getPrefixForGuild(context.getGuild()) : "$")) + ")```"
+                                "\n[Usage](" + command.getUsage().replace("{p}", (CommandRegistry.getForClient(context.getJDA()).getPrefixForGuild(context.getGuild()) != null ? CommandRegistry.getForClient(context.getJDA()).getPrefixForGuild(context.getGuild()) : "$")) + ")```", null
                         );
                     } else {
-                        context.getTextChannel().sendMessage("Command not found.");
+                        context.getTextChannel().sendMessageAsync("Command not found.", null);
                     }
                 }
 }

@@ -23,6 +23,6 @@ public class Bots {
                         e.printStackTrace();
                     }
                 });
-                context.getTextChannel().sendMessage("```List of Bots:\n\n" + StringUtils.join(bots, ", ") + "```");
+                context.getTextChannel().sendMessageAsync("```List of Bots:\n\n" + StringUtils.join(bots, ", ") + "```", null);
             });
 }
