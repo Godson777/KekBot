@@ -3,164 +3,196 @@ package com.godson.kekbot.command.commands.admin;
 import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
 import com.darichey.discord.api.CommandRegistry;
-import com.godson.kekbot.KekBot;
-import com.godson.kekbot.XMLUtils;
+import com.godson.kekbot.GSONUtils;
+import com.godson.kekbot.Settings.Settings;
 import net.dv8tion.jda.Permission;
 import net.dv8tion.jda.entities.TextChannel;
-import org.jdom2.JDOMException;
-
-import java.io.IOException;
 
 public class Announce {
     public static Command announce = new Command("announce")
             .withCategory(CommandCategory.ADMIN)
-            .withDescription("Allows you to config various \"announcement\" settings, including the welcome message, farewell message, and KekBot's broadcasts.")
+            .withDescription("Allows you to config various \"announcement\" Settings, including the welcome message, farewell message, and KekBot's broadcasts.")
             .withUsage("{p}announce <welcome|farewell|broadcasts>")
             .userRequiredPermissions(Permission.ADMINISTRATOR)
             .onExecuted(context -> {
                 TextChannel channel = context.getTextChannel();
-                String prefix = CommandRegistry.getForClient(KekBot.client).getPrefixForGuild(context.getGuild()) == null
-                        ? CommandRegistry.getForClient(KekBot.client).getPrefix()
-                        : CommandRegistry.getForClient(KekBot.client).getPrefixForGuild(context.getGuild());
-                String rawSplit[] = context.getMessage().getContent().split(" ", 4);
+                String prefix = CommandRegistry.getForClient(context.getJDA()).getPrefixForGuild(context.getGuild()) == null
+                        ? CommandRegistry.getForClient(context.getJDA()).getPrefix()
+                        : CommandRegistry.getForClient(context.getJDA()).getPrefixForGuild(context.getGuild());
+                String rawSplit[] = context.getMessage().getRawContent().split(" ", 4);
                 String serverID = context.getGuild().getId();
+                Settings settings = GSONUtils.getSettings(context.getGuild());
                 if (rawSplit.length == 1) {
-                    channel.sendMessage("```md\n[Command](announce)" +
+                    channel.sendMessageAsync("```md\n[Command](announce)" +
                             "\n\n[Category](Administration)" +
-                            "\n\n[Description](Allows you to config various \"announcement\" settings, including the welcome message, farewell message, and KekBot's broadcasts.)" +
+                            "\n\n[Description](Allows you to config various \"announcement\" Settings, including the welcome message, farewell message, and KekBot's broadcasts.)" +
                             "\n\n# Paramaters (<> Required, {} Optional)" +
-                            "\n[Usage](" + prefix + "announce <welcome|farewell|broadcasts>))```");
+                            "\n[Usage](" + prefix + "announce <welcome|farewell|broadcasts>))```", null);
                 } else {
-                    try {
-                        switch (rawSplit[1]) {
-                            case "welcome":
-                                if (rawSplit.length == 2) {
-                                    channel.sendMessage("```md\n[Subcommand](announce welcome)" +
-                                            "\n\n[Description](Allows the user to set the welcome message, the channel the message will be sent to, as well as review their server's settings.)" +
-                                            "\n\n# Paramaters (<> Required, {} Optional)" +
-                                            "\n[Usage](" + prefix + "announce welcome <message|channel|review>)```");
+                    switch (rawSplit[1]) {
+                        case "welcome":
+                            if (rawSplit.length == 2) {
+                                channel.sendMessageAsync("```md\n[Subcommand](announce welcome)" +
+                                        "\n\n[Description](Allows the user to set the welcome message, the channel the message will be sent to, as well as review their server's Settings.)" +
+                                        "\n\n# Paramaters (<> Required, {} Optional)" +
+                                        "\n[Usage](" + prefix + "announce welcome <message|channel|toggle|review>)```", null);
                             } else {
-                                    switch (rawSplit[2]) {
-                                        case "message":
-                                            if (rawSplit.length >= 4) {
-                                                if (rawSplit[3].equals("reset")) {
-                                                    XMLUtils.deleteWelcomeMessage(serverID);
-                                                    channel.sendMessage("Done, I will no longer remember what to tell people when they join this server.");
-                                                } else {
-                                                    XMLUtils.setWelcomeMessage(serverID, channel, rawSplit[3]);
-                                                }
+                                switch (rawSplit[2]) {
+                                    case "message":
+                                        if (rawSplit.length >= 4) {
+                                            if (rawSplit[3].equals("reset")) {
+                                                settings.setWelcomeMessage(null).save(context.getGuild());
+                                                channel.sendMessageAsync("Done, I will no longer remember what to tell people when they join this server.", null);
                                             } else {
-                                                channel.sendMessage("What's the message? :neutral_face:");
+                                                settings.setWelcomeMessage(rawSplit[3]).save(context.getGuild());
+                                                channel.sendMessageAsync("Successfully set welcome message to: \n\"" + rawSplit[3].replace("{mention}", "@Example User").replace("{name}", "Example User") + "\"", null);
+                                                if (!settings.welcomeChannelIsSet())
+                                                    channel.sendMessageAsync("However, you still need to tell me which channel I'll be welcoming people in!", null);
                                             }
-                                            break;
-                                        case "channel":
-                                            if (rawSplit.length >= 4) {
-                                                if (rawSplit[3].equals("reset")) {
-                                                    XMLUtils.deleteWelcomeChannel(serverID);
-                                                    channel.sendMessage("Done, I will no longer remember what channel to welcome people in.");
-                                                } else {
-                                                    if (context.getMessage().getMentionedChannels().size() == 0) {
-                                                        channel.sendMessage("The channel you want to assign welcomes to *must* be in the form of a mention1");
-                                                    } else {
-                                                        XMLUtils.setWelcomeChannel(serverID, channel, context.getMessage().getMentionedChannels().get(0));
-                                                    }
-                                                }
+                                        } else {
+                                            channel.sendMessageAsync("What's the message? :neutral_face:", null);
+                                        }
+                                        break;
+                                    case "channel":
+                                        if (rawSplit.length >= 4) {
+                                            if (rawSplit[3].equals("reset")) {
+                                                settings.setWelcomeChannel(null).save(context.getGuild());
+                                                channel.sendMessageAsync("Done, I will no longer remember what channel to welcome people in.", null);
                                             } else {
-                                                channel.sendMessage("Where am I supposed to welcome new people? :neutral_face:");
+                                                if (context.getMessage().getMentionedChannels().size() == 0) {
+                                                    channel.sendMessageAsync("The channel you want to assign welcomes to *must* be in the form of a mention!", null);
+                                                } else {
+                                                    settings.setWelcomeChannel(context.getMessage().getMentionedChannels().get(0)).save(context.getGuild());
+                                                    channel.sendMessageAsync("Alright, I will now welcome people who join this server in " + context.getMessage().getMentionedChannels().get(0).getAsMention() + ". :thumbsup:", null);
+                                                    if (!settings.welcomeMessageIsSet())
+                                                        channel.sendMessageAsync("However, I still need the welcome message, how else am I supposed to welcome people if I don't know what to tell them?", null);
+                                                }
                                             }
-                                            break;
-                                        case "review":
-                                            XMLUtils.reviewWelcomeSettings(serverID, channel);
-                                            break;
-                                    }
+                                        } else {
+                                            channel.sendMessageAsync("Where am I supposed to welcome new people? :neutral_face:", null);
+                                        }
+                                        break;
+                                    case "toggle":
+                                        if (!settings.welcomeEnabled()) {
+                                            settings.toggleWelcome(true).save(context.getGuild());
+                                            channel.sendMessageAsync("Welcome announcements are now **ON**.", null);
+                                        } else {
+                                            settings.toggleWelcome(false).save(context.getGuild());
+                                            channel.sendMessageAsync("Welcome announcements are now **OFF**.", null);
+                                        }
+                                        break;
+                                }
 
-                                }
-                                break;
-                            case "farewell":
-                                if (rawSplit.length == 2) {
-                                    channel.sendMessage("```md\n[Subcommand](announce farewell)" +
-                                            "\n\n[Description](Allows the user to set the farewell message, the channel the message will be sent to, as well as review their server's settings.)" +
-                                            "\n\n# Paramaters (<> Required, {} Optional)" +
-                                            "\n[Usage](" + prefix + "announce farewell <message|channel|review>)```");
-                                } else {
-                                    switch (rawSplit[2]) {
-                                        case "message":
-                                            if (rawSplit.length == 4) {
-                                                if (rawSplit[3].equals("reset")) {
-                                                    XMLUtils.deleteGoodbyeMessage(serverID);
-                                                    channel.sendMessage("Done, I will go back to using the default message.");
-                                                } else {
-                                                    XMLUtils.setGoodbyeMessage(serverID, channel, rawSplit[3]);
-                                                }
+                            }
+                            break;
+                        case "farewell":
+                            if (rawSplit.length == 2) {
+                                channel.sendMessageAsync("```md\n[Subcommand](announce farewell)" +
+                                        "\n\n[Description](Allows the user to set the farewell message, the channel the message will be sent to, as well as review their server's Settings.)" +
+                                        "\n\n# Paramaters (<> Required, {} Optional)" +
+                                        "\n[Usage](" + prefix + "announce farewell <message|channel|toggle|review>)```", null);
+                            } else {
+                                switch (rawSplit[2]) {
+                                    case "message":
+                                        if (rawSplit.length == 4) {
+                                            if (rawSplit[3].equals("reset")) {
+                                                settings.setFarewellMessage(null).save(context.getGuild());
+                                                channel.sendMessageAsync("Done, I will go back to using the default message.", null);
                                             } else {
-                                                channel.sendMessage("What do you want me to tell everyone when people leave? :neutral_face:");
+                                                settings.setFarewellMessage(rawSplit[3]).save(context.getGuild());
+                                                channel.sendMessageAsync("Successfully set goodbye message to: \n\"" + rawSplit[3].replace("{mention}", "@Example User").replace("{name}", "Example User") + "\"", null);
+                                                if (!settings.farewellChannelIsSet())
+                                                    channel.sendMessageAsync("However, you still need to tell me which channel to announce people leaving!", null);
                                             }
-                                            break;
-                                        case "channel":
-                                            if (rawSplit.length == 4) {
-                                                if (rawSplit[3].equals("reset")) {
-                                                    XMLUtils.deleteGoodbyeChannel(serverID);
-                                                    channel.sendMessage("Done, I will no longer remember where to announce people leaving this server.");
-                                                } else {
-                                                    if (context.getMessage().getMentionedChannels().size() == 0) {
-                                                        channel.sendMessage("The channel you want to assign welcomes to *must* be in the form of a mention1");
-                                                    } else {
-                                                        XMLUtils.setGoodbyeChannel(serverID, channel, context.getMessage().getMentionedChannels().get(0));
-                                                        channel.sendMessage("Alright, I will let everyone know when someone leaves in " + context.getMessage().getMentionedChannels().get(0).getAsMention() + ". :thumbsup:");
-                                                    }
-                                                }
+                                        } else {
+                                            channel.sendMessageAsync("What do you want me to tell everyone when people leave? :neutral_face:", null);
+                                        }
+                                        break;
+                                    case "channel":
+                                        if (rawSplit.length == 4) {
+                                            if (rawSplit[3].equals("reset")) {
+                                                settings.setFarewellChannel(null).save(context.getGuild());
+                                                channel.sendMessageAsync("Done, I will no longer remember where to announce people leaving this server.", null);
                                             } else {
-                                                channel.sendMessage("Where do you want me to tell everyone about people leaving? :neutral_face:");
-                                            }
-                                            break;
-                                        case "review":
-                                            XMLUtils.reviewFarewellSettings(serverID, channel);
-                                            break;
-                                    }
-                                }
-                                break;
-                            case "broadcasts":
-                                if (rawSplit.length == 2) {
-                                    channel.sendMessage("```md\n[Subcommand](announce broadcasts)" +
-                                            "\n\n[Description](Allows the user to enable or disabled KekBot's broadcasts, set the channel KekBot's broadcats will be sent to, as well as review their server's settings.)" +
-                                            "\n\n# Paramaters (<> Required, {} Optional)" +
-                                            "\n[Usage](" + prefix + "announce broadcasts <channel|enable|disable|review>)```");
-                                } else {
-                                    switch (rawSplit[2]) {
-                                        case "channel":
-                                            if (rawSplit.length == 4) {
-                                                if (rawSplit[3].equals("reset")) {
-                                                    XMLUtils.deleteBroadcastsChannel(serverID);
-                                                    channel.sendMessage("Done, I will revert to using the first channel I find.");
+                                                if (context.getMessage().getMentionedChannels().size() == 0) {
+                                                    channel.sendMessageAsync("The channel you want to assign welcomes to *must* be in the form of a mention!", null);
                                                 } else {
-                                                    if (context.getMessage().getMentionedChannels().size() == 0) {
-                                                        channel.sendMessage("The channel you want to assign welcomes to *must* be in the form of a mention1");
-                                                    } else {
-                                                        XMLUtils.setBroadcastsChannel(serverID, context.getMessage().getMentionedChannels().get(0).getId());
-                                                        channel.sendMessage("Alright, all future broadcasts will be posted in " + context.getMessage().getMentionedChannels().get(0).getAsMention() + ". :thumbsup:");
-                                                    }
+                                                    settings.setFarewellChannel(context.getMessage().getMentionedChannels().get(0)).save(context.getGuild());
+                                                    channel.sendMessageAsync("Alright, I will let everyone know when someone leaves in " + context.getMessage().getMentionedChannels().get(0).getAsMention() + ". :thumbsup:", null);
+                                                    if (!settings.farewellMessageIsSet())
+                                                        channel.sendMessageAsync("However, you still need to tell me what to say when people leave!", null);
                                                 }
-                                            } else {
-                                                channel.sendMessage("Where do you want Broadcasts to be sent? :neutral_face:");
                                             }
-                                            break;
-                                        case "enable":
-                                            XMLUtils.enableBroadcasts(serverID, channel);
-                                            break;
-                                        case "disable":
-                                            XMLUtils.disableBroadcasts(serverID, channel);
-                                            break;
-                                        case "review":
-                                            XMLUtils.reviewBroadcastSettings(serverID, channel);
-                                            break;
-                                    }
+                                        } else {
+                                            channel.sendMessageAsync("Where do you want me to tell everyone about people leaving? :neutral_face:", null);
+                                        }
+                                        break;
+                                    case "toggle":
+                                        if (!settings.farewellEnabled()) {
+                                            settings.toggleFarewell(true).save(context.getGuild());
+                                            channel.sendMessageAsync("Farewell announcements are now **ON**.", null);
+                                        } else {
+                                            settings.toggleFarewell(false).save(context.getGuild());
+                                            channel.sendMessageAsync("Farewell announcements are now **OFF**.", null);
+                                        }
+                                        break;
                                 }
-                        }
-                    } catch (JDOMException | IOException e) {
-                        e.printStackTrace();
+                            }
+                            break;
+                        case "broadcasts":
+                            if (rawSplit.length == 2) {
+                                channel.sendMessageAsync("```md\n[Subcommand](announce broadcasts)" +
+                                        "\n\n[Description](Allows the user to enable or disabled KekBot's broadcasts, set the channel KekBot's broadcats will be sent to, as well as review their server's Settings.)" +
+                                        "\n\n# Paramaters (<> Required, {} Optional)" +
+                                        "\n[Usage](" + prefix + "announce broadcasts <channel|toggle|review>)```", null);
+                            } else {
+                                switch (rawSplit[2]) {
+                                    case "channel":
+                                        if (rawSplit.length == 4) {
+                                            if (rawSplit[3].equals("reset")) {
+                                                settings.setBroadcastChannel(null).save(context.getGuild());
+                                                channel.sendMessageAsync("Done, I will revert to using the first available channel I find.", null);
+                                            } else {
+                                                if (context.getMessage().getMentionedChannels().size() == 0) {
+                                                    channel.sendMessageAsync("The channel you want to assign welcomes to *must* be in the form of a mention!", null);
+                                                } else {
+                                                    settings.setBroadcastChannel(context.getMessage().getMentionedChannels().get(0)).save(context.getGuild());
+                                                    channel.sendMessageAsync("Alright, all future broadcasts will be posted in " + context.getMessage().getMentionedChannels().get(0).getAsMention() + ". :thumbsup:", null);
+                                                }
+                                            }
+                                        } else {
+                                            channel.sendMessageAsync("Where do you want Broadcasts to be sent? :neutral_face:", null);
+                                        }
+                                        break;
+                                    case "toggle":
+                                        if (settings.broadcastsEnabled()) {
+                                            settings.toggleBroadcasts(false);
+                                            channel.sendMessageAsync("Broadcasts are now **OFF**.", null);
+                                        } else {
+                                            settings.toggleBroadcasts(true);
+                                            channel.sendMessageAsync("Broadcasts are now **ON**.", null);
+                                        }
+                                        break;
+                                }
+                            }
+                            break;
+                        case "review":
+                            channel.sendMessageAsync("**REVIEW**" +
+                                    "\n\n__Welcome:__" +
+                                    "\nStatus: " + (settings.welcomeEnabled() ? "ON" : "OFF") +
+                                    "\nChannel: " + (settings.welcomeChannelIsSet() ? settings.getWelcomeChannel(context.getJDA()).getAsMention() : "None") +
+                                    "\nMessage: " + (settings.welcomeMessageIsSet() ? settings.getWelcomeMessage().replace("{mention}", "@Example User").replace("{name}", "Example User") : "None") +
+                                    "\n\n__Farewell:__" +
+                                    "\nStatus: " + (settings.farewellEnabled() ? "ON" : "OFF") +
+                                    "\nChannel: " + (settings.farewellChannelIsSet() ? settings.getFarewellChannel(context.getJDA()).getAsMention() : "None") +
+                                    "\nMessage: " + (settings.farewellMessageIsSet() ? settings.getFarewellMessage().replace("{mention}", "@Example User").replace("{name}", "Example User") : "None") +
+                                    "\n\n__Broadcasts:__" +
+                                    "\nStatus: " + (settings.broadcastsEnabled() ? "ON" : "OFF") +
+                                    "\nChannel " + (settings.broadcastChannelIsSet() ? settings.getBroadcastChannel(context.getJDA()).getAsMention() : "None"), null);
+                            break;
                     }
                 }
             })
-            .onFailure((context, reason) -> context.getTextChannel().sendMessage(context.getMessage().getAuthor().getAsMention() + ", you don't have the `Administrator` permission!")
+            .onFailure((context, reason) -> context.getTextChannel().sendMessageAsync(context.getMessage().getAuthor().getAsMention() + ", you don't have the `Administrator` permission!", null)
             );
 }
