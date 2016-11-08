@@ -9,7 +9,6 @@ import com.godson.kekbot.command.commands.general.*;
 import com.godson.kekbot.command.commands.meme.*;
 import com.godson.kekbot.command.commands.owner.*;
 import com.godson.kekbot.command.commands.owner.Shutdown;
-import com.godson.kekbot.command.commands.ping;
 import net.dv8tion.jda.JDA;
 import net.dv8tion.jda.JDABuilder;
 
