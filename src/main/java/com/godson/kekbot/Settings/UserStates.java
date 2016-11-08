@@ -1,7 +1,6 @@
-package com.godson.kekbot.command;
+package com.godson.kekbot.Settings;
 
 import com.darichey.discord.api.CommandRegistry;
-import com.godson.kekbot.KekBot;
 import net.dv8tion.jda.entities.Guild;
 import net.dv8tion.jda.entities.User;
 
@@ -25,7 +24,7 @@ public class UserStates {
         if (!assignedGuilds.containsKey(guild)) {
             assignedGuilds.put(guild, state);
             assignedUsers.replace(userID, assignedGuilds);
-            CommandRegistry.getForClient(KekBot.client).disableUserInGuild(guild, user);
+            CommandRegistry.getForClient(guild.getJDA()).disableUserInGuild(guild, user);
         } else {
             throw new IllegalArgumentException("Attempted to send user into a new state while already being in another state!");
         }
@@ -36,7 +35,7 @@ public class UserStates {
         if (assignedUsers.containsKey(userID)) {
             if (assignedUsers.get(userID).containsKey(guild)) {
                 assignedUsers.get(userID).remove(guild);
-                CommandRegistry.getForClient(KekBot.client).enableUserInGuild(guild, user);
+                CommandRegistry.getForClient(guild.getJDA()).enableUserInGuild(guild, user);
             }
         }
     }

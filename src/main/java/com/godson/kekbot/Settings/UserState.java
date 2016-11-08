@@ -1,4 +1,4 @@
-package com.godson.kekbot.command;
+package com.godson.kekbot.Settings;
 
 public enum UserState {
     TEST_STATE("TEST");
