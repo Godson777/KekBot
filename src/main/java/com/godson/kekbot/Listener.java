@@ -1,16 +1,15 @@
 package com.godson.kekbot;
 
-import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
 import com.darichey.discord.api.CommandRegistry;
-import com.godson.kekbot.command.UserState;
+import com.godson.kekbot.Exceptions.ChannelNotFoundException;
+import com.godson.kekbot.Exceptions.MessageNotFoundException;
+import com.godson.kekbot.Settings.*;
+import net.dv8tion.jda.JDA;
 import net.dv8tion.jda.Permission;
 import net.dv8tion.jda.entities.*;
 import net.dv8tion.jda.events.InviteReceivedEvent;
 import net.dv8tion.jda.events.ReadyEvent;
-import net.dv8tion.jda.events.guild.GenericGuildEvent;
-import net.dv8tion.jda.events.guild.GuildAvailableEvent;
-import net.dv8tion.jda.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.events.guild.GuildUpdateEvent;
 import net.dv8tion.jda.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.events.guild.member.GuildMemberLeaveEvent;
@@ -20,6 +19,7 @@ import net.dv8tion.jda.exceptions.BlockedException;
 import net.dv8tion.jda.exceptions.PermissionException;
 import net.dv8tion.jda.hooks.ListenerAdapter;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -33,7 +33,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static com.darichey.discord.api.CommandCategory.TEST;
+import static java.lang.System.console;
+import static java.lang.System.mapLibraryName;
 import static java.lang.System.out;
 
 public class Listener extends ListenerAdapter {
@@ -53,349 +54,91 @@ public class Listener extends ListenerAdapter {
         gameStatusTimer.schedule(new GameStatus(), 0, TimeUnit.MINUTES.toMillis(10));
         //Set startup time
         start = Calendar.getInstance().getTime();
+        for (JDA jda : KekBot.jdas) {
+            jda.getGuilds().forEach(guild -> {
+                out.println(ft2.format(time) + "Joined/Created server: \"" + guild.getName() + "\" (ID: " + guild.getId() + ")");
+                Settings settings = GSONUtils.getSettings(guild);
 
-        KekBot.client.getGuilds().forEach(guild -> {
-            out.println(ft2.format(time) + "Joined/Created server: \"" + guild.getName() + "\" (ID: " + guild.getId() + ")");
-            try {
-                String server = guild.getId();
-                Document document = null;
-                Element root = null;
-                File xmlFile = new File("settings\\" + server + ".xml");
-                if (xmlFile.exists()) {
-                    // try to load document from xml file if it exist
-                    // create a file input stream
-                    FileInputStream fis = new FileInputStream(xmlFile);
-                    // create a sax builder to parse the document
-                    SAXBuilder sb = new SAXBuilder();
-                    // parse the xml content provided by the file input stream and create a Document object
-                    document = sb.build(fis);
-                    // get the root element of the document
-                    root = document.getRootElement();
-                    fis.close();
-                } else {
-                    // if it does not exist create a new document and new root
-                    document = new Document();
-                    root = new Element("settings");
-                    guild.getTextChannels().get(0).sendMessage("Thanks for inviting me!");
+                if (settings == null) {
+                    settings = new Settings().setName(guild.getName());
+                    settings.save(guild);
                 }
 
-                if (root.getChild("name") != null) {
-                    if (!root.getChild("name").getText().equals(guild.getName())) {
-                        root.getChild("name").setText(guild.getName());
-
-                        document.setContent(root);
-                        try {
-                            FileWriter writer = new FileWriter("settings\\" + server + ".xml");
-                            XMLOutputter outputter = new XMLOutputter();
-                            outputter.setFormat(Format.getPrettyFormat());
-                            outputter.output(document, writer);
-                            writer.close(); // close writer
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                } else {
-                    root.addContent(new Element("name").setText(guild.getName()));
-                    document.setContent(root);
-                    try {
-                        FileWriter writer = new FileWriter("settings\\" + server + ".xml");
-                        XMLOutputter outputter = new XMLOutputter();
-                        outputter.setFormat(Format.getPrettyFormat());
-                        outputter.output(document, writer);
-                        writer.close(); // close writer
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                if (settings.getPrefix() != null) {
+                    CommandRegistry.getForClient(jda).setPrefixForGuild(guild, settings.getPrefix());
                 }
 
-            } catch (IOException | JDOMException e) {
-                e.printStackTrace();
-            }
-
-            if (XMLUtils.getPrefix(guild) != null) {
-                CommandRegistry.getForClient(KekBot.client).setPrefixForGuild(guild, XMLUtils.getPrefix(guild));
-            }
-
-            if (guild.getId().equals("221910104495095808")) {
-                CommandRegistry.getForClient(KekBot.client).customRegister(new Command("customTest")
+            /*if (guild.getId().equals("221910104495095808")) {
+                CommandRegistry.getForClient(KekBot.jda).customRegister(new Command("customTest")
                         .withCategory(TEST)
                         .withDescription("Just a test command.")
                         .withUsage("{p}test")
                         .caseSensitive(true)
                         .onExecuted(context -> {
-                            context.getTextChannel().sendMessage("Test Successful! Custom Comands now work!");
-                        }), KekBot.client.getGuildById("221910104495095808"));
-            }
-        });
+                            context.getTextChannel().sendMessageAsync("Test Successful! Custom Comands now work!", null);
+                        }), KekBot.jda.getGuildById("221910104495095808"));
+            }*/
+            });
+        }
+
+
     }
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         //Logging
         if (!event.isPrivate()) out.println(ft2.format(time) + event.getGuild().getName() + " - #" +
-                event.getTextChannel().getName() + " - " + event.getAuthor().getUsername() + ": " + event.getMessage().getContent());
-        else out.println("PM " + (event.getAuthor().equals(KekBot.client.getSelfInfo()) ? "From: " : "To: ")
-                    + event.getAuthor().getUsername() + ": " + event.getMessage().getContent());
+                event.getTextChannel().getName() + " - " + event.getAuthor().getUsername() + ": " + event.getMessage().getRawContent());
+        else out.println("PM " + (event.getAuthor().equals(event.getJDA().getSelfInfo()) ? "From: " : "To: ")
+                    + event.getAuthor().getUsername() + ": " + event.getMessage().getRawContent());
         //Rest of normal stuff
 
         String serverID = (!event.isPrivate() ? event.getGuild().getId() : null);
-        String message = event.getMessage().getContent();
+        String message = event.getMessage().getRawContent();
         TextChannel channel = event.getTextChannel();
         Guild server = event.getGuild();
-        Document document = null;
-        Element root = null;
         String prefix;
         String line = "";
 
         if (!event.isPrivate()) {
             if (message.equals("<@213151748855037953> reloadPrefixes") && event.getMessage().getAuthor().getId().equals("99405418077364224")) {
-                List<Guild> servers = KekBot.client.getGuilds();
-                for (int i = 0; i < KekBot.client.getGuilds().size(); i++) {
-                    if (XMLUtils.getPrefix(servers.get(i)) != null) {
-                        CommandRegistry.getForClient(KekBot.client).setPrefixForGuild(servers.get(i), XMLUtils.getPrefix(servers.get(i)));
+                List<Guild> servers = event.getJDA().getGuilds();
+                for (Guild guild : event.getJDA().getGuilds()) {
+                    CommandRegistry registry = CommandRegistry.getForClient(event.getJDA());
+                    if (registry.getPrefixForGuild(guild) != null) {
+                        if (GSONUtils.getSettings(guild).getPrefix() != null) {
+                            registry.setPrefixForGuild(guild, GSONUtils.getSettings(guild).getPrefix());
+                        } else {
+                            registry.deletePrefixForGuild(guild);
+                        }
                     }
                 }
-                channel.sendMessage("Succesfully reset prefix for all " + servers.size() + "servers.");
+                channel.sendMessageAsync("Succesfully reset prefix for all " + servers.size() + "servers.", null);
             }
-            UserState state = KekBot.states.checkUserState(event.getMessage().getAuthor(), server);
-            if (state != null) {
-                if (state.equals(UserState.TEST_STATE)) {
-                    if (message.equals("test")) {
-                        channel.sendMessage("Test Mode confirmed working!");
-                        KekBot.states.unsetUserState(event.getMessage().getAuthor(), server);
-                    }
-                }
-            }
+            //UserState state = KekBot.states.checkUserState(event.getMessage().getAuthor(), server);
+            //if (state != null) {}
         }
-        File xml = new File("settings\\" + serverID + ".xml");
 
         //THE FOLLOWING CHECKS IF MESSAGES RECEIVED ARE NOT PMS.
         if (!event.isPrivate()) {
-            if (xml.exists()) {
-                try {
-                    FileInputStream fis = new FileInputStream(xml);
-                    SAXBuilder sb = new SAXBuilder();
-                    document = sb.build(fis);
-                    root = document.getRootElement();
-                    fis.close();
-                    if (root.getChild("prefix") != null) {
-                        prefix = root.getChild("prefix").getText();
-                    } else {
-                        prefix = "$";
-                    }
+            prefix = (CommandRegistry.getForClient(event.getJDA()).getPrefixForGuild(server) != null ? CommandRegistry.getForClient(event.getJDA()).getPrefixForGuild(server) :
+            CommandRegistry.getForClient(event.getJDA()).getPrefix());
 
                     //command begin
 
                     if (!event.getAuthor().isBot()) {
 
-
-                        //----------------ADMIN COMMANDS---------------
-
-                        //Add Role
-                        if (message.startsWith(prefix + "addrole")) {
-                            String rawSplit[] = message.split(" ", 2);
-                                        if (rawSplit.length == 1) {
-                                            channel.sendMessage("You haven't specified a role *or* a user! :neutral_face:");
-                                        } else {
-                                            if (rawSplit.length == 2) {
-                                                String parameters[] = rawSplit[1].split("\\u007C", 2);
-                                                if (parameters.length == 1) {
-                                                    if (event.getMessage().getMentionedUsers().size() == 0) {
-                                                        channel.sendMessage("The user you want to specify must be in the form of a mention!");
-                                                    } else {
-                                                        channel.sendMessage("What rank did you want me to give this user?");
-                                                    }
-                                                } else {
-                                                    if (event.getMessage().getMentionedUsers().size() == 0) {
-                                                        channel.sendMessage("The user you want to specify must be in the form of a mention!");
-                                                    } else if (event.getMessage().getMentionedUsers().size() == 1) {
-                                                        if (server.getRolesByName(parameters[1]).size() == 0) {
-                                                            channel.sendMessage("Unable to find any roles by the name of \"" + parameters[1] + "\"!");
-                                                        } else {
-                                                            if (!event.getGuild().getRolesForUser(event.getMessage().getMentionedUsers().get(0)).contains(server.getRolesByName(parameters[1]).get(0))) {
-                                                                try {
-                                                                    event.getGuild().getRolesForUser(event.getMessage().getMentionedUsers().get(0)).add(server.getRolesByName(parameters[1]).get(0));
-                                                                    channel.sendMessage("Successfully gave `" + event.getMessage().getMentionedUsers().get(0).getUsername() + "` the role `" + parameters[1] + "`!");
-                                                                } catch (PermissionException e) {
-                                                                    channel.sendMessage("Either the specified user has a higher ranked role in which prevents me from assigning extra roles. Or the role itself is higher ranked than mine.");
-                                                                    e.printStackTrace();
-                                                                }
-                                                            } else {
-                                                                channel.sendMessage("This user already has this role!");
-                                                            }
-                                                        }
-                                                    } else {
-                                                        if (server.getRolesByName(parameters[1]).size() == 0) {
-                                                            channel.sendMessage("Unable to find any roles by the name of \"" + parameters[1] + "\"!");
-                                                        } else {
-                                                            List<String> users = new ArrayList<>();
-                                                            List<String> existing = new ArrayList<>();
-                                                            for (int i = 0; i < event.getMessage().getMentionedUsers().size(); i++) {
-                                                                if (!event.getGuild().getRolesForUser(event.getMessage().getMentionedUsers().get(i)).contains(server.getRolesByName(parameters[1]).get(0))) {
-                                                                        try {
-                                                                            event.getGuild().getRolesForUser(event.getMessage().getMentionedUsers().get(i)).add(server.getRolesByName(parameters[1]).get(0));
-                                                                            users.add(event.getMessage().getMentionedUsers().get(i).getUsername());
-                                                                        } catch (PermissionException e) {
-                                                                            if (e.getLocalizedMessage().equals(""))
-                                                                            if (i == 0) {
-                                                                                channel.sendMessage("The role `" + parameters[1] + "` is higher ranked than mine, I am unable to assign these users that role.");
-                                                                            }
-                                                                        }
-                                                                } else {
-                                                                    existing.add(event.getMessage().getMentionedUsers().get(i).getUsername());
-                                                                }
-                                                            }
-                                                            if (users.size() > 0) {
-                                                                channel.sendMessage("Successfully gave the specified users: `" + StringUtils.join(users, ", ") + "` the role `" + parameters[1] + "`!");
-                                                                if (existing.size() == 1) {
-                                                                    channel.sendMessage("However, 1 user (`" + StringUtils.join(existing, ", ") + "`) already have this role.");
-                                                                }
-                                                                if (existing.size() > 1) {
-                                                                    channel.sendMessage("However, " + existing.size() + " users: `" + StringUtils.join(existing, ", ") + "` already have this role.");
-                                                                }
-                                                            } else {
-                                                                if (existing.size() >= 1) {
-                                                                    channel.sendMessage("All of the users you have specified already have this role.");
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
+                        if (message.equals(event.getJDA().getSelfInfo().getAsMention() + " prefix")) {
+                            channel.sendMessageAsync("The prefix for __**" + server.getName() + "**__ is: **" + prefix + "**", null);
                         }
 
-                        //----------QUOTES SYSTEM----------
-                        if (message.startsWith(prefix + "quote")) {
-                            String rawSplit[] = message.split(" ", 3);
-                            if (rawSplit[0].equals(prefix + "quote")) {
-                                if (rawSplit.length == 1) {
-                                    if (new File("quotes\\" + event.getGuild().getId() + ".txt").exists()) {
-                                        List<String> quotes = FileUtils.readLines(new File("quotes\\" + event.getGuild().getId() + ".txt"), "utf-8");
-                                        if (!quotes.isEmpty()) {
-                                            Random random = new Random();
-                                            int index = random.nextInt(quotes.size());
-                                            channel.sendMessage(quotes.get(index));
-                                        } else {
-                                            channel.sendMessage("You have no quotes!");
-                                        }
-                                    } else {
-                                        channel.sendMessage("You have no quotes!");
-                                    }
-                                } else {
-                                    switch (rawSplit[1]) {
-                                        case "add":
-                                            if (channel.checkPermission(KekBot.client.getSelfInfo(), Permission.MESSAGE_WRITE)) {
-                                                if (rawSplit.length == 3) {
-                                                    if (new File("quotes\\" + event.getGuild().getId() + ".txt").exists()) {
-                                                        List<String> quotes = FileUtils.readLines(new File("quotes\\" + event.getGuild().getId() + ".txt"), "utf-8");
-                                                        if (!quotes.isEmpty()) {
-                                                            if (!quotes.contains(rawSplit[2])) {
-                                                                try {
-                                                                    FileUtils.writeStringToFile(new File("quotes\\" + event.getGuild().getId() + ".txt"), "\n" + rawSplit[2], "utf-8", true);
-                                                                    channel.sendMessage("Successfully added quote! :thumbsup:");
-                                                                } catch (IOException e) {
-                                                                    e.printStackTrace();
-                                                                }
-                                                            } else {
-                                                                channel.sendMessage("That quote's already in my list!");
-                                                            }
-                                                        } else {
-                                                            try {
-                                                                FileUtils.writeStringToFile(new File("quotes\\" + event.getGuild().getId() + ".txt"), rawSplit[2], "utf-8", true);
-                                                                channel.sendMessage("Successfully added quote! :thumbsup:");
-                                                            } catch (IOException e) {
-                                                                e.printStackTrace();
-                                                            }
-                                                        }
-                                                    } else {
-                                                        try {
-                                                            FileUtils.writeStringToFile(new File("quotes\\" + event.getGuild().getId() + ".txt"), rawSplit[2], "utf-8", true);
-                                                            channel.sendMessage("Successfully added quote! :thumbsup:");
-                                                        } catch (IOException e) {
-                                                            e.printStackTrace();
-                                                        }
-                                                    }
-                                                } else {
-                                                    channel.sendMessage(event.getAuthor().getAsMention() + " :anger: You haven't specified a quote to add!");
-                                                }
-                                            }
-                                            break;
-                                        case "remove":
-                                            if (channel.checkPermission(KekBot.client.getSelfInfo(), Permission.MESSAGE_WRITE)) {
-                                                if (rawSplit.length == 3) {
-                                                    try {
-                                                        File inputFile = new File("quotes\\" + event.getGuild().getId() + ".txt");
-                                                        File tempFile = new File("quotes\\" + event.getGuild().getId() + ".temp.txt");
-
-                                                        if (inputFile.exists()) {
-                                                            List<String> quotes = FileUtils.readLines(new File("quotes\\" + event.getGuild().getId() + ".txt"), "utf-8");
-                                                            if (!quotes.isEmpty()) {
-                                                                if (quotes.contains(rawSplit[2])) {
-                                                                    BufferedReader reader = new BufferedReader(new FileReader(inputFile));
-                                                                    BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
-
-                                                                    String currentLine;
-
-                                                                    while ((currentLine = reader.readLine()) != null) {
-                                                                        if (null != currentLine && !currentLine.equalsIgnoreCase(rawSplit[2])) {
-                                                                            writer.write(currentLine + System.getProperty("line.separator"));
-                                                                        }
-                                                                    }
-                                                                    writer.close();
-                                                                    reader.close();
-
-                                                                    // Delete the original file
-                                                                    if (!inputFile.delete()) {
-                                                                        out.println("Could not delete file");
-                                                                        return;
-                                                                    }
-                                                                    tempFile.renameTo(inputFile);
-                                                                    channel.sendMessage("Successfully removed __**" + rawSplit[2] + "**__ from this server's list of quotes.");
-                                                                } else {
-                                                                    channel.sendMessage("That quote does not appear on my list!");
-                                                                }
-                                                            } else {
-                                                                channel.sendMessage("You have no quotes to remove!");
-                                                            }
-                                                        } else {
-                                                            channel.sendMessage("You have no quotes to remove!");
-                                                        }
-                                                    } catch (IOException e) {
-                                                        e.printStackTrace();
-                                                    }
-                                                } else {
-                                                    channel.sendMessage(event.getMessage().getAuthor().getAsMention() + " :anger: You haven't specified a quote to remove!");
-                                                }
-                                            }
-                                            break;
-                                        case "list":
-                                            File ff = new File("quotes\\" + event.getGuild().getId() + ".txt");
-                                            File ff2 = new File("quotes\\quotes.txt");
-                                            if (ff.exists()) {
-                                                    try {
-                                                        ff.renameTo(ff2);
-                                                        channel.sendFile(ff2, null);
-                                                        ff2.renameTo(ff);
-                                                        channel.sendMessage("Note: Opening this file on Notepad will make the list look strange.");
-                                                    } catch (PermissionException e) {
-                                                        out.println("I do not have the 'Send Messages' permission in server: " + event.getGuild().getName() + " - #" + channel.getName() + "! Aborting!");
-                                                    }
-                                            }
-                                            break;
-                                    }
-                                }
-                            }
-                        }
-
-                        if (message.equals(KekBot.client.getSelfInfo().getAsMention() + " prefix")) {
-                            channel.sendMessage("The prefix for __**" + server.getName() + "**__ is: **" + prefix + "**");
-                        }
-
-                        if (message.equals("<@213151748855037953> help") || message.equals("<@!213151748855037953> help")) {
+                        if (message.equals(event.getJDA().getSelfInfo().getAsMention() + " help")) {
                             List<String> commands = new ArrayList<String>();
-                            CommandRegistry registry = CommandRegistry.getForClient(KekBot.client);
+                            List<String> pages = new ArrayList<String>();
+                            CommandRegistry registry = CommandRegistry.getForClient(event.getJDA());
                             EnumSet<CommandCategory> categories = EnumSet.allOf(CommandCategory.class);
+                            commands.add("# KekBot's default prefix for commands is \"$\". However, the server you're on might have it use a different prefix. If you're unsure, feel free to go a server and say \"@KekBot prefix\"");
+                            commands.add("# To add me to your server, send me an invite link!\n");
                             categories.forEach(category -> {
                                 commands.add("# " + category.toString());
                                 for (int i = 0; i < registry.getCommands().size(); i++) {
@@ -409,14 +152,22 @@ public class Listener extends ListenerAdapter {
                                 }
                                 commands.add("");
                             });
-                            event.getAuthor().getPrivateChannel().sendMessage("__**KekBot**__\n*Your helpful meme-based bot!*\n" +
-                                    "```md\n# KekBot's default prefix for commands is \"$\". However, the server you're on might have it use a different prefix. If you're unsure, feel free to go a server and say \"@KekBot prefix\"" +
-                                    "\n# To add me to your server, send me an invite link!\n\n" + StringUtils.join(commands, "\n") + "```");
-                            channel.sendMessage(event.getMessage().getAuthor().getAsMention() + " Alright, check your PMs! :thumbsup:");
+                            for (int i = 0; i < registry.getCommands().size(); i += 25) {
+                                try {
+                                    pages.add(StringUtils.join(commands.subList(i, i + 25), "\n"));
+                                } catch (IndexOutOfBoundsException e) {
+                                    pages.add(StringUtils.join(commands.subList(i, commands.size()), "\n"));
+                                }
+                            }
+
+                            event.getMessage().getAuthor().getPrivateChannel().sendMessageAsync("__**KekBot**__\n*Your helpful meme-based bot!*\n" +
+                                    "```md\n" + pages.get(0) + "\n\n" + "[Page](1" + "/" + pages.size() + ")\n" +
+                                    "# Type \"help <number>\" to view that page!" + "```", null);
+                            event.getTextChannel().sendMessageAsync(event.getMessage().getAuthor().getAsMention() + " Alright, check your PMs! :thumbsup:", null);
                         }
 
                         /*if (message.equals(prefix + "killvoice")) {
-                            Optional<VoiceChannel> voiceChannel = KekBot.client.getConnectedVoiceChannels().stream().filter(c -> c.getGuild().equals(server)).findFirst();
+                            Optional<VoiceChannel> voiceChannel = KekBot.jda.getConnectedVoiceChannels().stream().filter(c -> c.getGuild().equals(server)).findFirst();
                             if (voiceChannel.isPresent()) {
                                 voiceChannel.get().leave();
                                 AudioPlayer.getAudioPlayerForGuild(server).clean();
@@ -429,117 +180,12 @@ public class Listener extends ListenerAdapter {
                     //command end
 
 
-                } catch (IOException | JDOMException e) {
-                    e.printStackTrace();
-                }
-            }
+
+
 
 
             //THE FOLLOWING CHECKS IF MESSAGES RECEIVED ARE PMS.
         } else {
-            if (event.getMessage().getAuthor().getId().equals(XMLUtils.getBotOwner())) {
-                if (message.startsWith("message")) {
-                    String rawSplit[] = message.split(" ", 4);
-                    if (rawSplit.length == 1) {
-                        channel.sendMessage("You can't expect me to send someone a message without telling me who or where I'm sending a message to!");
-                    } else if (rawSplit.length >= 2) {
-                        switch (rawSplit[1]) {
-                            case "user":
-                                if (rawSplit.length >= 3) {
-                                    if (rawSplit.length == 4) {
-                                        try {
-                                            KekBot.client.getUserById(rawSplit[2]).getPrivateChannel().sendMessage(rawSplit[3]);
-                                            channel.sendMessage("Successfully sent message to: __**" + KekBot.client.getUserById(rawSplit[2]).getUsername() + "**__!");
-                                        } catch (BlockedException e) {
-                                            channel.sendMessage("It appears that +" + KekBot.client.getUserById(rawSplit[2]).getUsername() + " has either blocked me!");
-                                        } catch (NullPointerException e) {
-                                            channel.sendMessage("`" + rawSplit[2] + "`" + " is not a valid user ID!");
-                                        }
-                                    } else {
-                                        channel.sendMessage("You can't expect me to send someone a message to this user without telling me what to send them!");
-                                    }
-                                } else {
-                                    channel.sendMessage("You can't expect me to send someone a message without telling me who I'm send sending a message to!");
-                                }
-                                break;
-                            case "channel":
-                                if (rawSplit.length >= 3) {
-                                    if (rawSplit.length == 4) {
-                                            try {
-                                                KekBot.client.getTextChannelById(rawSplit[2]).sendMessage(rawSplit[3]);
-                                                channel.sendMessage("Successfully sent message to: ``(" + KekBot.client.getTextChannelById(rawSplit[2]).getGuild().getName() + ") #" + KekBot.client.getTextChannelById(rawSplit[2]).getName() + "``!");
-                                            } catch (PermissionException e) {
-                                                channel.sendMessage("I don't have permissions to say messages in that channel! Aborting!");
-                                            } catch (RuntimeException e) {
-                                                channel.sendMessage("`" + rawSplit[2] + "`" + " is not a valid channel ID or I am not on a server with this channel ID!");
-                                            }
-                                    } else {
-                                        channel.sendMessage("You can't expect me to send someone a message to this channel without telling me what to send it!");
-                                    }
-                                } else {
-                                    channel.sendMessage("You can't expect me to send someone a message without telling me what channel to send a message to!");
-                                }
-                                break;
-                        }
-                    }
-                }
-                if (message.startsWith("tickets") || message.startsWith("ticket")) {
-                    String rawSplit[] = message.split(" ", 3);
-                    if (rawSplit[0].equals("tickets") || rawSplit[0].equals("ticket")) {
-                        if (rawSplit.length == 1) {
-                            channel.sendMessage("You have **" + XMLUtils.numberOfTickets() + (XMLUtils.numberOfTickets() == 1 ? "** ticket." : "** tickets."));
-                        } else {
-                            switch (rawSplit[1]) {
-                                case "list":
-                                    try {
-                                        XMLUtils.listTickets(channel, (rawSplit.length == 3 ? rawSplit[2] : null));
-                                    } catch (JDOMException | IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                    break;
-                                case "view":
-                                    if (rawSplit.length == 3) {
-                                        try {
-                                            XMLUtils.viewTicket(channel, rawSplit[2]);
-                                        } catch (JDOMException | IOException e) {
-                                            e.printStackTrace();
-                                        }
-                                    } else {
-                                        channel.sendMessage("No ticket specified.");
-                                    }
-                                    break;
-                                case "close":
-                                    if (rawSplit.length == 3) {
-                                        try {
-                                            XMLUtils.deleteTicket(channel, rawSplit[2]);
-                                        } catch (JDOMException | IOException e) {
-                                            e.printStackTrace();
-                                        }
-                                    } else {
-                                        channel.sendMessage("No ticket specified.");
-                                    }
-                                    break;
-                                case "reply":
-                                    if (rawSplit.length == 3) {
-                                        String parameters[] = rawSplit[2].split(" ", 2);
-                                        if (parameters.length == 2) {
-                                            try {
-                                                XMLUtils.replyToTicket(channel, parameters[0], parameters[1], event.getMessage().getAuthor());
-                                            } catch (JDOMException | IOException e) {
-                                                e.printStackTrace();
-                                            }
-                                        } else {
-                                            channel.sendMessage("No reply message specified.");
-                                        }
-                                    } else {
-                                        channel.sendMessage("No ticket specified.");
-                                    }
-                            }
-                        }
-                    }
-                }
-                //End of Owner-Only PM Based command
-            }
             //End of PM Based command
 
         }
@@ -548,11 +194,211 @@ public class Listener extends ListenerAdapter {
     @Override
     public void onPrivateMessageReceived(PrivateMessageReceivedEvent event) {
         PrivateChannel channel = event.getChannel();
+        String message = event.getMessage().getRawContent();
+        if (event.getMessage().getAuthor().getId().equals(GSONUtils.getConfig().getBotOwner())) {
+            if (message.startsWith("message")) {
+                String rawSplit[] = message.split(" ", 4);
+                if (rawSplit.length == 1) {
+                    channel.sendMessageAsync("You can't expect me to send someone a message without telling me who or where I'm sending a message to!", null);
+                } else if (rawSplit.length >= 2) {
+                    switch (rawSplit[1]) {
+                        case "user":
+                            if (rawSplit.length >= 3) {
+                                if (rawSplit.length == 4) {
+                                    try {
+                                        event.getJDA().getUserById(rawSplit[2]).getPrivateChannel().sendMessageAsync(rawSplit[3], null);
+                                        channel.sendMessageAsync("Successfully sent message to: __**" + event.getJDA().getUserById(rawSplit[2]).getUsername() + "**__!", null);
+                                    } catch (BlockedException e) {
+                                        channel.sendMessageAsync("It appears that +" + event.getJDA().getUserById(rawSplit[2]).getUsername() + " has either blocked me!", null);
+                                    } catch (NullPointerException e) {
+                                        channel.sendMessageAsync("`" + rawSplit[2] + "`" + " is not a valid user ID!", null);
+                                    }
+                                } else {
+                                    channel.sendMessageAsync("You can't expect me to send someone a message to this user without telling me what to send them!", null);
+                                }
+                            } else {
+                                channel.sendMessageAsync("You can't expect me to send someone a message without telling me who I'm send sending a message to!", null);
+                            }
+                            break;
+                        case "channel":
+                            if (rawSplit.length >= 3) {
+                                if (rawSplit.length == 4) {
+                                    try {
+                                        event.getJDA().getTextChannelById(rawSplit[2]).sendMessageAsync(rawSplit[3], null);
+                                        channel.sendMessageAsync("Successfully sent message to: ``(" + event.getJDA().getTextChannelById(rawSplit[2]).getGuild().getName() + ") #" + event.getJDA().getTextChannelById(rawSplit[2]).getName() + "``!", null);
+                                    } catch (PermissionException e) {
+                                        channel.sendMessageAsync("I don't have permissions to say messages in that channel! Aborting!", null);
+                                    } catch (RuntimeException e) {
+                                        channel.sendMessageAsync("`" + rawSplit[2] + "`" + " is not a valid channel ID or I am not on a server with this channel ID!", null);
+                                    }
+                                } else {
+                                    channel.sendMessageAsync("You can't expect me to send someone a message to this channel without telling me what to send it!", null);
+                                }
+                            } else {
+                                channel.sendMessageAsync("You can't expect me to send someone a message without telling me what channel to send a message to!", null);
+                            }
+                            break;
+                    }
+                }
+            }
+            if (message.startsWith("tickets") || message.startsWith("ticket")) {
+                String rawSplit[] = message.split(" ", 3);
+                if (rawSplit[0].equals("tickets") || rawSplit[0].equals("ticket")) {
+                    TicketManager tickets = GSONUtils.getTicketManager();
+                    if (rawSplit.length == 1) {
+                        channel.sendMessageAsync("You have **" + tickets.getTickets().size() + (tickets.getTickets().size() == 1 ? "** ticket." : "** tickets."), null);
+                    } else {
+                        switch (rawSplit[1]) {
+                            case "list":
+                                int size = tickets.getTickets().size();
+                                List<String> ticketsList = new ArrayList<>();
+                                List<String> pages = new ArrayList<>();
+                                String pageNumber = (rawSplit.length == 3 ? rawSplit[2] : null);
+
+                                if (size != 0) {
+                                    for (int i = 0; i < size; i++) {
+                                        Ticket ticket = tickets.getTickets().get(i);
+                                        String ticketTitle = ticket.getTitle();
+                                        ticketsList.add(String.valueOf(i+1) + ". \"" + (ticketTitle.length() >= 24 ? ticketTitle.substring(0, 25) + "..." : ticketTitle) + "\"" + StringUtils.repeat(" ", 30-(ticketTitle.length() >= 20 ? 28 : ticketTitle.length())) + "<" + ticket.getStatus().getName() + ">");
+                                    }
+                                    try {
+                                        if (pageNumber == null || Integer.valueOf(pageNumber) == 1) {
+                                            if (ticketsList.size() <= 10) {
+                                                channel.sendMessageAsync("```md\n" + StringUtils.join(ticketsList, "\n") + "```", null);
+                                            } else {
+                                                for (int i = 0; i < ticketsList.size(); i += 10) {
+                                                    try {
+                                                        pages.add(StringUtils.join(ticketsList.subList(i, i + 10), "\n"));
+                                                    } catch (IndexOutOfBoundsException e) {
+                                                        pages.add(StringUtils.join(ticketsList.subList(i, ticketsList.size()), "\n"));
+                                                    }
+                                                }
+                                                channel.sendMessageAsync("```md\n" + pages.get(0) + "\n\n[Page](1" + "/" + pages.size() + ")" + "```", null);
+                                            }
+                                        } else {
+                                            if (ticketsList.size() <= 10) {
+                                                channel.sendMessageAsync("There are no other pages!", null);
+                                            } else {
+                                                for (int i = 0; i < ticketsList.size(); i += 10) {
+                                                    try {
+                                                        pages.add(StringUtils.join(ticketsList.subList(i, i + 10), "\n"));
+                                                    } catch (IndexOutOfBoundsException e) {
+                                                        pages.add(StringUtils.join(ticketsList.subList(i, ticketsList.size()), "\n"));
+                                                    }
+                                                }
+                                                if (Integer.valueOf(pageNumber) > pages.size()) {
+                                                    channel.sendMessageAsync("Specified page does not exist!", null);
+                                                } else {
+                                                    channel.sendMessageAsync("```md\n" + pages.get(Integer.valueOf(pageNumber) - 1) + "\n\n[Page](" + pageNumber + "/" + pages.size() + ")" + "```", null);
+                                                }
+                                            }
+                                        }
+                                    } catch (NumberFormatException e) {
+                                        channel.sendMessageAsync("\"" + pageNumber + "\" is not a number!", null);
+                                    }
+                                } else {
+                                    channel.sendMessageAsync("There are no tickets to list!", null);
+                                }
+                                break;
+                            case "view":
+                                if (rawSplit.length == 3) {
+                                    if (tickets.getTickets().size() == 0) {
+                                        channel.sendMessageAsync("There are no tickets to view!", null);
+                                    } else {
+                                        try {
+                                            if (Integer.valueOf(rawSplit[2]) <= tickets.getTickets().size()) {
+                                                int ticketNumberInt = Integer.valueOf(rawSplit[2]) - 1;
+                                                Ticket ticket = tickets.getTickets().get(ticketNumberInt);
+                                                String ticketTitle = ticket.getTitle();
+                                                String ticketContents = ticket.getContents();
+                                                String ticketAuthor = "";
+                                                String ticketGuild = "";
+                                                for (JDA jda : KekBot.jdas) {
+                                                    try {
+                                                        User author = jda.getUserById(ticket.getAuthorID());
+                                                        Guild authorGuild = jda.getGuildById(ticket.getGuildID());
+                                                        ticketAuthor = author.getUsername() + "#" + author.getDiscriminator();
+                                                        ticketGuild = authorGuild.getName();
+                                                    } catch (NullPointerException e) {
+                                                        //do nothing
+                                                    }
+                                                }
+                                                String ticketStatus = ticket.getStatus().getName();
+
+                                                channel.sendMessageAsync("Title: **" + ticketTitle + "**" +
+                                                        "\nStatus: **" + ticketStatus + "**" +
+                                                        "\nAuthor: **" + ticketAuthor + "** (ID: **" + ticket.getAuthorID() + ")" + "**" +
+                                                        "\nServer: **" + ticketGuild + "** (ID: **" + ticket.getGuildID() + "**)" +
+                                                        "\n\nContents: \n" + ticketContents, null);
+                                            }
+                                        } catch (NumberFormatException e) {
+                                            channel.sendMessageAsync("\"" + rawSplit[2] + "\" is not a valid number!", null);
+                                        }
+                                    }
+                                } else {
+                                    channel.sendMessageAsync("No ticket specified.", null);
+                                }
+                                break;
+                            case "close":
+                                if (rawSplit.length == 3) {
+                                    if (tickets.getTickets().size() == 0) {
+                                        channel.sendMessageAsync("There are no tickets to close!", null);
+                                    } else {
+                                        try {
+                                            if (Integer.valueOf(rawSplit[2]) <= tickets.getTickets().size()) {
+                                                Ticket ticket = tickets.getTickets().get(Integer.valueOf(rawSplit[2])-1);
+                                                channel.sendMessageAsync("Ticket Closed.", null);
+                                                for (JDA jda : KekBot.jdas) {
+                                                    jda.getUserById(ticket.getAuthorID()).getPrivateChannel().sendMessageAsync("Your ticket (**" + ticket.getTitle() + "**) has been closed.", null);
+                                                }
+                                                tickets.closeTicket(ticket);
+                                                tickets.save();
+                                            }
+                                        } catch (NumberFormatException e) {
+                                            channel.sendMessageAsync("\"" + rawSplit[2] + "\" is not a valid number!", null);
+                                        }
+                                    }
+                                } else {
+                                    channel.sendMessageAsync("No ticket specified.", null);
+                                }
+                                break;
+                            case "reply":
+                                if (rawSplit.length == 3) {
+                                    String parameters[] = rawSplit[2].split(" ", 2);
+                                    if (parameters.length == 2) {
+                                        if (tickets.getTickets().size() == 0) {
+                                            channel.sendMessageAsync("You don't have any tickets to view!", null);
+                                        } else {
+                                            try {
+                                                if (Integer.valueOf(parameters[0]) <= tickets.getTickets().size()) {
+                                                    Ticket ticket = tickets.getTickets().get(Integer.valueOf(parameters[0])-1);
+                                                    tickets.replyToTicketManager(ticket, parameters[1], event.getAuthor());
+                                                    channel.sendMessageAsync("Reply Sent!", null);
+                                                }
+                                            } catch (NumberFormatException e) {
+                                                channel.sendMessageAsync("\"" + parameters[0] + "\" is not a valid number!", null);
+                                            }
+                                        }
+                                    } else {
+                                        channel.sendMessageAsync("No reply message specified.", null);
+                                    }
+                                } else {
+                                    channel.sendMessageAsync("No ticket specified.", null);
+                                }
+                        }
+                    }
+                }
+            }
+            //End of Owner-Only PM Based command
+        }
+
+
+
         if (event.getMessage().getContent().startsWith("help")) {
             String rawSplit[] = event.getMessage().getContent().split(" ", 2);
             List<String> commands = new ArrayList<String>();
             List<String> pages = new ArrayList<String>();
-            CommandRegistry registry = CommandRegistry.getForClient(KekBot.client);
+            CommandRegistry registry = CommandRegistry.getForClient(event.getJDA());
             EnumSet<CommandCategory> categories = EnumSet.allOf(CommandCategory.class);
             commands.add("# KekBot's default prefix for commands is \"$\". However, the server you're on might have it use a different prefix. If you're unsure, feel free to go a server and say \"@KekBot prefix\"");
             commands.add("# To add me to your server, send me an invite link!\n");
@@ -578,20 +424,20 @@ public class Listener extends ListenerAdapter {
             }
             if (rawSplit[0].equals("help")) {
                 if (rawSplit.length == 1) {
-                    channel.sendMessage("__**KekBot**__\n*Your helpful meme-based bot!*\n" +
+                    channel.sendMessageAsync("__**KekBot**__\n*Your helpful meme-based bot!*\n" +
                             "```md\n" + pages.get(0) + "\n\n" + "[Page](1" + "/" + pages.size() + ")\n" +
-                            "# Type \"help <number>\" to view that page!" + "```");
+                            "# Type \"help <number>\" to view that page!" + "```", null);
                 } else {
                     try {
                         if (Integer.valueOf(rawSplit[1]) > pages.size()) {
-                            channel.sendMessage("Specified page does not exist!");
+                            channel.sendMessageAsync("Specified page does not exist!", null);
                         } else {
-                            channel.sendMessage("__**KekBot**__\n*Your helpful meme-based bot!*\n" +
+                            channel.sendMessageAsync("__**KekBot**__\n*Your helpful meme-based bot!*\n" +
                                     "```md\n" + pages.get(Integer.valueOf(rawSplit[1]) - 1) + "\n\n[Page](" + rawSplit[1] + "/" + pages.size() + ")\n" +
-                                    "# Type \"help <number>\" to view that page!" + "```");
+                                    "# Type \"help <number>\" to view that page!" + "```", null);
                         }
                     } catch (NumberFormatException e) {
-                        channel.sendMessage("\"" + rawSplit[1] + "\" is not a number!");
+                        channel.sendMessageAsync("\"" + rawSplit[1] + "\" is not a number!", null);
                     }
                 }
             }
@@ -600,9 +446,9 @@ public class Listener extends ListenerAdapter {
 
     @Override
     public void onInviteReceived(InviteReceivedEvent event) {
-        if (event.isPrivate() && (!event.getAuthor().equals(KekBot.client.getSelfInfo())))
-            event.getMessage().getChannel().sendMessage("Thanks for the invite! However, I cannot simply join your server! You must allow me to connect to your server using the following link:" +
-                            "\nhttps://discordapp.com/oauth2/authorize?&client_id=213151748855037953&scope=bot&permissions=0x00000008");
+        if (event.isPrivate() && (!event.getAuthor().equals(event.getJDA().getSelfInfo())))
+            event.getMessage().getChannel().sendMessageAsync("Thanks for the invite! However, I cannot simply join your server! You must allow me to connect to your server using the following link:" +
+                            "\nhttps://discordapp.com/oauth2/authorize?&client_id=213151748855037953&scope=bot&permissions=0x00000008", null);
 
     }
 
@@ -613,7 +459,7 @@ public class Listener extends ListenerAdapter {
             String server = event.getGuild().getId();
             Document document = null;
             Element root = null;
-            File xmlFile = new File("settings\\" + server + ".xml");
+            File xmlFile = new File("Settings\\" + server + ".xml");
             if (xmlFile.exists()) {
                 // try to load document from xml file if it exist
                 // create a file input stream
@@ -628,8 +474,8 @@ public class Listener extends ListenerAdapter {
             } else {
                 // if it does not exist create a new document and new root
                 document = new Document();
-                root = new Element("settings");
-                event.getGuild().getTextChannels().get(0).sendMessage("Thanks for inviting me!");
+                root = new Element("Settings");
+                event.getGuild().getTextChannels().get(0).sendMessageAsync("Thanks for inviting me!");
             }
 
             if (root.getChild("name") != null) {
@@ -638,7 +484,7 @@ public class Listener extends ListenerAdapter {
 
                     document.setContent(root);
                     try {
-                        FileWriter writer = new FileWriter("settings\\" + server + ".xml");
+                        FileWriter writer = new FileWriter("Settings\\" + server + ".xml");
                         XMLOutputter outputter = new XMLOutputter();
                         outputter.setFormat(Format.getPrettyFormat());
                         outputter.output(document, writer);
@@ -651,7 +497,7 @@ public class Listener extends ListenerAdapter {
                 root.addContent(new Element("name").setText(event.getGuild().getName()));
                 document.setContent(root);
                 try {
-                    FileWriter writer = new FileWriter("settings\\" + server + ".xml");
+                    FileWriter writer = new FileWriter("Settings\\" + server + ".xml");
                     XMLOutputter outputter = new XMLOutputter();
                     outputter.setFormat(Format.getPrettyFormat());
                     outputter.output(document, writer);
@@ -666,18 +512,18 @@ public class Listener extends ListenerAdapter {
         }
 
         if (XMLUtils.getPrefix(event.getGuild()) != null) {
-            CommandRegistry.getForClient(KekBot.client).setPrefixForGuild(event.getGuild(), XMLUtils.getPrefix(event.getGuild()));
+            CommandRegistry.getForClient(KekBot.jda).setPrefixForGuild(event.getGuild(), XMLUtils.getPrefix(event.getGuild()));
         }
 
-        if (event.getGuild().equals(KekBot.client.getGuildById("221910104495095808"))) {
-            CommandRegistry.getForClient(KekBot.client).customRegister(new Command("customTest")
+        if (event.getGuild().equals(KekBot.jda.getGuildById("221910104495095808"))) {
+            CommandRegistry.getForClient(KekBot.jda).customRegister(new Command("customTest")
                     .withCategory(TEST)
                     .withDescription("Just a test command.")
                     .withUsage("{p}test")
                     .caseSensitive(true)
                     .onExecuted(context -> {
-                        context.getTextChannel().sendMessage("Test Successful! Custom Comands now work!");
-                    }), KekBot.client.getGuildById("221910104495095808"));
+                        context.getTextChannel().sendMessageAsync("Test Successful! Custom Comands now work!");
+                    }), KekBot.jda.getGuildById("221910104495095808"));
         }
     }*/
 
@@ -697,7 +543,7 @@ public class Listener extends ListenerAdapter {
             String server = event.getGuild().getId();
             Document document = null;
             Element root = null;
-            File xmlFile = new File("settings\\" + server + ".xml");
+            File xmlFile = new File("Settings\\" + server + ".xml");
             if (xmlFile.exists()) {
                 // try to load document from xml file if it exist
                 // create a file input stream
@@ -712,7 +558,7 @@ public class Listener extends ListenerAdapter {
             } else {
                 // if it does not exist create a new document and new root
                 document = new Document();
-                root = new Element("settings");
+                root = new Element("Settings");
             }
 
 
@@ -720,7 +566,7 @@ public class Listener extends ListenerAdapter {
                 root.getChild("name").setText(event.getGuild().getName());
                 document.setContent(root);
                 try {
-                    FileWriter writer = new FileWriter("settings\\" + server + ".xml");
+                    FileWriter writer = new FileWriter("Settings\\" + server + ".xml");
                     XMLOutputter outputter = new XMLOutputter();
                     outputter.setFormat(Format.getPrettyFormat());
                     outputter.output(document, writer);
@@ -737,11 +583,11 @@ public class Listener extends ListenerAdapter {
     @Override
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
         out.println(ft2.format(time) + event.getUser().getUsername() + " has joined " + event.getGuild().getName() + ".");
-        try {
+        /*try {
             String server = event.getGuild().getId();
             Document document = null;
             Element root = null;
-            File xmlFile = new File("settings\\" + server + ".xml");
+            File xmlFile = new File("Settings\\" + server + ".xml");
             if (xmlFile.exists()) {
                 // try to load document from xml file if it exist
                 // create a file input stream
@@ -755,7 +601,7 @@ public class Listener extends ListenerAdapter {
                 fis.close();
             } else {
                 // if it does not exist create a new document and new root
-                root = new Element("settings");
+                root = new Element("Settings");
             }
 
 
@@ -764,7 +610,7 @@ public class Listener extends ListenerAdapter {
                     if (root.getChild("announce").getChild("welcome").getChild("channel") != null && root.getChild("announce").getChild("welcome").getChild("message") != null) {
                         String channelID = root.getChild("announce").getChild("welcome").getChild("channel").getText();
                         String message = root.getChild("announce").getChild("welcome").getChild("message").getText().replace("{mention}", event.getUser().getAsMention()).replace("{name}", event.getUser().getUsername());
-                        KekBot.client.getTextChannelById(channelID).sendMessage(message);
+                        KekBot.jda.getTextChannelById(channelID).sendMessageAsync(message, null);
                     }
                 }
             }
@@ -774,26 +620,64 @@ public class Listener extends ListenerAdapter {
                         try {
                             event.getGuild().getRolesForUser(event.getUser()).add(event.getGuild().getRoleById(root.getChild("auto_role").getChild("role").getText()));
                         } catch (PermissionException e) {
-                            event.getGuild().getTextChannels().get(0).sendMessage("Unable to automatically set role due to not having the **Manage Roles** permission.");
+                            event.getGuild().getTextChannels().get(0).sendMessageAsync("Unable to automatically set role due to not having the **Manage Roles** permission.", null);
                         } catch (NullPointerException e) {
-                            event.getGuild().getTextChannels().get(0).sendMessage("I can no longer find the rank in which I was to automatically assign!");
+                            event.getGuild().getTextChannels().get(0).sendMessageAsync("I can no longer find the rank in which I was to automatically assign!", null);
                         }
                 }
             }
 
         } catch (IOException | JDOMException e) {
             e.printStackTrace();
+        }*/
+
+        Settings settings = GSONUtils.getSettings(event.getGuild());
+
+        if (settings.getAutoRoleID() != null) {
+            try {
+                event.getGuild().getManager().addRoleToUser(event.getUser(), event.getGuild().getRoleById(settings.getAutoRoleID())).update();
+            } catch (PermissionException e) {
+                event.getGuild().getTextChannels().get(0).sendMessageAsync("Unable to automatically set role due to not having the **Manage Roles** permission.", null);
+            } catch (NullPointerException e) {
+                event.getGuild().getTextChannels().get(0).sendMessageAsync("I can no longer find the rank in which I was to automatically assign!", null);
+            }
+        }
+
+        if (settings.welcomeEnabled()) {
+            try {
+                settings.getWelcomeChannel(event.getJDA()).sendMessageAsync(settings.getWelcomeMessage().replace("{mention}", event.getUser().getAsMention()).replace("{name|", event.getUser().getUsername()), null);
+            } catch (MessageNotFoundException e) {
+                settings.setWelcomeMessage(null).toggleWelcome(false).save(event.getGuild());
+                for (TextChannel channel : event.getGuild().getTextChannels()) {
+                    try {
+                        channel.sendMessageAsync("**WARNING:** KekBot could not find this server's welcome message! Please set it using `$announce welcome message <message>`!", null);
+                        break;
+                    } catch (PermissionException er) {
+                        //¯\_(ツ)_/¯
+                    }
+                }
+            } catch (ChannelNotFoundException | NullPointerException e) {
+                settings.setWelcomeChannel(null).toggleWelcome(false).save(event.getGuild());
+                for (TextChannel channel : event.getGuild().getTextChannels()) {
+                    try {
+                        channel.sendMessageAsync("**WARNING:** KekBot could not find this server's welcome channel! Please set it using `$announce welcome channel <#channel>`!", null);
+                        break;
+                    } catch (PermissionException er) {
+                        //¯\_(ツ)_/¯
+                    }
+                }
+            }
         }
     }
 
     @Override
     public void onGuildMemberLeave(GuildMemberLeaveEvent event) {
         out.println(ft2.format(time) + event.getUser().getUsername() + " has left " + event.getGuild().getName() + ".");
-        try {
+        /*try {
             String server = event.getGuild().getId();
             Document document = null;
             Element root = null;
-            File xmlFile = new File("settings\\" + server + ".xml");
+            File xmlFile = new File("Settings\\" + server + ".xml");
             if (xmlFile.exists()) {
                 // try to load document from xml file if it exist
                 // create a file input stream
@@ -808,7 +692,7 @@ public class Listener extends ListenerAdapter {
             } else {
                 // if it does not exist create a new document and new root
                 document = new Document();
-                root = new Element("settings");
+                root = new Element("Settings");
             }
 
 
@@ -818,11 +702,11 @@ public class Listener extends ListenerAdapter {
                         if (root.getChild("announce").getChild("goodbye").getChild("message") != null) {
                             String channelID = root.getChild("announce").getChild("goodbye").getChild("channel").getText();
                             String message = root.getChild("announce").getChild("goodbye").getChild("message").getText().replace("{mention}", event.getUser().getAsMention()).replace("{name}", event.getUser().getUsername());
-                            KekBot.client.getTextChannelById(channelID).sendMessage(message);
+                            event.getJDA().getTextChannelById(channelID).sendMessageAsync(message, null);
                         } else {
                             String channelID = root.getChild("announce").getChild("goodbye").getChild("channel").getText();
                             String message = event.getUser().getUsername() + " has left the server!";
-                            KekBot.client.getTextChannelById(channelID).sendMessage(message);
+                            event.getJDA().getTextChannelById(channelID).sendMessageAsync(message, null);
                         }
                     }
                 }
@@ -830,6 +714,33 @@ public class Listener extends ListenerAdapter {
 
         } catch (IOException | JDOMException e) {
             e.printStackTrace();
+        }*/
+        Settings settings = GSONUtils.getSettings(event.getGuild());
+
+        if (settings.farewellEnabled()) {
+            try {
+                settings.getFarewellChannel(event.getJDA()).sendMessageAsync(settings.getFarewellMessage().replace("{mention}", event.getUser().getAsMention()).replace("{name}", event.getUser().getUsername()), null);
+            } catch (MessageNotFoundException e) {
+                settings.setFarewellMessage(null).toggleFarewell(false).save(event.getGuild());
+                for (TextChannel channel : event.getGuild().getTextChannels()) {
+                    try {
+                        channel.sendMessageAsync("**WARNING:** KekBot could not find this server's welcome message! Please set it using `$announce welcome message <message>`!", null);
+                        break;
+                    } catch (PermissionException er) {
+                        //¯\_(ツ)_/¯
+                    }
+                }
+            } catch (ChannelNotFoundException | NullPointerException e) {
+                settings.setFarewellChannel(null).toggleFarewell(false).save(event.getGuild());
+                for (TextChannel channel : event.getGuild().getTextChannels()) {
+                    try {
+                        channel.sendMessageAsync("**WARNING:** KekBot could not find this server's welcome channel! Please set it using `$announce welcome channel <#channel>`!", null);
+                        break;
+                    } catch (PermissionException er) {
+                        //¯\_(ツ)_/¯
+                    }
+                }
+            }
         }
     }
 }

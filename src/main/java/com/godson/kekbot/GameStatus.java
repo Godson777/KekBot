@@ -17,8 +17,8 @@ public class GameStatus extends TimerTask {
             Random random = new Random();
             List<String> games = FileUtils.readLines(new File("games.txt"), "utf-8");
             int index = random.nextInt(games.size());
-            KekBot.client.getAccountManager().setGame(games.get(index).replace("{users}", String.valueOf(KekBot.client.getUsers().size())).replace("{servers}", String.valueOf(KekBot.client.getGuilds().size())));
-            System.out.println("Playing: " + KekBot.client.getSelfInfo().getCurrentGame().getName());
+            KekBot.jdas[0].getAccountManager().setGame(games.get(index).replace("{users}", String.valueOf(KekBot.jdas[0].getUsers().size())).replace("{servers}", String.valueOf(KekBot.jdas[0].getGuilds().size())));
+            System.out.println("Playing: " + KekBot.jdas[0].getSelfInfo().getCurrentGame().getName());
         } catch (Exception e) {
             e.printStackTrace();
         }
