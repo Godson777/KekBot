@@ -2,23 +2,19 @@ package com.godson.kekbot.command.commands.meme;
 
 import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
-import com.godson.kekbot.KekBot;
 import net.dv8tion.jda.entities.Guild;
 import net.dv8tion.jda.entities.Role;
 import net.dv8tion.jda.entities.TextChannel;
-import net.dv8tion.jda.exceptions.PermissionException;
 
 import java.io.File;
 import java.util.List;
 
-import static java.lang.System.out;
-
-public class Gril {
-    public static Command gril = new Command("gril")
-            .withAliases("girl", "topless")
+public class Poosy {
+    public static Command destroyer = new Command("poosy")
+            .withAliases("destroyer")
             .withCategory(CommandCategory.MEME)
-            .withDescription("Shows a topless gril.")
-            .withUsage("{p}gril")
+            .withDescription("\"Poosy...De...stroyer.\" ~Vinesauce Joel")
+            .withUsage("{p}pussydestroyer")
             .onExecuted(context -> {
                 TextChannel channel = context.getTextChannel();
                 Guild server = context.getGuild();
@@ -28,12 +24,8 @@ public class Gril {
                 } else {
                     Role meme = checkForMeme.get(0);
                     if (server.getRolesForUser(context.getJDA().getSelfInfo()).contains(meme)) {
-                        try {
-                            channel.sendTyping();
-                            channel.sendFileAsync(new File("topless_grill.png"), null, null);
-                        } catch (PermissionException e) {
-                            out.println("I do not have the 'Send Messages' permission in server: " + server.getName() + " - #" + channel.getName() + "! Aborting!");
-                        }
+                        channel.sendTyping();
+                        channel.sendFileAsync(new File("poosy.png"), null, null);
                     } else {
                         channel.sendMessageAsync(":exclamation: This command requires me to have the __**Living Meme**__ role.", null);
                     }

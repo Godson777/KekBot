@@ -20,18 +20,18 @@ public class Salt {
                 String args[] = context.getArgs();
                 List<Role> checkForMeme = server.getRolesByName("Living Meme");
                 if (checkForMeme.size() == 0) {
-                    channel.sendMessage(":exclamation: __**Living Meme**__ role not found! Please add this role and assign it to me!");
+                    channel.sendMessageAsync(":exclamation: __**Living Meme**__ role not found! Please add this role and assign it to me!", null);
                 } else {
                     Role meme = checkForMeme.get(0);
-                    if (server.getRolesForUser(KekBot.client.getSelfInfo()).contains(meme)) {
+                    if (server.getRolesForUser(context.getJDA().getSelfInfo()).contains(meme)) {
                         if (args.length == 0) {
-                            channel.sendMessage("You must supply a name or mention!");
+                            channel.sendMessageAsync("You must supply a name or mention!", null);
                         } else {
                             String input = args[0];
-                            channel.sendMessage("Sodium, atomic number 11, was first isolated by " + input + " in 1807. A chemical component of salt, he named it Na in honor of the saltiest region on earth, North America.");
+                            channel.sendMessageAsync("Sodium, atomic number 11, was first isolated by " + input + " in 1807. A chemical component of salt, he named it Na in honor of the saltiest region on earth, North America.", null);
                         }
                     } else {
-                        channel.sendMessage(":exclamation: This command requires me to have the __**Living Meme**__ role.");
+                        channel.sendMessageAsync(":exclamation: This command requires me to have the __**Living Meme**__ role.", null);
                     }
                 }
             });

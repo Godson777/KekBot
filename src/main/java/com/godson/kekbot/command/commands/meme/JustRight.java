@@ -24,10 +24,10 @@ public class JustRight {
                 TextChannel channel = context.getTextChannel();
                 List<Role> checkForMeme = server.getRolesByName("Living Meme");
                 if (checkForMeme.size() == 0) {
-                    channel.sendMessage(":exclamation: __**Living Meme**__ role not found! Please add this role and assign it to me!");
+                    channel.sendMessageAsync(":exclamation: __**Living Meme**__ role not found! Please add this role and assign it to me!", null);
                 } else {
                     Role meme = checkForMeme.get(0);
-                    if (server.getRolesForUser(KekBot.client.getSelfInfo()).contains(meme)) {
+                    if (server.getRolesForUser(context.getJDA().getSelfInfo()).contains(meme)) {
                         if (new File("justright").isDirectory()) {
                             File justrights[] = new File("justright").listFiles();
                             Random random = new Random();
@@ -40,7 +40,7 @@ public class JustRight {
                                 }
                         }
                     } else {
-                        channel.sendMessage(":exclamation: This command requires me to have the __**Living Meme**__ role.");
+                        channel.sendMessageAsync(":exclamation: This command requires me to have the __**Living Meme**__ role.", null);
                     }
                 }
             });
