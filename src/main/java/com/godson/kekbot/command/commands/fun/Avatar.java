@@ -12,19 +12,19 @@ public class Avatar {
             .withDescription("Sends a larger version of the specified user's avatar. If there is no user specified, it'll send your avatar.")
             .withUsage("{p}avatar <user>")
             .onExecuted(context -> {
-                String rawSplit[] = context.getMessage().getContent().split(" ", 2);
+                String rawSplit[] = context.getMessage().getRawContent().split(" ", 2);
                 TextChannel channel = context.getTextChannel();
                 if (rawSplit.length == 1) {
-                    channel.sendMessage(context.getMessage().getAuthor().getAvatarUrl());
+                    channel.sendMessageAsync(context.getMessage().getAuthor().getAvatarUrl(), null);
                 } else {
                     try {
                         User mention = context.getMessage().getMentionedUsers().get(0);
-                        channel.sendMessage(mention.getAvatarUrl());
+                        channel.sendMessageAsync(mention.getAvatarUrl(), null);
                     } catch (IndexOutOfBoundsException e) {
                         try {
-                            channel.sendMessage(context.getGuild().getUsersByName(rawSplit[1]).get(0).getAvatarUrl());
+                            channel.sendMessageAsync(context.getGuild().getUsersByName(rawSplit[1]).get(0).getAvatarUrl(), null);
                         } catch (IndexOutOfBoundsException er) {
-                            channel.sendMessage("I couldn't find a user with that name/nickname!");
+                            channel.sendMessageAsync("I couldn't find a user with that name/nickname!", null);
                         }
                     }
                 }

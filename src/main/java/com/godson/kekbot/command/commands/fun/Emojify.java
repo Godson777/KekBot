@@ -66,11 +66,11 @@ public class Emojify {
             .withDescription("Converts your text message to a message persisting of emojis. (May go through changes later on.)")
             .withUsage("{p}emojify <messge>")
             .onExecuted(context -> {
-                String rawSplit[] = context.getMessage().getContent().split(" ", 2);
+                String rawSplit[] = context.getMessage().getRawContent().split(" ", 2);
                 if (rawSplit.length == 1) {
-                    context.getTextChannel().sendMessage("No message specified! :cry:");
+                    context.getTextChannel().sendMessageAsync("No message specified! :cry:", null);
                 } else {
-                    context.getTextChannel().sendMessage(emojify(rawSplit[1]));
+                    context.getTextChannel().sendMessageAsync(emojify(rawSplit[1]), null);
                 }
             });
 }

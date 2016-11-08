@@ -20,10 +20,10 @@ public class UrbanDictionary {
             .withDescription("Performs a search on Urban Dictionary.")
             .withUsage("{p}ud <term>")
             .onExecuted(context -> {
-                String rawSplit[] = context.getMessage().getContent().split(" ", 2);
+                String rawSplit[] = context.getMessage().getRawContent().split(" ", 2);
                 TextChannel channel = context.getTextChannel();
                 if (rawSplit.length == 1) {
-                    channel.sendMessage("Next time, supply a word or phrase for me to look up!");
+                    channel.sendMessageAsync("Next time, supply a word or phrase for me to look up!", null);
                 } else {
                     try {
                         HttpResponse<String> response = Unirest.get("https://mashape-community-urban-dictionary.p.mashape.com/define?term=" + rawSplit[1].replace(" ", "-"))
@@ -47,13 +47,13 @@ public class UrbanDictionary {
                                     "*\n\nDefinition: " + dictionary.path("definition").textValue() +
                                     "\n\nExamples: " + dictionary.path("example").textValue() + "\n\n" + dictionary.path("permalink").textValue();
                             if (ud.length() > 2000) {
-                                channel.sendMessage("The definition I found is too long! Either try again to get receive a different one, or visit this link to see the" +
-                                        "definition I found! \n" + dictionary.path("permalink").textValue());
+                                channel.sendMessageAsync("The definition I found is too long! Either try again to get receive a different one, or visit this link to see the" +
+                                        "definition I found! \n" + dictionary.path("permalink").textValue(), null);
                             } else {
-                                channel.sendMessage(ud);
+                                channel.sendMessageAsync(ud, null);
                             }
                         } else {
-                            channel.sendMessage("No definition found.");
+                            channel.sendMessageAsync("No definition found.", null);
                         }
                     } catch (UnirestException | IOException e) {
                         e.printStackTrace();

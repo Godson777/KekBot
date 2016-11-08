@@ -10,11 +10,11 @@ public class Say {
             .withUsage("{p}say <message>")
             .deleteCommand(true)
             .onExecuted(context -> {
-                String[] contents = context.getMessage().getContent().split(" ", 2);
+                String[] contents = context.getMessage().getRawContent().split(" ", 2);
                 if (contents.length == 1) {
-                    context.getTextChannel().sendMessage(":anger: " + context.getMessage().getAuthor().getAsMention() + ", could you at *least* give me something to *say*?");
+                    context.getTextChannel().sendMessageAsync(":anger: " + context.getMessage().getAuthor().getAsMention() + ", could you at *least* give me something to *say*?", null);
                 } else {
-                    context.getTextChannel().sendMessage(contents[1]);
+                    context.getTextChannel().sendMessageAsync(contents[1], null);
                 }
             });
 }

@@ -9,5 +9,5 @@ public class Lenny {
             .withDescription("\"( ͡° ͜ʖ ͡°)\"")
             .withUsage("{p}lenny")
             .deleteCommand(true)
-            .onExecuted(context -> context.getTextChannel().sendMessage("( ͡° ͜ʖ ͡°)"));
+            .onExecuted(context -> context.getTextChannel().sendMessageAsync("( ͡° ͜ʖ ͡°)", null));
 }

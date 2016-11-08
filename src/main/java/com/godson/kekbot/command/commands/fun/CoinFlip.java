@@ -20,6 +20,6 @@ public class CoinFlip {
                 } else {
                     coin = "**TAILS!**";
                 }
-                context.getTextChannel().sendMessage(context.getMessage().getAuthor().getAsMention() + " Flipped the coin and it landed on... " + coin);
+                context.getTextChannel().sendMessageAsync(context.getMessage().getAuthor().getAsMention() + " Flipped the coin and it landed on... " + coin, null);
             });
 }
