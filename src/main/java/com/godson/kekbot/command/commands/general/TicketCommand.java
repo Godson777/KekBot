@@ -8,11 +8,7 @@ import com.godson.kekbot.Settings.Config;
 import com.godson.kekbot.Settings.Ticket;
 import com.godson.kekbot.Settings.TicketManager;
 import com.godson.kekbot.Settings.TicketStatus;
-import com.godson.kekbot.XMLUtils;
 import net.dv8tion.jda.entities.TextChannel;
-import org.jdom2.JDOMException;
-
-import java.io.IOException;
 
 public class TicketCommand {
     public static Command ticket = new Command("ticket")

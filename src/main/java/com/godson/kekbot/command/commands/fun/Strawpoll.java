@@ -9,7 +9,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Strawpoll {
     private static final String[] EMPTY_STRING_ARRAY = new String[0];

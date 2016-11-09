@@ -42,7 +42,7 @@
         <dependency>
             <groupId>com.github.Godson777</groupId>
             <artifactId>Commands4J</artifactId>
-            <version>9712e1e</version>
+            <version>eede80a</version>
         </dependency>
 
         <dependency>
@@ -55,12 +55,6 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>2.2.3</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jdom</groupId>
-            <artifactId>jdom2</artifactId>
-            <version>2.0.6</version>
         </dependency>
 
         <dependency>

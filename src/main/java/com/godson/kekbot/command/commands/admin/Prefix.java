@@ -4,7 +4,6 @@ import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
 import com.darichey.discord.api.CommandRegistry;
 import com.godson.kekbot.GSONUtils;
-import com.godson.kekbot.KekBot;
 import com.godson.kekbot.Settings.Settings;
 import net.dv8tion.jda.entities.Guild;
 import net.dv8tion.jda.entities.TextChannel;

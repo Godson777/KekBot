@@ -4,7 +4,7 @@ package com.godson.kekbot.command.commands.general;
 import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
 import com.darichey.discord.api.CommandRegistry;
-import com.godson.kekbot.KekBot;
+import com.godson.kekbot.GSONUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -27,17 +27,22 @@ public class Help {
                     commands.add("# KekBot's default prefix for commands is \"$\". However, the server you're on might have it use a different prefix. If you're unsure, feel free to go a server and say \"@KekBot prefix\"");
                     commands.add("# To add me to your server, send me an invite link!\n");
                     categories.forEach(category -> {
-                        commands.add("# " + category.toString());
-                        for (int i = 0; i < registry.getCommands().size(); i++) {
-                            Set<String> aliases = registry.getCommands().get(i).getAliases();
-                            if (registry.getCommands().get(i).getCategory() != null) {
-                                if (registry.getCommands().get(i).getCategory().equals(category)) {
-                                    commands.add("[$" + registry.getCommands().get(i).getName() +
-                                            (registry.getCommands().get(i).getAliases().size() != 0 ? " | " + StringUtils.join(aliases, " | ") : "") + "](" + registry.getCommands().get(i).getDescription() + ")");
+                        if (!category.equals(CommandCategory.BOT_OWNER)) commands.add("# " + category.toString());
+                        if (category.equals(CommandCategory.BOT_OWNER) && context.getAuthor().getId().equals(GSONUtils.getConfig().getBotOwner())) commands.add("# " + category.toString());
+                        for (Command command : registry.getCommands()) {
+                            Set<String> aliases = command.getAliases();
+                            if (command.getCategory() != null) {
+                                if (command.getCategory().equals(category)) {
+                                    if (!category.equals(CommandCategory.BOT_OWNER))
+                                        commands.add("[$" + command.getName() +
+                                                (aliases.size() != 0 ? " | " + StringUtils.join(aliases, " | ") : "") + "](" + command.getDescription() + ")");
+                                    if (category.equals(CommandCategory.BOT_OWNER) && context.getAuthor().getId().equals(GSONUtils.getConfig().getBotOwner()))
+                                        commands.add("[$" + command.getName() +
+                                                (aliases.size() != 0 ? " | " + StringUtils.join(aliases, " | ") : "") + "](" + command.getDescription() + ")");
                                 }
                             }
                         }
-                        commands.add("");
+                        if (!category.equals(CommandCategory.BOT_OWNER)) commands.add("");
                     });
                     for (int i = 0; i < registry.getCommands().size(); i += 25) {
                         try {
@@ -57,13 +62,13 @@ public class Help {
                     if (cmd.isPresent()) {
                         Command command = cmd.get();
                         Set<String> set = cmd.get().getAliases();
-                        context.getTextChannel().sendMessageAsync("```md\n[Command](" + command.getName() + ")" +
-                                        (command.getAliases().size() != 0 ? "\n\n[Aliases](" + StringUtils.join(set, ", ") + ")" : "") +
-                                "\n\n[Category](" + command.getCategory() + ")" +
-                                "\n\n[Description](" + command.getDescription() + ")" +
-                                "\n\n# Paramaters (<> Required, {} Optional)" +
-                                "\n[Usage](" + command.getUsage().replace("{p}", (CommandRegistry.getForClient(context.getJDA()).getPrefixForGuild(context.getGuild()) != null ? CommandRegistry.getForClient(context.getJDA()).getPrefixForGuild(context.getGuild()) : "$")) + ")```", null
-                        );
+                        if (!command.getCategory().equals(CommandCategory.BOT_OWNER))
+                            context.getTextChannel().sendMessageAsync("```md\n[Command](" + command.getName() + ")" +
+                                    (command.getAliases().size() != 0 ? "\n\n[Aliases](" + StringUtils.join(set, ", ") + ")" : "") +
+                                    "\n\n[Category](" + command.getCategory() + ")" +
+                                    "\n\n[Description](" + command.getDescription() + ")" +
+                                    "\n\n# Paramaters (<> Required, {} Optional)" +
+                                    "\n[Usage](" + command.getUsage().replace("{p}", (CommandRegistry.getForClient(context.getJDA()).getPrefixForGuild(context.getGuild()) != null ? CommandRegistry.getForClient(context.getJDA()).getPrefixForGuild(context.getGuild()) : "$")) + ")```", null);
                     } else {
                         context.getTextChannel().sendMessageAsync("Command not found.", null);
                     }

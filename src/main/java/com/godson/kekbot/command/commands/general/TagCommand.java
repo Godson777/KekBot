@@ -6,16 +6,16 @@ import com.darichey.discord.api.CommandRegistry;
 import com.godson.kekbot.GSONUtils;
 import com.godson.kekbot.Settings.Tag;
 import com.godson.kekbot.Settings.TagManager;
-import com.godson.kekbot.XMLUtils;
 import net.dv8tion.jda.Permission;
 import net.dv8tion.jda.entities.TextChannel;
 import net.dv8tion.jda.utils.PermissionUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.jdom2.JDOMException;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class TagCommand {

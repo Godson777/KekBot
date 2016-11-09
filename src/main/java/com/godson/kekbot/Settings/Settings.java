@@ -2,7 +2,6 @@ package com.godson.kekbot.Settings;
 
 import com.godson.kekbot.Exceptions.ChannelNotFoundException;
 import com.godson.kekbot.Exceptions.MessageNotFoundException;
-import com.godson.kekbot.KekBot;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.dv8tion.jda.JDA;
@@ -97,6 +96,10 @@ public class Settings {
             announceSettings.broadcastChannelID = null;
         }
         return this;
+    }
+
+    public String getGuildName() {
+        return guildName;
     }
 
     public String getPrefix() {

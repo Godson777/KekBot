@@ -8,17 +8,11 @@ import com.godson.kekbot.Settings.Quotes;
 import net.dv8tion.jda.Permission;
 import net.dv8tion.jda.entities.Guild;
 import net.dv8tion.jda.entities.TextChannel;
-import net.dv8tion.jda.exceptions.PermissionException;
 import net.dv8tion.jda.utils.PermissionUtil;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-
-import static java.lang.System.out;
 
 public class Quote {
     public static Command quote = new Command("quote")
