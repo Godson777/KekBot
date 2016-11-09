@@ -1,10 +1,9 @@
 package com.godson.kekbot.command.commands.owner;
 
 import com.darichey.discord.api.Command;
+import com.darichey.discord.api.CommandCategory;
 import com.godson.kekbot.GSONUtils;
-import com.godson.kekbot.KekBot;
 import com.godson.kekbot.Settings.Config;
-import com.godson.kekbot.XMLUtils;
 import net.dv8tion.jda.entities.TextChannel;
 import net.dv8tion.jda.exceptions.PermissionException;
 import org.apache.commons.io.FileUtils;
@@ -15,6 +14,7 @@ import java.util.List;
 
 public class AddGame {
     public static Command addGame = new Command("addGame")
+            .withCategory(CommandCategory.BOT_OWNER)
             .onExecuted(context -> {
                 Config config = GSONUtils.getConfig();
                 if (config.getAllowedUsers().contains(context.getMessage().getAuthor().getId()) || context.getMessage().getAuthor().getId().equals(config.getBotOwner())) {

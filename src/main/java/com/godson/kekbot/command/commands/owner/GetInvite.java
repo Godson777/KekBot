@@ -1,9 +1,8 @@
 package com.godson.kekbot.command.commands.owner;
 
 import com.darichey.discord.api.Command;
+import com.darichey.discord.api.CommandCategory;
 import com.godson.kekbot.GSONUtils;
-import com.godson.kekbot.KekBot;
-import com.godson.kekbot.XMLUtils;
 import net.dv8tion.jda.entities.Channel;
 import net.dv8tion.jda.entities.Guild;
 import net.dv8tion.jda.exceptions.PermissionException;
@@ -13,6 +12,7 @@ import java.util.Optional;
 
 public class GetInvite {
     public static Command getInvite = new Command("getinvite")
+            .withCategory(CommandCategory.BOT_OWNER)
             .onExecuted(context -> {
                 if (context.getMessage().getAuthor().equals(context.getJDA().getUserById(GSONUtils.getConfig().getBotOwner()))) {
                     String rawSplit[] = context.getMessage().getRawContent().split(" ", 2);
