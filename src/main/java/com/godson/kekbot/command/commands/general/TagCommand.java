@@ -46,8 +46,9 @@ public class TagCommand {
                                         try {
                                             manager.addTag(tag);
                                             manager.save(context.getGuild());
+                                            channel.sendMessageAsync("Successfully added tag! :thumbsup:", null);
                                         } catch (IllegalArgumentException e) {
-
+                                            channel.sendMessageAsync("A tag already exists with that name!", null);
                                         }
                                     } else {
                                         channel.sendMessageAsync("No value specified for \"" + rawSplit[2] + "\"!", null);

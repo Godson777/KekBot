@@ -16,6 +16,7 @@ import net.dv8tion.jda.entities.User;
 import net.dv8tion.jda.events.InviteReceivedEvent;
 import net.dv8tion.jda.events.ReadyEvent;
 import net.dv8tion.jda.events.guild.GuildJoinEvent;
+import net.dv8tion.jda.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.events.guild.GuildUpdateEvent;
 import net.dv8tion.jda.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.events.guild.member.GuildMemberLeaveEvent;
@@ -26,7 +27,9 @@ import net.dv8tion.jda.exceptions.BlockedException;
 import net.dv8tion.jda.exceptions.PermissionException;
 import net.dv8tion.jda.hooks.ListenerAdapter;
 import org.apache.commons.lang3.StringUtils;
+import org.tritonus.lowlevel.dsp.Util;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -400,10 +403,9 @@ public class Listener extends ListenerAdapter {
 
     }
 
-
+    @Override
     public void onGuildJoin(GuildJoinEvent event) {
         event.getJDA().getUserById(GSONUtils.getConfig().getBotOwner()).getPrivateChannel().sendMessageAsync("Joined server: \"" + event.getGuild().getName() + "\" (ID: " + event.getGuild().getId() + ")", null);
-        event.getGuild().getTextChannels().get(0).sendMessageAsync("Thanks for inviting me!", null);
         Settings settings = new Settings().setName(event.getGuild().getName());
         settings.save(event.getGuild());
         String joinSpeech = "Hi! I'm KekBot! Thanks for inviting me!" + "\n" +
@@ -417,6 +419,13 @@ public class Listener extends ListenerAdapter {
                 //¯\_(ツ)_/¯
             }
         }
+    }
+
+    @Override
+    public void onGuildLeave(GuildLeaveEvent event) {
+        event.getJDA().getUserById(GSONUtils.getConfig().getBotOwner()).getPrivateChannel().sendMessageAsync("Left/Kicked from server: \"" + event.getGuild().getName() + "\" (ID: " + event.getGuild().getId() + ")", null);
+        File folder = new File("settings\\" + event.getGuild().getId());
+        Utils.deleteDirectory(folder);
     }
 
     @Override
