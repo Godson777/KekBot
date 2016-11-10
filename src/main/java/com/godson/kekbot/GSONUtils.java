@@ -1,13 +1,14 @@
 package com.godson.kekbot;
 
+import com.godson.kekbot.Objects.UDictionary;
 import com.godson.kekbot.Settings.*;
 import com.google.gson.Gson;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import net.dv8tion.jda.entities.Guild;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 
 public class GSONUtils {
 
@@ -85,5 +86,22 @@ public class GSONUtils {
             e.printStackTrace();
         }
         return manager;
+    }
+
+    public static UDictionary getUDResults(String word) {
+        UDictionary uDictionary = new UDictionary();
+        try {
+            HttpResponse<String> response = Unirest.get("https://mashape-community-urban-dictionary.p.mashape.com/define?term=" + word)
+                    .header("X-Mashape-Key", "ceU4edWIr7mshi68Xs4IQYUQ7XgTp1ILJUgjsnsO4Qf4MOc543")
+                    .header("Accept", "text/plain")
+                    .asString();
+            BufferedReader br = new BufferedReader(new InputStreamReader(response.getRawBody()));
+            Gson gson = new Gson();
+            uDictionary = gson.fromJson(br, UDictionary.class);
+            br.close();
+        } catch (IOException | UnirestException e) {
+            e.printStackTrace();
+        }
+        return uDictionary;
     }
 }

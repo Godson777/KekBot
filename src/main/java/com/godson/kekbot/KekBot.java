@@ -48,7 +48,7 @@ public class KekBot {
 
                 CommandRegistry.getForClient(jda).registerAll(Help.help, Purge.purge, Say.say, Granddad.granddad, TicketCommand.ticket, Lenny.lenny,
                         Shrug.shrug, Credits.credits, Avatar.avatar, TagCommand.tagCommand, AddAllowedUser.addAllowedUser, AddGame.addGame, Triggered.triggered, Gril.gril,
-                        Salt.salt, JustRight.justRight, Zombo.zombo, GetInvite.getInvite, Ban.ban, Kick.kick, Prefix.prefix, AutoRole.autoRole, Announce.announce,
+                        Salt.salt, JustRight.justRight, GetInvite.getInvite, Ban.ban, Kick.kick, Prefix.prefix, AutoRole.autoRole, Announce.announce,
                         Broadcast.broadcast, Stats.stats, Google.google, Lmgtfy.lmgtfy, Bots.bots, Shutdown.shutdown, UrbanDictionary.UrbanDictionary,
                         Emojify.emojify, AllowedUsers.allowedUsers, CoinFlip.coinFlip, Roll.roll, ListServers.listServers, Strawpoll.strawpoll, Poll.poll,
                         Poll.vote, Poosy.destroyer, AddRole.addRole, RemoveRole.removeRole, Quote.quote);
