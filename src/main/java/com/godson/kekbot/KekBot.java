@@ -3,12 +3,11 @@ package com.godson.kekbot;
 import com.darichey.discord.api.CommandRegistry;
 import com.godson.kekbot.Settings.PollManager;
 import com.godson.kekbot.Settings.UserStates;
-import com.godson.kekbot.command.commands.admin.*;
-import com.godson.kekbot.command.commands.fun.*;
-import com.godson.kekbot.command.commands.general.*;
-import com.godson.kekbot.command.commands.meme.*;
-import com.godson.kekbot.command.commands.owner.*;
-import com.godson.kekbot.command.commands.owner.Shutdown;
+import com.godson.kekbot.commands.admin.*;
+import com.godson.kekbot.commands.fun.*;
+import com.godson.kekbot.commands.general.*;
+import com.godson.kekbot.commands.meme.*;
+import com.godson.kekbot.commands.owner.*;
 import net.dv8tion.jda.JDA;
 import net.dv8tion.jda.JDABuilder;
 
