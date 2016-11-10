@@ -2,9 +2,8 @@ package com.godson.kekbot.command.commands.fun;
 
 import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
-import com.godson.kekbot.EasyMessage;
-import sx.blah.discord.handle.obj.IChannel;
-import sx.blah.discord.handle.obj.IUser;
+import net.dv8tion.jda.entities.TextChannel;
+import net.dv8tion.jda.entities.User;
 
 public class Avatar {
     public static Command avatar = new Command("avatar")
@@ -13,19 +12,19 @@ public class Avatar {
             .withDescription("Sends a larger version of the specified user's avatar. If there is no user specified, it'll send your avatar.")
             .withUsage("{p}avatar <user>")
             .onExecuted(context -> {
-                String rawSplit[] = context.getMessage().getContent().split(" ", 2);
-                IChannel channel = context.getMessage().getChannel();
+                String rawSplit[] = context.getMessage().getRawContent().split(" ", 2);
+                TextChannel channel = context.getTextChannel();
                 if (rawSplit.length == 1) {
-                    EasyMessage.send(channel, context.getMessage().getAuthor().getAvatarURL());
+                    channel.sendMessageAsync(context.getMessage().getAuthor().getAvatarUrl(), null);
                 } else {
                     try {
-                        IUser mention = context.getMessage().getMentions().get(0);
-                        EasyMessage.send(channel, mention.getAvatarURL());
+                        User mention = context.getMessage().getMentionedUsers().get(0);
+                        channel.sendMessageAsync(mention.getAvatarUrl(), null);
                     } catch (IndexOutOfBoundsException e) {
                         try {
-                            EasyMessage.send(channel, context.getMessage().getGuild().getUsersByName(rawSplit[1]).get(0).getAvatarURL());
+                            channel.sendMessageAsync(context.getGuild().getUsersByName(rawSplit[1]).get(0).getAvatarUrl(), null);
                         } catch (IndexOutOfBoundsException er) {
-                            EasyMessage.send(channel, "I couldn't find a user with that name/nickname!");
+                            channel.sendMessageAsync("I couldn't find a user with that name/nickname!", null);
                         }
                     }
                 }

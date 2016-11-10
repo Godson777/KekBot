@@ -2,7 +2,6 @@ package com.godson.kekbot.command.commands.fun;
 
 import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
-import com.godson.kekbot.EasyMessage;
 
 import java.util.Random;
 
@@ -17,13 +16,13 @@ public class Roll {
                 int specifiedDie = 0;
                 String args[] = context.getArgs();
                 if (args.length == 0) {
-                    EasyMessage.send(context.getMessage().getChannel(), Emojify.emojify(String.valueOf(defaultDie)));
+                    context.getTextChannel().sendMessageAsync(Emojify.emojify(String.valueOf(defaultDie)), null);
                 } else {
                     try {
                         specifiedDie = random.nextInt(Integer.valueOf(args[0]));
-                        EasyMessage.send(context.getMessage().getChannel(), Emojify.emojify(String.valueOf(specifiedDie)));
+                        context.getTextChannel().sendMessageAsync(Emojify.emojify(String.valueOf(specifiedDie)), null);
                     } catch (NumberFormatException e) {
-                        EasyMessage.send(context.getMessage().getChannel(), "\"" + args[0] + "\" is not a valid number!");
+                        context.getTextChannel().sendMessageAsync("\"" + args[0] + "\" is not a valid number!", null);
                     }
                 }
             });

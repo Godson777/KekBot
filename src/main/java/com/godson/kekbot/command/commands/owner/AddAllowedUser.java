@@ -1,34 +1,30 @@
 package com.godson.kekbot.command.commands.owner;
 
 import com.darichey.discord.api.Command;
-import com.godson.kekbot.EasyMessage;
-import com.godson.kekbot.KekBot;
-import com.godson.kekbot.XMLUtils;
-import org.jdom2.JDOMException;
-import sx.blah.discord.handle.obj.IUser;
+import com.darichey.discord.api.CommandCategory;
+import com.godson.kekbot.GSONUtils;
+import com.godson.kekbot.Settings.Config;
+import net.dv8tion.jda.entities.User;
 
-import java.io.IOException;
 import java.util.Optional;
 
 public class AddAllowedUser {
     public static Command addAllowedUser = new Command("addUser")
+            .withCategory(CommandCategory.BOT_OWNER)
             .onExecuted(context -> {
                 String args[] = context.getArgs();
-                if (context.getMessage().getAuthor().getID().equals(XMLUtils.getBotOwner())) {
+                Config config = GSONUtils.getConfig();
+                if (context.getMessage().getAuthor().getId().equals(config.getBotOwner())) {
                     if (args.length != 0) {
-                        Optional<IUser> user = Optional.ofNullable(KekBot.client.getUserByID(args[0]));
+                        Optional<User> user = Optional.ofNullable(context.getJDA().getUserById(args[0]));
                         if (user.isPresent()) {
-                            try {
-                                XMLUtils.addAllowedUsers(args[0]);
-                                EasyMessage.send(context.getMessage().getChannel(), "Added " + KekBot.client.getUserByID(args[0]).getName() + " to list of allowed users.");
-                            } catch (JDOMException | IOException e) {
-                                e.printStackTrace();
-                            }
+                            config.addAllowedUser(args[0]).save();
+                            context.getMessage().getChannel().sendMessageAsync("Added " + context.getJDA().getUserById(args[0]).getUsername() + " to list of allowed users.", null);
                         } else {
-                            EasyMessage.send(context.getMessage().getChannel(), "Not a valid user ID!");
+                            context.getMessage().getChannel().sendMessageAsync("Not a valid user ID!", null);
                         }
                     } else {
-                        EasyMessage.send(context.getMessage().getChannel(), "No user ID specified.");
+                        context.getMessage().getChannel().sendMessageAsync("No user ID specified.", null);
                     }
                 }
             });

@@ -2,7 +2,6 @@ package com.godson.kekbot.command.commands.fun;
 
 import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
-import com.godson.kekbot.EasyMessage;
 
 public class Emojify {
     private static final String[] REPLACEMENT = new String[Character.MAX_VALUE+1];
@@ -67,11 +66,11 @@ public class Emojify {
             .withDescription("Converts your text message to a message persisting of emojis. (May go through changes later on.)")
             .withUsage("{p}emojify <messge>")
             .onExecuted(context -> {
-                String rawSplit[] = context.getMessage().getContent().split(" ", 2);
+                String rawSplit[] = context.getMessage().getRawContent().split(" ", 2);
                 if (rawSplit.length == 1) {
-                    EasyMessage.send(context.getMessage().getChannel(), "No message specified! :cry:");
+                    context.getTextChannel().sendMessageAsync("No message specified! :cry:", null);
                 } else {
-                    EasyMessage.send(context.getMessage().getChannel(), emojify(rawSplit[1]));
+                    context.getTextChannel().sendMessageAsync(emojify(rawSplit[1]), null);
                 }
             });
 }

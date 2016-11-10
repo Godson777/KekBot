@@ -2,7 +2,6 @@ package com.godson.kekbot.command.commands.fun;
 
 import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
-import com.godson.kekbot.EasyMessage;
 
 import java.util.Random;
 
@@ -21,6 +20,6 @@ public class CoinFlip {
                 } else {
                     coin = "**TAILS!**";
                 }
-                EasyMessage.send(context.getMessage().getChannel(), context.getMessage().getAuthor().mention() + " Flipped the coin and it landed on... " + coin);
+                context.getTextChannel().sendMessageAsync(context.getMessage().getAuthor().getAsMention() + " Flipped the coin and it landed on... " + coin, null);
             });
 }

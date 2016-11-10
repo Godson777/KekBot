@@ -2,7 +2,6 @@
 target/
 granddad/
 justright/
-settings/
 quotes/
 out/
 logs/
@@ -12,3 +11,5 @@ zombo.mp3
 tickets.xml
 token.txt
 KekBot.xml
+modules/
+src/test/

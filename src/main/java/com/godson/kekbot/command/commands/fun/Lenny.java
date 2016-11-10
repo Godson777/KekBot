@@ -2,7 +2,6 @@ package com.godson.kekbot.command.commands.fun;
 
 import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
-import com.godson.kekbot.EasyMessage;
 
 public class Lenny {
     public static Command lenny = new Command("lenny")
@@ -10,5 +9,5 @@ public class Lenny {
             .withDescription("\"( ͡° ͜ʖ ͡°)\"")
             .withUsage("{p}lenny")
             .deleteCommand(true)
-            .onExecuted(context -> EasyMessage.send(context.getMessage().getChannel(), "( ͡° ͜ʖ ͡°)"));
+            .onExecuted(context -> context.getTextChannel().sendMessageAsync("( ͡° ͜ʖ ͡°)", null));
 }
