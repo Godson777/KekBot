@@ -31,8 +31,8 @@ public class Granddad {
                 } else {
                     Role meme = checkForMeme.get(0);
                     if (server.getRolesForUser(context.getJDA().getSelfInfo()).contains(meme)) {
-                        if (new File("Granddad").isDirectory()) {
-                            File granddads[] = new File("Granddad").listFiles();
+                        if (new File("granddad").isDirectory()) {
+                            File granddads[] = new File("granddad").listFiles();
                             Random random = new Random();
                             int index = random.nextInt(granddads.length);
                             Optional<VoiceChannel> voiceChannel = context.getGuild().getVoiceChannels().stream().filter(c -> c.getUsers().contains(context.getAuthor())).findFirst();
