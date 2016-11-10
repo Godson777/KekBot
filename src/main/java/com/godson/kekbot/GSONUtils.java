@@ -15,7 +15,7 @@ public class GSONUtils {
     public static Settings getSettings(Guild guild) {
         Settings settings = null;
         try {
-            BufferedReader br = new BufferedReader(new FileReader("settings\\" + guild.getId() + "\\Settings.json"));
+            BufferedReader br = new BufferedReader(new FileReader("settings/" + guild.getId() + "/Settings.json"));
             Gson gson = new Gson();
             settings = gson.fromJson(br, Settings.class);
             br.close();
@@ -30,7 +30,7 @@ public class GSONUtils {
     public static TagManager getTagManager(Guild guild) {
         TagManager manager = new TagManager();
         try {
-            BufferedReader br = new BufferedReader(new FileReader("settings\\" + guild.getId() + "\\Tags.json"));
+            BufferedReader br = new BufferedReader(new FileReader("settings/" + guild.getId() + "/Tags.json"));
             Gson gson = new Gson();
             manager = gson.fromJson(br, TagManager.class);
             br.close();
@@ -45,7 +45,7 @@ public class GSONUtils {
     public static Quotes getQuotes(Guild guild) {
         Quotes quotes = new Quotes();
         try {
-            BufferedReader br = new BufferedReader(new FileReader("settings\\" + guild.getId() + "\\Quotes.json"));
+            BufferedReader br = new BufferedReader(new FileReader("settings/" + guild.getId() + "/Quotes.json"));
             Gson gson = new Gson();
             quotes = gson.fromJson(br, Quotes.class);
             br.close();
