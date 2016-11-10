@@ -1,7 +1,7 @@
 package com.godson.kekbot.command.commands.fun;
 
 import com.darichey.discord.api.Command;
-import com.godson.kekbot.Objects.GSONStrawpoll;
+import com.godson.kekbot.Objects.SPoll;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.dv8tion.jda.entities.TextChannel;
@@ -37,7 +37,7 @@ public class Strawpoll {
                             }
                         }
                         String options[] = list.toArray(EMPTY_STRING_ARRAY);
-                        GSONStrawpoll poll = new GSONStrawpoll(pollVariables[0]).withOptions(options).isMulti(false);
+                        SPoll poll = new SPoll(pollVariables[0]).withOptions(options).isMulti(false);
                         Gson gson = new GsonBuilder().setPrettyPrinting().create();
                         String json = gson.toJson(poll);
                         try {
@@ -45,7 +45,7 @@ public class Strawpoll {
                                     .userAgent("Mozilla/5.0").ignoreContentType(true)
                                     .requestBody(json)
                                     .post();
-                            channel.sendMessageAsync("https://strawpoll.me/" + gson.fromJson(document.body().text(), GSONStrawpoll.class).getID(), null);
+                            channel.sendMessageAsync("https://strawpoll.me/" + gson.fromJson(document.body().text(), SPoll.class).getID(), null);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }

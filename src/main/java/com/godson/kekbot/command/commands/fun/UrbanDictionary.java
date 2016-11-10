@@ -2,16 +2,10 @@ package com.godson.kekbot.command.commands.fun;
 
 import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
+import com.godson.kekbot.GSONUtils;
+import com.godson.kekbot.Objects.UDictionary;
 import net.dv8tion.jda.entities.TextChannel;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Random;
 
 public class UrbanDictionary {
@@ -25,38 +19,22 @@ public class UrbanDictionary {
                 if (rawSplit.length == 1) {
                     channel.sendMessageAsync("Next time, supply a word or phrase for me to look up!", null);
                 } else {
-                    try {
-                        HttpResponse<String> response = Unirest.get("https://mashape-community-urban-dictionary.p.mashape.com/define?term=" + rawSplit[1].replace(" ", "-"))
-                                .header("X-Mashape-Key", "ceU4edWIr7mshi68Xs4IQYUQ7XgTp1ILJUgjsnsO4Qf4MOc543")
-                                .header("Accept", "text/plain")
-                                .asString();
-                        BufferedReader in = new BufferedReader(new InputStreamReader(response.getRawBody()));
-                        StringBuilder response2 = new StringBuilder();
-                        String inputLine;
-
-                        while ((inputLine = in.readLine()) != null) response2.append(inputLine);
-                        in.close();
-                        String result = response2.toString();
-                        byte[] mapData = result.getBytes();
-                        ObjectMapper objectMapper = new ObjectMapper();
-                        JsonNode rootNode = objectMapper.readTree(mapData);
-                        Random random = new Random();
-                        if (!rootNode.path("result_type").textValue().equals("no_results")) {
-                            JsonNode dictionary = rootNode.path("list").get(random.nextInt(rootNode.path("list").size()));
-                            String ud = "**Term:** *" + dictionary.path("word").textValue() +
-                                    "*\n\nDefinition: " + dictionary.path("definition").textValue() +
-                                    "\n\nExamples: " + dictionary.path("example").textValue() + "\n\n" + dictionary.path("permalink").textValue();
-                            if (ud.length() > 2000) {
-                                channel.sendMessageAsync("The definition I found is too long! Either try again to get receive a different one, or visit this link to see the" +
-                                        "definition I found! \n" + dictionary.path("permalink").textValue(), null);
-                            } else {
-                                channel.sendMessageAsync(ud, null);
-                            }
+                    UDictionary results = GSONUtils.getUDResults(rawSplit[1].replace(" ", "+"));
+                    Random random = new Random();
+                    if (!results.getResultType().equals("no_results")) {
+                        UDictionary.Definition definition = results.getDefinitions().get(random.nextInt(results.getDefinitions().size()));
+                        String ud = "**Term:** *" + definition.getWord() +
+                                "*\n\n**Definition: **" + definition.getDefinition() +
+                                "\n\n**Examples: **" + definition.getExample() +
+                                "\n\n" + definition.getPermalink();
+                        if (ud.length() > 2000) {
+                            channel.sendMessageAsync("The definition I found is too long! Either try again to get receive a different one, or visit this link to see the" +
+                                    "definition I found! \n" + definition.getPermalink(), null);
                         } else {
-                            channel.sendMessageAsync("No definition found.", null);
+                            channel.sendMessageAsync(ud, null);
                         }
-                    } catch (UnirestException | IOException e) {
-                        e.printStackTrace();
+                    } else {
+                        channel.sendMessageAsync("No definition found.", null);
                     }
                 }
             });

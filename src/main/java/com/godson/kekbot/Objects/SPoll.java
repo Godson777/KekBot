@@ -1,6 +1,6 @@
 package com.godson.kekbot.Objects;
 
-public class GSONStrawpoll {
+public class SPoll {
     private long id;
     private String title;
     private String[] options;
@@ -9,7 +9,7 @@ public class GSONStrawpoll {
     private boolean captcha;
     private int[] votes;
 
-    public GSONStrawpoll(String title) {
+    public SPoll(String title) {
         this.title = title;
     }
 
@@ -17,12 +17,12 @@ public class GSONStrawpoll {
         return this.id;
     }
 
-    public GSONStrawpoll withOptions(String... options) {
+    public SPoll withOptions(String... options) {
         if (options.length <= 30) this.options = options;
         return this;
     }
 
-    public GSONStrawpoll isMulti(boolean multi) {
+    public SPoll isMulti(boolean multi) {
         this.multi = multi;
         return this;
     }
