@@ -23,6 +23,8 @@ public class TicketCommand {
                     channel.sendMessageAsync("I can't send a ticket without a title and message!", null);
                 } else {
                     String ticketInfo[] = rawSplit[1].split("\\u007C", 2);
+                    if (ticketInfo[0].startsWith(" ")) ticketInfo[0] = ticketInfo[0].replaceFirst("([ ]+)", "");
+                    if (ticketInfo[0].endsWith(" ")) ticketInfo[0] = ticketInfo[0].replaceAll("([ ]+$)", "");
                     if (ticketInfo.length == 1) {
                         channel.sendMessageAsync("Contents of your ticket must be seperated with the vertical line ( **|** ). `Example: \"Title|Contents\"`", null);
                     } else {
