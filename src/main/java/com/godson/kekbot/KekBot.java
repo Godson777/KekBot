@@ -50,7 +50,7 @@ public class KekBot {
                         Salt.salt, JustRight.justRight, GetInvite.getInvite, Ban.ban, Kick.kick, Prefix.prefix, AutoRole.autoRole, Announce.announce,
                         Broadcast.broadcast, Stats.stats, Google.google, Lmgtfy.lmgtfy, Bots.bots, Shutdown.shutdown, UrbanDictionary.UrbanDictionary,
                         Emojify.emojify, AllowedUsers.allowedUsers, CoinFlip.coinFlip, Roll.roll, ListServers.listServers, Strawpoll.strawpoll, Poll.poll,
-                        Poll.vote, Poosy.destroyer, AddRole.addRole, RemoveRole.removeRole, Quote.quote);
+                        Poll.vote, Poosy.destroyer, AddRole.addRole, RemoveRole.removeRole, Quote.quote, Support.support);
             }
         }
     }
