@@ -424,7 +424,7 @@ public class Listener extends ListenerAdapter {
     @Override
     public void onGuildLeave(GuildLeaveEvent event) {
         event.getJDA().getUserById(GSONUtils.getConfig().getBotOwner()).getPrivateChannel().sendMessageAsync("Left/Kicked from server: \"" + event.getGuild().getName() + "\" (ID: " + event.getGuild().getId() + ")", null);
-        File folder = new File("settings\\" + event.getGuild().getId());
+        File folder = new File("settings/" + event.getGuild().getId());
         Utils.deleteDirectory(folder);
     }
 

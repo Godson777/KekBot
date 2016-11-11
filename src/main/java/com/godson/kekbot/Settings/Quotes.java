@@ -45,8 +45,8 @@ public class Quotes {
     }
 
     public void save(Guild guild) {
-        File folder = new File("settings\\" + guild.getId());
-        File quotes = new File("settings\\" + guild.getId() + "\\Quotes.json");
+        File folder = new File("settings/" + guild.getId());
+        File quotes = new File("settings/" + guild.getId() + "/Quotes.json");
         if (!folder.exists()) {
             folder.mkdirs();
         }

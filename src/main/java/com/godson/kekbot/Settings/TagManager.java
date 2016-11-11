@@ -52,8 +52,8 @@ public class TagManager {
     }
 
     public void save(Guild guild) {
-        File folder = new File("settings\\" + guild.getId());
-        File tags = new File("settings\\" + guild.getId() + "\\Tags.json");
+        File folder = new File("settings/" + guild.getId());
+        File tags = new File("settings/" + guild.getId() + "/Tags.json");
         if (!folder.exists()) {
             folder.mkdirs();
         }

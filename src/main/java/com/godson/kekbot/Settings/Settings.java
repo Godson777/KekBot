@@ -174,8 +174,8 @@ public class Settings {
     }
 
     public void save(Guild guild) {
-        File folder = new File("settings\\" + guild.getId());
-        File settings = new File("settings\\" + guild.getId() + "\\Settings.json");
+        File folder = new File("settings/" + guild.getId());
+        File settings = new File("settings/" + guild.getId() + "/Settings.json");
         if (!folder.exists()) {
             folder.mkdirs();
         }

@@ -14,7 +14,7 @@ public class Poll {
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
     public static Command poll = new Command("poll")
             .withDescription("Creates a poll.")
-            .withUsage("")
+            .withUsage("{p}poll <title> | <option> | <option> {can continue adding more options by seperating them with | }")
             .withCategory(CommandCategory.FUN)
             .onExecuted(context -> {
                 String rawSplit[] = context.getMessage().getRawContent().split(" ", 2);
