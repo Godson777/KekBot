@@ -67,7 +67,7 @@ public class Byemom {
                                 e.printStackTrace();
                             }
                         } else {
-                            channel.sendMessage("You must supply ").queue();
+                            channel.sendMessage("You must supply some text for this command!").queue();
                         }
                     } else {
                         channel.sendMessage(":exclamation: This command requires me to have the __**Living Meme**__ role.").queue();
