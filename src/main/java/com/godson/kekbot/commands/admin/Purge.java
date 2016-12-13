@@ -40,7 +40,7 @@ public class Purge {
                         } else if (purge >= 2 && purge <= 100) {
                             channel.getHistory().retrievePast(purge).queue(msgs -> {
                                 channel.sendMessage("Purging...").queue(msg -> {
-                                    if (args.length == 2) {
+                                    if (args.length >= 2) {
                                         StringBuilder builder = new StringBuilder();
                                         for (int i = 1; i < args.length; i++) {
                                             if (!(args[i].equals("") && builder.length() < 1)) builder.append(args[i]);
