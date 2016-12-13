@@ -18,13 +18,24 @@
             <name>jcenter-bintray</name>
             <url>http://jcenter.bintray.com</url>
         </repository>
+        <repository>
+            <id>sedmelluq</id>
+            <name>sedmelluq</name>
+            <url>http://maven.sedmelluq.com/</url>
+        </repository>
     </repositories>
 
     <dependencies>
         <dependency>
+            <groupId>com.sedmelluq</groupId>
+            <artifactId>lavaplayer</artifactId>
+            <version>1.1.24</version>
+        </dependency>
+
+        <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>2.2.1_376</version>
+            <version>3.0.BETA_105</version>
         </dependency>
 
         <dependency>
@@ -40,15 +51,15 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.Godson777</groupId>
-            <artifactId>Commands4J</artifactId>
-            <version>eede80a</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>LATEST</version>
         </dependency>
 
         <dependency>
-            <groupId>net.dv8tion</groupId>
-            <artifactId>jda-player</artifactId>
-            <version>0.2.3_24</version>
+            <groupId>com.github.Godson777</groupId>
+            <artifactId>Commands4J</artifactId>
+            <version>d389d72</version>
         </dependency>
 
         <dependency>
@@ -97,7 +108,7 @@
                                         Exclude files that sign a jar
                                         (one or multiple of the dependencies).
                                         One may not repack a signed jar without
-                                        this, or you will get a
+                                        this, or you will getResponder a
                                         SecurityException at program start.
                                     -->
                                     <artifact>*:*</artifact>

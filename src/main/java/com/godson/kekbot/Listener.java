@@ -8,26 +8,28 @@ import com.godson.kekbot.Exceptions.MessageNotFoundException;
 import com.godson.kekbot.Settings.Settings;
 import com.godson.kekbot.Settings.Ticket;
 import com.godson.kekbot.Settings.TicketManager;
-import net.dv8tion.jda.JDA;
-import net.dv8tion.jda.entities.Guild;
-import net.dv8tion.jda.entities.PrivateChannel;
-import net.dv8tion.jda.entities.TextChannel;
-import net.dv8tion.jda.entities.User;
-import net.dv8tion.jda.events.InviteReceivedEvent;
-import net.dv8tion.jda.events.ReadyEvent;
-import net.dv8tion.jda.events.guild.GuildJoinEvent;
-import net.dv8tion.jda.events.guild.GuildLeaveEvent;
-import net.dv8tion.jda.events.guild.GuildUpdateEvent;
-import net.dv8tion.jda.events.guild.member.GuildMemberJoinEvent;
-import net.dv8tion.jda.events.guild.member.GuildMemberLeaveEvent;
-import net.dv8tion.jda.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.events.message.priv.PrivateMessageReceivedEvent;
-import net.dv8tion.jda.exceptions.BlockedException;
-import net.dv8tion.jda.exceptions.PermissionException;
-import net.dv8tion.jda.hooks.ListenerAdapter;
+import com.godson.kekbot.commands.community.AddResponse;
+import com.godson.kekbot.commands.community.Suggestions;
+import com.godson.kekbot.commands.community.Suggest;
+import com.godson.kekbot.commands.test;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.events.ReadyEvent;
+import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
+import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
+import net.dv8tion.jda.core.events.guild.update.GenericGuildUpdateEvent;
+import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
+import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
+import net.dv8tion.jda.core.events.guild.voice.GuildVoiceMoveEvent;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
+import net.dv8tion.jda.core.exceptions.PermissionException;
+import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import org.apache.commons.lang3.StringUtils;
-import org.tritonus.lowlevel.dsp.Util;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -66,6 +68,11 @@ public class Listener extends ListenerAdapter {
                     CommandRegistry.getForClient(jda).setPrefixForGuild(guild, settings.getPrefix());
                 }
             });
+            CommandRegistry registry = CommandRegistry.getForClient(jda);
+            registry.customRegister(test.test, jda.getGuildById("221910104495095808"));
+            registry.customRegister(Suggest.suggest, jda.getGuildById("221910104495095808"));
+            registry.customRegister(AddResponse.addResponse, jda.getGuildById("221910104495095808"));
+            registry.customRegister(Suggestions.suggestions, jda.getGuildById("221910104495095808"));
         }
 
 
@@ -73,10 +80,10 @@ public class Listener extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        if (!event.isPrivate()) out.println(ft2.format(time) + event.getGuild().getName() + " - #" +
-                event.getTextChannel().getName() + " - " + event.getAuthor().getUsername() + ": " + event.getMessage().getRawContent());
-        else out.println("PM " + (event.getAuthor().equals(event.getJDA().getSelfInfo()) ? "To: " : "From: ")
-                + event.getAuthor().getUsername() + ": " + event.getMessage().getRawContent());
+        if (!event.isFromType(ChannelType.PRIVATE)) out.println(ft2.format(time) + /*"Shard " + event.getJDA().getShardInfo().getShardId() + " - " +*/ event.getGuild().getName() + " - #" +
+                event.getTextChannel().getName() + " - " + event.getAuthor().getName() + ": " + event.getMessage().getRawContent());
+        else out.println("PM " + (event.getAuthor().equals(event.getJDA().getSelfUser()) ? "To: " : "From: ")
+                + event.getAuthor().getName() + ": " + event.getMessage().getRawContent());
     }
 
     @Override
@@ -86,55 +93,57 @@ public class Listener extends ListenerAdapter {
         TextChannel channel = event.getChannel();
         Guild server = event.getGuild();
         String prefix;
+        prefix = (CommandRegistry.getForClient(event.getJDA()).getPrefixForGuild(server) != null ? CommandRegistry.getForClient(event.getJDA()).getPrefixForGuild(server) :
+                CommandRegistry.getForClient(event.getJDA()).getPrefix());
 
-            //UserState state = KekBot.states.checkUserState(event.getMessage().getAuthor(), server);
-            //if (state != null) {}
-            prefix = (CommandRegistry.getForClient(event.getJDA()).getPrefixForGuild(server) != null ? CommandRegistry.getForClient(event.getJDA()).getPrefixForGuild(server) :
-            CommandRegistry.getForClient(event.getJDA()).getPrefix());
+        //command begin
 
-                    //command begin
+        if (!event.getAuthor().isBot()) {
 
-                    if (!event.getAuthor().isBot()) {
+            if (message.equals(event.getJDA().getSelfUser().getAsMention() + " prefix")) {
+                channel.sendMessage("The prefix for __**" + server.getName() + "**__ is: **" + prefix + "**").queue();
+            }
 
-                        if (message.equals(event.getJDA().getSelfInfo().getAsMention() + " prefix")) {
-                            channel.sendMessageAsync("The prefix for __**" + server.getName() + "**__ is: **" + prefix + "**", null);
-                        }
-
-                        if (message.equals(event.getJDA().getSelfInfo().getAsMention() + " help")) {
-                            List<String> commands = new ArrayList<String>();
-                            List<String> pages = new ArrayList<String>();
-                            CommandRegistry registry = CommandRegistry.getForClient(event.getJDA());
-                            EnumSet<CommandCategory> categories = EnumSet.allOf(CommandCategory.class);
-                            commands.add("# KekBot's default prefix for commands is \"$\". However, the server you're on might have it use a different prefix. If you're unsure, feel free to go a server and say \"@KekBot prefix\"");
-                            commands.add("# To add me to your server, send me an invite link!\n");
-                            categories.forEach(category -> {
-                                commands.add("# " + category.toString());
-                                for (int i = 0; i < registry.getCommands().size(); i++) {
-                                    Set<String> aliases = registry.getCommands().get(i).getAliases();
-                                    if (registry.getCommands().get(i).getCategory() != null) {
-                                        if (registry.getCommands().get(i).getCategory().equals(category)) {
-                                            commands.add("[$" + registry.getCommands().get(i).getName() +
-                                                    (registry.getCommands().get(i).getAliases().size() != 0 ? " | " + StringUtils.join(aliases, " | ") : "") + "](" + registry.getCommands().get(i).getDescription() + ")");
-                                        }
-                                    }
-                                }
-                                commands.add("");
-                            });
-                            for (int i = 0; i < registry.getCommands().size(); i += 25) {
-                                try {
-                                    pages.add(StringUtils.join(commands.subList(i, i + 25), "\n"));
-                                } catch (IndexOutOfBoundsException e) {
-                                    pages.add(StringUtils.join(commands.subList(i, commands.size()), "\n"));
-                                }
+            if (message.equals(event.getJDA().getSelfUser().getAsMention() + " help")) {
+                List<String> commands = new ArrayList<String>();
+                List<String> pages = new ArrayList<String>();
+                CommandRegistry registry = CommandRegistry.getForClient(event.getJDA());
+                EnumSet<CommandCategory> categories = EnumSet.allOf(CommandCategory.class);
+                commands.add("# KekBot's default prefix for commands is \"$\". However, the server you're on might have it use a different prefix. If you're unsure, feel free to go a server and say \"@KekBot prefix\"");
+                commands.add("# To add me to your server, send me an invite link!\n");
+                categories.forEach(category -> {
+                    if (!category.equals(CommandCategory.BOT_OWNER)) commands.add("# " + category.toString());
+                    if (category.equals(CommandCategory.BOT_OWNER) && event.getAuthor().getId().equals(GSONUtils.getConfig().getBotOwner())) commands.add("# " + category.toString());
+                    for (Command command : registry.getCommands()) {
+                        Set<String> aliases = command.getAliases();
+                        if (command.getCategory() != null) {
+                            if (command.getCategory().equals(category)) {
+                                if (!category.equals(CommandCategory.BOT_OWNER))
+                                    commands.add("[$" + command.getName() +
+                                            (aliases.size() != 0 ? " | " + StringUtils.join(aliases, " | ") : "") + "](" + command.getDescription() + ")");
+                                if (category.equals(CommandCategory.BOT_OWNER) && event.getAuthor().getId().equals(GSONUtils.getConfig().getBotOwner()))
+                                    commands.add("[$" + command.getName() +
+                                            (aliases.size() != 0 ? " | " + StringUtils.join(aliases, " | ") : "") + "](" + command.getDescription() + ")");
                             }
-
-                            event.getMessage().getAuthor().getPrivateChannel().sendMessageAsync("__**KekBot**__\n*Your helpful meme-based bot!*\n" +
-                                    "```md\n" + pages.get(0) + "\n\n" + "[Page](1" + "/" + pages.size() + ")\n" +
-                                    "# Type \"help <number>\" to view that page!" + "```", null);
-                            event.getChannel().sendMessageAsync(event.getMessage().getAuthor().getAsMention() + " Alright, check your PMs! :thumbsup:", null);
                         }
                     }
-                    //command end
+                    if (!category.equals(CommandCategory.BOT_OWNER)) commands.add("");
+                });
+                for (int i = 0; i < commands.size(); i += 25) {
+                    try {
+                        pages.add(StringUtils.join(commands.subList(i, i + 25), "\n"));
+                    } catch (IndexOutOfBoundsException e) {
+                        pages.add(StringUtils.join(commands.subList(i, commands.size()), "\n"));
+                    }
+                }
+
+                event.getMessage().getAuthor().openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage("__**KekBot**__\n*Your helpful meme-based bot!*\n" +
+                        "```md\n" + pages.get(0) + "\n\n" + "[Page](1" + "/" + pages.size() + ")\n" +
+                        "# Type \"help <number>\" to view that page!" + "```").queue());
+                event.getChannel().sendMessage(event.getMessage().getAuthor().getAsMention() + " Alright, check your PMs! :thumbsup:").queue();
+            }
+        }
+        //command end
     }
 
     @Override
@@ -145,43 +154,43 @@ public class Listener extends ListenerAdapter {
             if (message.startsWith("message")) {
                 String rawSplit[] = message.split(" ", 4);
                 if (rawSplit.length == 1) {
-                    channel.sendMessageAsync("You can't expect me to send someone a message without telling me who or where I'm sending a message to!", null);
+                    channel.sendMessage("You can't expect me to send someone a message without telling me who or where I'm sending a message to!").queue();
                 } else if (rawSplit.length >= 2) {
                     switch (rawSplit[1]) {
                         case "user":
                             if (rawSplit.length >= 3) {
                                 if (rawSplit.length == 4) {
                                     try {
-                                        event.getJDA().getUserById(rawSplit[2]).getPrivateChannel().sendMessageAsync(rawSplit[3], null);
-                                        channel.sendMessageAsync("Successfully sent message to: __**" + event.getJDA().getUserById(rawSplit[2]).getUsername() + "**__!", null);
-                                    } catch (BlockedException e) {
-                                        channel.sendMessageAsync("It appears that +" + event.getJDA().getUserById(rawSplit[2]).getUsername() + " has either blocked me!", null);
+                                        event.getJDA().getUserById(rawSplit[2]).getPrivateChannel().sendMessage(rawSplit[3]).queue();
+                                        channel.sendMessage("Successfully sent message to: __**" + event.getJDA().getUserById(rawSplit[2]).getName() + "**__!").queue();
+                                    } catch (PermissionException e) {
+                                        channel.sendMessage("It appears that I'm not able to send messages to" + event.getJDA().getUserById(rawSplit[2]).getName() + "!").queue();
                                     } catch (NullPointerException e) {
-                                        channel.sendMessageAsync("`" + rawSplit[2] + "`" + " is not a valid user ID!", null);
+                                        channel.sendMessage("`" + rawSplit[2] + "`" + " is not a valid user ID!").queue();
                                     }
                                 } else {
-                                    channel.sendMessageAsync("You can't expect me to send someone a message to this user without telling me what to send them!", null);
+                                    channel.sendMessage("You can't expect me to send someone a message to this user without telling me what to send them!").queue();
                                 }
                             } else {
-                                channel.sendMessageAsync("You can't expect me to send someone a message without telling me who I'm send sending a message to!", null);
+                                channel.sendMessage("You can't expect me to send someone a message without telling me who I'm send sending a message to!").queue();
                             }
                             break;
                         case "channel":
                             if (rawSplit.length >= 3) {
                                 if (rawSplit.length == 4) {
                                     try {
-                                        event.getJDA().getTextChannelById(rawSplit[2]).sendMessageAsync(rawSplit[3], null);
-                                        channel.sendMessageAsync("Successfully sent message to: ``(" + event.getJDA().getTextChannelById(rawSplit[2]).getGuild().getName() + ") #" + event.getJDA().getTextChannelById(rawSplit[2]).getName() + "``!", null);
+                                        event.getJDA().getTextChannelById(rawSplit[2]).sendMessage(rawSplit[3]).queue();
+                                        channel.sendMessage("Successfully sent message to: ``(" + event.getJDA().getTextChannelById(rawSplit[2]).getGuild().getName() + ") #" + event.getJDA().getTextChannelById(rawSplit[2]).getName() + "``!").queue();
                                     } catch (PermissionException e) {
-                                        channel.sendMessageAsync("I don't have permissions to say messages in that channel! Aborting!", null);
+                                        channel.sendMessage("I don't have permissions to say messages in that channel! Aborting!").queue();
                                     } catch (RuntimeException e) {
-                                        channel.sendMessageAsync("`" + rawSplit[2] + "`" + " is not a valid channel ID or I am not on a server with this channel ID!", null);
+                                        channel.sendMessage("`" + rawSplit[2] + "`" + " is not a valid channel ID or I am not on a server with this channel ID!").queue();
                                     }
                                 } else {
-                                    channel.sendMessageAsync("You can't expect me to send someone a message to this channel without telling me what to send it!", null);
+                                    channel.sendMessage("You can't expect me to send someone a message to this channel without telling me what to send it!").queue();
                                 }
                             } else {
-                                channel.sendMessageAsync("You can't expect me to send someone a message without telling me what channel to send a message to!", null);
+                                channel.sendMessage("You can't expect me to send someone a message without telling me what channel to send a message to!").queue();
                             }
                             break;
                     }
@@ -192,7 +201,7 @@ public class Listener extends ListenerAdapter {
                 if (rawSplit[0].equals("tickets") || rawSplit[0].equals("ticket")) {
                     TicketManager tickets = GSONUtils.getTicketManager();
                     if (rawSplit.length == 1) {
-                        channel.sendMessageAsync("You have **" + tickets.getTickets().size() + (tickets.getTickets().size() == 1 ? "** ticket." : "** tickets."), null);
+                        channel.sendMessage("You have **" + tickets.getTickets().size() + (tickets.getTickets().size() == 1 ? "** ticket." : "** tickets.")).queue();
                     } else {
                         switch (rawSplit[1]) {
                             case "list":
@@ -210,7 +219,7 @@ public class Listener extends ListenerAdapter {
                                     try {
                                         if (pageNumber == null || Integer.valueOf(pageNumber) == 1) {
                                             if (ticketsList.size() <= 10) {
-                                                channel.sendMessageAsync("```md\n" + StringUtils.join(ticketsList, "\n") + "```", null);
+                                                channel.sendMessage("```md\n" + StringUtils.join(ticketsList, "\n") + "```").queue();
                                             } else {
                                                 for (int i = 0; i < ticketsList.size(); i += 10) {
                                                     try {
@@ -219,11 +228,11 @@ public class Listener extends ListenerAdapter {
                                                         pages.add(StringUtils.join(ticketsList.subList(i, ticketsList.size()), "\n"));
                                                     }
                                                 }
-                                                channel.sendMessageAsync("```md\n" + pages.get(0) + "\n\n[Page](1" + "/" + pages.size() + ")" + "```", null);
+                                                channel.sendMessage("```md\n" + pages.get(0) + "\n\n[Page](1" + "/" + pages.size() + ")" + "```").queue();
                                             }
                                         } else {
                                             if (ticketsList.size() <= 10) {
-                                                channel.sendMessageAsync("There are no other pages!", null);
+                                                channel.sendMessage("There are no other pages!").queue();
                                             } else {
                                                 for (int i = 0; i < ticketsList.size(); i += 10) {
                                                     try {
@@ -233,23 +242,23 @@ public class Listener extends ListenerAdapter {
                                                     }
                                                 }
                                                 if (Integer.valueOf(pageNumber) > pages.size()) {
-                                                    channel.sendMessageAsync("Specified page does not exist!", null);
+                                                    channel.sendMessage("Specified page does not exist!").queue();
                                                 } else {
-                                                    channel.sendMessageAsync("```md\n" + pages.get(Integer.valueOf(pageNumber) - 1) + "\n\n[Page](" + pageNumber + "/" + pages.size() + ")" + "```", null);
+                                                    channel.sendMessage("```md\n" + pages.get(Integer.valueOf(pageNumber) - 1) + "\n\n[Page](" + pageNumber + "/" + pages.size() + ")" + "```").queue();
                                                 }
                                             }
                                         }
                                     } catch (NumberFormatException e) {
-                                        channel.sendMessageAsync("\"" + pageNumber + "\" is not a number!", null);
+                                        channel.sendMessage("\"" + pageNumber + "\" is not a number!").queue();
                                     }
                                 } else {
-                                    channel.sendMessageAsync("There are no tickets to list!", null);
+                                    channel.sendMessage("There are no tickets to list!").queue();
                                 }
                                 break;
                             case "view":
                                 if (rawSplit.length == 3) {
                                     if (tickets.getTickets().size() == 0) {
-                                        channel.sendMessageAsync("There are no tickets to view!", null);
+                                        channel.sendMessage("There are no tickets to view!").queue();
                                     } else {
                                         try {
                                             if (Integer.valueOf(rawSplit[2]) <= tickets.getTickets().size()) {
@@ -263,7 +272,7 @@ public class Listener extends ListenerAdapter {
                                                     try {
                                                         User author = jda.getUserById(ticket.getAuthorID());
                                                         Guild authorGuild = jda.getGuildById(ticket.getGuildID());
-                                                        ticketAuthor = author.getUsername() + "#" + author.getDiscriminator();
+                                                        ticketAuthor = author.getName() + "#" + author.getDiscriminator();
                                                         ticketGuild = authorGuild.getName();
                                                     } catch (NullPointerException e) {
                                                         //do nothing
@@ -271,41 +280,41 @@ public class Listener extends ListenerAdapter {
                                                 }
                                                 String ticketStatus = ticket.getStatus().getName();
 
-                                                channel.sendMessageAsync("Title: **" + ticketTitle + "**" +
+                                                channel.sendMessage("Title: **" + ticketTitle + "**" +
                                                         "\nStatus: **" + ticketStatus + "**" +
                                                         "\nAuthor: **" + ticketAuthor + "** (ID: **" + ticket.getAuthorID() + ")" + "**" +
                                                         "\nServer: **" + ticketGuild + "** (ID: **" + ticket.getGuildID() + "**)" +
-                                                        "\n\nContents: \n" + ticketContents, null);
+                                                        "\n\nContents: \n" + ticketContents).queue();
                                             }
                                         } catch (NumberFormatException e) {
-                                            channel.sendMessageAsync("\"" + rawSplit[2] + "\" is not a valid number!", null);
+                                            channel.sendMessage("\"" + rawSplit[2] + "\" is not a valid number!").queue();
                                         }
                                     }
                                 } else {
-                                    channel.sendMessageAsync("No ticket specified.", null);
+                                    channel.sendMessage("No ticket specified.").queue();
                                 }
                                 break;
                             case "close":
                                 if (rawSplit.length == 3) {
                                     if (tickets.getTickets().size() == 0) {
-                                        channel.sendMessageAsync("There are no tickets to close!", null);
+                                        channel.sendMessage("There are no tickets to close!").queue();
                                     } else {
                                         try {
                                             if (Integer.valueOf(rawSplit[2]) <= tickets.getTickets().size()) {
                                                 Ticket ticket = tickets.getTickets().get(Integer.valueOf(rawSplit[2])-1);
-                                                channel.sendMessageAsync("Ticket Closed.", null);
+                                                channel.sendMessage("Ticket Closed.").queue();
                                                 for (JDA jda : KekBot.jdas) {
-                                                    jda.getUserById(ticket.getAuthorID()).getPrivateChannel().sendMessageAsync("Your ticket (**" + ticket.getTitle() + "**) has been closed.", null);
+                                                    jda.getUserById(ticket.getAuthorID()).getPrivateChannel().sendMessage("Your ticket (**" + ticket.getTitle() + "**) has been closed.").queue();
                                                 }
                                                 tickets.closeTicket(ticket);
                                                 tickets.save();
                                             }
                                         } catch (NumberFormatException e) {
-                                            channel.sendMessageAsync("\"" + rawSplit[2] + "\" is not a valid number!", null);
+                                            channel.sendMessage("\"" + rawSplit[2] + "\" is not a valid number!").queue();
                                         }
                                     }
                                 } else {
-                                    channel.sendMessageAsync("No ticket specified.", null);
+                                    channel.sendMessage("No ticket specified.").queue();
                                 }
                                 break;
                             case "reply":
@@ -313,23 +322,23 @@ public class Listener extends ListenerAdapter {
                                     String parameters[] = rawSplit[2].split(" ", 2);
                                     if (parameters.length == 2) {
                                         if (tickets.getTickets().size() == 0) {
-                                            channel.sendMessageAsync("You don't have any tickets to view!", null);
+                                            channel.sendMessage("You don't have any tickets to view!").queue();
                                         } else {
                                             try {
                                                 if (Integer.valueOf(parameters[0]) <= tickets.getTickets().size()) {
                                                     Ticket ticket = tickets.getTickets().get(Integer.valueOf(parameters[0])-1);
                                                     tickets.replyToTicketManager(ticket, parameters[1], event.getAuthor());
-                                                    channel.sendMessageAsync("Reply Sent!", null);
+                                                    channel.sendMessage("Reply Sent!").queue();
                                                 }
                                             } catch (NumberFormatException e) {
-                                                channel.sendMessageAsync("\"" + parameters[0] + "\" is not a valid number!", null);
+                                                channel.sendMessage("\"" + parameters[0] + "\" is not a valid number!").queue();
                                             }
                                         }
                                     } else {
-                                        channel.sendMessageAsync("No reply message specified.", null);
+                                        channel.sendMessage("No reply message specified.").queue();
                                     }
                                 } else {
-                                    channel.sendMessageAsync("No ticket specified.", null);
+                                    channel.sendMessage("No ticket specified.").queue();
                                 }
                         }
                     }
@@ -366,7 +375,7 @@ public class Listener extends ListenerAdapter {
                 }
                 if (!category.equals(CommandCategory.BOT_OWNER)) commands.add("");
             });
-            for (int i = 0; i < registry.getCommands().size(); i += 25) {
+            for (int i = 0; i < commands.size(); i += 25) {
                 try {
                     pages.add(StringUtils.join(commands.subList(i, i + 25), "\n"));
                 } catch (IndexOutOfBoundsException e) {
@@ -375,20 +384,20 @@ public class Listener extends ListenerAdapter {
             }
             if (rawSplit[0].equals("help")) {
                 if (rawSplit.length == 1) {
-                    channel.sendMessageAsync("__**KekBot**__\n*Your helpful meme-based bot!*\n" +
+                    channel.sendMessage("__**KekBot**__\n*Your helpful meme-based bot!*\n" +
                             "```md\n" + pages.get(0) + "\n\n" + "[Page](1" + "/" + pages.size() + ")\n" +
-                            "# Type \"help <number>\" to view that page!" + "```", null);
+                            "# Type \"help <number>\" to view that page!" + "```").queue();
                 } else {
                     try {
                         if (Integer.valueOf(rawSplit[1]) > pages.size()) {
-                            channel.sendMessageAsync("Specified page does not exist!", null);
+                            channel.sendMessage("Specified page does not exist!").queue();
                         } else {
-                            channel.sendMessageAsync("__**KekBot**__\n*Your helpful meme-based bot!*\n" +
+                            channel.sendMessage("__**KekBot**__\n*Your helpful meme-based bot!*\n" +
                                     "```md\n" + pages.get(Integer.valueOf(rawSplit[1]) - 1) + "\n\n[Page](" + rawSplit[1] + "/" + pages.size() + ")\n" +
-                                    "# Type \"help <number>\" to view that page!" + "```", null);
+                                    "# Type \"help <number>\" to view that page!" + "```").queue();
                         }
                     } catch (NumberFormatException e) {
-                        channel.sendMessageAsync("\"" + rawSplit[1] + "\" is not a number!", null);
+                        channel.sendMessage("\"" + rawSplit[1] + "\" is not a number!").queue();
                     }
                 }
             }
@@ -396,16 +405,8 @@ public class Listener extends ListenerAdapter {
     }
 
     @Override
-    public void onInviteReceived(InviteReceivedEvent event) {
-        if (event.isPrivate() && (!event.getAuthor().equals(event.getJDA().getSelfInfo())))
-            event.getMessage().getChannel().sendMessageAsync("Thanks for the invite! However, I cannot simply join your server! You must allow me to connect to your server using the following link:" +
-                            "\nhttps://discordapp.com/oauth2/authorize?&client_id=213151748855037953&scope=bot&permissions=0x00000008", null);
-
-    }
-
-    @Override
     public void onGuildJoin(GuildJoinEvent event) {
-        event.getJDA().getUserById(GSONUtils.getConfig().getBotOwner()).getPrivateChannel().sendMessageAsync("Joined server: \"" + event.getGuild().getName() + "\" (ID: " + event.getGuild().getId() + ")", null);
+        event.getJDA().getUserById(GSONUtils.getConfig().getBotOwner()).getPrivateChannel().sendMessage("Joined server: \"" + event.getGuild().getName() + "\" (ID: " + event.getGuild().getId() + ")").queue();
         Settings settings = new Settings().setName(event.getGuild().getName());
         settings.save(event.getGuild());
         String joinSpeech = "Hi! I'm KekBot! Thanks for inviting me!" + "\n" +
@@ -413,23 +414,49 @@ public class Listener extends ListenerAdapter {
                 "If you ever need help, join my discord server: " + "https://discord.gg/3nbqavE";
         for (TextChannel channel : event.getGuild().getTextChannels()) {
             try {
-                channel.sendMessageAsync(joinSpeech, null);
+                channel.sendMessage(joinSpeech).queue();
                 break;
             } catch (PermissionException er) {
                 //¯\_(ツ)_/¯
+            }
+        }
+        String token = GSONUtils.getConfig().getdApiToken();
+        if (token != null) {
+            try {
+                Unirest.post("https://bots.discord.pw/api/bots/" + event.getJDA().getSelfUser().getId() + "/stats")
+                        .header("Content-Type", "application/json")
+                        .header("Authorization", token)
+                        .body("{\n" +
+                                "    \"server_count\": " + event.getJDA().getGuilds().size() +
+                                "\n}").asJson();
+            } catch (UnirestException e) {
+                e.printStackTrace();
             }
         }
     }
 
     @Override
     public void onGuildLeave(GuildLeaveEvent event) {
-        event.getJDA().getUserById(GSONUtils.getConfig().getBotOwner()).getPrivateChannel().sendMessageAsync("Left/Kicked from server: \"" + event.getGuild().getName() + "\" (ID: " + event.getGuild().getId() + ")", null);
+        event.getJDA().getUserById(GSONUtils.getConfig().getBotOwner()).getPrivateChannel().sendMessage("Left/Kicked from server: \"" + event.getGuild().getName() + "\" (ID: " + event.getGuild().getId() + ")").queue();
         File folder = new File("settings/" + event.getGuild().getId());
         Utils.deleteDirectory(folder);
+        String token = GSONUtils.getConfig().getdApiToken();
+        if (token != null) {
+            try {
+                Unirest.post("https://bots.discord.pw/api/bots/" + event.getJDA().getSelfUser().getId() + "/stats")
+                        .header("Content-Type", "application/json")
+                        .header("Authorization", token)
+                        .body("{\n" +
+                                "    \"server_count\": " + event.getJDA().getGuilds().size() +
+                                "\n}").asJson();
+            } catch (UnirestException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
-    public void onGuildUpdate(GuildUpdateEvent event) {
+    public void onGenericGuildUpdate(GenericGuildUpdateEvent event) {
         Settings settings = GSONUtils.getSettings(event.getGuild());
         if (!event.getGuild().getName().equals(settings.getGuildName())) {
             settings.setName(event.getGuild().getName());
@@ -438,27 +465,27 @@ public class Listener extends ListenerAdapter {
 
     @Override
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
-        out.println(ft2.format(time) + event.getUser().getUsername() + " has joined " + event.getGuild().getName() + ".");
+        out.println(ft2.format(time) + event.getMember().getEffectiveName() + " has joined " + event.getGuild().getName() + ".");
         Settings settings = GSONUtils.getSettings(event.getGuild());
 
         if (settings.getAutoRoleID() != null) {
             try {
-                event.getGuild().getManager().addRoleToUser(event.getUser(), event.getGuild().getRoleById(settings.getAutoRoleID())).update();
+                event.getGuild().getController().addRolesToMember(event.getMember(), event.getGuild().getRoleById(settings.getAutoRoleID())).queue();
             } catch (PermissionException e) {
-                event.getGuild().getTextChannels().get(0).sendMessageAsync("Unable to automatically set role due to not having the **Manage Roles** permission.", null);
+                event.getGuild().getTextChannels().get(0).sendMessage("Unable to automatically set role due to not having the **Manage Roles** permission.").queue();
             } catch (NullPointerException e) {
-                event.getGuild().getTextChannels().get(0).sendMessageAsync("I can no longer find the rank in which I was to automatically assign!", null);
+                event.getGuild().getTextChannels().get(0).sendMessage("I can no longer find the rank in which I was to automatically assign!").queue();
             }
         }
 
         if (settings.welcomeEnabled()) {
             try {
-                settings.getWelcomeChannel(event.getJDA()).sendMessageAsync(settings.getWelcomeMessage().replace("{mention}", event.getUser().getAsMention()).replace("{name|", event.getUser().getUsername()), null);
+                settings.getWelcomeChannel(event.getJDA()).sendMessage(settings.getWelcomeMessage().replace("{mention}", event.getMember().getAsMention()).replace("{name|", event.getMember().getEffectiveName())).queue();
             } catch (MessageNotFoundException e) {
                 settings.setWelcomeMessage(null).toggleWelcome(false).save(event.getGuild());
                 for (TextChannel channel : event.getGuild().getTextChannels()) {
                     try {
-                        channel.sendMessageAsync("**WARNING:** KekBot could not find this server's welcome message! Please set it using `$announce welcome message <message>`!", null);
+                        channel.sendMessage("**WARNING:** KekBot could not find this server's welcome message! Please set it using `$announce welcome message <message>`!").queue();
                         break;
                     } catch (PermissionException er) {
                         //¯\_(ツ)_/¯
@@ -468,7 +495,7 @@ public class Listener extends ListenerAdapter {
                 settings.setWelcomeChannel(null).toggleWelcome(false).save(event.getGuild());
                 for (TextChannel channel : event.getGuild().getTextChannels()) {
                     try {
-                        channel.sendMessageAsync("**WARNING:** KekBot could not find this server's welcome channel! Please set it using `$announce welcome channel <#channel>`!", null);
+                        channel.sendMessage("**WARNING:** KekBot could not find this server's welcome channel! Please set it using `$announce welcome channel <#channel>`!").queue();
                         break;
                     } catch (PermissionException er) {
                         //¯\_(ツ)_/¯
@@ -480,17 +507,17 @@ public class Listener extends ListenerAdapter {
 
     @Override
     public void onGuildMemberLeave(GuildMemberLeaveEvent event) {
-        out.println(ft2.format(time) + event.getUser().getUsername() + " has left " + event.getGuild().getName() + ".");
+        out.println(ft2.format(time) + event.getMember().getEffectiveName() + " has left " + event.getGuild().getName() + ".");
         Settings settings = GSONUtils.getSettings(event.getGuild());
 
         if (settings.farewellEnabled()) {
             try {
-                settings.getFarewellChannel(event.getJDA()).sendMessageAsync(settings.getFarewellMessage().replace("{mention}", event.getUser().getAsMention()).replace("{name}", event.getUser().getUsername()), null);
+                settings.getFarewellChannel(event.getJDA()).sendMessage(settings.getFarewellMessage().replace("{mention}", event.getMember().getAsMention()).replace("{name}", event.getMember().getEffectiveName())).queue();
             } catch (MessageNotFoundException e) {
                 settings.setFarewellMessage(null).toggleFarewell(false).save(event.getGuild());
                 for (TextChannel channel : event.getGuild().getTextChannels()) {
                     try {
-                        channel.sendMessageAsync("**WARNING:** KekBot could not find this server's welcome message! Please set it using `$announce welcome message <message>`!", null);
+                        channel.sendMessage("**WARNING:** KekBot could not find this server's welcome message! Please set it using `$announce welcome message <message>`!").queue();
                         break;
                     } catch (PermissionException er) {
                         //¯\_(ツ)_/¯
@@ -500,10 +527,62 @@ public class Listener extends ListenerAdapter {
                 settings.setFarewellChannel(null).toggleFarewell(false).save(event.getGuild());
                 for (TextChannel channel : event.getGuild().getTextChannels()) {
                     try {
-                        channel.sendMessageAsync("**WARNING:** KekBot could not find this server's welcome channel! Please set it using `$announce welcome channel <#channel>`!", null);
+                        channel.sendMessage("**WARNING:** KekBot could not find this server's welcome channel! Please set it using `$announce welcome channel <#channel>`!").queue();
                         break;
                     } catch (PermissionException er) {
                         //¯\_(ツ)_/¯
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
+        if (event.getGuild().getAudioManager().isConnected()) {
+            if (!KekBot.player.isMeme(event.getGuild())) {
+                if (event.getChannelLeft().equals(event.getGuild().getAudioManager().getConnectedChannel())) {
+                    if (event.getChannelLeft().getMembers().size() > 1) {
+                        if (KekBot.player.getHost(event.getGuild()).equals(event.getMember().getUser())) {
+                            Random random = new Random();
+                            int user = random.nextInt(event.getChannelLeft().getMembers().size());
+                            User newHost = event.getChannelLeft().getMembers().get(user).getUser();
+                            while (newHost.isBot()) {
+                                user = random.nextInt(event.getChannelLeft().getMembers().size());
+                                newHost = event.getChannelLeft().getMembers().get(user).getUser();
+                            }
+                            KekBot.player.changeHost(event.getGuild(), newHost);
+                            KekBot.player.announceToMusicSession(event.getGuild(), newHost.getName() + " is now the host of this music session.");
+                        }
+                    } else {
+                        KekBot.player.announceToMusicSession(event.getGuild(), "Fine, I didn't wanna play music anyway... :sob:");
+                        KekBot.player.closeConnection(event.getGuild());
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onGuildVoiceMove(GuildVoiceMoveEvent event) {
+        if (event.getGuild().getAudioManager().isConnected()) {
+            if (!KekBot.player.isMeme(event.getGuild())) {
+                if (event.getChannelLeft().equals(event.getGuild().getAudioManager().getConnectedChannel())) {
+                    if (event.getChannelLeft().getMembers().size() > 1) {
+                        if (KekBot.player.getHost(event.getGuild()).equals(event.getMember().getUser())) {
+                            Random random = new Random();
+                            int user = random.nextInt(event.getChannelLeft().getMembers().size());
+                            User newHost = event.getChannelLeft().getMembers().get(user).getUser();
+                            while (newHost.isBot()) {
+                                user = random.nextInt(event.getChannelLeft().getMembers().size());
+                                newHost = event.getChannelLeft().getMembers().get(user).getUser();
+                            }
+                            KekBot.player.changeHost(event.getGuild(), newHost);
+                            KekBot.player.announceToMusicSession(event.getGuild(), newHost.getName() + " is now the host of this music session.");
+                        }
+                    } else {
+                        KekBot.player.announceToMusicSession(event.getGuild(), "Fine, I didn't wanna play music anyway... :sob:");
+                        KekBot.player.closeConnection(event.getGuild());
                     }
                 }
             }

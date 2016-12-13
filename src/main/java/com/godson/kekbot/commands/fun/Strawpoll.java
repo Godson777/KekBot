@@ -4,7 +4,7 @@ import com.darichey.discord.api.Command;
 import com.godson.kekbot.Objects.SPoll;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.dv8tion.jda.entities.TextChannel;
+import net.dv8tion.jda.core.entities.TextChannel;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -22,11 +22,11 @@ public class Strawpoll {
                 String rawSplit[] = context.getMessage().getRawContent().split(" ", 2);
                 TextChannel channel = context.getTextChannel();
                 if (rawSplit.length == 1) {
-                    channel.sendMessageAsync("No poll title specified!", null);
+                    channel.sendMessage("No poll title specified!").queue();
                 } else {
                     String pollVariables[] = rawSplit[1].split("\\u007c");
                     if (pollVariables.length == 1) {
-                        channel.sendMessageAsync("No poll options specified!", null);
+                        channel.sendMessage("No poll options specified!").queue();
                     } else {
                         List<String> list = new ArrayList<>();
                         for (String option : pollVariables) {
@@ -45,7 +45,7 @@ public class Strawpoll {
                                     .userAgent("Mozilla/5.0").ignoreContentType(true)
                                     .requestBody(json)
                                     .post();
-                            channel.sendMessageAsync("https://strawpoll.me/" + gson.fromJson(document.body().text(), SPoll.class).getID(), null);
+                            channel.sendMessage("https://strawpoll.me/" + gson.fromJson(document.body().text(), SPoll.class).getID()).queue();
                         } catch (IOException e) {
                             e.printStackTrace();
                         }

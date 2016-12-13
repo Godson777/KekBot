@@ -6,9 +6,8 @@ import com.darichey.discord.api.CommandRegistry;
 import com.godson.kekbot.GSONUtils;
 import com.godson.kekbot.Settings.Tag;
 import com.godson.kekbot.Settings.TagManager;
-import net.dv8tion.jda.Permission;
-import net.dv8tion.jda.entities.TextChannel;
-import net.dv8tion.jda.utils.PermissionUtil;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.TextChannel;
 import org.apache.commons.lang3.StringUtils;
 
 import java.text.SimpleDateFormat;
@@ -22,7 +21,7 @@ public class TagCommand {
     public static Command tagCommand = new Command("tag")
             .withAliases("t")
             .withCategory(CommandCategory.GENERAL)
-            .withDescription("Allows you to ADD, REMOVE, and LIST tags, you can also get INFO on a tag. Which will send a message based on what's stored in the tag.")
+            .withDescription("Allows you to ADD, REMOVE, and LIST tags, you can also getResponder INFO on a tag. Which will send a message based on what's stored in the tag.")
             .withUsage("{p}tag {list|add|remove|list} <tag name>")
             .onExecuted(context -> {
                 String rawSplit[] = context.getMessage().getRawContent().split(" ", 4);
@@ -33,11 +32,11 @@ public class TagCommand {
                         : CommandRegistry.getForClient(context.getJDA()).getPrefixForGuild(context.getGuild());
                 TagManager manager = GSONUtils.getTagManager(context.getGuild());
                 if (rawSplit.length == 1) {
-                    channel.sendMessageAsync("Not enough parameters. Check " + prefix + "help for usage on this command!", null);
+                    channel.sendMessage("Not enough parameters. Check " + prefix + "help for usage on this command!").queue();
                 } else if (rawSplit.length >= 2) {
                     switch (rawSplit[1]) {
                         case "add":
-                            if (PermissionUtil.checkPermission(channel, context.getJDA().getSelfInfo(), Permission.MESSAGE_WRITE)) {
+                            if (context.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_WRITE)) {
                                 if (rawSplit.length >= 3) {
                                     if (rawSplit.length == 4) {
                                         Date creation = Calendar.getInstance().getTime();
@@ -46,72 +45,72 @@ public class TagCommand {
                                         try {
                                             manager.addTag(tag);
                                             manager.save(context.getGuild());
-                                            channel.sendMessageAsync("Successfully added tag! :thumbsup:", null);
+                                            channel.sendMessage("Successfully added tag! :thumbsup:").queue();
                                         } catch (IllegalArgumentException e) {
-                                            channel.sendMessageAsync("A tag already exists with that name!", null);
+                                            channel.sendMessage("A tag already exists with that name!").queue();
                                         }
                                     } else {
-                                        channel.sendMessageAsync("No value specified for \"" + rawSplit[2] + "\"!", null);
+                                        channel.sendMessage("No value specified for \"" + rawSplit[2] + "\"!").queue();
                                     }
                                 } else {
-                                    channel.sendMessageAsync("```md" +
+                                    channel.sendMessage("```md" +
                                             "\n[Subcommand](tag add)" +
                                             "\n\n[Description](Adds a tag to this server.)" +
                                             "\n\n# Paramaters (<> Required, {} Optional)" +
-                                            "\n[Usage](" + prefix + "tag add <name> <contents>```", null);
+                                            "\n[Usage](" + prefix + "tag add <name> <contents>```").queue();
                                 }
                             }
                             break;
                         case "remove":
                             if (rawSplit.length == 2) {
-                                channel.sendMessageAsync("```md" +
+                                channel.sendMessage("```md" +
                                         "\n[Subcommand](tag remove)" +
                                         "\n\n[Description](Removes a tag from this server, provided the tag is yours, or you have the \"Administrator\" permission.)" +
                                         "\n\n# Paramaters (<> Required, {} Optional)" +
-                                        "\n[Usage](" + prefix + "tag remove <name>```", null);
+                                        "\n[Usage](" + prefix + "tag remove <name>```").queue();
                             } else {
-                                if (manager.hasNoTags()) channel.sendMessageAsync("This server doesn't seem to have any tags...", null);
+                                if (manager.hasNoTags()) channel.sendMessage("This server doesn't seem to have any tags...").queue();
                                 else {
                                     Optional<Tag> tag = manager.getTagByName(rawSplit[2]);
                                     if (tag.isPresent()) {
-                                        if (tag.get().getCreatorID().equals(context.getAuthor().getId()) || PermissionUtil.checkPermission(channel, context.getAuthor(), Permission.ADMINISTRATOR)) {
+                                        if (tag.get().getCreatorID().equals(context.getAuthor().getId()) || context.getMember().hasPermission(channel, Permission.ADMINISTRATOR)) {
                                             manager.removeTag(tag.get());
                                             manager.save(context.getGuild());
-                                            channel.sendMessageAsync("Successfully removed tag \"" + rawSplit[2] + "\".", null);
-                                        } else channel.sendMessageAsync("You can't delete tags that don't belong to you!", null);
+                                            channel.sendMessage("Successfully removed tag \"" + rawSplit[2] + "\".").queue();
+                                        } else channel.sendMessage("You can't delete tags that don't belong to you!").queue();
                                     }
-                                    else channel.sendMessageAsync("No such tag exists!", null);
+                                    else channel.sendMessage("No such tag exists!").queue();
                                 }
                             }
                             break;
                         case "list":
-                            if (manager.hasNoTags()) channel.sendMessageAsync("This server doesn't seem to have any tags...", null);
+                            if (manager.hasNoTags()) channel.sendMessage("This server doesn't seem to have any tags...").queue();
                             else {
                                 List<Tag> tags = manager.getTags();
                                 List<String> names = tags.stream().map(Tag::getName).collect(Collectors.toList());
-                                channel.sendMessageAsync("The tags for " + context.getGuild().getName() + " are: \n`" + StringUtils.join(names, ", ") + "`", null);
+                                channel.sendMessage("The tags for " + context.getGuild().getName() + " are: \n`" + StringUtils.join(names, ", ") + "`").queue();
                             }
                             break;
                         case "info":
                             if (rawSplit.length == 2) {
-                                channel.sendMessageAsync("```md" +
+                                channel.sendMessage("```md" +
                                         "\n[Subcommand](tag info)" +
                                         "\n\n[Description](Gets information on a specified tag, if it exists.)" +
                                         "\n\n# Paramaters (<> Required, {} Optional)" +
-                                        "\n[Usage](" + prefix + "tag info <name>```", null);
+                                        "\n[Usage](" + prefix + "tag info <name>```").queue();
                             } else {
-                                if (manager.hasNoTags()) channel.sendMessageAsync("This server doesn't seem to have any tags...", null);
+                                if (manager.hasNoTags()) channel.sendMessage("This server doesn't seem to have any tags...").queue();
                                 else {
                                     Optional<Tag> tag = manager.getTagByName(rawSplit[2]);
                                     if (tag.isPresent()) {
-                                        channel.sendMessageAsync("Creator: " + context.getJDA().getUserById(tag.get().getCreatorID()).getUsername() +
-                                                "\nCreated at: " + tag.get().getTimeCreated() + (tag.get().getTimeLastEdited() != null ? "\nEdited At: " + tag.get().getTimeLastEdited() : ""), null);
-                                    } else channel.sendMessageAsync("No such tag exists!", null);
+                                        channel.sendMessage("Creator: " + context.getJDA().getUserById(tag.get().getCreatorID()).getName() +
+                                                "\nCreated at: " + tag.get().getTimeCreated() + (tag.get().getTimeLastEdited() != null ? "\nEdited At: " + tag.get().getTimeLastEdited() : "")).queue();
+                                    } else channel.sendMessage("No such tag exists!").queue();
                                 }
                             }
                             break;
                         case "edit":
-                            if (PermissionUtil.checkPermission(channel, context.getJDA().getSelfInfo(), Permission.ADMINISTRATOR)) {
+                            if (context.getGuild().getSelfMember().hasPermission(channel, Permission.ADMINISTRATOR)) {
                                 if (rawSplit.length >= 3) {
                                     if (rawSplit.length == 4) {
                                         Date edit = Calendar.getInstance().getTime();
@@ -121,21 +120,21 @@ public class TagCommand {
                                         }
                                         manager.save(context.getGuild());
                                     } else {
-                                        channel.sendMessageAsync("No value specified for \"" + rawSplit[2] + "\"!", null);
+                                        channel.sendMessage("No value specified for \"" + rawSplit[2] + "\"!").queue();
                                     }
                                 } else {
-                                    channel.sendMessageAsync("```md" +
+                                    channel.sendMessage("```md" +
                                             "\n[Subcommand](tag edit)" +
                                             "\n\n[Description](Edits an existing tag in this server, provided the tag is yours, or you have the \"Administrator\" permission.)" +
                                             "\n\n# Paramaters (<> Required, {} Optional)" +
-                                            "\n[Usage](" + prefix + "tag edit <name> <new contents>```", null);
+                                            "\n[Usage](" + prefix + "tag edit <name> <new contents>```").queue();
                                 }
                             }
                             break;
                         default:
                             Optional<Tag> tag = manager.getTagByName(rawSplit[1]);
-                            if (tag.isPresent()) channel.sendMessageAsync(tag.get().getContents(), null);
-                            else channel.sendMessageAsync("No such tag exists!", null);
+                            if (tag.isPresent()) channel.sendMessage(tag.get().getContents()).queue();
+                            else channel.sendMessage("No such tag exists!").queue();
                             break;
                     }
                 }

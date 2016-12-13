@@ -5,10 +5,10 @@ import com.darichey.discord.api.CommandCategory;
 import com.darichey.discord.api.CommandRegistry;
 import com.godson.kekbot.GSONUtils;
 import com.godson.kekbot.Settings.Quotes;
-import net.dv8tion.jda.Permission;
-import net.dv8tion.jda.entities.Guild;
-import net.dv8tion.jda.entities.TextChannel;
-import net.dv8tion.jda.utils.PermissionUtil;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.utils.PermissionUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -32,50 +32,50 @@ public class Quote {
                 if (rawSplit.length == 1) {
                     List<String> quotesList = quotes.getQuotes();
                     if (quotesList.isEmpty()) {
-                        channel.sendMessageAsync("You have no quotes!", null);
+                        channel.sendMessage("You have no quotes!").queue();
                     } else {
-                        channel.sendMessageAsync(quotes.getQuote(), null);
+                        channel.sendMessage(quotes.getQuote()).queue();
                     }
                 } else {
                     switch (rawSplit[1]) {
                         case "add":
-                            if (PermissionUtil.checkPermission(guild, context.getAuthor(), Permission.MESSAGE_MANAGE)) {
+                            if (context.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
                                 if (rawSplit.length == 3) {
-                                    List<String> quotesList = quotes.getQuotes();
-                                    quotesList.add(rawSplit[2]);
+                                    quotes.addQuote(rawSplit[2]);
                                     quotes.save(guild);
-                                    channel.sendMessageAsync("Successfully added quote! :thumbsup:", null);
+                                    channel.sendMessage("Successfully added quote! :thumbsup:").queue();
                                 } else {
-                                    channel.sendMessageAsync("```md\n[Subcommand](quote add)" +
+                                    channel.sendMessage("```md\n[Subcommand](quote add)" +
                                             "\n\n[Description](Adds a quote.)" +
                                             "\n\n# Paramaters (<> Required, {} Optional)" +
-                                            "\n[Usage](" + prefix + "quote add <quote>)```", null);
+                                            "\n[Usage](" + prefix + "quote add <quote>)```").queue();
                                 }
                             } else {
-                                channel.sendMessageAsync(context.getAuthor().getAsMention() + ", you do not have the `Manage Messages` permission!", null);
+                                channel.sendMessage(context.getAuthor().getAsMention() + ", you do not have the `Manage Messages` permission!").queue();
                             }
                             break;
                         case "remove":
-                            if (PermissionUtil.checkPermission(guild, context.getAuthor(), Permission.MESSAGE_MANAGE)) {
+                            if (context.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
                                 if (rawSplit.length == 3) {
                                     try {
                                         int quoteNumber = Integer.valueOf(rawSplit[2]);
                                         if (quotes.getQuotes().size() >= quoteNumber) {
                                             String quote = quotes.getQuote(quoteNumber-1);
                                             quotes.removeQuote(quoteNumber-1);
-                                            channel.sendMessageAsync("Successfully removed quote: **" + quote + "**.", null);
+                                            quotes.save(guild);
+                                            channel.sendMessage("Successfully removed quote: **" + quote + "**.").queue();
                                         }
                                     } catch (NumberFormatException e) {
-                                        channel.sendMessageAsync("\"" + rawSplit[2] + "\" is not a number!", null);
+                                        channel.sendMessage("\"" + rawSplit[2] + "\" is not a number!").queue();
                                     }
                                 } else {
-                                    channel.sendMessageAsync("```md\n[Subcommand](quote remove)" +
-                                            "\n\n[Description](Removes a specific quote. Use " + prefix + "quote list to get the quote's number.)" +
+                                    channel.sendMessage("```md\n[Subcommand](quote remove)" +
+                                            "\n\n[Description](Removes a specific quote. Use " + prefix + "quote list to getResponder the quote's number.)" +
                                             "\n\n# Paramaters (<> Required, {} Optional)" +
-                                            "\n[Usage](" + prefix + "quote remove <quote number>)```", null);
+                                            "\n[Usage](" + prefix + "quote remove <quote number>)```").queue();
                                 }
                             } else {
-                                channel.sendMessageAsync(context.getAuthor().getAsMention() + ", you do not have the `Manage Messages` permission!", null);
+                                channel.sendMessage(context.getAuthor().getAsMention() + ", you do not have the `Manage Messages` permission!").queue();
                             }
                             break;
                         case "list":
@@ -92,7 +92,7 @@ public class Quote {
                                 try {
                                     if (pageNumber == null || Integer.valueOf(pageNumber) == 1) {
                                         if (quotesList.size() <= 10) {
-                                            channel.sendMessageAsync("```md\n" + StringUtils.join(quotesList, "\n") + "```", null);
+                                            channel.sendMessage("```md\n" + StringUtils.join(quotesList, "\n") + "```").queue();
                                         } else {
                                             for (int i = 0; i < quotesList.size(); i += 10) {
                                                 try {
@@ -101,11 +101,11 @@ public class Quote {
                                                     pages.add(StringUtils.join(quotesList.subList(i, quotesList.size()), "\n"));
                                                 }
                                             }
-                                            channel.sendMessageAsync("```md\n" + pages.get(0) + "\n\n[Page](1" + "/" + pages.size() + ")" + "```", null);
+                                            channel.sendMessage("```md\n" + pages.get(0) + "\n\n[Page](1" + "/" + pages.size() + ")" + "```").queue();
                                         }
                                     } else {
                                         if (quotesList.size() <= 10) {
-                                            channel.sendMessageAsync("There are no other pages!", null);
+                                            channel.sendMessage("There are no other pages!").queue();
                                         } else {
                                             for (int i = 0; i < quotesList.size(); i += 10) {
                                                 try {
@@ -115,17 +115,17 @@ public class Quote {
                                                 }
                                             }
                                             if (Integer.valueOf(pageNumber) > pages.size()) {
-                                                channel.sendMessageAsync("Specified page does not exist!", null);
+                                                channel.sendMessage("Specified page does not exist!").queue();
                                             } else {
-                                                channel.sendMessageAsync("```md\n" + pages.get(Integer.valueOf(pageNumber) - 1) + "\n\n[Page](" + pageNumber + "/" + pages.size() + ")" + "```", null);
+                                                channel.sendMessage("```md\n" + pages.get(Integer.valueOf(pageNumber) - 1) + "\n\n[Page](" + pageNumber + "/" + pages.size() + ")" + "```").queue();
                                             }
                                         }
                                     }
                                 } catch (NumberFormatException e) {
-                                    channel.sendMessageAsync("\"" + pageNumber + "\" is not a number!", null);
+                                    channel.sendMessage("\"" + pageNumber + "\" is not a number!").queue();
                                 }
                             } else {
-                                channel.sendMessageAsync("There are no quotes to list!", null);
+                                channel.sendMessage("There are no quotes to list!").queue();
                             }
                             break;
                     }

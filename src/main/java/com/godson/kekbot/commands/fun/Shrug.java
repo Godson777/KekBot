@@ -9,5 +9,5 @@ public class Shrug {
             .withDescription("\"¯\\_(ツ)_/¯\"")
             .withUsage("{p}lenny")
             .deleteCommand(true)
-            .onExecuted(context -> context.getTextChannel().sendMessageAsync("¯\\_(ツ)_/¯", null));
+            .onExecuted(context -> context.getTextChannel().sendMessage("¯\\_(ツ)_/¯").queue());
 }

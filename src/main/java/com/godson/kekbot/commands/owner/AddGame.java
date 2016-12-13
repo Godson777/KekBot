@@ -4,8 +4,8 @@ import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
 import com.godson.kekbot.GSONUtils;
 import com.godson.kekbot.Settings.Config;
-import net.dv8tion.jda.entities.TextChannel;
-import net.dv8tion.jda.exceptions.PermissionException;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.exceptions.PermissionException;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -21,7 +21,7 @@ public class AddGame {
                     String rawSplit[] = context.getMessage().getRawContent().split(" ", 2);
                     TextChannel channel = context.getTextChannel();
                     if (rawSplit.length == 1) {
-                        channel.sendMessageAsync("Failed to add game, due to the lack of a game you were supposed to give.", null);
+                        channel.sendMessage("Failed to add game, due to the lack of a game you were supposed to give.").queue();
                     } else if (rawSplit.length == 2) {
                         String game = rawSplit[1];
                         try {
@@ -29,12 +29,12 @@ public class AddGame {
                             if (!games.contains(game)) {
                                     try {
                                         FileUtils.writeStringToFile(new File("games.txt"), "\n" + game, "utf-8", true);
-                                        channel.sendMessageAsync("Added __**" + game.replace("{users}", String.valueOf(context.getJDA().getUsers().size())).replace("{servers}" , String.valueOf(context.getJDA().getGuilds().size())) + "**__ to the list of games.", null);
+                                        channel.sendMessage("Added __**" + game.replace("{users}", String.valueOf(context.getJDA().getUsers().size())).replace("{servers}" , String.valueOf(context.getJDA().getGuilds().size())) + "**__ to the list of games.").queue();
                                     } catch (IOException | PermissionException e) {
                                         e.printStackTrace();
                                     }
                             } else {
-                                channel.sendMessageAsync("__**" + game + "**__ is already in my list of games!", null);
+                                channel.sendMessage("__**" + game + "**__ is already in my list of games!").queue();
                             }
                         } catch (IOException e) {
                             e.printStackTrace();

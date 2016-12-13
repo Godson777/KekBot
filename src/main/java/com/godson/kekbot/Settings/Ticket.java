@@ -1,7 +1,7 @@
 package com.godson.kekbot.Settings;
 
-import net.dv8tion.jda.entities.Guild;
-import net.dv8tion.jda.entities.User;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.User;
 
 public class Ticket {
     private TicketStatus status;

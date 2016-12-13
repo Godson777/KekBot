@@ -3,10 +3,7 @@ package com.godson.kekbot.commands.owner;
 import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
 import com.godson.kekbot.GSONUtils;
-import net.dv8tion.jda.entities.Channel;
-import net.dv8tion.jda.entities.Guild;
-import net.dv8tion.jda.exceptions.PermissionException;
-import net.dv8tion.jda.utils.InviteUtil;
+import net.dv8tion.jda.core.entities.Guild;
 
 import java.util.Optional;
 
@@ -17,12 +14,12 @@ public class GetInvite {
                 if (context.getMessage().getAuthor().equals(context.getJDA().getUserById(GSONUtils.getConfig().getBotOwner()))) {
                     String rawSplit[] = context.getMessage().getRawContent().split(" ", 2);
                     if (rawSplit.length == 1) {
-                        context.getTextChannel().sendMessageAsync("No guild specified.", null);
+                        context.getTextChannel().sendMessage("No guild specified.").queue();
                     } else {
                         Optional<Guild> guild = context.getJDA().getGuilds().stream().filter(g -> g.getName().equals(rawSplit[1])).findFirst();
                         if (guild.isPresent()) {
-                            final InviteUtil.AdvancedInvite[] invite = new InviteUtil.AdvancedInvite[1];
-                            for (Channel channel : guild.get().getTextChannels()) {
+                            /*final InviteUtil.AdvancedInvite[] invite = new InviteUtil.AdvancedInvite[1];
+                            for (Channel channel : guild.getResponder().getTextChannels()) {
                                     try {
                                         invite[0] = InviteUtil.createInvite(channel, InviteUtil.InviteDuration.THIRTY_MINUTES, 1, false);
                                         break;
@@ -30,12 +27,12 @@ public class GetInvite {
                                         //¯\_(ツ)_/¯
                                     }
                             }
-                            if (invite[0] != null) context.getTextChannel().sendMessageAsync("http://discord.gg/" + invite[0].getCode(), null);
-                            else context.getTextChannel().sendMessageAsync("Couldn't get an invite for \"" + rawSplit[1] + "\". :frowning:", null);
+                            if (invite[0] != null) context.getTextChannel().sendMessage("http://discord.gg/" + invite[0].getCode()).queue();
+                            else context.getTextChannel().sendMessage("Couldn't getResponder an invite for \"" + rawSplit[1] + "\". :frowning:").queue();*/
                         } else {
-                            context.getTextChannel().sendMessageAsync("Server not found.", null);
+                            context.getTextChannel().sendMessage("Server not found.").queue();
                         }
                     }
-                } else context.getTextChannel().sendMessageAsync("This command can only be used by the bot owner!", null);
+                } else context.getTextChannel().sendMessage("This command can only be used by the bot owner!").queue();
             });
 }

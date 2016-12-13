@@ -11,8 +11,8 @@ public class Support {
             .onExecuted(context -> {
                 String support = "Want to show your support for KekBot? There are plenty of ways to do so!\n" +
                         "You can join KekBot's official server here: https://discord.gg/3nbqavE\n" +
-                        "There, you can suggest features, memes, and other things that'll help impact KekBot's progress!" +
+                        "There, you can suggest features, memes, and other things that'll help impact KekBot's progress!\n" +
                         "And you can also visit KekBot's Patreon: https://www.patreon.com/KekBot";
-                context.getTextChannel().sendMessageAsync(support, null);
+                context.getTextChannel().sendMessage(support).queue();
             });
 }

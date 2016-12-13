@@ -2,8 +2,8 @@ package com.godson.kekbot.commands.fun;
 
 import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
-import net.dv8tion.jda.entities.TextChannel;
-import net.dv8tion.jda.entities.User;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 
 public class Avatar {
     public static Command avatar = new Command("avatar")
@@ -15,16 +15,16 @@ public class Avatar {
                 String rawSplit[] = context.getMessage().getRawContent().split(" ", 2);
                 TextChannel channel = context.getTextChannel();
                 if (rawSplit.length == 1) {
-                    channel.sendMessageAsync(context.getMessage().getAuthor().getAvatarUrl(), null);
+                    channel.sendMessage(context.getMessage().getAuthor().getAvatarUrl()).queue();
                 } else {
                     try {
                         User mention = context.getMessage().getMentionedUsers().get(0);
-                        channel.sendMessageAsync(mention.getAvatarUrl(), null);
+                        channel.sendMessage(mention.getAvatarUrl()).queue();
                     } catch (IndexOutOfBoundsException e) {
                         try {
-                            channel.sendMessageAsync(context.getGuild().getUsersByName(rawSplit[1]).get(0).getAvatarUrl(), null);
+                            channel.sendMessage(context.getGuild().getMembersByName(rawSplit[1], true).get(0).getUser().getAvatarUrl()).queue();
                         } catch (IndexOutOfBoundsException er) {
-                            channel.sendMessageAsync("I couldn't find a user with that name/nickname!", null);
+                            channel.sendMessage("I couldn't find a user with that name/nickname!").queue();
                         }
                     }
                 }

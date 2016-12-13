@@ -1,0 +1,14 @@
+{
+  "suggestions": [
+    {
+      "suggesterID": "99405418077364224",
+      "actionName": "PURGE_SUCCESS",
+      "suggestedResponse": "Trashed {} messages."
+    },
+    {
+      "suggesterID": "180480715010342912",
+      "actionName": "NOT_A_NUMBER",
+      "suggestedResponse": "I AM A CAT {}"
+    }
+  ]
+}

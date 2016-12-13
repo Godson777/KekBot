@@ -2,15 +2,11 @@ package com.godson.kekbot.commands.meme;
 
 import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
-import net.dv8tion.jda.entities.Guild;
-import net.dv8tion.jda.entities.Role;
-import net.dv8tion.jda.entities.TextChannel;
-import net.dv8tion.jda.entities.VoiceChannel;
-import net.dv8tion.jda.managers.AudioManager;
-import net.dv8tion.jda.player.MusicPlayer;
-import net.dv8tion.jda.player.hooks.PlayerListenerAdapter;
-import net.dv8tion.jda.player.hooks.events.FinishEvent;
-import net.dv8tion.jda.player.source.LocalSource;
+import com.godson.kekbot.KekBot;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.VoiceChannel;
 
 import java.io.File;
 import java.util.List;
@@ -25,50 +21,25 @@ public class Granddad {
             .onExecuted(context -> {
                 TextChannel channel = context.getTextChannel();
                 Guild server = context.getGuild();
-                List<Role> checkForMeme = server.getRolesByName("Living Meme");
+                List<Role> checkForMeme = server.getRolesByName("Living Meme", true);
                 if (checkForMeme.size() == 0) {
-                    channel.sendMessageAsync(":exclamation: __**Living Meme**__ role not found! Please add this role and assign it to me!", null);
+                    channel.sendMessage(":exclamation: __**Living Meme**__ role not found! Please add this role and assign it to me!").queue();
                 } else {
                     Role meme = checkForMeme.get(0);
-                    if (server.getRolesForUser(context.getJDA().getSelfInfo()).contains(meme)) {
+                    if (server.getSelfMember().getRoles().contains(meme)) {
                         if (new File("granddad").isDirectory()) {
                             File granddads[] = new File("granddad").listFiles();
                             Random random = new Random();
                             int index = random.nextInt(granddads.length);
-                            Optional<VoiceChannel> voiceChannel = context.getGuild().getVoiceChannels().stream().filter(c -> c.getUsers().contains(context.getAuthor())).findFirst();
+                            Optional<VoiceChannel> voiceChannel = context.getGuild().getVoiceChannels().stream().filter(c -> c.getMembers().contains(context.getMember())).findFirst();
                             if (!voiceChannel.isPresent()) {
-                                channel.sendMessageAsync("This command requies you to be in a voice channel!", null);
+                                channel.sendMessage("This command requies you to be in a voice channel!").queue();
                             } else {
-                                AudioManager manager = context.getJDA().getAudioManager(context.getGuild());
-                                MusicPlayer player;
-                                if (manager.getSendingHandler() == null) {
-                                    player = new MusicPlayer();
-                                    manager.setSendingHandler(player);
-                                } else {
-                                    player = (MusicPlayer) manager.getSendingHandler();
-                                }
-                                player.addEventListener(new PlayerListenerAdapter() {
-                                    @Override
-                                    public void onFinish(FinishEvent event) {
-                                        if (event.getPlayer().getAudioQueue().isEmpty())
-                                            manager.closeAudioConnection();
-                                    }
-                                });
-                                player.getAudioQueue().add(new LocalSource(granddads[index]));
-                                if (!manager.isConnected()) {
-                                    manager.openAudioConnection(voiceChannel.get());
-                                } else {
-                                    if (manager.getConnectedChannel() != voiceChannel.get()) {
-                                        manager.moveAudioConnection(voiceChannel.get());
-                                    }
-                                }
-                                if (player.isStopped()) {
-                                    player.play();
-                                }
+                                KekBot.player.loadAndMeme(context, granddads[index].getAbsolutePath());
                             }
                         }
                     } else {
-                        channel.sendMessageAsync(":exclamation: This command requires me to have the __**Living Meme**__ role.", null);
+                        channel.sendMessage(":exclamation: This command requires me to have the __**Living Meme**__ role.").queue();
                     }
                 }
             });

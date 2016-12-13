@@ -44,33 +44,34 @@ public class Help {
                         }
                         if (!category.equals(CommandCategory.BOT_OWNER)) commands.add("");
                     });
-                    for (int i = 0; i < registry.getCommands().size(); i += 25) {
-                        try {
-                            pages.add(StringUtils.join(commands.subList(i, i + 25), "\n"));
-                        } catch (IndexOutOfBoundsException e) {
-                            pages.add(StringUtils.join(commands.subList(i, commands.size()), "\n"));
-                        }
+                    for (int i = 0; i < commands.size(); i += 25) {
+                            try {
+                                pages.add(StringUtils.join(commands.subList(i, i + 25), "\n"));
+                            } catch (IndexOutOfBoundsException e) {
+                                pages.add(StringUtils.join(commands.subList(i, commands.size()), "\n"));
+                            }
                     }
 
-                    context.getMessage().getAuthor().getPrivateChannel().sendMessageAsync("__**KekBot**__\n*Your helpful meme-based bot!*\n" +
+                    String message = "__**KekBot**__\n*Your helpful meme-based bot!*\n" +
                             "```md\n" + pages.get(0) + "\n\n" + "[Page](1" + "/" + pages.size() + ")\n" +
-                            "# Type \"help <number>\" to view that page!" + "```", null);
-                    context.getTextChannel().sendMessageAsync(context.getMessage().getAuthor().getAsMention() + " Alright, check your PMs! :thumbsup:", null);
+                            "# Type \"help <number>\" to view that page!" + "```";
+                    if (!context.getAuthor().hasPrivateChannel()) context.getAuthor().openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage(message).queue());
+                    else context.getAuthor().getPrivateChannel().sendMessage(message).queue();
+                    context.getTextChannel().sendMessage(context.getMessage().getAuthor().getAsMention() + " Alright, check your PMs! :thumbsup:").queue();
                 } else {
-                    String name = args[0].toLowerCase();
                     Optional<Command> cmd = CommandRegistry.getForClient(context.getJDA()).getCommandByName(args[0], true);
                     if (cmd.isPresent()) {
                         Command command = cmd.get();
                         Set<String> set = cmd.get().getAliases();
                         if (!command.getCategory().equals(CommandCategory.BOT_OWNER))
-                            context.getTextChannel().sendMessageAsync("```md\n[Command](" + command.getName() + ")" +
+                            context.getTextChannel().sendMessage("```md\n[Command](" + command.getName() + ")" +
                                     (command.getAliases().size() != 0 ? "\n\n[Aliases](" + StringUtils.join(set, ", ") + ")" : "") +
                                     "\n\n[Category](" + command.getCategory() + ")" +
                                     "\n\n[Description](" + command.getDescription() + ")" +
                                     "\n\n# Paramaters (<> Required, {} Optional)" +
-                                    "\n[Usage](" + command.getUsage().replace("{p}", (CommandRegistry.getForClient(context.getJDA()).getPrefixForGuild(context.getGuild()) != null ? CommandRegistry.getForClient(context.getJDA()).getPrefixForGuild(context.getGuild()) : "$")) + ")```", null);
+                                    "\n[Usage](" + command.getUsage().replace("{p}", (CommandRegistry.getForClient(context.getJDA()).getPrefixForGuild(context.getGuild()) != null ? CommandRegistry.getForClient(context.getJDA()).getPrefixForGuild(context.getGuild()) : "$")) + ")```").queue();
                     } else {
-                        context.getTextChannel().sendMessageAsync("Command not found.", null);
+                        context.getTextChannel().sendMessage("Command not found.").queue();
                     }
                 }
 }

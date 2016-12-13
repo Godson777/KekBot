@@ -11,10 +11,10 @@ public class Google {
             .onExecuted(context -> {
                 String rawSplit[] = context.getMessage().getRawContent().split(" ", 2);
                 if (rawSplit.length == 1) {
-                    context.getTextChannel().sendMessageAsync("You haven't given me anything to search for!", null);
+                    context.getTextChannel().sendMessage("You haven't given me anything to search for!").queue();
                 } else if (rawSplit.length == 2) {
                     String search = rawSplit[1].replace(" ", "+");
-                    context.getTextChannel().sendMessageAsync("http://google.com/#q=" + search, null);
+                    context.getTextChannel().sendMessage("http://google.com/#q=" + search).queue();
                 }
             });
 }

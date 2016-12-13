@@ -3,12 +3,13 @@ package com.godson.kekbot.commands.admin;
 import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
 import com.darichey.discord.api.FailureReason;
-import net.dv8tion.jda.Permission;
-import net.dv8tion.jda.entities.Role;
-import net.dv8tion.jda.entities.TextChannel;
-import net.dv8tion.jda.entities.User;
-import net.dv8tion.jda.exceptions.PermissionException;
-import net.dv8tion.jda.managers.GuildManager;
+import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.exceptions.PermissionException;
+import net.dv8tion.jda.core.managers.GuildController;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -25,60 +26,60 @@ public class RemoveRole {
                 TextChannel channel = context.getTextChannel();
                 String rawSplit[] = context.getMessage().getRawContent().split(" ", 2);
                 if (rawSplit.length == 1) {
-                    channel.sendMessageAsync("No role specified!", null);
+                    channel.sendMessage("No role specified!").queue();
                 } else {
                     String params[] = rawSplit[1].split("\\u007c", 2);
                     if (params[0].startsWith(" ")) params[0] = params[0].replaceFirst("([ ]+)", "");
                     if (params[0].endsWith(" ")) params[0] = params[0].replaceAll("([ ]+$)", "");
-                    if (context.getGuild().getRolesByName(params[0]).size() == 0) {
-                        channel.sendMessageAsync("Unable to find any roles by the name of \"" + params[0] + "\"!", null);
+                    if (context.getGuild().getRolesByName(params[0], true).size() == 0) {
+                        channel.sendMessage("Unable to find any roles by the name of \"" + params[0] + "\"!").queue();
                     } else {
                         if (params.length == 1) {
-                            channel.sendMessageAsync("Who am I supposed to take this role from? :neutral_face:", null);
+                            channel.sendMessage("Who am I supposed to take this role from? :neutral_face:").queue();
                         } else {
                             if (context.getMessage().getMentionedUsers().size() == 0) {
-                                channel.sendMessageAsync("The user(s) you want to remove this role from __**must**__ be in the form of a mention!", null);
+                                channel.sendMessage("The user(s) you want to remove this role from __**must**__ be in the form of a mention!").queue();
                             } else if (context.getMessage().getMentionedUsers().size() == 1) {
-                                User user = context.getMessage().getMentionedUsers().get(0);
-                                if (context.getGuild().getRolesForUser(user).contains(context.getGuild().getRolesByName(params[0]).get(0))) {
+                                Member member = context.getGuild().getMember(context.getMessage().getMentionedUsers().get(0));
+                                if (member.getRoles().contains(context.getGuild().getRolesByName(params[0], true).get(0))) {
                                     try {
-                                        context.getGuild().getManager().removeRoleFromUser(user, context.getGuild().getRolesByName(params[0]).get(0)).update();
-                                        channel.sendMessageAsync("Successfully removed role from `" + user.getUsername() + "#" + user.getDiscriminator() + "`. :thumbsup:", null);
+                                        context.getGuild().getController().removeRolesFromMember(member, context.getGuild().getRolesByName(params[0], true).get(0)).queue();
+                                        channel.sendMessage("Successfully removed role from `" + member.getUser().getName() + "#" + member.getUser().getDiscriminator() + "`. :thumbsup:").queue();
                                     } catch (PermissionException e) {
-                                        channel.sendMessageAsync("That role is higher than mine! I cannot remove it from any users!", null);
+                                        channel.sendMessage("That role is higher than mine! I cannot remove it from any users!").queue();
                                     }
                                 } else {
-                                    channel.sendMessageAsync("This user doesn't have the role you specified!", null);
+                                    channel.sendMessage("This user doesn't have the role you specified!").queue();
                                 }
                             } else {
                                 List<User> users = context.getMessage().getMentionedUsers();
-                                GuildManager manager = context.getGuild().getManager();
-                                Role role = context.getGuild().getRolesByName(params[0]).get(0);
+                                GuildController controller = context.getGuild().getController();
+                                Role role = context.getGuild().getRolesByName(params[0], true).get(0);
                                 List<String> success = new ArrayList<String>();
                                 List<String> exist = new ArrayList<String>();
                                 boolean failed = false;
                                 for (User user : users) {
-                                    if (context.getGuild().getRolesForUser(user).contains(role)) {
+                                    Member member = context.getGuild().getMember(user);
+                                    if (member.getRoles().contains(role)) {
                                         try {
-                                            manager.removeRoleFromUser(user, context.getGuild().getRolesByName(params[0]).get(0));
-                                            success.add(user.getUsername() + "#" + user.getDiscriminator());
+                                            controller.removeRolesFromMember(member, role).queue();
+                                            success.add(user.getName() + "#" + user.getDiscriminator());
                                         } catch (PermissionException e) {
                                             failed = true;
                                             break;
                                         }
                                     } else {
-                                        exist.add(user.getUsername() + "#" + user.getDiscriminator());
+                                        exist.add(user.getName() + "#" + user.getDiscriminator());
                                     }
                                 }
-                                manager.update();
                                 if (failed) {
-                                    channel.sendMessageAsync("That role is higher than mine! I cannot remove it from any users!", null);
+                                    channel.sendMessage("That role is higher than mine! I cannot remove it from any users!").queue();
                                 } else {
                                     if (success.size() != 0) {
-                                        channel.sendMessageAsync("Successfully removed role from " + (success.size() == 1 ? "user" : "users") + ": `" + StringUtils.join(success, ", ") + "`." +
-                                                (exist.size() != 0 ? "\nHowever, " + exist.size() + (exist.size() == 1 ? "user" : "users") + ": `" + StringUtils.join(exist, ", ") + "` don't have this role. So they were ignored." : ""), null);
+                                        channel.sendMessage("Successfully removed role from " + (success.size() == 1 ? "user" : "users") + ": `" + StringUtils.join(success, ", ") + "`." +
+                                                (exist.size() != 0 ? "\nHowever, " + exist.size() + (exist.size() == 1 ? "user" : "users") + ": `" + StringUtils.join(exist, ", ") + "` don't have this role. So they were ignored." : "")).queue();
                                     } else {
-                                        channel.sendMessageAsync("All users you specified don't have this role!", null);
+                                        channel.sendMessage("All users you specified don't have this role!").queue();
                                     }
                                 }
                             }
@@ -87,7 +88,7 @@ public class RemoveRole {
                 }
             })
             .onFailure((context, failureReason) -> {
-                if (failureReason.equals(FailureReason.AUTHOR_MISSING_PERMISSIONS)) context.getTextChannel().sendMessageAsync(context.getMessage().getAuthor().getAsMention() + ", you don't have the `Manage Roles` permission!", null);
-                else context.getTextChannel().sendMessageAsync("I seem to be lacking the `Manage Roles` permission!", null);
+                if (failureReason.equals(FailureReason.AUTHOR_MISSING_PERMISSIONS)) context.getTextChannel().sendMessage(context.getMessage().getAuthor().getAsMention() + ", you don't have the `Manage Roles` permission!").queue();
+                else context.getTextChannel().sendMessage("I seem to be lacking the `Manage Roles` permission!").queue();
             });
 }

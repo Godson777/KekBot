@@ -12,9 +12,9 @@ public class Say {
             .onExecuted(context -> {
                 String[] contents = context.getMessage().getRawContent().split(" ", 2);
                 if (contents.length == 1) {
-                    context.getTextChannel().sendMessageAsync(":anger: " + context.getMessage().getAuthor().getAsMention() + ", could you at *least* give me something to *say*?", null);
+                    context.getTextChannel().sendMessage(":anger: " + context.getMessage().getAuthor().getAsMention() + ", could you at *least* give me something to *say*?").queue();
                 } else {
-                    context.getTextChannel().sendMessageAsync(contents[1], null);
+                    context.getTextChannel().sendMessage(contents[1]).queue();
                 }
             });
 }

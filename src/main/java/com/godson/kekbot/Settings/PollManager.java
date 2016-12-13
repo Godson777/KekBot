@@ -1,15 +1,15 @@
 package com.godson.kekbot.Settings;
 
+import com.darichey.discord.api.CommandContext;
 import com.godson.kekbot.Objects.PollObject;
-import net.dv8tion.jda.entities.Guild;
-import net.dv8tion.jda.entities.TextChannel;
-import net.dv8tion.jda.entities.User;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
 
 public class PollManager {
     private Map<Guild, PollObject> polls = new HashMap<>();
@@ -17,7 +17,10 @@ public class PollManager {
 
     public PollManager() {}
 
-    public PollObject createPoll(Guild guild, TextChannel channel, String title, User creator, String... options) {
+    public PollObject createPoll(CommandContext context, long time, String title, String... options) {
+        Guild guild = context.getGuild();
+        User creator = context.getAuthor();
+        TextChannel channel = context.getTextChannel();
         if (!polls.containsKey(guild)) {
             PollObject poll = new PollObject(title, creator).withOptions(options);
             polls.put(guild, poll);
@@ -25,18 +28,18 @@ public class PollManager {
             TimerTask pollResults = new TimerTask() {
                 @Override
                 public void run() {
-                    channel.sendMessageAsync("Time's up! Let's see the results...", msg -> {
+                    channel.sendMessage("Time's up! Let's see the results...").queue(msg -> {
                         StringBuilder builder = new StringBuilder();
                         for (int i = 0; i < poll.getOptions().length; i++) {
                             builder.append("**").append(poll.getOptions()[i]).append(":** ").append(poll.getVotes()[i]).append("\n");
                         }
-                        msg.updateMessage("Time's up! Let's see the results...\n\n" + builder.toString());
+                        msg.editMessage("Time's up! Let's see the results...\n\n" + builder.toString()).queue();
                     });
                     polls.remove(guild);
                 }
             };
 
-            timer.schedule(pollResults, TimeUnit.SECONDS.toMillis(20));
+            timer.schedule(pollResults, time);
             return poll;
 
         } else throw new IllegalArgumentException("Attempted to create a poll in a guild which already contains an ongoing poll!");

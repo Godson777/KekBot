@@ -4,8 +4,8 @@ import com.godson.kekbot.GSONUtils;
 import com.godson.kekbot.KekBot;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.dv8tion.jda.JDA;
-import net.dv8tion.jda.entities.User;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.entities.User;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -27,11 +27,11 @@ public class TicketManager {
     }
 
     public void replyToTicketManager(Ticket ticket, String response, User replier) {
-        String replierName = replier.getUsername() + "#" + replier.getDiscriminator();
+        String replierName = replier.getName() + "#" + replier.getDiscriminator();
         for (JDA jda : KekBot.jdas) {
             try {
-                jda.getUserById(ticket.getAuthorID()).getPrivateChannel().sendMessageAsync("You have received a reply for your ticket. (**" + ticket.getTitle() + "**)\n**" + replierName
-                        + "**:\n\n" + response, null);
+                jda.getUserById(ticket.getAuthorID()).getPrivateChannel().sendMessage("You have received a reply for your ticket. (**" + ticket.getTitle() + "**)\n**" + replierName
+                        + "**:\n\n" + response).queue();
                 closeTicket(ticket);
                 ticket.setStatus(TicketStatus.AWAITING_REPLY);
                 addTicket(ticket);
@@ -44,11 +44,11 @@ public class TicketManager {
     }
 
     public void replyToTicketUser(Ticket ticket, String response, User replier) {
-        String replierName = replier.getUsername() + "#" + replier.getDiscriminator();
+        String replierName = replier.getName() + "#" + replier.getDiscriminator();
         for (JDA jda : KekBot.jdas) {
             try {
-                jda.getUserById(GSONUtils.getConfig().getBotOwner()).getPrivateChannel().sendMessageAsync("You have received a reply for a ticket. (**" + ticket.getTitle() + "**)\n**" + replierName
-                        + "**:\n\n" + response, null);
+                jda.getUserById(GSONUtils.getConfig().getBotOwner()).getPrivateChannel().sendMessage("You have received a reply for a ticket. (**" + ticket.getTitle() + "**)\n**" + replierName
+                        + "**:\n\n" + response).queue();
                 closeTicket(ticket);
                 ticket.setStatus(TicketStatus.RECEIVED_REPLY);
                 addTicket(ticket);

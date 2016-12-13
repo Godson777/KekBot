@@ -1,6 +1,6 @@
 package com.godson.kekbot.Objects;
 
-import net.dv8tion.jda.entities.User;
+import net.dv8tion.jda.core.entities.User;
 
 import java.util.HashMap;
 import java.util.Map;

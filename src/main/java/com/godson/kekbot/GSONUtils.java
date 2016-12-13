@@ -1,12 +1,15 @@
 package com.godson.kekbot;
 
 import com.godson.kekbot.Objects.UDictionary;
+import com.godson.kekbot.Responses.Action;
+import com.godson.kekbot.Responses.Responder;
+import com.godson.kekbot.Responses.ResponseSuggestions;
 import com.godson.kekbot.Settings.*;
 import com.google.gson.Gson;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import net.dv8tion.jda.entities.Guild;
+import net.dv8tion.jda.core.entities.Guild;
 
 import java.io.*;
 
@@ -25,6 +28,37 @@ public class GSONUtils {
             e.printStackTrace();
         }
         return settings;
+    }
+
+    public static Responder getResponder(Action action) {
+        Responder response = new Responder(action);
+        try {
+            BufferedReader br = new BufferedReader(new FileReader("responses/" + action.name() + ".json"));
+            Gson gson = new Gson();
+            response = gson.fromJson(br, Responder.class);
+            response.setAction(action);
+            br.close();
+        } catch (FileNotFoundException e) {
+            //do nothing
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return response;
+    }
+
+    public static ResponseSuggestions getSuggestions() {
+        ResponseSuggestions suggestions = new ResponseSuggestions();
+        try {
+            BufferedReader br = new BufferedReader(new FileReader("responses/responses.json"));
+            Gson gson = new Gson();
+            suggestions = gson.fromJson(br, ResponseSuggestions.class);
+            br.close();
+        } catch (FileNotFoundException e) {
+            //do nothing
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return suggestions;
     }
 
     public static TagManager getTagManager(Guild guild) {

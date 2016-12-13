@@ -4,9 +4,9 @@ import com.godson.kekbot.Exceptions.ChannelNotFoundException;
 import com.godson.kekbot.Exceptions.MessageNotFoundException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.dv8tion.jda.JDA;
-import net.dv8tion.jda.entities.Guild;
-import net.dv8tion.jda.entities.TextChannel;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.TextChannel;
 
 import java.io.File;
 import java.io.FileWriter;

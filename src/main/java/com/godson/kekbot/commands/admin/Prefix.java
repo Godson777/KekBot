@@ -5,8 +5,8 @@ import com.darichey.discord.api.CommandCategory;
 import com.darichey.discord.api.CommandRegistry;
 import com.godson.kekbot.GSONUtils;
 import com.godson.kekbot.Settings.Settings;
-import net.dv8tion.jda.entities.Guild;
-import net.dv8tion.jda.entities.TextChannel;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.TextChannel;
 
 
 public class Prefix {
@@ -22,9 +22,9 @@ public class Prefix {
                         : CommandRegistry.getForClient(context.getJDA()).getPrefix());
                 TextChannel channel = context.getTextChannel();
                 Settings settings = GSONUtils.getSettings(context.getGuild());
-                if (server.getOwner().equals(context.getMessage().getAuthor())) {
+                if (server.getOwner().equals(server.getMember(context.getAuthor()))) {
                     if (args.length == 0) {
-                        channel.sendMessageAsync(context.getAuthor().getAsMention() + " :anger: You must supply the prefix you want me to use!", null);
+                        channel.sendMessage(context.getAuthor().getAsMention() + " :anger: You must supply the prefix you want me to use!").queue();
                     } else {
                         if (args[0].length() <= 2) {
                             if (!args[0].equals(CommandRegistry.getForClient(context.getJDA()).getPrefix())) {
@@ -34,13 +34,13 @@ public class Prefix {
                                 if (settings.getPrefix() != null) settings.setPrefix(null);
                                 CommandRegistry.getForClient(context.getJDA()).deletePrefixForGuild(server);
                             }
-                            channel.sendMessageAsync("Successfully changed prefix from " + oldPrefix + " " + "to " + args[0], null);
+                            channel.sendMessage("Successfully changed prefix from " + oldPrefix + " " + "to " + args[0]).queue();
                         } else {
-                            channel.sendMessageAsync("For your convenience, and due to limitations, I cannot allow you to set prefixes more than __**2**__ character long.", null);
+                            channel.sendMessage("For your convenience, and due to limitations, I cannot allow you to set prefixes more than __**2**__ character long.").queue();
                         }
                     }
                 } else {
-                    channel.sendMessageAsync("Sorry, only the owner of the server can run this command!", null);
+                    channel.sendMessage("Sorry, only the owner of the server can run this command!").queue();
                 }
             });
 }

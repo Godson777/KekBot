@@ -25,7 +25,7 @@ public class ListServers {
                             pages.add(StringUtils.join(guilds.subList(i, guilds.size()), "\n"));
                         }
                     }
-                    context.getMessage().getChannel().sendMessageAsync("```md\n" + pages.get(0) + "```", null);
+                    context.getMessage().getChannel().sendMessage("```md\n" + pages.get(0) + "```").queue();
                 }
             });
 }

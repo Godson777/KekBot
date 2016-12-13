@@ -68,9 +68,9 @@ public class Emojify {
             .onExecuted(context -> {
                 String rawSplit[] = context.getMessage().getRawContent().split(" ", 2);
                 if (rawSplit.length == 1) {
-                    context.getTextChannel().sendMessageAsync("No message specified! :cry:", null);
+                    context.getTextChannel().sendMessage("No message specified! :cry:").queue();
                 } else {
-                    context.getTextChannel().sendMessageAsync(emojify(rawSplit[1]), null);
+                    context.getTextChannel().sendMessage(emojify(rawSplit[1])).queue();
                 }
             });
 }

@@ -11,6 +11,7 @@ import java.util.List;
 
 public class Config {
     private String token;
+    private String dApiToken;
     private String botOwner;
     private List<String> allowedUsers = new ArrayList<String>();
 
@@ -34,6 +35,10 @@ public class Config {
 
     public String getToken() {
         return token;
+    }
+
+    public String getdApiToken() {
+        return dApiToken;
     }
 
     @Override
