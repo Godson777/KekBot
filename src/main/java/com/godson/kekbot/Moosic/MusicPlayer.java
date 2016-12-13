@@ -185,7 +185,7 @@ public class MusicPlayer extends ListenerAdapter {
             } else {
                 audioManager.openAudioConnection(voiceChannel.get());
                 if (!isMeme(context.getGuild())) {
-                    context.getTextChannel().sendMessage(context.getAuthor().getAsMention() + " is now hosting a music session in: " + voiceChannel.get().getName()).queue();
+                    context.getTextChannel().sendMessage(context.getAuthor().getAsMention() + " is now hosting a music session in: " + voiceChannel.get().getName() + KekBot.replacePrefix(context.getGuild(), ", use {p}music to get the list of all music commands.")).queue();
                     musicManagers.get(Long.parseLong(context.getGuild().getId())).scheduler.currentPlayer = context.getAuthor();
                 }
             }

@@ -14,33 +14,35 @@ public class Host {
             .withDescription("")
             .withAliases("{p}host <@mention>")
             .onExecuted(context -> {
-                Optional<VoiceChannel> voiceChannel = context.getGuild().getVoiceChannels().stream().filter(c -> c.getMembers().contains(context.getMember())).findFirst();
-                if (!voiceChannel.isPresent()) {
-                    context.getTextChannel().sendMessage("This command requies you to be in a voice channel!").queue();
-                } else {
-                    if (KekBot.player.getHost(context.getGuild()).equals(context.getAuthor()) || context.getMember().hasPermission(Permission.ADMINISTRATOR)) {
-                        if (KekBot.player.isMeme(context.getGuild())) {
-                            context.getTextChannel().sendMessage("There is no host. Only memes.").queue();
-                        } else {
-                            if (context.getGuild().getAudioManager().getConnectedChannel().equals(voiceChannel.get())) {
-                                if (context.getArgs().length > 0) {
-                                    if (context.getMessage().getMentionedUsers().size() > 0) {
-                                        User newHost = context.getMessage().getMentionedUsers().get(0);
-                                        KekBot.player.changeHost(context.getGuild(), newHost);
-                                        context.getTextChannel().sendMessage("Done, " + newHost.getName() + " is now the host.").queue();
+                    Optional<VoiceChannel> voiceChannel = context.getGuild().getVoiceChannels().stream().filter(c -> c.getMembers().contains(context.getMember())).findFirst();
+                    if (!voiceChannel.isPresent()) {
+                        context.getTextChannel().sendMessage("This command requies you to be in a voice channel!").queue();
+                    } else {
+                        if (context.getGuild().getAudioManager().isConnected()) {
+                        if (KekBot.player.getHost(context.getGuild()).equals(context.getAuthor()) || context.getMember().hasPermission(Permission.ADMINISTRATOR)) {
+                            if (KekBot.player.isMeme(context.getGuild())) {
+                                context.getTextChannel().sendMessage("There is no host. Only memes.").queue();
+                            } else {
+                                if (context.getGuild().getAudioManager().getConnectedChannel().equals(voiceChannel.get())) {
+                                    if (context.getArgs().length > 0) {
+                                        if (context.getMessage().getMentionedUsers().size() > 0) {
+                                            User newHost = context.getMessage().getMentionedUsers().get(0);
+                                            KekBot.player.changeHost(context.getGuild(), newHost);
+                                            context.getTextChannel().sendMessage("Done, " + newHost.getName() + " is now the host.").queue();
+                                        } else {
+                                            context.getTextChannel().sendMessage("You have to mention the user you wanna make the host!").queue();
+                                        }
                                     } else {
-                                        context.getTextChannel().sendMessage("You have to mention the user you wanna make the host!").queue();
+                                        context.getTextChannel().sendMessage("You haven't specified who to make the host...").queue();
                                     }
                                 } else {
-                                    context.getTextChannel().sendMessage("You haven't specified who to make the host...").queue();
+                                    context.getTextChannel().sendMessage("You have to be in \"" + context.getGuild().getAudioManager().getConnectedChannel().getName() + "\" in order to use music commands.").queue();
                                 }
-                            } else {
-                                context.getTextChannel().sendMessage("You have to be in \"" + context.getGuild().getAudioManager().getConnectedChannel().getName() + "\" in order to use music commands.").queue();
                             }
+                        } else {
+                            context.getTextChannel().sendMessage("Only the host and users with the `Administrator` permission can set the volume!").queue();
                         }
-                    } else {
-                        context.getTextChannel().sendMessage("Only the host and users with the `Administrator` permission can set the volume!").queue();
-                    }
+                    } else context.getTextChannel().sendMessage("I'm not even playing any music!").queue();
                 }
             });
 }
