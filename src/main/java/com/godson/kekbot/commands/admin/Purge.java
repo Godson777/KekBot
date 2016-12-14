@@ -61,7 +61,7 @@ public class Purge {
                                             context.getMessage().getMentionedUsers().forEach(user -> mentions.add(user.getAsMention()));
                                             Pattern p = Pattern.compile("([A-Z])+", Pattern.CASE_INSENSITIVE);
                                             Matcher m = p.matcher(keyphrase);
-                                            if (mentions.stream().anyMatch(keyphrase::contains) && m.find()) {
+                                            if (mentions.stream().anyMatch(mentions::contains) && m.find()) {
                                                 msg.editMessage("Sorry, but you can't type key-phrases and a mention while attempting to purge.").queue();
                                             } else {
                                                 List<Message> mentionPurge = msgs.stream().filter(mes -> context.getMessage().getMentionedUsers().stream().anyMatch(mes.getAuthor()::equals)).collect(Collectors.toList());
@@ -70,7 +70,7 @@ public class Purge {
                                                 else if (mentionPurge.size() == 1)
                                                     mentionPurge.get(0).deleteMessage().queue();
                                                 if (mentionPurge.size() >= 1)
-                                                    msg.editMessage(KekBot.respond(context, Action.MENTION_PURGE_SUCCESS, mentionPurge.size(), "`" + StringUtils.join(context.getMessage().getMentionedUsers().stream().map(user -> user.getName() + "#" + user.getDiscriminator()).collect(Collectors.toList()), ", ") + "`")).queue();
+                                                    msg.editMessage(KekBot.respond(context, Action.MENTION_PURGE_SUCCESS, "`" + mentionPurge.size() + "`", "`" + StringUtils.join(context.getMessage().getMentionedUsers().stream().map(user -> user.getName() + "#" + user.getDiscriminator()).collect(Collectors.toList()), ", ") + "`")).queue();
                                                 else
                                                     msg.editMessage(KekBot.respond(context, Action.MENTION_PURGE_FAIL)).queue();
                                             }
