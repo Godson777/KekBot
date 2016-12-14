@@ -83,8 +83,8 @@ public class Suggest {
                 .addField("Suggester:", suggester.getName() + "#" + suggester.getDiscriminator(), false)
                 .addField("Action:", action.name(), false)
                 .addField("Response:", response, false)
-                .setDescription(KekBot.replacePrefix(guild, "Use {p}suggestions response " + responses.getSuggestions().size()));
+                .setDescription(KekBot.replacePrefix(guild, "Use {p}suggestions responses view " + responses.getSuggestions().size() + "to view submission."));
         responses.save();
-        jda.getTextChannelById("253346114584051712").sendMessage(new MessageBuilder().setEmbed(builder.build()).build()).queue();
+        jda.getTextChannelById("253346114584051712").sendMessage(builder.build()).queue();
     }
 }
