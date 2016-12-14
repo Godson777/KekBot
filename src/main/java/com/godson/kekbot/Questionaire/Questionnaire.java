@@ -42,6 +42,7 @@ public class Questionnaire {
     }
 
     public Questionnaire(Results results) {
+        if (results.context != null) this.context = results.context;
         this.guild = results.getGuild();
         this.channel = results.getChannel();
         this.user = results.getUser();
@@ -129,7 +130,7 @@ public class Questionnaire {
         private Guild guild;
         private TextChannel channel;
         private User user;
-
+        private CommandContext context;
 
 
         Results(Questionnaire questionnaire) {
@@ -138,6 +139,7 @@ public class Questionnaire {
             this.guild = questionnaire.guild;
             this.channel = questionnaire.channel;
             this.user = questionnaire.user;
+            if (questionnaire.context != null) this.context = questionnaire.context;
         }
 
         public Object getAnswer(int i) {
