@@ -125,7 +125,11 @@ public class Suggestions {
                                                                 .execute(results -> {
                                                                     if (results.getAnswer(0).equals("Yes")) {
                                                                         new Questionnaire(results).addQuestion("Insert your reason:", QuestionType.STRING)
-                                                                                .execute(results1 -> rejectResponse(context, response, results1.getAnswer(0).toString()));
+                                                                                .execute(results1 -> {
+                                                                                    rejectResponse(context, response, results1.getAnswer(0).toString());
+                                                                                    suggestions.getSuggestions().remove(response);
+                                                                                    suggestions.save();
+                                                                                });
                                                                     } else {
                                                                         rejectResponse(context, response, null);
                                                                         suggestions.getSuggestions().remove(response);
