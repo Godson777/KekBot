@@ -106,7 +106,7 @@ public class Suggestions {
                                                             suggester.getPrivateChannel().sendMessage(messsage).queue();
                                                         suggestions.getSuggestions().remove(response);
                                                         suggestions.save();
-                                                        channel.sendMessage(builder.build());
+                                                        channel.sendMessage(builder.build()).queue();
                                                     } catch (NumberFormatException e) {
                                                         channel.sendMessage(KekBot.respond(context, Action.NOT_A_NUMBER, args[2]));
                                                     } catch (IndexOutOfBoundsException e) {
@@ -121,15 +121,16 @@ public class Suggestions {
                                                     try {
                                                         int pick = Integer.valueOf(args[2]) - 1;
                                                         ResponseSuggestion response = suggestions.getSuggestions().get(pick);
-                                                        EmbedBuilder builder = new EmbedBuilder();
-                                                        builder.setColor(Color.red)
-                                                                .setDescription("Response rejected.");
                                                         new Questionnaire(context).addChoiceQuestion("Would you like to add a reason? (Yes/No)", "Yes", "No")
                                                                 .execute(results -> {
                                                                     if (results.getAnswer(0).equals("Yes")) {
                                                                         new Questionnaire(results).addQuestion("Insert your reason:", QuestionType.STRING)
                                                                                 .execute(results1 -> rejectResponse(context, response, results1.getAnswer(0).toString()));
-                                                                    } else rejectResponse(context, response, null);
+                                                                    } else {
+                                                                        rejectResponse(context, response, null);
+                                                                        suggestions.getSuggestions().remove(response);
+                                                                        suggestions.save();
+                                                                    }
                                                                 });
                                                     } catch (NumberFormatException e) {
                                                         channel.sendMessage(KekBot.respond(context, Action.NOT_A_NUMBER, args[2]));
@@ -150,8 +151,12 @@ public class Suggestions {
             });
 
     public static void rejectResponse(CommandContext context, ResponseSuggestion response, String reason) {
-        String message = "Your response suggestion was unfortunately rejected by " + context.getAuthor().getName() + "." + (!reason.isEmpty() ? "\nReason: " + reason : "") + "\n(*" + response.getActionName() + "* || **" + response.getSuggestedResponse() + "**)";
+        String message = "Your response suggestion was unfortunately rejected by " + context.getAuthor().getName() + "." + (reason != null ? "\nReason: " + reason : "") + "\n(*" + response.getActionName() + "* || **" + response.getSuggestedResponse() + "**)";
         User suggester = context.getJDA().getUserById(response.getSuggesterID());
+        EmbedBuilder builder = new EmbedBuilder();
+        builder.setColor(Color.red)
+                .setDescription("Response rejected.");
+        context.getTextChannel().sendMessage(builder.build()).queue();
         if (!suggester.hasPrivateChannel()) suggester.openPrivateChannel().queue(priv -> priv.sendMessage(message).queue());
         else suggester.getPrivateChannel().sendMessage(message).queue();
     }
