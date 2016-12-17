@@ -4,6 +4,8 @@ import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
 import com.darichey.discord.api.FailureReason;
 import com.godson.kekbot.GSONUtils;
+import com.godson.kekbot.KekBot;
+import com.godson.kekbot.Responses.Action;
 import com.godson.kekbot.Settings.Settings;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
@@ -34,6 +36,6 @@ public class AutoRole {
             })
             .onFailure((context, reason) -> {
                 if (reason.equals(FailureReason.AUTHOR_MISSING_PERMISSIONS))
-                    context.getTextChannel().sendMessage(context.getMessage().getAuthor().getAsMention() + ", you do not have the `Manage Roles` permission!").queue();
+                    context.getTextChannel().sendMessage(KekBot.respond(context, Action.NOPERM_USER, "`Manage Roles`")).queue();
             });
 }

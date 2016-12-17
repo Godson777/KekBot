@@ -3,6 +3,8 @@ package com.godson.kekbot.commands.admin;
 import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
 import com.darichey.discord.api.FailureReason;
+import com.godson.kekbot.KekBot;
+import com.godson.kekbot.Responses.Action;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -24,19 +26,19 @@ public class Ban {
                 Guild server = context.getGuild();
                 TextChannel channel = context.getTextChannel();
                 if (rawSplit.length == 1) {
-                    channel.sendMessage(context.getMessage().getAuthor().getAsMention() + " Who am I supposed to ban? :neutral_face:").queue();
+                    channel.sendMessage(KekBot.respond(context, Action.BAN_EMPTY)).queue();
                 } else {
                     if (context.getMessage().getMentionedUsers().size() == 0) {
                         channel.sendMessage(context.getMessage().getAuthor().getAsMention() + " The user you want to ban __**must**__ be in the form of a mention!").queue();
                     } else if (context.getMessage().getMentionedUsers().size() == 1) {
                         if (context.getMessage().getMentionedUsers().get(0) == context.getJDA().getSelfUser()) {
-                            channel.sendMessage("I can't ban *myself*! :neutral_face:").queue();
+                            channel.sendMessage(":frowning: I can't ban myself...").queue();
                         } else if (context.getMessage().getMentionedUsers().get(0).equals(context.getMessage().getAuthor())) {
-                            channel.sendMessage("You can't ban *yourself*! :neutral_face:").queue();
+                            channel.sendMessage("Why would you want to ban yourself? That seems kinda useless to me...").queue();
                         } else {
                             try {
                                 server.getController().ban(context.getMessage().getMentionedUsers().get(0), 0);
-                                channel.sendMessage(context.getMessage().getMentionedUsers().get(0).getName() + " has met the banhammer. :hammer:").queue();
+                                channel.sendMessage(KekBot.respond(context, Action.BAN_SUCCESS, context.getMessage().getMentionedUsers().get(0).getName())).queue();
                             } catch (PermissionException e) {
                                 channel.sendMessage(context.getMessage().getMentionedUsers().get(0).getName() + "'s role is higher than mine. I am unable to ban them.").queue();
                             }
@@ -55,12 +57,9 @@ public class Ban {
                             }
                         }
                         if (users.size() >= 1) {
-                            channel.sendMessage(users.size() + " users (`" + StringUtils.join(users, ", ") + "`) have met the banhammer. :hammer:").queue();
-                            if (failed.size() == 1) {
-                                channel.sendMessage("However, 1 user (`" + StringUtils.join(failed, ", ") + "`) couldn't be banned due to having a higher rank than I do. ¯\\_(ツ)_/¯").queue();
-                            }
-                            if (failed.size() > 1) {
-                                channel.sendMessage("However, " + failed.size() + " users (`" + StringUtils.join(failed, ", ") + "`) couldn't be banned due to having a higher rank than I do. ¯\\_(ツ)_/¯").queue();
+                            channel.sendMessage(KekBot.respond(context, Action.BAN_SUCCESS, "`" + StringUtils.join(users, ", ") + "`")).queue();
+                            if (failed.size() > 0) {
+                                channel.sendMessage("However, " + failed.size() + (failed.size() == 1 ? " user" : " users") + " (`" + StringUtils.join(failed, ", ") + "`) couldn't be banned due to having a higher rank than I do. ¯\\_(ツ)_/¯").queue();
                             }
                         } else {
                             if (failed.size() >= 1) {
@@ -72,7 +71,7 @@ public class Ban {
             })
             .onFailure((context, reason) -> {
                 if (reason.equals(FailureReason.AUTHOR_MISSING_PERMISSIONS))
-                    context.getTextChannel().sendMessage(context.getMessage().getAuthor().getAsMention() + ", you do not have the `Ban Members` permission!").queue();
-                else context.getTextChannel().sendMessage("I seem to be lacking the `Ban Members` permission!").queue();
+                    context.getTextChannel().sendMessage(KekBot.respond(context, Action.NOPERM_USER, "`Ban Members`")).queue();
+                else context.getTextChannel().sendMessage(KekBot.respond(context, Action.NOPERM_BOT, "`Ban Members`")).queue();
             });
 }

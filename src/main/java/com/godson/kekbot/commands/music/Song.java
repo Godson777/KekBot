@@ -2,6 +2,7 @@ package com.godson.kekbot.commands.music;
 
 import com.darichey.discord.api.Command;
 import com.godson.kekbot.KekBot;
+import com.godson.kekbot.Responses.Action;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 
@@ -14,16 +15,16 @@ public class Song {
             .onExecuted(context -> {
                 Optional<VoiceChannel> voiceChannel = context.getGuild().getVoiceChannels().stream().filter(c -> c.getMembers().contains(context.getMember())).findFirst();
                 if (!voiceChannel.isPresent()) {
-                    context.getTextChannel().sendMessage("This command requies you to be in a voice channel!").queue();
+                    context.getTextChannel().sendMessage(KekBot.respond(context, Action.GET_IN_VOICE_CHANNEL)).queue();
                 } else {
                     TextChannel channel = context.getTextChannel();
                     if (!context.getGuild().getAudioManager().isConnected()) {
-                        channel.sendMessage("I'm not even playing music!").queue();
+                        channel.sendMessage(KekBot.respond(context, Action.MUSIC_NOT_PLAYING)).queue();
                     } else {
                         if (context.getGuild().getAudioManager().getConnectedChannel().equals(voiceChannel.get())) {
                             KekBot.player.getCurrentSong(channel);
                         } else {
-                            context.getTextChannel().sendMessage("You have to be in \"" + context.getGuild().getAudioManager().getConnectedChannel().getName() + "\" in order to use music commands.").queue();
+                            context.getTextChannel().sendMessage(KekBot.respond(context, Action.MUSIC_NOT_IN_CHANNEL)).queue();
                         }
                     }
                 }

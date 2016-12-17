@@ -5,6 +5,7 @@ import com.darichey.discord.api.CommandCategory;
 import com.darichey.discord.api.CommandRegistry;
 import com.godson.kekbot.Exceptions.ChannelNotFoundException;
 import com.godson.kekbot.Exceptions.MessageNotFoundException;
+import com.godson.kekbot.Responses.Action;
 import com.godson.kekbot.Settings.Settings;
 import com.godson.kekbot.Settings.Ticket;
 import com.godson.kekbot.Settings.TicketManager;
@@ -30,6 +31,7 @@ import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -80,7 +82,7 @@ public class Listener extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        if (!event.isFromType(ChannelType.PRIVATE)) out.println(ft2.format(time) + /*"Shard " + event.getJDA().getShardInfo().getShardId() + " - " +*/ event.getGuild().getName() + " - #" +
+        if (!event.isFromType(ChannelType.PRIVATE)) out.println(ft2.format(System.currentTimeMillis()) + /*"Shard " + event.getJDA().getShardInfo().getShardId() + " - " +*/ event.getGuild().getName() + " - #" +
                 event.getTextChannel().getName() + " - " + event.getAuthor().getName() + ": " + event.getMessage().getRawContent());
         else out.println("PM " + (event.getAuthor().equals(event.getJDA().getSelfUser()) ? "To: " : "From: ")
                 + event.getAuthor().getName() + ": " + event.getMessage().getRawContent());
@@ -465,7 +467,7 @@ public class Listener extends ListenerAdapter {
 
     @Override
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
-        out.println(ft2.format(time) + event.getMember().getEffectiveName() + " has joined " + event.getGuild().getName() + ".");
+        out.println(ft2.format(System.currentTimeMillis()) + event.getMember().getEffectiveName() + " has joined " + event.getGuild().getName() + ".");
         Settings settings = GSONUtils.getSettings(event.getGuild());
 
         if (settings.getAutoRoleID() != null) {
@@ -507,7 +509,7 @@ public class Listener extends ListenerAdapter {
 
     @Override
     public void onGuildMemberLeave(GuildMemberLeaveEvent event) {
-        out.println(ft2.format(time) + event.getMember().getEffectiveName() + " has left " + event.getGuild().getName() + ".");
+        out.println(ft2.format(System.currentTimeMillis()) + event.getMember().getEffectiveName() + " has left " + event.getGuild().getName() + ".");
         Settings settings = GSONUtils.getSettings(event.getGuild());
 
         if (settings.farewellEnabled()) {
@@ -555,7 +557,7 @@ public class Listener extends ListenerAdapter {
                             KekBot.player.announceToMusicSession(event.getGuild(), newHost.getName() + " is now the host of this music session.");
                         }
                     } else {
-                        KekBot.player.announceToMusicSession(event.getGuild(), "Fine, I didn't wanna play music anyway... :sob:");
+                        KekBot.player.announceToMusicSession(event.getGuild(), KekBot.respond(Action.MUSIC_EMPTY_CHANNEL));
                         KekBot.player.closeConnection(event.getGuild());
                     }
                 }
@@ -581,7 +583,7 @@ public class Listener extends ListenerAdapter {
                             KekBot.player.announceToMusicSession(event.getGuild(), newHost.getName() + " is now the host of this music session.");
                         }
                     } else {
-                        KekBot.player.announceToMusicSession(event.getGuild(), "Fine, I didn't wanna play music anyway... :sob:");
+                        KekBot.player.announceToMusicSession(event.getGuild(), KekBot.respond(Action.MUSIC_EMPTY_CHANNEL));
                         KekBot.player.closeConnection(event.getGuild());
                     }
                 }

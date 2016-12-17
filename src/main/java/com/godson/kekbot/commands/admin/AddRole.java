@@ -3,6 +3,8 @@ package com.godson.kekbot.commands.admin;
 import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
 import com.darichey.discord.api.FailureReason;
+import com.godson.kekbot.KekBot;
+import com.godson.kekbot.Responses.Action;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
@@ -89,7 +91,7 @@ public class AddRole {
                 }
             })
             .onFailure((context, failureReason) -> {
-                if (failureReason.equals(FailureReason.AUTHOR_MISSING_PERMISSIONS)) context.getTextChannel().sendMessage(context.getMessage().getAuthor().getAsMention() + ", you don't have the `Manage Roles` permission!").queue();
-                else context.getTextChannel().sendMessage("I seem to be lacking the `Manage Roles` permission!").queue();
+                if (failureReason.equals(FailureReason.AUTHOR_MISSING_PERMISSIONS)) context.getTextChannel().sendMessage(KekBot.respond(context, Action.NOPERM_USER, "`Manage Roles`")).queue();
+                else context.getTextChannel().sendMessage(KekBot.respond(context, Action.NOPERM_BOT, "`Manage Roles`")).queue();
             });
 }

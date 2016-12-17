@@ -4,6 +4,8 @@ import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
 import com.darichey.discord.api.CommandRegistry;
 import com.godson.kekbot.GSONUtils;
+import com.godson.kekbot.KekBot;
+import com.godson.kekbot.Responses.Action;
 import com.godson.kekbot.Settings.Settings;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -192,6 +194,6 @@ public class Announce {
                     }
                 }
             })
-            .onFailure((context, reason) -> context.getTextChannel().sendMessage(context.getMessage().getAuthor().getAsMention() + ", you don't have the `Administrator` permission!").queue()
+            .onFailure((context, reason) -> context.getTextChannel().sendMessage(KekBot.respond(context, Action.NOPERM_USER, "`Administrator`")).queue()
             );
 }

@@ -2,6 +2,8 @@ package com.godson.kekbot.commands.fun;
 
 import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
+import com.godson.kekbot.KekBot;
+import com.godson.kekbot.Responses.Action;
 
 import java.util.Random;
 
@@ -22,7 +24,7 @@ public class Roll {
                         specifiedDie = random.nextInt(Integer.valueOf(args[0]));
                         context.getTextChannel().sendMessage(Emojify.emojify(String.valueOf(specifiedDie))).queue();
                     } catch (NumberFormatException e) {
-                        context.getTextChannel().sendMessage("\"" + args[0] + "\" is not a valid number!").queue();
+                        context.getTextChannel().sendMessage(KekBot.respond(context, Action.NOT_A_NUMBER, "`" + args[0] + "`")).queue();
                     }
                 }
             });

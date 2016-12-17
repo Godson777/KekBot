@@ -3,6 +3,7 @@ package com.godson.kekbot.commands.meme;
 import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
 import com.godson.kekbot.KekBot;
+import com.godson.kekbot.Responses.Action;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -23,7 +24,7 @@ public class Granddad {
                 Guild server = context.getGuild();
                 List<Role> checkForMeme = server.getRolesByName("Living Meme", true);
                 if (checkForMeme.size() == 0) {
-                    channel.sendMessage(":exclamation: __**Living Meme**__ role not found! Please add this role and assign it to me!").queue();
+                    channel.sendMessage(KekBot.respond(context, Action.MEME_NOT_FOUND, "__**Living Meme**__")).queue();
                 } else {
                     Role meme = checkForMeme.get(0);
                     if (server.getSelfMember().getRoles().contains(meme)) {
@@ -33,13 +34,13 @@ public class Granddad {
                             int index = random.nextInt(granddads.length);
                             Optional<VoiceChannel> voiceChannel = context.getGuild().getVoiceChannels().stream().filter(c -> c.getMembers().contains(context.getMember())).findFirst();
                             if (!voiceChannel.isPresent()) {
-                                channel.sendMessage("This command requies you to be in a voice channel!").queue();
+                                channel.sendMessage(KekBot.respond(context, Action.GET_IN_VOICE_CHANNEL)).queue();
                             } else {
                                 KekBot.player.loadAndMeme(context, granddads[index].getAbsolutePath());
                             }
                         }
                     } else {
-                        channel.sendMessage(":exclamation: This command requires me to have the __**Living Meme**__ role.").queue();
+                        channel.sendMessage(KekBot.respond(context, Action.MEME_NOT_APPLIED, "__**Living Meme**__")).queue();
                     }
                 }
             });

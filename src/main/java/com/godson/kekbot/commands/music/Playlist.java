@@ -15,7 +15,7 @@ public class Playlist {
             .onExecuted(context -> {
                 Optional<VoiceChannel> voiceChannel = context.getGuild().getVoiceChannels().stream().filter(c -> c.getMembers().contains(context.getMember())).findFirst();
                 if (!voiceChannel.isPresent()) {
-                    context.getTextChannel().sendMessage("This command requies you to be in a voice channel!").queue();
+                    context.getTextChannel().sendMessage(KekBot.respond(context, Action.GET_IN_VOICE_CHANNEL)).queue();
                 } else {
                     if (context.getGuild().getAudioManager().isConnected()) {
                         if (context.getGuild().getAudioManager().getConnectedChannel().equals(voiceChannel.get())) {
@@ -30,8 +30,8 @@ public class Playlist {
                                 KekBot.player.getPlaylist(context.getTextChannel(), 0);
                             }
                         } else
-                            context.getTextChannel().sendMessage("You have to be in \"" + context.getGuild().getAudioManager().getConnectedChannel().getName() + "\" in order to use music commands.").queue();
-                    } else context.getTextChannel().sendMessage("I'm not even playing any music!").queue();
+                            context.getTextChannel().sendMessage(KekBot.respond(context, Action.MUSIC_NOT_IN_CHANNEL)).queue();
+                    } else context.getTextChannel().sendMessage(KekBot.respond(context, Action.MUSIC_NOT_PLAYING)).queue();
                 }
             });
 }

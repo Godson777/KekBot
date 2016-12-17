@@ -2,6 +2,7 @@ package com.godson.kekbot.commands.music;
 
 import com.darichey.discord.api.Command;
 import com.godson.kekbot.KekBot;
+import com.godson.kekbot.Responses.Action;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 
@@ -14,7 +15,7 @@ public class Stop {
             .onExecuted(context -> {
                 Optional<VoiceChannel> voiceChannel = context.getGuild().getVoiceChannels().stream().filter(c -> c.getMembers().contains(context.getMember())).findFirst();
                 if (!voiceChannel.isPresent()) {
-                    context.getTextChannel().sendMessage("This command requies you to be in a voice channel!").queue();
+                    context.getTextChannel().sendMessage(KekBot.respond(context, Action.GET_IN_VOICE_CHANNEL)).queue();
                 } else {
                     if (context.getGuild().getAudioManager().isConnected()) {
                         if (KekBot.player.getHost(context.getGuild()).equals(context.getAuthor())) {
@@ -24,7 +25,7 @@ public class Stop {
                                 if (context.getGuild().getAudioManager().getConnectedChannel().equals(voiceChannel.get())) {
                                     KekBot.player.closeConnection(context.getGuild());
                                 } else {
-                                    context.getTextChannel().sendMessage("You have to be in \"" + context.getGuild().getAudioManager().getConnectedChannel().getName() + "\" in order to use music commands.").queue();
+                                    context.getTextChannel().sendMessage(KekBot.respond(context, Action.MUSIC_NOT_IN_CHANNEL)).queue();
                                 }
                             }
                         } else if (context.getMember().hasPermission(Permission.ADMINISTRATOR)) {
@@ -32,7 +33,7 @@ public class Stop {
                         } else {
                             context.getTextChannel().sendMessage("Only the host and users with the `Administrator` permission can stop a music session and memes!").queue();
                         }
-                    } else context.getTextChannel().sendMessage("There isn't even anything playing. :neutral_face:").queue();
+                    } else context.getTextChannel().sendMessage(KekBot.respond(context, Action.MUSIC_NOT_PLAYING)).queue();
                 }
             });
 }

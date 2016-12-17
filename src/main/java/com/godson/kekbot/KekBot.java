@@ -23,7 +23,6 @@ import org.apache.commons.lang3.StringUtils;
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Time;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -66,7 +65,8 @@ public class KekBot {
                         Broadcast.broadcast, Stats.stats, Google.google, Lmgtfy.lmgtfy, Bots.bots, Shutdown.shutdown, UrbanDictionary.UrbanDictionary,
                         Emojify.emojify, AllowedUsers.allowedUsers, CoinFlip.coinFlip, Roll.roll, ListServers.listServers, Strawpoll.strawpoll, Poll.poll,
                         Poll.vote, Poosy.destroyer, AddRole.addRole, RemoveRole.removeRole, Quote.quote, Support.support, Eval.eval, Byemom.byemom,
-                        Queue.queue, Skip.skip, Playlist.playlist, Song.song, Stop.stop, Volume.volume, Host.host, Music.music, Invite.invite);
+                        Queue.queue, Skip.skip, Playlist.playlist, Song.song, Stop.stop, Volume.volume, Host.host, Music.music, Invite.invite, Erase.erase,
+                        Johnny.johnny);
             }
 
             for (Action action : Action.values()) {
@@ -77,9 +77,23 @@ public class KekBot {
     }
 
     public static String respond(CommandContext context, Action action, Object... blanks) {
-        String[] toReplace = {"{user.mention}", "{user.name}", "{}", "{1}", "{2}", "{3}", "{4"};
+        String[] toReplace = {"{user.mention}", "{user.name}", "{}", "{1}", "{2}", "{3}", "{4}"};
         String[] replacements = {context.getAuthor().getAsMention(), context.getAuthor().getName(), "%s", "%1$s", "%2$s", "%3$s", "%4$s"};
-        return String.format(StringUtils.replaceEach(responses.get(action).get(new Random().nextInt(responses.get(action).size())), toReplace, replacements), blanks);
+        try {
+            return String.format(StringUtils.replaceEach(responses.get(action).get(new Random().nextInt(responses.get(action).size())), toReplace, replacements), blanks);
+        } catch (IllegalArgumentException e) {
+            return action.name();
+        }
+    }
+
+    public static String respond(Action action, Object... blanks) {
+        String[] toReplace = {"{}", "{1}", "{2}", "{3}", "{4}"};
+        String[] replacements = {"%s", "%1$s", "%2$s", "%3$s", "%4$s"};
+        try {
+            return String.format(StringUtils.replaceEach(responses.get(action).get(new Random().nextInt(responses.get(action).size())), toReplace, replacements), blanks);
+        } catch (IllegalArgumentException e) {
+            return action.name();
+        }
     }
 
     public static void addResponse(Action action, String response) {

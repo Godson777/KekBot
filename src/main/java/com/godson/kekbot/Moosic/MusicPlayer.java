@@ -2,6 +2,7 @@ package com.godson.kekbot.Moosic;
 
 import com.darichey.discord.api.CommandContext;
 import com.godson.kekbot.KekBot;
+import com.godson.kekbot.Responses.Action;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
@@ -9,19 +10,15 @@ import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.entities.VoiceChannel;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import net.dv8tion.jda.core.managers.AudioManager;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.security.auth.login.LoginException;
 import java.util.*;
 
 public class MusicPlayer extends ListenerAdapter {
@@ -132,7 +129,7 @@ public class MusicPlayer extends ListenerAdapter {
 
                 @Override
                 public void noMatches() {
-                    context.getTextChannel().sendMessage("Nothing found by " + trackUrl).queue();
+                    context.getTextChannel().sendMessage("Hm, " + trackUrl + "doesn't appear to be a valid URL. Could you try again?").queue();
                 }
 
                 @Override
@@ -181,7 +178,7 @@ public class MusicPlayer extends ListenerAdapter {
         if (!audioManager.isConnected() && !audioManager.isAttemptingToConnect()) {
             Optional<VoiceChannel> voiceChannel = context.getGuild().getVoiceChannels().stream().filter(c -> c.getMembers().contains(context.getMember())).findFirst();
             if (!voiceChannel.isPresent()) {
-                context.getTextChannel().sendMessage("This command requies you to be in a voice channel!").queue();
+                context.getTextChannel().sendMessage(KekBot.respond(context, Action.GET_IN_VOICE_CHANNEL)).queue();
             } else {
                 audioManager.openAudioConnection(voiceChannel.get());
                 if (!isMeme(context.getGuild())) {
@@ -250,7 +247,7 @@ public class MusicPlayer extends ListenerAdapter {
     public void setVolume(CommandContext context, int volume) {
         long guildId = Long.parseLong(context.getGuild().getId());
         if (musicManagers.containsKey(guildId)) {
-            if (volume < 150 && volume >= 0) {
+            if (volume <= 150 && volume >= 0) {
                 musicManagers.get(guildId).player.setVolume(volume);
                 context.getTextChannel().sendMessage("Volume set to " + volume).queue();
             } else context.getTextChannel().sendMessage("Specified volume must be between 150 and 0!").queue();

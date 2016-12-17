@@ -62,7 +62,7 @@ public class Purge {
                                             Pattern p = Pattern.compile("([A-Z])+", Pattern.CASE_INSENSITIVE);
                                             Matcher m = p.matcher(keyphrase);
                                             if (mentions.stream().anyMatch(mentions::contains) && m.find()) {
-                                                msg.editMessage("Sorry, but you can't type key-phrases and a mention while attempting to purge.").queue();
+                                                msg.editMessage("Sorry, but you can't type key-phrases and mentions while attempting to purge.").queue();
                                             } else {
                                                 List<Message> mentionPurge = msgs.stream().filter(mes -> context.getMessage().getMentionedUsers().stream().anyMatch(mes.getAuthor()::equals)).collect(Collectors.toList());
                                                 if (mentionPurge.size() > 1)
@@ -91,7 +91,7 @@ public class Purge {
             })
             .onFailure((context, failureReason) -> {
                 if (failureReason.equals(FailureReason.AUTHOR_MISSING_PERMISSIONS))
-                    context.getTextChannel().sendMessage(context.getAuthor().getAsMention() + ", you do not have the `Manage Messages` permission!").queue();
-                else context.getTextChannel().sendMessage("I seem to be lacking the `Manage Messages` permission!").queue();
+                    context.getTextChannel().sendMessage(KekBot.respond(context, Action.NOPERM_USER, "`Manage Messages`")).queue();
+                else context.getTextChannel().sendMessage(KekBot.respond(context, Action.NOPERM_BOT, "`Manage Messages`")).queue();
             });
 }

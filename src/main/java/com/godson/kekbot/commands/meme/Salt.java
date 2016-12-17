@@ -2,6 +2,8 @@ package com.godson.kekbot.commands.meme;
 
 import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
+import com.godson.kekbot.KekBot;
+import com.godson.kekbot.Responses.Action;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -19,7 +21,7 @@ public class Salt {
                 String args[] = context.getArgs();
                 List<Role> checkForMeme = server.getRolesByName("Living Meme", true);
                 if (checkForMeme.size() == 0) {
-                    channel.sendMessage(":exclamation: __**Living Meme**__ role not found! Please add this role and assign it to me!").queue();
+                    channel.sendMessage(KekBot.respond(context, Action.MEME_NOT_FOUND, "__**Living Meme**__")).queue();
                 } else {
                     Role meme = checkForMeme.get(0);
                     if (server.getSelfMember().getRoles().contains(meme)) {
@@ -30,7 +32,7 @@ public class Salt {
                             channel.sendMessage("Sodium, atomic number 11, was first isolated by " + input + " in 1807. A chemical component of salt, he named it Na in honor of the saltiest region on earth, North America.").queue();
                         }
                     } else {
-                        channel.sendMessage(":exclamation: This command requires me to have the __**Living Meme**__ role.").queue();
+                        channel.sendMessage(KekBot.respond(context, Action.MEME_NOT_APPLIED, "__**Living Meme**__")).queue();
                     }
                 }
             });
