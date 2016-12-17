@@ -66,7 +66,7 @@ public class KekBot {
                         Emojify.emojify, AllowedUsers.allowedUsers, CoinFlip.coinFlip, Roll.roll, ListServers.listServers, Strawpoll.strawpoll, Poll.poll,
                         Poll.vote, Poosy.destroyer, AddRole.addRole, RemoveRole.removeRole, Quote.quote, Support.support, Eval.eval, Byemom.byemom,
                         Queue.queue, Skip.skip, Playlist.playlist, Song.song, Stop.stop, Volume.volume, Host.host, Music.music, Invite.invite, Erase.erase,
-                        Johnny.johnny);
+                        Johnny.johnny, LongLive.longlive);
             }
 
             for (Action action : Action.values()) {
