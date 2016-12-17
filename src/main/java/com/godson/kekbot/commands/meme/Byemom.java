@@ -2,6 +2,8 @@ package com.godson.kekbot.commands.meme;
 
 import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
+import com.godson.kekbot.KekBot;
+import com.godson.kekbot.Responses.Action;
 import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Role;
@@ -27,7 +29,7 @@ public class Byemom {
                 Guild server = context.getGuild();
                 List<Role> checkForMeme = server.getRolesByName("Living Meme", true);
                 if (checkForMeme.size() == 0) {
-                    channel.sendMessage(":exclamation: __**Living Meme**__ role not found! Please add this role and assign it to me!").queue();
+                    channel.sendMessage(KekBot.respond(context, Action.MEME_NOT_FOUND, "__**Living Meme**__")).queue();
                 } else {
                     Role meme = checkForMeme.get(0);
                     if (server.getSelfMember().getRoles().contains(meme)) {
@@ -70,7 +72,7 @@ public class Byemom {
                             channel.sendMessage("You must supply some text for this command!").queue();
                         }
                     } else {
-                        channel.sendMessage(":exclamation: This command requires me to have the __**Living Meme**__ role.").queue();
+                        channel.sendMessage(KekBot.respond(context, Action.MEME_NOT_APPLIED, "__**Living Meme**__")).queue();
                     }
                 }
             });
