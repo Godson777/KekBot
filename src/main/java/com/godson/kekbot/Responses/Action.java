@@ -16,8 +16,31 @@ public enum Action {
     //Successfully purged {} messages written by: {}
     MENTION_PURGE_SUCCESS(2),
     //Couldn't find any messages written by that user.
-    MENTION_PURGE_FAIL(0);
-
+    MENTION_PURGE_FAIL(0),
+    //Oh, you want me to ban nobody? Fair enough.
+    BAN_EMPTY(0),
+    //{} got banned.
+    BAN_SUCCESS(1),
+    //Oh, no one's getting kicked? Alright...
+    KICK_EMPTY(0),
+    //{} got kicked.
+    KICK_SUCCESS(1),
+    //You don't have the {} permission!
+    NOPERM_USER(1),
+    //I don't seem to have the {} permission!
+    NOPERM_BOT(1),
+    //I can't find the Living Meme role!
+    MEME_NOT_FOUND(1),
+    //I don't have the Living Meme role!
+    MEME_NOT_APPLIED(1),
+    //I'm not even playing any music!
+    MUSIC_NOT_PLAYING(0),
+    //You have to be in {} to run music commands.
+    MUSIC_NOT_IN_CHANNEL(1),
+    //Fine, I didn't wanna play music anyway...
+    MUSIC_EMPTY_CHANNEL(0),
+    //You have to be in a voice channel to run this command!
+    GET_IN_VOICE_CHANNEL(0);
 
     Action(int blanks) {
         this.blanks = blanks;
