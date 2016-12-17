@@ -14,7 +14,7 @@ public class Poll {
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
     public static Command poll = new Command("poll")
             .withDescription("Creates a poll.")
-            .withUsage("{p}poll <title> | <option...> {can continue adding more options by seperating them with | } | <MM:SS>")
+            .withUsage("{p}poll <title> | <MM:SS> | <option...> {can continue adding more options by seperating them with | }")
             .withCategory(CommandCategory.FUN)
             .onExecuted(context -> {
                 String rawSplit[] = context.getMessage().getRawContent().split(" ", 2);
@@ -47,8 +47,8 @@ public class Poll {
                                 channel.sendMessage("`" + timeStr + "` is not a valid time format. (Valid time format: MM:SS)").queue();
                                 return;
                             }
-                            if (!(time > TimeUnit.MINUTES.toMillis(1) && time < TimeUnit.HOURS.toMillis(1))) {
-                                channel.sendMessage("I'm sorry, polls must ").queue();
+                            if (!(time >= TimeUnit.MINUTES.toMillis(1) && time <= TimeUnit.HOURS.toMillis(1))) {
+                                channel.sendMessage("I'm sorry, polls must last longer than one minute, but shorter than an hour.").queue();
                             }
                             else {
                                 if (pollVariables.length == 1) {
