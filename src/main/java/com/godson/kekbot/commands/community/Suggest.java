@@ -27,7 +27,7 @@ public class Suggest {
             .onExecuted(context -> {
                 TextChannel channel = context.getTextChannel();
                 new Questionnaire(context)
-                        .addChoiceQuestion("What would you like to suggest?\nYou can say `cancel` at any time to cancel. ", "Response")
+                        .addChoiceQuestion("What would you like to suggest?\nYou can say `cancel` at any time to cancel. (Current options available: response)", "Response")
                         .execute(results -> {
                             switch ((String) results.getAnswer(0)) {
                                 case "Response":
@@ -41,15 +41,15 @@ public class Suggest {
                                                 .execute(results2 -> {
                                                     String response = (String) results2.getAnswer(0);
                                                     List<String> numberSlots = new ArrayList<String>();
+                                                    int blanks = action.getBlanksNeeded();
                                                     for (int i = 0; i < action.getBlanksNeeded(); i++) {
                                                         numberSlots.add("{" + (i + 1) + "}");
                                                     }
                                                     int filled = StringUtils.countMatches(response, "{}");
-                                                    int blanks = action.getBlanksNeeded();
                                                     if (numberSlots.stream().anyMatch(response::contains) && response.contains("{}")) {
                                                         channel.sendMessage("You cannot mix regular blanks with numeric blanks!").queue();
                                                         results2.reExecute();
-                                                    } else if (numberSlots.stream().allMatch(response::contains)) {
+                                                    } else if (numberSlots.stream().allMatch(response::contains) && blanks > 0) {
                                                         submitResponse(context.getAuthor(), action, response, context.getJDA());
                                                         channel.sendMessage("Thanks for submitting your response suggestion! This will go straight to the Quality Control team, from there, they'll decide if it's high quality enough. If accepted, you'll get a notification, and KekBot will add it to its list!").queue();
                                                     } else if (numberSlots.stream().noneMatch(response::contains)) {
