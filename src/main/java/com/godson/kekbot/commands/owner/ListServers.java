@@ -29,22 +29,22 @@ public class ListServers {
                     int page = 0;
                     if (context.getArgs().length > 0) {
                         try {
-                            page = Integer.valueOf(context.getArgs()[0]);
+                            page = Integer.valueOf(context.getArgs()[0])-1;
                         } catch (NumberFormatException e) {
                             context.getTextChannel().sendMessage(KekBot.respond(context, Action.NOT_A_NUMBER, "`" + context.getArgs()[0] + "`")).queue();
                             return;
                         }
                     }
                     try {
-                        if ((page * 50) > guilds.size() || (page * 50) < 0) {
+                        if ((page * 30) > guilds.size() || (page * 30) < 0) {
                             context.getTextChannel().sendMessage("That page doesn't exist!").queue();
                             return;
                         }
-                        else message = StringUtils.join(guilds.subList((page * 50), ((page + 1) * 50)), "\n") +
-                                (guilds.size() > 50 ? "\n\nPage " + (page + 1) + "/" + (guilds.size() / 50 + 1) : "");
+                        else message = StringUtils.join(guilds.subList((page * 30), ((page + 1) * 30)), "\n") +
+                                (guilds.size() > 30 ? "\n\nPage " + (page + 1) + "/" + (guilds.size() / 30 + 1) : "");
                     } catch (IndexOutOfBoundsException e) {
-                        message = StringUtils.join(guilds.subList((page * 50), guilds.size()), "\n") +
-                                (guilds.size() > 50 ? "\n\nPage " + (page + 1) + "/" + (guilds.size() / 50 + 1) : "");
+                        message = StringUtils.join(guilds.subList((page * 30), guilds.size()), "\n") +
+                                (guilds.size() > 30 ? "\n\nPage " + (page + 1) + "/" + (guilds.size() / 30 + 1) : "");
                     }
                     context.getMessage().getChannel().sendMessage("```md\n" + message + "```").queue();
                 }
