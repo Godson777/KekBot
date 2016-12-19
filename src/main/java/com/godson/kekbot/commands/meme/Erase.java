@@ -22,7 +22,7 @@ public class Erase {
     public static Command erase = new Command("erase")
             .withCategory(CommandCategory.MEME)
             .withDescription("For really big mistakes.")
-            .withUsage("{p}erase <@mention>")
+            .withUsage("{p}erase <@user>")
             .onExecuted(context -> {
                 Guild server = context.getGuild();
                 TextChannel channel = context.getTextChannel();

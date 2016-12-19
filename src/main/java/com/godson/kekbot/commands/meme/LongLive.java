@@ -22,7 +22,7 @@ public class LongLive {
     public static Command longlive = new Command("longlive")
             .withCategory(CommandCategory.MEME)
             .withDescription("LONG LIVE THE KING!")
-            .withUsage("{p}longlive")
+            .withUsage("{p}longlive <@user>")
             .onExecuted(context -> {
                 TextChannel channel = context.getTextChannel();
                 Guild server = context.getGuild();
