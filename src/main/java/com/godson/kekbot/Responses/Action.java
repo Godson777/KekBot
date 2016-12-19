@@ -40,7 +40,11 @@ public enum Action {
     //Fine, I didn't wanna play music anyway...
     MUSIC_EMPTY_CHANNEL(0),
     //You have to be in a voice channel to run this command!
-    GET_IN_VOICE_CHANNEL(0);
+    GET_IN_VOICE_CHANNEL(0),
+    //{} has been given the role.
+    ROLE_ADDED(1),
+    //{} no longer has that role.
+    ROLE_TAKEN(1);
 
     Action(int blanks) {
         this.blanks = blanks;

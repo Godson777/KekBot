@@ -46,7 +46,7 @@ public class RemoveRole {
                                 if (member.getRoles().contains(context.getGuild().getRolesByName(params[0], true).get(0))) {
                                     try {
                                         context.getGuild().getController().removeRolesFromMember(member, context.getGuild().getRolesByName(params[0], true).get(0)).queue();
-                                        channel.sendMessage("Successfully removed role from `" + member.getUser().getName() + "#" + member.getUser().getDiscriminator() + "`. :thumbsup:").queue();
+                                        channel.sendMessage(KekBot.respond(context, Action.ROLE_TAKEN, member.getUser().getName() + "#" + member.getUser().getDiscriminator())).queue();
                                     } catch (PermissionException e) {
                                         channel.sendMessage("That role is higher than mine! I cannot remove it from any users!").queue();
                                     }
@@ -78,7 +78,7 @@ public class RemoveRole {
                                     channel.sendMessage("That role is higher than mine! I cannot remove it from any users!").queue();
                                 } else {
                                     if (success.size() != 0) {
-                                        channel.sendMessage("Successfully removed role from " + (success.size() == 1 ? "user" : "users") + ": `" + StringUtils.join(success, ", ") + "`." +
+                                        channel.sendMessage(KekBot.respond(context, Action.ROLE_TAKEN, StringUtils.join(success, ", ")) +
                                                 (exist.size() != 0 ? "\nHowever, " + exist.size() + (exist.size() == 1 ? "user" : "users") + ": `" + StringUtils.join(exist, ", ") + "` don't have this role. So they were ignored." : "")).queue();
                                     } else {
                                         channel.sendMessage("All users you specified don't have this role!").queue();
