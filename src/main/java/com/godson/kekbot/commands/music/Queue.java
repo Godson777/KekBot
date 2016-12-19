@@ -26,7 +26,7 @@ public class Queue {
                                 context.getTextChannel().sendMessage("You haven't given a valid URL to queue. :thinking:").queue();
                             }
                         } else {
-                            context.getTextChannel().sendMessage("You have to be in \"" + context.getGuild().getAudioManager().getConnectedChannel().getName() + "\" in order to queue music.").queue();
+                            context.getTextChannel().sendMessage(KekBot.respond(context, Action.MUSIC_NOT_IN_CHANNEL, context.getGuild().getAudioManager().getConnectedChannel().getName())).queue();
                         }
                     } else {
                         if (context.getArgs().length >= 1) {

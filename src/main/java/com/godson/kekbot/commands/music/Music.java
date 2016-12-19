@@ -32,7 +32,7 @@ public class Music {
                                         "\n{p}stop - **Stops the current music session. (Host Only)**" +
                                         "\n" +
                                         "\nAll \"Host Only\" commands can also be executed by a user with `Administrator` permissions.")).queue();
-                            } else context.getTextChannel().sendMessage(KekBot.respond(context, Action.MUSIC_NOT_IN_CHANNEL)).queue();
+                            } else context.getTextChannel().sendMessage(KekBot.respond(context, Action.MUSIC_NOT_IN_CHANNEL, context.getGuild().getAudioManager().getConnectedChannel().getName())).queue();
                         }
                     } else context.getTextChannel().sendMessage(KekBot.respond(context, Action.MUSIC_NOT_PLAYING)).queue();
                 }
