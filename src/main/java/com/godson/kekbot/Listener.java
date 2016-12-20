@@ -13,6 +13,7 @@ import com.godson.kekbot.commands.community.AddResponse;
 import com.godson.kekbot.commands.community.Suggestions;
 import com.godson.kekbot.commands.community.Suggest;
 import com.godson.kekbot.commands.test;
+import com.google.gson.Gson;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import net.dv8tion.jda.core.JDA;
@@ -38,6 +39,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static java.lang.System.console;
 import static java.lang.System.out;
 
 public class Listener extends ListenerAdapter {
@@ -408,51 +410,57 @@ public class Listener extends ListenerAdapter {
 
     @Override
     public void onGuildJoin(GuildJoinEvent event) {
-        event.getJDA().getUserById(GSONUtils.getConfig().getBotOwner()).getPrivateChannel().sendMessage("Joined server: \"" + event.getGuild().getName() + "\" (ID: " + event.getGuild().getId() + ")").queue();
-        Settings settings = new Settings().setName(event.getGuild().getName());
-        settings.save(event.getGuild());
-        String joinSpeech = "Hi! I'm KekBot! Thanks for inviting me!" + "\n" +
-                "Use $help to see a list of commands, and use $prefix to change my prefix!" + "\n" +
-                "If you ever need help, join my discord server: " + "https://discord.gg/3nbqavE";
-        for (TextChannel channel : event.getGuild().getTextChannels()) {
-            try {
-                channel.sendMessage(joinSpeech).queue();
-                break;
-            } catch (PermissionException er) {
-                //¯\_(ツ)_/¯
+        if (!GSONUtils.getConfig().getBlockedUsers().contains(event.getGuild().getOwner().getUser().getId())) {
+            event.getJDA().getUserById(GSONUtils.getConfig().getBotOwner()).getPrivateChannel().sendMessage("Joined server: \"" + event.getGuild().getName() + "\" (ID: " + event.getGuild().getId() + ")").queue();
+            Settings settings = new Settings().setName(event.getGuild().getName());
+            settings.save(event.getGuild());
+            String joinSpeech = "Hi! I'm KekBot! Thanks for inviting me!" + "\n" +
+                    "Use $help to see a list of commands, and use $prefix to change my prefix!" + "\n" +
+                    "If you ever need help, join my discord server: " + "https://discord.gg/3nbqavE";
+            for (TextChannel channel : event.getGuild().getTextChannels()) {
+                try {
+                    channel.sendMessage(joinSpeech).queue();
+                    break;
+                } catch (PermissionException er) {
+                    //¯\_(ツ)_/¯
+                }
             }
-        }
-        String token = GSONUtils.getConfig().getdApiToken();
-        if (token != null) {
-            try {
-                Unirest.post("https://bots.discord.pw/api/bots/" + event.getJDA().getSelfUser().getId() + "/stats")
-                        .header("Content-Type", "application/json")
-                        .header("Authorization", token)
-                        .body("{\n" +
-                                "    \"server_count\": " + event.getJDA().getGuilds().size() +
-                                "\n}").asJson();
-            } catch (UnirestException e) {
-                e.printStackTrace();
+            String token = GSONUtils.getConfig().getdApiToken();
+            if (token != null) {
+                try {
+                    Unirest.post("https://bots.discord.pw/api/bots/" + event.getJDA().getSelfUser().getId() + "/stats")
+                            .header("Content-Type", "application/json")
+                            .header("Authorization", token)
+                            .body("{\n" +
+                                    "    \"server_count\": " + event.getJDA().getGuilds().size() +
+                                    "\n}").asJson();
+                } catch (UnirestException e) {
+                    e.printStackTrace();
+                }
             }
+        } else {
+            event.getGuild().leave().queue();
         }
     }
 
     @Override
     public void onGuildLeave(GuildLeaveEvent event) {
-        event.getJDA().getUserById(GSONUtils.getConfig().getBotOwner()).getPrivateChannel().sendMessage("Left/Kicked from server: \"" + event.getGuild().getName() + "\" (ID: " + event.getGuild().getId() + ")").queue();
-        File folder = new File("settings/" + event.getGuild().getId());
-        Utils.deleteDirectory(folder);
-        String token = GSONUtils.getConfig().getdApiToken();
-        if (token != null) {
-            try {
-                Unirest.post("https://bots.discord.pw/api/bots/" + event.getJDA().getSelfUser().getId() + "/stats")
-                        .header("Content-Type", "application/json")
-                        .header("Authorization", token)
-                        .body("{\n" +
-                                "    \"server_count\": " + event.getJDA().getGuilds().size() +
-                                "\n}").asJson();
-            } catch (UnirestException e) {
-                e.printStackTrace();
+        if (!GSONUtils.getConfig().getBlockedUsers().contains(event.getGuild().getOwner().getUser().getId())) {
+            event.getJDA().getUserById(GSONUtils.getConfig().getBotOwner()).getPrivateChannel().sendMessage("Left/Kicked from server: \"" + event.getGuild().getName() + "\" (ID: " + event.getGuild().getId() + ")").queue();
+            File folder = new File("settings/" + event.getGuild().getId());
+            Utils.deleteDirectory(folder);
+            String token = GSONUtils.getConfig().getdApiToken();
+            if (token != null) {
+                try {
+                    Unirest.post("https://bots.discord.pw/api/bots/" + event.getJDA().getSelfUser().getId() + "/stats")
+                            .header("Content-Type", "application/json")
+                            .header("Authorization", token)
+                            .body("{\n" +
+                                    "    \"server_count\": " + event.getJDA().getGuilds().size() +
+                                    "\n}").asJson();
+                } catch (UnirestException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
