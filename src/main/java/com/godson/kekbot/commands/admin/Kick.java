@@ -50,7 +50,7 @@ public class Kick {
                         for (int i = 0; i < context.getMessage().getMentionedUsers().size(); i++) {
                             if (context.getMessage().getMentionedUsers().get(i) != context.getJDA().getSelfUser()) {
                                 try {
-                                    server.getController().kick(context.getGuild().getMember(context.getMessage().getMentionedUsers().get(0)));
+                                    server.getController().kick(context.getGuild().getMember(context.getMessage().getMentionedUsers().get(0))).queue();
                                     users.add(context.getMessage().getMentionedUsers().get(i).getName());
                                 } catch (PermissionException e) {
                                     failed.add(context.getMessage().getMentionedUsers().get(i).getName());

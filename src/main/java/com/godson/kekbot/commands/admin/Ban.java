@@ -37,7 +37,7 @@ public class Ban {
                             channel.sendMessage("Why would you want to ban yourself? That seems kinda useless to me...").queue();
                         } else {
                             try {
-                                server.getController().ban(context.getMessage().getMentionedUsers().get(0), 0);
+                                server.getController().ban(context.getMessage().getMentionedUsers().get(0), 0).queue();
                                 channel.sendMessage(KekBot.respond(context, Action.BAN_SUCCESS, context.getMessage().getMentionedUsers().get(0).getName())).queue();
                             } catch (PermissionException e) {
                                 channel.sendMessage(context.getMessage().getMentionedUsers().get(0).getName() + "'s role is higher than mine. I am unable to ban them.").queue();
@@ -49,7 +49,7 @@ public class Ban {
                         for (int i = 0; i < context.getMessage().getMentionedUsers().size(); i++) {
                             if (context.getMessage().getMentionedUsers().get(i) != context.getJDA().getSelfUser()) {
                                     try {
-                                        server.getController().ban(context.getMessage().getMentionedUsers().get(i), 0);
+                                        server.getController().ban(context.getMessage().getMentionedUsers().get(i), 0).queue();
                                         users.add(context.getMessage().getMentionedUsers().get(i).getName());
                                     } catch (PermissionException e) {
                                         failed.add(context.getMessage().getMentionedUsers().get(i).getName());
