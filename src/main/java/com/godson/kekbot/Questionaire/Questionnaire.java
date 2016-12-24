@@ -19,6 +19,7 @@ public class Questionnaire {
     private EventWaiter waiter = KekBot.waiter;
     private List<Object> answers = new ArrayList<>();
     private Map<Question, List<String>> choices = new HashMap<>();
+    private boolean skipQuestionMessage = false;
 
     //Guild Info:
     private Guild guild;
@@ -79,7 +80,7 @@ public class Questionnaire {
 
     private void execute(int i) {
         Question question = questions.get(i);
-        channel.sendMessage(question.getMessage()).queue();
+        if (!skipQuestionMessage) channel.sendMessage(question.getMessage()).queue();
         waiter.waitForEvent(GuildMessageReceivedEvent.class, e -> e.getAuthor().equals(user) && e.getChannel().equals(channel), e -> {
             String message = e.getMessage().getContent();
             RestAction<Message> errorMessage = e.getChannel().sendMessage("I'm sorry, I didn't quite catch that, let's try that again...");
@@ -164,6 +165,12 @@ public class Questionnaire {
 
         public void reExecute() {
             questionnaire.answers.clear();
+            questionnaire.execute(results);
+        }
+
+        public void reExecuteWithoutMessage() {
+            questionnaire.answers.clear();
+            questionnaire.skipQuestionMessage = true;
             questionnaire.execute(results);
         }
     }
