@@ -4,8 +4,12 @@ import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
 import com.godson.kekbot.GSONUtils;
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.exceptions.PermissionException;
+import net.dv8tion.jda.core.requests.Route;
 
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 public class GetInvite {
     public static Command getInvite = new Command("getinvite")
@@ -18,17 +22,16 @@ public class GetInvite {
                     } else {
                         Optional<Guild> guild = context.getJDA().getGuilds().stream().filter(g -> g.getName().equals(rawSplit[1])).findFirst();
                         if (guild.isPresent()) {
-                            /*final InviteUtil.AdvancedInvite[] invite = new InviteUtil.AdvancedInvite[1];
-                            for (Channel channel : guild.getResponder().getTextChannels()) {
+                            for (TextChannel channel : guild.get().getTextChannels()) {
                                     try {
-                                        invite[0] = InviteUtil.createInvite(channel, InviteUtil.InviteDuration.THIRTY_MINUTES, 1, false);
+                                        channel.createInvite().setMaxUses(1).setMaxAge(10L, TimeUnit.MINUTES).queue(invite -> context.getTextChannel().sendMessage("http://discord.gg/" + invite.getCode()).queue());
                                         break;
                                     } catch (PermissionException e) {
-                                        //¯\_(ツ)_/¯
+                                        if (channel == guild.get().getTextChannels().get(guild.get().getTextChannels().size()-1)) {
+                                            context.getTextChannel().sendMessage("Couldn't get an invite for \"" + rawSplit[1] + "\". :frowning:").queue();
+                                        }
                                     }
                             }
-                            if (invite[0] != null) context.getTextChannel().sendMessage("http://discord.gg/" + invite[0].getCode()).queue();
-                            else context.getTextChannel().sendMessage("Couldn't getResponder an invite for \"" + rawSplit[1] + "\". :frowning:").queue();*/
                         } else {
                             context.getTextChannel().sendMessage("Server not found.").queue();
                         }
