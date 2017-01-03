@@ -46,7 +46,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>3.0.BETA2_111</version>
+            <version>3.0.BETA2_116</version>
         </dependency>
 
         <dependency>
@@ -70,7 +70,7 @@
         <dependency>
             <groupId>com.github.Godson777</groupId>
             <artifactId>Commands4J</artifactId>
-            <version>5fe7e89</version>
+            <version>32d3f53</version>
         </dependency>
 
         <dependency>
