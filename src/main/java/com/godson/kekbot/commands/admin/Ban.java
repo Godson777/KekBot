@@ -38,7 +38,7 @@ public class Ban {
                         } else {
                             try {
                                 server.getController().ban(context.getMessage().getMentionedUsers().get(0), 0).queue();
-                                channel.sendMessage(KekBot.respond(context, Action.BAN_SUCCESS, context.getMessage().getMentionedUsers().get(0).getName())).queue();
+                                channel.sendMessage(KekBot.respond(context, Action.BAN_SUCCESS, "`" + context.getMessage().getMentionedUsers().get(0).getName() + "`")).queue();
                             } catch (PermissionException e) {
                                 channel.sendMessage(context.getMessage().getMentionedUsers().get(0).getName() + "'s role is higher than mine. I am unable to ban them.").queue();
                             }
