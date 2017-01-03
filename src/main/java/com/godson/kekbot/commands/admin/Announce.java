@@ -167,10 +167,10 @@ public class Announce {
                                         break;
                                     case "toggle":
                                         if (settings.broadcastsEnabled()) {
-                                            settings.toggleBroadcasts(false);
+                                            settings.toggleBroadcasts(false).save(context.getGuild());
                                             channel.sendMessage("Broadcasts are now **OFF**.").queue();
                                         } else {
-                                            settings.toggleBroadcasts(true);
+                                            settings.toggleBroadcasts(true).save(context.getGuild());
                                             channel.sendMessage("Broadcasts are now **ON**.").queue();
                                         }
                                         break;
