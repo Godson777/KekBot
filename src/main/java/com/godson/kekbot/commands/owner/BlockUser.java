@@ -1,6 +1,7 @@
 package com.godson.kekbot.commands.owner;
 
 import com.darichey.discord.api.Command;
+import com.darichey.discord.api.CommandCategory;
 import com.godson.kekbot.GSONUtils;
 import com.godson.kekbot.Settings.Config;
 import net.dv8tion.jda.core.entities.User;
@@ -9,6 +10,7 @@ import java.util.Optional;
 
 public class BlockUser {
     public static Command blockUser = new Command("blockuser")
+            .withCategory(CommandCategory.BOT_OWNER)
             .onExecuted(context -> {
                 String args[] = context.getArgs();
                 Config config = GSONUtils.getConfig();
