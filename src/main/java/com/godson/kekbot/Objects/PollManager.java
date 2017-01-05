@@ -1,4 +1,4 @@
-package com.godson.kekbot.Settings;
+package com.godson.kekbot.Objects;
 
 import com.darichey.discord.api.CommandContext;
 import com.godson.kekbot.Objects.PollObject;
