@@ -13,6 +13,7 @@ public class Config {
     private String token;
     private String dApiToken;
     private String botOwner;
+    private int shards;
     private List<String> allowedUsers = new ArrayList<String>();
     private List<String> blockedUsers = new ArrayList<>();
     private List<String> patrons = new ArrayList<>();
@@ -71,6 +72,10 @@ public class Config {
 
     public List<String> getPatrons() {
         return patrons;
+    }
+
+    public int getShards() {
+        return shards;
     }
 
     @Override
