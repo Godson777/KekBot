@@ -15,6 +15,7 @@ public class Config {
     private String botOwner;
     private List<String> allowedUsers = new ArrayList<String>();
     private List<String> blockedUsers = new ArrayList<>();
+    private List<String> patrons = new ArrayList<>();
 
     public Config addAllowedUser(String ID) {
         allowedUsers.add(ID);
@@ -36,6 +37,18 @@ public class Config {
         return this;
     }
 
+    public Config addPatron(String patron) {
+        patrons.add(patron);
+        return this;
+    }
+
+    public Config removePatron(String patron) {
+        if (patrons.contains(patron)) {
+            patrons.remove(patron);
+        } else throw new IllegalArgumentException("Patron not found.");
+        return this;
+    }
+
     public List<String> getAllowedUsers() {
         return allowedUsers;
     }
@@ -54,6 +67,10 @@ public class Config {
 
     public String getdApiToken() {
         return dApiToken;
+    }
+
+    public List<String> getPatrons() {
+        return patrons;
     }
 
     @Override
