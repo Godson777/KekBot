@@ -4,6 +4,7 @@ import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.Objects.PollObject;
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.TextChannel;
 
 import java.util.ArrayList;
@@ -81,9 +82,30 @@ public class Poll {
                         for (int i = 0; i < poll.getOptions().length; i++) {
                             builder.append(i+1).append(".").append("**").append(poll.getOptions()[i]).append("**").append("\n");
                         }
-                        channel.sendMessage(poll.getCreator().getName() + "#" + poll.getCreator().getDiscriminator() + "started the following poll:\n\n" +
+                        channel.sendMessage(poll.getCreator().getName() + "# " + poll.getCreator().getDiscriminator() + "started the following poll:\n\n" +
                                 poll.getTitle() + "\n" + builder.toString()).queue();
-                    } else channel.sendMessage("There's already an ongoing poll!").queue();
+                    } else {
+                        switch (rawSplit[1]) {
+                            case "stop":
+                                if (context.getAuthor().equals(KekBot.manager.getGuildsPoll(context.getGuild()).getCreator()) || context.getMember().hasPermission(Permission.ADMINISTRATOR)) {
+                                    KekBot.manager.interruptPoll(context.getGuild());
+                                } else {
+                                    channel.sendMessage("Only the poll's creator, or someone with `Administrator` permissions can stop polls!").queue();
+                                }
+                                break;
+                            case "cancel":
+                                if (context.getAuthor().equals(KekBot.manager.getGuildsPoll(context.getGuild()).getCreator()) || context.getMember().hasPermission(Permission.ADMINISTRATOR)) {
+                                    KekBot.manager.cancelPoll(context.getGuild());
+                                    channel.sendMessage("The poll has been cancelled.").queue();
+                                } else {
+                                    channel.sendMessage("Only the poll's creator, or someone with `Administrator` permissions can cancel polls!").queue();
+                                }
+                                break;
+                            default:
+                                    channel.sendMessage("There's already an ongoing poll!").queue();
+
+                        }
+                    }
                 }
             });
     public static Command vote = new Command("vote")
