@@ -15,7 +15,8 @@ public class Poll {
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
     public static Command poll = new Command("poll")
             .withDescription("Creates a poll.")
-            .withUsage("{p}poll <title> | <MM:SS> | <option...> {can continue adding more options by seperating them with | }")
+            .withUsage("{p}poll <title> | <MM:SS> | <option...> {can continue adding more options by seperating them with | }" +
+                    "\n(If a poll is open, you can also say {p}poll stop to end it early, or {p}poll cancel to cancel it altogether.)")
             .withCategory(CommandCategory.FUN)
             .onExecuted(context -> {
                 String rawSplit[] = context.getMessage().getRawContent().split(" ", 2);

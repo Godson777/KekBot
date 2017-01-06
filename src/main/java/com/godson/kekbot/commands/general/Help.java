@@ -68,8 +68,8 @@ public class Help {
                                     (command.getAliases().size() != 0 ? "\n\n[Aliases](" + StringUtils.join(set, ", ") + ")" : "") +
                                     "\n\n[Category](" + command.getCategory() + ")" +
                                     "\n\n[Description](" + command.getDescription() + ")" +
-                                    "\n\n# Paramaters (<> Required, {} Optional)" +
-                                    "\n[Usage](" + command.getUsage().replace("{p}", (CommandRegistry.getForClient(context.getJDA()).getPrefixForGuild(context.getGuild()) != null ? CommandRegistry.getForClient(context.getJDA()).getPrefixForGuild(context.getGuild()) : "$")) + ")```").queue();
+                                    "\n\n#Usage ( Paramaters (<> Required, {} Optional) ):" +
+                                    "\n" + command.getUsage().replace("{p}", (CommandRegistry.getForClient(context.getJDA()).getPrefixForGuild(context.getGuild()) != null ? CommandRegistry.getForClient(context.getJDA()).getPrefixForGuild(context.getGuild()) : "$")) + "```").queue();
                     } else {
                         context.getTextChannel().sendMessage("Command not found.").queue();
                     }
