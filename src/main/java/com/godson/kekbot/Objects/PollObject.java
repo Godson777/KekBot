@@ -25,12 +25,13 @@ public class PollObject {
 
     public void castVote(int option, User user) {
         if (!castedVotes.containsKey(user)) {
-            votes[option] += 1;
+            ++votes[option];
             castedVotes.put(user, option);
         } else {
             if (castedVotes.get(user).equals(option)) throw new IllegalArgumentException("User attempted to vote for an option they already voted for!");
             else {
-                votes[castedVotes.get(user)] -= 1;
+                --votes[castedVotes.get(user)];
+                ++votes[option];
                 castedVotes.replace(user, option);
             }
         }
