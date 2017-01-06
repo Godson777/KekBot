@@ -5,7 +5,7 @@ import com.darichey.discord.api.CommandRegistry;
 import com.godson.kekbot.EventWaiter.EventWaiter;
 import com.godson.kekbot.Moosic.MusicPlayer;
 import com.godson.kekbot.Responses.Action;
-import com.godson.kekbot.Settings.PollManager;
+import com.godson.kekbot.Objects.PollManager;
 import com.godson.kekbot.commands.admin.*;
 import com.godson.kekbot.commands.fun.*;
 import com.godson.kekbot.commands.general.*;
@@ -19,6 +19,7 @@ import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
@@ -27,7 +28,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class KekBot {
-    public static JDA[] jdas = new JDA[1];
+    public static JDA[] jdas;
     public static final String version;
     public static PollManager manager = new PollManager();
     public static long startTime = System.currentTimeMillis();
@@ -38,7 +39,6 @@ public class KekBot {
     static {
         InputStream stream = KekBot.class.getClassLoader().getResourceAsStream("kekbot.properties");
         java.util.Properties properties = new java.util.Properties();
-
         try {
             properties.load(stream);
             stream.close();
@@ -50,11 +50,23 @@ public class KekBot {
 
     public static void main(String[] args) throws LoginException, InterruptedException, RateLimitedException {
         String token = GSONUtils.getConfig().getToken();
+        int shards = GSONUtils.getConfig().getShards();
+        if (shards == 0) {
+            System.out.println("You must enter the number of shards in your \"config.json\"! Please go back and specify it before launching.");
+            System.exit(0);
+        }
+        jdas = new JDA[shards];
 
         if (token == null) {
             System.out.println("Token was not specified in \"config.json\"! Please go back and specify one before launching!");
         } else {
-            jdas[0] = new JDABuilder(AccountType.BOT).setToken(token).buildAsync();
+            if (shards > 1) {
+                for (int i = 0; i < shards; i++) {
+                    jdas[i] = new JDABuilder(AccountType.BOT).setToken(token).useSharding(i, shards).buildAsync();
+                }
+            } else {
+                jdas[0] = new JDABuilder(AccountType.BOT).setToken(token).buildAsync();
+            }
             for (JDA jda : jdas) {
                 jda.addEventListener(new Listener());
                 jda.addEventListener(waiter);
@@ -66,7 +78,7 @@ public class KekBot {
                         Emojify.emojify, AllowedUsers.allowedUsers, CoinFlip.coinFlip, Roll.roll, ListServers.listServers, Strawpoll.strawpoll, Poll.poll,
                         Poll.vote, AddRole.addRole, RemoveRole.removeRole, Quote.quote, Support.support, Eval.eval, Byemom.byemom, Queue.queue,
                         Skip.skip, Playlist.playlist, Song.song, Stop.stop, Volume.volume, Host.host, Music.music, Invite.invite, Erase.erase, Johnny.johnny,
-                        LongLive.longlive, BlockUser.blockUser);
+                        LongLive.longlive, BlockUser.blockUser, CustomCMD.customCMD, DELET.delet, AddPatron.addPatron, RemovePatron.removePatron, Poosy.poosy);
             }
 
             for (Action action : Action.values()) {
