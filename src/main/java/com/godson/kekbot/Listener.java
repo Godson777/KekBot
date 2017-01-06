@@ -6,6 +6,7 @@ import com.darichey.discord.api.CommandRegistry;
 import com.godson.kekbot.Exceptions.ChannelNotFoundException;
 import com.godson.kekbot.Exceptions.MessageNotFoundException;
 import com.godson.kekbot.Responses.Action;
+import com.godson.kekbot.Settings.CustomCommand;
 import com.godson.kekbot.Settings.Settings;
 import com.godson.kekbot.Settings.Ticket;
 import com.godson.kekbot.Settings.TicketManager;
@@ -70,6 +71,13 @@ public class Listener extends ListenerAdapter {
 
                 if (settings.getPrefix() != null) {
                     CommandRegistry.getForClient(jda).setPrefixForGuild(guild, settings.getPrefix());
+                }
+
+                if (GSONUtils.numberOfCCommands(guild) > 0) {
+                    List<CustomCommand> commands = GSONUtils.getCCommands(guild);
+                    for (CustomCommand command : commands) {
+                        command.register(jda, guild);
+                    }
                 }
             });
             CommandRegistry registry = CommandRegistry.getForClient(jda);
@@ -411,7 +419,14 @@ public class Listener extends ListenerAdapter {
     @Override
     public void onGuildJoin(GuildJoinEvent event) {
         if (!GSONUtils.getConfig().getBlockedUsers().contains(event.getGuild().getOwner().getUser().getId())) {
-            event.getJDA().getUserById(GSONUtils.getConfig().getBotOwner()).getPrivateChannel().sendMessage("Joined server: \"" + event.getGuild().getName() + "\" (ID: " + event.getGuild().getId() + ")").queue();
+            for (JDA jda : KekBot.jdas) {
+                try {
+                    jda.getUserById(GSONUtils.getConfig().getBotOwner()).getPrivateChannel().sendMessage("Joined server: \"" + event.getGuild().getName() + "\" (ID: " + event.getGuild().getId() + ")").queue();
+                    break;
+                } catch (NullPointerException e) {
+                    //do nothing.
+                }
+            }
             Settings settings = new Settings().setName(event.getGuild().getName());
             settings.save(event.getGuild());
             String joinSpeech = "Hi! I'm KekBot! Thanks for inviting me!" + "\n" +
@@ -446,7 +461,14 @@ public class Listener extends ListenerAdapter {
     @Override
     public void onGuildLeave(GuildLeaveEvent event) {
         if (!GSONUtils.getConfig().getBlockedUsers().contains(event.getGuild().getOwner().getUser().getId())) {
-            event.getJDA().getUserById(GSONUtils.getConfig().getBotOwner()).getPrivateChannel().sendMessage("Left/Kicked from server: \"" + event.getGuild().getName() + "\" (ID: " + event.getGuild().getId() + ")").queue();
+            for (JDA jda : KekBot.jdas) {
+                try {
+                    jda.getUserById(GSONUtils.getConfig().getBotOwner()).getPrivateChannel().sendMessage("Left/Kicked from server: \"" + event.getGuild().getName() + "\" (ID: " + event.getGuild().getId() + ")").queue();
+                    break;
+                } catch (NullPointerException e) {
+                    //do nothing.
+                }
+            }
             File folder = new File("settings/" + event.getGuild().getId());
             Utils.deleteDirectory(folder);
             String token = GSONUtils.getConfig().getdApiToken();

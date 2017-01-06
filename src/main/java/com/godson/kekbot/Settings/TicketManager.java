@@ -30,8 +30,11 @@ public class TicketManager {
         String replierName = replier.getName() + "#" + replier.getDiscriminator();
         for (JDA jda : KekBot.jdas) {
             try {
+                if (jda.getUserById(ticket.getAuthorID()).hasPrivateChannel())
                 jda.getUserById(ticket.getAuthorID()).getPrivateChannel().sendMessage("You have received a reply for your ticket. (**" + ticket.getTitle() + "**)\n**" + replierName
                         + "**:\n\n" + response).queue();
+                else jda.getUserById(ticket.getAuthorID()).openPrivateChannel().queue(chan -> chan.sendMessage("You have received a reply for your ticket. (**" + ticket.getTitle() + "**)\n**" + replierName
+                        + "**:\n\n" + response).queue());
                 closeTicket(ticket);
                 ticket.setStatus(TicketStatus.AWAITING_REPLY);
                 addTicket(ticket);
