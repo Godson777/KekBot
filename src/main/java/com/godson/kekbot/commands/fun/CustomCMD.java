@@ -27,7 +27,7 @@ public class CustomCMD {
             .withAliases("ccmd")
             .withDescription("Brings the user to the Custom Command Wizard.")
             .withUsage("{p}customcmd")
-            //.userRequiredPermissions(Permission.ADMINISTRATOR)
+            .userRequiredPermissions(Permission.ADMINISTRATOR)
             .onExecuted(context -> {
                 new Questionnaire(context)
                         .addChoiceQuestion("Welcome to the custom commands wizard! Would you like to `add` or `remove` a command? Or would you like to `list` this server's commands?", "add", "remove", "list")
