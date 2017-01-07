@@ -45,23 +45,27 @@ public class Stats {
                     totalVoiceChannels += jda.getVoiceChannels().size();
                     totalUsers += jda.getUsers().size();
                 }
-                context.getTextChannel().sendMessage(
-                        "```xl\nVersion: " + KekBot.version +
+                context.getTextChannel().sendMessage("```xl\nVersion: " + KekBot.version +
                         "\nLibrary: JDA" +
                         "\nJDA Version: " + JDAInfo.VERSION +
                         "\nCommands4J Version: 1.1.0-MODDED" +
                         "\nRAM: " + (used / mb) + "MB / " + (total / mb) + "MB " + "(" + usedPercent + "% Used)" +
-                        "\nAllocated: " + ((max / mb) < 1024 ? (total / mb) + "MB / " + (max / mb) + "MB " : (total / mb) < 1024 ? (total / mb) + "MB / " + Float.valueOf(format.format((float) max / gb)) + "GB " : Float.valueOf(format.format((float) total / gb) + "GB / " + Float.valueOf(format.format((float) max / gb)) + "GB ")) + "(" + allocatedPercent + "% Used)" +
+                        "\nAllocated: " + ((max / mb) < 1024 ? (total / mb) + "MB / " + (max / mb) + "MB " : (total / mb) < 1024 ? (total / mb) + "MB / " + Float.valueOf(format.format((float) max / gb)) + "GB " : Float.valueOf(format.format((float) total / gb)) + "GB / " + Float.valueOf(format.format((float) max / gb)) + "GB ") + "(" + allocatedPercent + "% Used)" +
                         "\nActive for: " + KekBot.convertMillisToTime(startTime) +
-                        //"\nShards: " + KekBot.jdas.length +
-                        "\nServers: " + context.getJDA().getGuilds().size() +
-                        //"\nTotal Servers: " + totalGuilds +
-                        "\nChannels: " + context.getJDA().getTextChannels().size() +
-                        //"\nTotal Channels: " + totalChannels +
-                        "\nVoice Channels: " + context.getJDA().getVoiceChannels().size() +
-                        //"\nTotal Voice Channels: " + totalVoiceChannels +
-                        "\nUsers: " + context.getJDA().getUsers().size() +
-                        //"\nTotal Users: " + totalUsers +
+                        (KekBot.jdas.length > 1 ? "\nThis server is on Shard " + (context.getJDA().getShardInfo().getShardId() + 1) +
+                                "\nNumber of Shards: " + KekBot.jdas.length +
+                                "\nServers (In this Shard): " + context.getJDA().getGuilds().size() +
+                                "\nChannels (In this Shard): " + context.getJDA().getTextChannels().size() +
+                                "\nVoice Channels (In this Shard): " + context.getJDA().getVoiceChannels().size() +
+                                "\nUsers (In this Shard): " + context.getJDA().getUsers().size() +
+                                "\nTotal Servers: " + totalGuilds +
+                                "\nTotal Channels: " + totalChannels +
+                                "\nTotal Voice Channels: " + totalVoiceChannels +
+                                "\nTotal Users: " + totalUsers
+                                : "\nServers: " + context.getJDA().getGuilds().size() +
+                                        "\nChannels: " + context.getJDA().getTextChannels().size() +
+                                        "\nVoice Channels: " + context.getJDA().getVoiceChannels().size() +
+                                        "\nUsers: " + context.getJDA().getUsers().size()) +
                         "\nCommands: " + CommandRegistry.getForClient(context.getJDA()).getCommands().size() + "```").queue();
             });
 }

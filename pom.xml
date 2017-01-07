@@ -23,19 +23,30 @@
             <name>sedmelluq</name>
             <url>http://maven.sedmelluq.com/</url>
         </repository>
+        <repository>
+            <id>oss.sonatype.org</id>
+            <name>Sonatype Snapshot Repository</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
     </repositories>
 
     <dependencies>
         <dependency>
             <groupId>com.sedmelluq</groupId>
             <artifactId>lavaplayer</artifactId>
-            <version>1.1.24</version>
+            <version>1.1.36</version>
         </dependency>
 
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>3.0.BETA2_109</version>
+            <version>3.0.BETA2_119</version>
         </dependency>
 
         <dependency>
@@ -59,7 +70,7 @@
         <dependency>
             <groupId>com.github.Godson777</groupId>
             <artifactId>Commands4J</artifactId>
-            <version>d389d72</version>
+            <version>32d3f53</version>
         </dependency>
 
         <dependency>

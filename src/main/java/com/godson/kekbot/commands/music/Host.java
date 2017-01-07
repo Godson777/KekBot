@@ -36,7 +36,7 @@ public class Host {
                                         context.getTextChannel().sendMessage("You haven't specified who to make the host...").queue();
                                     }
                                 } else {
-                                    context.getTextChannel().sendMessage(KekBot.respond(context, Action.MUSIC_NOT_IN_CHANNEL)).queue();
+                                    context.getTextChannel().sendMessage(KekBot.respond(context, Action.MUSIC_NOT_IN_CHANNEL, "`" + context.getGuild().getAudioManager().getConnectedChannel().getName() + "`")).queue();
                                 }
                             }
                         } else {

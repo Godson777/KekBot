@@ -8,6 +8,7 @@ import com.godson.kekbot.Settings.Config;
 import com.godson.kekbot.Settings.Ticket;
 import com.godson.kekbot.Settings.TicketManager;
 import com.godson.kekbot.Settings.TicketStatus;
+import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.TextChannel;
 
 public class TicketCommand {
@@ -33,7 +34,14 @@ public class TicketCommand {
                         manager.addTicket(ticket);
                         manager.save();
                         channel.sendMessage(context.getMessage().getAuthor().getAsMention() + " Thanks for submitting your ticket!").queue();
-                        KekBot.jdas[0].getUserById(config.getBotOwner()).getPrivateChannel().sendMessage("New ticket made by: **" + context.getMessage().getAuthor().getName() + "** (ID: **" + context.getMessage().getAuthor().getId() + "**)").queue();
+                        for (JDA jda : KekBot.jdas) {
+                            try {
+                                jda.getUserById(config.getBotOwner()).getPrivateChannel().sendMessage("New ticket made by: **" + context.getMessage().getAuthor().getName() + "** (ID: **" + context.getMessage().getAuthor().getId() + "**)").queue();
+                                break;
+                            } catch (NullPointerException e) {
+                                //do nothing.
+                            }
+                        }
                     }
                 }
             });

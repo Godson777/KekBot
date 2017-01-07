@@ -47,7 +47,7 @@ public class AddRole {
                                 if (!context.getMember().getRoles().contains(context.getGuild().getRolesByName(params[0], true).get(0))) {
                                     try {
                                         context.getGuild().getController().addRolesToMember(member, context.getGuild().getRolesByName(params[0], true).get(0)).queue();
-                                        channel.sendMessage("Successfully assigned role to `" + context.getMessage().getMentionedUsers().get(0).getName() + "#" + context.getMessage().getMentionedUsers().get(0).getDiscriminator() + "`. :thumbsup:").queue();
+                                        channel.sendMessage(KekBot.respond(context, Action.ROLE_ADDED, context.getMessage().getMentionedUsers().get(0).getName() + "#" + context.getMessage().getMentionedUsers().get(0).getDiscriminator())).queue();
                                     } catch (PermissionException e) {
                                         channel.sendMessage("That role is higher than mine! I cannot assign it to any users!").queue();
                                     }
@@ -79,7 +79,7 @@ public class AddRole {
                                     channel.sendMessage("That role is higher than mine! I cannot assign it to any users!").queue();
                                 } else {
                                     if (success.size() != 0) {
-                                        channel.sendMessage("Successfully assigned role to " + (success.size() == 1 ? "user" : "users") + ": `" + StringUtils.join(success, ", ") + "`. :thumbsup:" +
+                                        channel.sendMessage(KekBot.respond(context, Action.ROLE_ADDED, StringUtils.join(success, ", ")) +
                                                 (exist.size() != 0 ? "\nHowever, " + exist.size() + (exist.size() == 1 ? "user" : "users") + ": `" + StringUtils.join(exist, ", ") + "` already have this role. So they were ignored." : "")).queue();
                                     } else {
                                         channel.sendMessage("All users you specified already have this role!").queue();

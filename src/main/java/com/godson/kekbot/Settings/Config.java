@@ -13,7 +13,10 @@ public class Config {
     private String token;
     private String dApiToken;
     private String botOwner;
+    private int shards;
     private List<String> allowedUsers = new ArrayList<String>();
+    private List<String> blockedUsers = new ArrayList<>();
+    private List<String> patrons = new ArrayList<>();
 
     public Config addAllowedUser(String ID) {
         allowedUsers.add(ID);
@@ -25,8 +28,34 @@ public class Config {
         return this;
     }
 
+    public Config addBlockedUser(String ID) {
+        blockedUsers.add(ID);
+        return this;
+    }
+
+    public Config removeBlockedUser(String ID) {
+        blockedUsers.remove(ID);
+        return this;
+    }
+
+    public Config addPatron(String patron) {
+        patrons.add(patron);
+        return this;
+    }
+
+    public Config removePatron(String patron) {
+        if (patrons.contains(patron)) {
+            patrons.remove(patron);
+        } else throw new IllegalArgumentException("Patron not found.");
+        return this;
+    }
+
     public List<String> getAllowedUsers() {
         return allowedUsers;
+    }
+
+    public List<String> getBlockedUsers() {
+        return blockedUsers;
     }
 
     public String getBotOwner() {
@@ -39,6 +68,14 @@ public class Config {
 
     public String getdApiToken() {
         return dApiToken;
+    }
+
+    public List<String> getPatrons() {
+        return patrons;
+    }
+
+    public int getShards() {
+        return shards;
     }
 
     @Override

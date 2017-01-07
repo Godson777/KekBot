@@ -19,6 +19,10 @@ public class Questionnaire {
     private EventWaiter waiter = KekBot.waiter;
     private List<Object> answers = new ArrayList<>();
     private Map<Question, List<String>> choices = new HashMap<>();
+    private boolean skipQuestionMessage = false;
+    private boolean skipOnRepeat = false;
+    private boolean customErrorMessageEnabled = false;
+    private String customErrorMessage;
 
     //Guild Info:
     private Guild guild;
@@ -46,6 +50,17 @@ public class Questionnaire {
         this.guild = results.getGuild();
         this.channel = results.getChannel();
         this.user = results.getUser();
+    }
+
+    public Questionnaire withoutRepeats() {
+        this.skipOnRepeat = true;
+        return this;
+    }
+
+    public Questionnaire withCustomErrorMessage(String customErrorMessage) {
+        customErrorMessageEnabled = true;
+        this.customErrorMessage = customErrorMessage;
+        return this;
     }
 
     public Questionnaire addQuestion(String message, QuestionType type) {
@@ -79,10 +94,10 @@ public class Questionnaire {
 
     private void execute(int i) {
         Question question = questions.get(i);
-        channel.sendMessage(question.getMessage()).queue();
+        if (!skipQuestionMessage) channel.sendMessage(question.getMessage()).queue();
         waiter.waitForEvent(GuildMessageReceivedEvent.class, e -> e.getAuthor().equals(user) && e.getChannel().equals(channel), e -> {
             String message = e.getMessage().getContent();
-            RestAction<Message> errorMessage = e.getChannel().sendMessage("I'm sorry, I didn't quite catch that, let's try that again...");
+            RestAction<Message> errorMessage = e.getChannel().sendMessage((!customErrorMessageEnabled ? "I'm sorry, I didn't quite catch that, let's try that again..." : customErrorMessage));
             if (message.equalsIgnoreCase("cancel")) {
                 e.getChannel().sendMessage("Cancelled.").queue();
                 if (context != null) context.getRegistry().enableUserInGuild(guild, user);
@@ -95,6 +110,7 @@ public class Questionnaire {
                         try {
                             answers.add(Integer.valueOf(message));
                         } catch (NumberFormatException e1) {
+                            if (skipOnRepeat) skipQuestionMessage = true;
                             errorMessage.queue();
                             execute(i);
                             return;
@@ -102,6 +118,7 @@ public class Questionnaire {
                     case CHOICE_STRING:
                         Optional<String> choice = choices.get(question).stream().filter(c -> c.equalsIgnoreCase(e.getMessage().getContent())).findFirst();
                         if (!choice.isPresent()) {
+                            if (skipOnRepeat) skipQuestionMessage = true;
                             errorMessage.queue();
                             execute(i);
                             return;
@@ -111,6 +128,7 @@ public class Questionnaire {
                         break;
                 }
                 if (i + 1 != questions.size()) {
+                    if (skipOnRepeat && skipQuestionMessage) skipQuestionMessage = false;
                     execute(i + 1);
                 } else {
                     if (context != null) context.getRegistry().enableUserInGuild(guild, user);
@@ -164,6 +182,12 @@ public class Questionnaire {
 
         public void reExecute() {
             questionnaire.answers.clear();
+            questionnaire.execute(results);
+        }
+
+        public void reExecuteWithoutMessage() {
+            questionnaire.answers.clear();
+            questionnaire.skipQuestionMessage = true;
             questionnaire.execute(results);
         }
     }

@@ -34,7 +34,7 @@ public class Volume {
                                         context.getTextChannel().sendMessage("You haven't even specified the volume you want to set it to!").queue();
                                     }
                                 } else {
-                                    context.getTextChannel().sendMessage(KekBot.respond(context, Action.MUSIC_NOT_IN_CHANNEL, context.getGuild().getAudioManager().getConnectedChannel().getName())).queue();
+                                    context.getTextChannel().sendMessage(KekBot.respond(context, Action.MUSIC_NOT_IN_CHANNEL, "`" + context.getGuild().getAudioManager().getConnectedChannel().getName() + "`")).queue();
                                 }
                             }
                         } else {
