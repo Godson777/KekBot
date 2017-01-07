@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import javax.imageio.ImageIO;
 import javax.net.ssl.SSLHandshakeException;
 import java.awt.image.BufferedImage;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.*;
 import java.util.ArrayList;
@@ -107,7 +108,7 @@ public class CustomCMD {
                                                                                                     command.setValue(results3.getAnswer(0).toString());
                                                                                                     command.saveAndRegister(context);
                                                                                                 }
-                                                                                            } catch (MalformedURLException | UnknownHostException | IllegalArgumentException e) {
+                                                                                            } catch (MalformedURLException | UnknownHostException | IllegalArgumentException | FileNotFoundException e) {
                                                                                                 channel.sendMessage("That doesn't appear to be a valid URL, try a different one.").queue();
                                                                                                 results3.reExecuteWithoutMessage();
                                                                                             } catch (SSLHandshakeException | SocketException e) {
