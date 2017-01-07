@@ -11,6 +11,8 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 
+import java.net.MalformedURLException;
+
 public class Broadcast {
     public static Command broadcast = new Command("broadcast")
             .withCategory(CommandCategory.BOT_OWNER)
@@ -21,11 +23,12 @@ public class Broadcast {
                         context.getMessage().getChannel().sendMessage("Cannot broadcast empty message.").queue();
                     } else {
                         for (JDA jda : KekBot.jdas) {
-                            for (Guild guild : jda.getGuilds()) {
+                            System.out.println("Entering Shard " + (jda.getShardInfo().getShardId()+1) + "...");
+                            jda.getGuilds().forEach(guild -> {
                                 Settings settings = GSONUtils.getSettings(guild);
                                 if (settings.broadcastsEnabled()) {
                                     try {
-                                        settings.getBroadcastChannel(context.getJDA()).sendMessage("**BROADCAST: **" + rawSplit[1]).queue();
+                                        settings.getBroadcastChannel(guild).sendMessage("**BROADCAST: **" + rawSplit[1]).queue();
                                     } catch (ChannelNotFoundException e) {
                                         for (TextChannel channel : guild.getTextChannels()) {
                                             try {
@@ -37,7 +40,7 @@ public class Broadcast {
                                         }
                                     }
                                 }
-                            }
+                            });
                         }
                     }
                 }

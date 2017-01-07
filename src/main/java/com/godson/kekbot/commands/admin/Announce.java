@@ -181,15 +181,15 @@ public class Announce {
                             channel.sendMessage("**REVIEW**" +
                                     "\n\n__Welcome:__" +
                                     "\nStatus: " + (settings.welcomeEnabled() ? "ON" : "OFF") +
-                                    "\nChannel: " + (settings.welcomeChannelIsSet() ? settings.getWelcomeChannel(context.getJDA()).getAsMention() : "None") +
+                                    "\nChannel: " + (settings.welcomeChannelIsSet() ? settings.getWelcomeChannel(context.getGuild()).getAsMention() : "None") +
                                     "\nMessage: " + (settings.welcomeMessageIsSet() ? settings.getWelcomeMessage().replace("{mention}", "@Example User").replace("{name}", "Example User") : "None") +
                                     "\n\n__Farewell:__" +
                                     "\nStatus: " + (settings.farewellEnabled() ? "ON" : "OFF") +
-                                    "\nChannel: " + (settings.farewellChannelIsSet() ? settings.getFarewellChannel(context.getJDA()).getAsMention() : "None") +
+                                    "\nChannel: " + (settings.farewellChannelIsSet() ? settings.getFarewellChannel(context.getGuild()).getAsMention() : "None") +
                                     "\nMessage: " + (settings.farewellMessageIsSet() ? settings.getFarewellMessage().replace("{mention}", "@Example User").replace("{name}", "Example User") : "None") +
                                     "\n\n__Broadcasts:__" +
                                     "\nStatus: " + (settings.broadcastsEnabled() ? "ON" : "OFF") +
-                                    "\nChannel " + (settings.broadcastChannelIsSet() ? settings.getBroadcastChannel(context.getJDA()).getAsMention() : "None")).queue();
+                                    "\nChannel " + (settings.broadcastChannelIsSet() ? settings.getBroadcastChannel(context.getGuild()).getAsMention() : "None")).queue();
                             break;
                     }
                 }

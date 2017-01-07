@@ -127,8 +127,8 @@ public class Settings {
         else throw new MessageNotFoundException("Welcome message could not be found!");
     }
 
-    public TextChannel getWelcomeChannel(JDA jda) {
-        if (welcomeChannelIsSet()) return jda.getTextChannelById(announceSettings.welcomeChannelID);
+    public TextChannel getWelcomeChannel(Guild guild) {
+        if (welcomeChannelIsSet()) return guild.getTextChannelById(announceSettings.welcomeChannelID);
         else throw new ChannelNotFoundException("Welcome channel could not be found!");
     }
 
@@ -145,8 +145,8 @@ public class Settings {
         else throw new MessageNotFoundException("Farewell message could not be found!");
     }
 
-    public TextChannel getFarewellChannel(JDA jda) {
-        if (farewellChannelIsSet()) return jda.getTextChannelById(announceSettings.farewellChannelID);
+    public TextChannel getFarewellChannel(Guild guild) {
+        if (farewellChannelIsSet()) return guild.getTextChannelById(announceSettings.farewellChannelID);
         else throw new ChannelNotFoundException("Farewell channel could not be found!");
     }
 
@@ -158,8 +158,8 @@ public class Settings {
         return announceSettings.farewellMessage != null;
     }
 
-    public TextChannel getBroadcastChannel(JDA jda) {
-        if (broadcastChannelIsSet()) return jda.getTextChannelById(announceSettings.broadcastChannelID);
+    public TextChannel getBroadcastChannel(Guild guild) {
+        if (broadcastChannelIsSet()) return guild.getTextChannelById(announceSettings.broadcastChannelID);
         else throw new ChannelNotFoundException("Broadcasts channel could not be found!");
     }
 
