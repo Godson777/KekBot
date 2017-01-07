@@ -61,10 +61,10 @@ public class DELET {
                                     e.printStackTrace();
                                 }
                             } else {
-                                channel.sendMessage("The user you want to target must be in the form of a mention!").queue();
+                                channel.sendMessage("The user you want to DELET must be in the form of a mention!").queue();
                             }
                         } else {
-                            channel.sendMessage("Who are you targeting?").queue();
+                            channel.sendMessage("Who are you going to DELET?").queue();
                         }
                     } else {
                         channel.sendMessage(KekBot.respond(context, Action.MEME_NOT_APPLIED, "__**Living Meme**__")).queue();
