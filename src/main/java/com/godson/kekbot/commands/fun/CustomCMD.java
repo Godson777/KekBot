@@ -30,7 +30,7 @@ public class CustomCMD {
             .userRequiredPermissions(Permission.ADMINISTRATOR)
             .onExecuted(context -> {
                 new Questionnaire(context)
-                        .addChoiceQuestion("Welcome to the custom commands wizard! Would you like to `add` or `remove` a command? Or would you like to `list` this server's commands?", "add", "remove", "list")
+                        .addChoiceQuestion("Welcome to the custom commands wizard! Would you like to `add` or `remove` a command? Or would you like to `list` this server's commands? (You can also say `cancel` at any time to exit the wizard.)", "add", "remove", "list")
                         .execute(results -> {
                             TextChannel channel = context.getTextChannel();
                             switch ((String) results.getAnswer(0)) {

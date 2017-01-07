@@ -76,7 +76,11 @@ public class Listener extends ListenerAdapter {
                 if (GSONUtils.numberOfCCommands(guild) > 0) {
                     List<CustomCommand> commands = GSONUtils.getCCommands(guild);
                     for (CustomCommand command : commands) {
-                        command.register(jda, guild);
+                        try {
+                            command.register(jda, guild);
+                        } catch (IllegalArgumentException e) {
+                            //ignore
+                        }
                     }
                 }
             });
@@ -516,7 +520,7 @@ public class Listener extends ListenerAdapter {
 
         if (settings.welcomeEnabled()) {
             try {
-                settings.getWelcomeChannel(event.getJDA()).sendMessage(settings.getWelcomeMessage().replace("{mention}", event.getMember().getAsMention()).replace("{name|", event.getMember().getEffectiveName())).queue();
+                settings.getWelcomeChannel(event.getGuild()).sendMessage(settings.getWelcomeMessage().replace("{mention}", event.getMember().getAsMention()).replace("{name|", event.getMember().getEffectiveName())).queue();
             } catch (MessageNotFoundException e) {
                 settings.setWelcomeMessage(null).toggleWelcome(false).save(event.getGuild());
                 for (TextChannel channel : event.getGuild().getTextChannels()) {
@@ -548,7 +552,7 @@ public class Listener extends ListenerAdapter {
 
         if (settings.farewellEnabled()) {
             try {
-                settings.getFarewellChannel(event.getJDA()).sendMessage(settings.getFarewellMessage().replace("{mention}", event.getMember().getAsMention()).replace("{name}", event.getMember().getEffectiveName())).queue();
+                settings.getFarewellChannel(event.getGuild()).sendMessage(settings.getFarewellMessage().replace("{mention}", event.getMember().getAsMention()).replace("{name}", event.getMember().getEffectiveName())).queue();
             } catch (MessageNotFoundException e) {
                 settings.setFarewellMessage(null).toggleFarewell(false).save(event.getGuild());
                 for (TextChannel channel : event.getGuild().getTextChannels()) {

@@ -120,10 +120,14 @@ public class CustomCommand {
         save(context.getGuild());
     }
 
-    public void remove(CommandContext context) {
-        File cmd = new File("settings/" + context.getGuild().getId() + "/commands/" + this.getName() + ".json");
+    public void remove(JDA jda, Guild guild) {
+        File cmd = new File("settings/" + guild.getId() + "/commands/" + this.getName() + ".json");
         cmd.delete();
-        context.getRegistry().customUnregister(this.getName(), context.getGuild());
+        CommandRegistry.getForClient(jda).customUnregister(this.getName(), guild);
+    }
+
+    public void remove(CommandContext context) {
+        remove(context.getJDA(), context.getGuild());
     }
 }
 
