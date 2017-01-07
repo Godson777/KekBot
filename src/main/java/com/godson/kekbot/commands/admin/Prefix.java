@@ -28,7 +28,7 @@ public class Prefix {
                     } else {
                         if (args[0].length() <= 2) {
                             if (!args[0].equals(CommandRegistry.getForClient(context.getJDA()).getPrefix())) {
-                                settings.setPrefix(args[0]);
+                                settings.setPrefix(args[0]).save(context.getGuild());
                                 CommandRegistry.getForClient(context.getJDA()).setPrefixForGuild(server, args[0]);
                             } else {
                                 if (settings.getPrefix() != null) settings.setPrefix(null);
