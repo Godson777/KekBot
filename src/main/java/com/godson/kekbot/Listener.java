@@ -80,11 +80,15 @@ public class Listener extends ListenerAdapter {
                     }
                 }
             });
-            CommandRegistry registry = CommandRegistry.getForClient(jda);
-            registry.customRegister(test.test, jda.getGuildById("221910104495095808"));
-            registry.customRegister(Suggest.suggest, jda.getGuildById("221910104495095808"));
-            registry.customRegister(AddResponse.addResponse, jda.getGuildById("221910104495095808"));
-            registry.customRegister(Suggestions.suggestions, jda.getGuildById("221910104495095808"));
+            try {
+                CommandRegistry registry = CommandRegistry.getForClient(jda);
+                //registry.customRegister(test.test, jda.getGuildById("221910104495095808"));
+                registry.customRegister(Suggest.suggest, jda.getGuildById("221910104495095808"));
+                registry.customRegister(AddResponse.addResponse, jda.getGuildById("221910104495095808"));
+                registry.customRegister(Suggestions.suggestions, jda.getGuildById("221910104495095808"));
+            } catch (IllegalArgumentException e) {
+                //do nothing? Hopefully?
+            }
         }
 
 
