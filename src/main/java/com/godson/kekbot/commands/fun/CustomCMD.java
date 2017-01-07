@@ -58,13 +58,19 @@ public class CustomCMD {
                                                                     if (commandName.contains(" ")) {
                                                                         channel.sendMessage("There can't be any spaces in your command name. Try again.").queue();
                                                                         results2.reExecuteWithoutMessage();
-                                                                    } else if (commandName.contains("/") || commandName.contains("\\")) {
-                                                                        channel.sendMessage("You cannot have slashes in your command's name. Try again.").queue();
+                                                                    } else if (!commandName.matches("(\\w+)")) {
+                                                                        channel.sendMessage("Your command name can only consist of letters, numbers, and underscores. Try again.").queue();
                                                                         results2.reExecuteWithoutMessage();
-                                                                    } else if (context.getRegistry().getCommandByName(commandName, true).isPresent()) {
+                                                                    } else if (commandName.equalsIgnoreCase("list")) {
+                                                                        channel.sendMessage("Sorry, I'm gonna have to ask you to *not* make your command using that name. Could you pick another one, please?").queue();
+                                                                        results2.reExecuteWithoutMessage();
+                                                                    } else if (commandName.length() > 30) {
+                                                                        channel.sendMessage("That command name's too long, could you pick a *shorter* name?").queue();
+                                                                        results2.reExecuteWithoutMessage();
+                                                                    } else if (context.getRegistry().getCommands().stream().anyMatch(cmd -> cmd.getName().equalsIgnoreCase(commandName) || cmd.getAliases().contains(commandName.toLowerCase()))) {
                                                                         channel.sendMessage("That name conflicts with an existing command. Try again.").queue();
                                                                         results2.reExecuteWithoutMessage();
-                                                                    } else if (context.getRegistry().getCustomCommands(context.getGuild()).size() >= 1 && context.getRegistry().getCustomCommandByName(commandName, context.getGuild(), true).isPresent()) {
+                                                                    } else if (context.getRegistry().getCustomCommands(context.getGuild()).size() >= 1 && context.getRegistry().getCustomCommands(context.getGuild()).stream().anyMatch(cmd -> cmd.getName().equalsIgnoreCase(commandName))) {
                                                                         channel.sendMessage("That name conflicts with another custom command. Try again.").queue();
                                                                         results2.reExecuteWithoutMessage();
                                                                     } else {
@@ -148,12 +154,13 @@ public class CustomCMD {
                                         if (!(context.getGuild().getId().equals("221910104495095808") && (cmd.getName().equals("suggest") || cmd.getName().equals("addresponse") || cmd.getName().equals("suggestions") || cmd.getName().equals("test"))))
                                             names.add(cmd.getName());
                                     }
-                                    if (names.size() > 0) {
+                                    if (names.size() > 0 && !(names.size() == 1 && names.get(0).equals("list"))) {
                                         new Questionnaire(results)
                                                 .withoutRepeats()
                                                 .withCustomErrorMessage("Hm, I can't seem to find that command. Try another one.")
                                                 .addChoiceQuestion("Alright. Type in the name of the command you want to remove. If you don't know which command you want to remove, you can also `list` them.", names.toArray(new String[names.size()]))
                                                 .execute(results1 -> {
+                                                    names.remove("list");
                                                     String commandName = results1.getAnswer(0).toString();
                                                     if (commandName.equals("list")) {
                                                         String commands;
