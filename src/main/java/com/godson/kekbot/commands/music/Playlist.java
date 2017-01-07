@@ -30,8 +30,8 @@ public class Playlist {
                                 KekBot.player.getPlaylist(context.getTextChannel(), 0);
                             }
                         } else
-                            context.getTextChannel().sendMessage(KekBot.respond(context, Action.MUSIC_NOT_IN_CHANNEL)).queue();
-                    } else context.getTextChannel().sendMessage(KekBot.respond(context, Action.MUSIC_NOT_IN_CHANNEL, context.getGuild().getAudioManager().getConnectedChannel().getName())).queue();
+                            context.getTextChannel().sendMessage(KekBot.respond(context, Action.MUSIC_NOT_IN_CHANNEL, "`" + context.getGuild().getAudioManager().getConnectedChannel().getName() + "`")).queue();
+                    } else context.getTextChannel().sendMessage(KekBot.respond(context, Action.MUSIC_NOT_IN_CHANNEL, "`" + context.getGuild().getAudioManager().getConnectedChannel().getName() + "`")).queue();
                 }
             });
 }

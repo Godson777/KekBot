@@ -25,7 +25,7 @@ public class Skip {
                         if (context.getGuild().getAudioManager().getConnectedChannel().equals(voiceChannel.get())) {
                             KekBot.player.skipTrack(context);
                         } else {
-                            context.getTextChannel().sendMessage(KekBot.respond(context, Action.MUSIC_NOT_IN_CHANNEL, context.getGuild().getAudioManager().getConnectedChannel().getName())).queue();
+                            context.getTextChannel().sendMessage(KekBot.respond(context, Action.MUSIC_NOT_IN_CHANNEL, "`" + context.getGuild().getAudioManager().getConnectedChannel().getName() + "`")).queue();
                         }
                     }
                 }
