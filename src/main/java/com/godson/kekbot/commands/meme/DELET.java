@@ -46,7 +46,7 @@ public class DELET {
                                     connection.setRequestProperty("User-Agent", "Mozilla/5.0");
                                     connection.connect();
                                     BufferedImage target = ImageIO.read(connection.getInputStream());
-                                    image.drawImage(target, 40, 148, 40, 40, null);
+                                    image.drawImage(target, 40, 147, 40, 40, null);
                                     image.drawImage(template, 0, 0, null);
                                     Font font = new Font("Whitney", Font.BOLD, 12);
                                     image.setColor(member.getColor());
