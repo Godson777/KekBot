@@ -488,6 +488,9 @@ public class Listener extends ListenerAdapter {
                     e.printStackTrace();
                 }
             }
+            if (!event.getGuild().getAudioManager().isConnected()) {
+                KekBot.player.killConnection(event.getGuild());
+            }
         }
     }
 
