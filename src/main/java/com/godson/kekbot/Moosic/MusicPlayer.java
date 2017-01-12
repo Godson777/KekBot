@@ -244,6 +244,19 @@ public class MusicPlayer extends ListenerAdapter {
         guild.getAudioManager().closeAudioConnection();
     }
 
+    public void closeConnection(Guild guild, String reason) {
+        long guildId = Long.parseLong(guild.getId());
+        if (!isMeme(guild)) announceToMusicSession(guild, reason);
+        this.musicManagers.remove(guildId);
+        guild.getAudioManager().closeAudioConnection();
+    }
+
+    public void killConnection(Guild guild) {
+        long guildId = Long.parseLong(guild.getId());
+        this.musicManagers.remove(guildId);
+        guild.getAudioManager().closeAudioConnection();
+    }
+
     public void setVolume(CommandContext context, int volume) {
         long guildId = Long.parseLong(context.getGuild().getId());
         if (musicManagers.containsKey(guildId)) {
