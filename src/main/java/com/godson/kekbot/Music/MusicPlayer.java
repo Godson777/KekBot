@@ -1,4 +1,4 @@
-package com.godson.kekbot.Moosic;
+package com.godson.kekbot.Music;
 
 import com.darichey.discord.api.CommandContext;
 import com.godson.kekbot.KekBot;
