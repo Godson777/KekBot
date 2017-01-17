@@ -431,7 +431,7 @@ public class Listener extends ListenerAdapter {
                 try {
                     jda.getUserById(GSONUtils.getConfig().getBotOwner()).getPrivateChannel().sendMessage("Joined server: \"" + event.getGuild().getName() + "\" (ID: " + event.getGuild().getId() + ")").queue();
                     break;
-                } catch (NullPointerException e) {
+                } catch (NullPointerException | IllegalStateException e) {
                     //do nothing.
                 }
             }
@@ -473,7 +473,7 @@ public class Listener extends ListenerAdapter {
                 try {
                     jda.getUserById(GSONUtils.getConfig().getBotOwner()).getPrivateChannel().sendMessage("Left/Kicked from server: \"" + event.getGuild().getName() + "\" (ID: " + event.getGuild().getId() + ")").queue();
                     break;
-                } catch (NullPointerException e) {
+                } catch (NullPointerException | IllegalStateException e) {
                     //do nothing.
                 }
             }
@@ -486,7 +486,7 @@ public class Listener extends ListenerAdapter {
                             .header("Content-Type", "application/json")
                             .header("Authorization", token)
                             .body("{\n" +
-                                    "    \"server_count\": " + event.getJDA().getGuilds().size() +
+                                    "    \"server_count\": " + (KekBot.jdas.length > 1 ? KekBot.shardGuildCount() : event.getJDA().getGuilds().size()) +
                                     "\n}").asJson();
                 } catch (UnirestException e) {
                     e.printStackTrace();
