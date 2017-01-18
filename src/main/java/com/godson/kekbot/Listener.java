@@ -455,7 +455,11 @@ public class Listener extends ListenerAdapter {
                             .header("Content-Type", "application/json")
                             .header("Authorization", token)
                             .body("{\n" +
-                                    "    \"server_count\": " + event.getJDA().getGuilds().size() +
+                                    (KekBot.jdas.length > 1 ? "    \"shard_id\": " + event.getJDA().getShardInfo().getShardId() + "," +
+                                            "    \n\"shard_count\": " + KekBot.jdas.length + "," +
+                                            "    \n\"server_count\": " + event.getJDA().getGuilds().size() :
+                                            "    \"server_count\": " + event.getJDA().getGuilds().size())
+                                    +
                                     "\n}").asJson();
                 } catch (UnirestException e) {
                     e.printStackTrace();
@@ -486,7 +490,11 @@ public class Listener extends ListenerAdapter {
                             .header("Content-Type", "application/json")
                             .header("Authorization", token)
                             .body("{\n" +
-                                    "    \"server_count\": " + (KekBot.jdas.length > 1 ? KekBot.shardGuildCount() : event.getJDA().getGuilds().size()) +
+                                            (KekBot.jdas.length > 1 ? "    \"shard_id\": " + event.getJDA().getShardInfo().getShardId() + "," +
+                                                    "    \n\"shard_count\": " + KekBot.jdas.length + "," +
+                                                    "    \n\"server_count\": " + event.getJDA().getGuilds().size() :
+                                                    "    \"server_count\": " + event.getJDA().getGuilds().size())
+                                     +
                                     "\n}").asJson();
                 } catch (UnirestException e) {
                     e.printStackTrace();
