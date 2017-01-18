@@ -37,6 +37,7 @@ import org.apache.commons.lang3.SystemUtils;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -426,6 +427,9 @@ public class Listener extends ListenerAdapter {
 
     @Override
     public void onGuildJoin(GuildJoinEvent event) {
+        if(event.getGuild().getSelfMember().getJoinDate().plusMinutes(10).isBefore(OffsetDateTime.now()))
+            return;
+
         if (!GSONUtils.getConfig().getBlockedUsers().contains(event.getGuild().getOwner().getUser().getId())) {
             for (JDA jda : KekBot.jdas) {
                 try {
