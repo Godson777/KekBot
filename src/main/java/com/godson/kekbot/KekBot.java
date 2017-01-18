@@ -3,7 +3,8 @@ package com.godson.kekbot;
 import com.darichey.discord.api.CommandContext;
 import com.darichey.discord.api.CommandRegistry;
 import com.godson.kekbot.EventWaiter.EventWaiter;
-import com.godson.kekbot.Moosic.MusicPlayer;
+import com.godson.kekbot.Games.TicTacToe;
+import com.godson.kekbot.Music.MusicPlayer;
 import com.godson.kekbot.Responses.Action;
 import com.godson.kekbot.Objects.PollManager;
 import com.godson.kekbot.commands.admin.*;
@@ -19,7 +20,6 @@ import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.SystemUtils;
 
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
@@ -78,7 +78,8 @@ public class KekBot {
                         Emojify.emojify, AllowedUsers.allowedUsers, CoinFlip.coinFlip, Roll.roll, ListServers.listServers, Strawpoll.strawpoll, Poll.poll,
                         Poll.vote, AddRole.addRole, RemoveRole.removeRole, Quote.quote, Support.support, Eval.eval, Byemom.byemom, Queue.queue,
                         Skip.skip, Playlist.playlist, Song.song, Stop.stop, Volume.volume, Host.host, Music.music, Invite.invite, Erase.erase, Johnny.johnny,
-                        LongLive.longlive, BlockUser.blockUser, CustomCMD.customCMD, DELET.delet, AddPatron.addPatron, RemovePatron.removePatron, Poosy.poosy);
+                        LongLive.longlive, BlockUser.blockUser, CustomCMD.customCMD, DELET.delet, AddPatron.addPatron, RemovePatron.removePatron, Poosy.poosy,
+                        EightBall.eightBall, Pick.pick);
             }
 
             for (Action action : Action.values()) {
@@ -162,6 +163,14 @@ public class KekBot {
                 (lengthHours > 0 ? lengthHours + ":" : "") +
                 (lengthMinutes > 0 ? lengthMinutes : (lengthHours > 0 ? "00" : "")) + ":" +
                 (lengthSeconds > 9 ? lengthSeconds : "0" + lengthSeconds);
+    }
+
+    public static String removeWhitespaceEdges(String string) {
+        if (string.matches(".*\\w.*")) {
+            if (string.startsWith(" ")) string = string.replaceFirst("([ ]+)", "");
+            if (string.endsWith(" ")) string = string.replaceAll("([ ]+$)", "");
+        } else string = "";
+        return string;
     }
 
 }
