@@ -44,7 +44,9 @@ public enum Action {
     //{} has been given the role.
     ROLE_ADDED(1),
     //{} no longer has that role.
-    ROLE_TAKEN(1);
+    ROLE_TAKEN(1),
+    //Hm, I'll go with {}.
+    CHOICE_MADE(1);
 
     Action(int blanks) {
         this.blanks = blanks;
