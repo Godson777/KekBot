@@ -11,6 +11,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Maven: net.dv8tion:JDA:3.0.BETA2_120" level="project" />
     <orderEntry type="library" name="Maven: com.sedmelluq:lavaplayer:1.1.36" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: com.sedmelluq:lavaplayer-jebml:1.0.0" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: com.sedmelluq:lavaplayer-common:1.0.1" level="project" />
