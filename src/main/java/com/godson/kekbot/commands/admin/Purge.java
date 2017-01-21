@@ -6,6 +6,8 @@ import com.darichey.discord.api.FailureReason;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.Responses.Action;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Game;
+import net.dv8tion.jda.core.entities.Icon;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import org.apache.commons.lang3.StringUtils;
@@ -19,6 +21,7 @@ import java.util.stream.Collectors;
 
 public class Purge {
     public static Command purge = new Command("purge")
+            .withAliases("prune", "clean")
             .withCategory(CommandCategory.ADMIN)
             .withDescription("Mass deletes X number of messages. Supply a keyphrase or a mention {or multiple mentions} to purge all messages within X number of messages.")
             .withUsage("{p}purge <number> {keyphrase or @mention(s)}")
