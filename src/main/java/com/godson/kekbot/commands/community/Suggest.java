@@ -79,7 +79,7 @@ public class Suggest {
         ResponseSuggestions responses = GSONUtils.getSuggestions().addSuggestion(suggester, action, response);
         EmbedBuilder builder = new EmbedBuilder();
         Guild guild = jda.getGuildById("221910104495095808");
-        builder.setTitle("NEW RESPONSE SUGGESTION").setColor(Color.YELLOW).setThumbnail(suggester.getAvatarUrl())
+        builder.setTitle("NEW RESPONSE SUGGESTION", null).setColor(Color.YELLOW).setThumbnail(suggester.getAvatarUrl())
                 .addField("Suggester:", suggester.getName() + "#" + suggester.getDiscriminator(), false)
                 .addField("Action:", action.name(), false)
                 .addField("Response:", response, false)
