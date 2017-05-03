@@ -25,7 +25,7 @@ public class Stop {
                                 if (context.getGuild().getAudioManager().getConnectedChannel().equals(voiceChannel.get())) {
                                     KekBot.player.closeConnection(context.getGuild());
                                 } else {
-                                    context.getTextChannel().sendMessage(KekBot.respond(context, Action.MUSIC_NOT_IN_CHANNEL)).queue();
+                                    context.getTextChannel().sendMessage(KekBot.respond(context, Action.MUSIC_NOT_IN_CHANNEL, "`" + context.getGuild().getAudioManager().getConnectedChannel().getName() + "`")).queue();
                                 }
                             }
                         } else if (context.getMember().hasPermission(Permission.ADMINISTRATOR)) {
@@ -33,7 +33,7 @@ public class Stop {
                         } else {
                             context.getTextChannel().sendMessage("Only the host and users with the `Administrator` permission can stop a music session and memes!").queue();
                         }
-                    } else context.getTextChannel().sendMessage(KekBot.respond(context, Action.MUSIC_NOT_IN_CHANNEL, "`" + context.getGuild().getAudioManager().getConnectedChannel().getName() + "`")).queue();
+                    } else context.getTextChannel().sendMessage(KekBot.respond(context, Action.MUSIC_NOT_PLAYING)).queue();
                 }
             });
 }
