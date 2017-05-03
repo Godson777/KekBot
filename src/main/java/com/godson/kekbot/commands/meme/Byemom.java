@@ -55,7 +55,7 @@ public class Byemom {
                                 image.rotate(-0.436332);
                                 image.setColor(Color.black);
                                 Font font = new Font("Ariel", Font.PLAIN, 20);
-                                while (font.getStringBounds(search,image.getFontRenderContext()).getWidth() > 372 && font.getSize() > 10) {
+                                while (font.getStringBounds(search, image.getFontRenderContext()).getWidth() > 372 && font.getSize() > 10) {
                                     font = new Font("Ariel", Font.PLAIN, font.getSize()-1);
                                 }
                                 image.setFont(font);
