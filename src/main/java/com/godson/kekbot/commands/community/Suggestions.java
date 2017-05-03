@@ -73,7 +73,7 @@ public class Suggestions {
                                                         ResponseSuggestion suggestion = suggestions.getSuggestions().get(pick);
                                                         User suggester = context.getJDA().getUserById(suggestion.getSuggesterID());
                                                         EmbedBuilder builder = new EmbedBuilder();
-                                                        builder.setTitle("RESPONSE SUGGESTION:").setThumbnail(suggester.getAvatarUrl())
+                                                        builder.setTitle("RESPONSE SUGGESTION:", null).setThumbnail(suggester.getAvatarUrl())
                                                                 .addField("Suggester:", suggester.getName() + "#" + suggester.getDiscriminator(), false)
                                                                 .addField("Action:", suggestion.getActionName(), false)
                                                                 .addField("Response:", suggestion.getSuggestedResponse(), false);
