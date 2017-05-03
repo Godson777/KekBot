@@ -66,6 +66,7 @@ public class Stats {
                                         "\nChannels: " + context.getJDA().getTextChannels().size() +
                                         "\nVoice Channels: " + context.getJDA().getVoiceChannels().size() +
                                         "\nUsers: " + context.getJDA().getUsers().size()) +
-                        "\nCommands: " + CommandRegistry.getForClient(context.getJDA()).getCommands().size() + "```").queue();
+                        "\nCommands: " + CommandRegistry.getForClient(context.getJDA()).getCommands().size() +
+                        "\nMusic Players: " + KekBot.player.getActivePlayerCount() + "```").queue();
             });
 }
