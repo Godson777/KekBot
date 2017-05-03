@@ -72,6 +72,9 @@ public class Questionnaire {
                 case CHOICE_STRING:
                     method = "addChoiceQuestion()";
                     break;
+                case YES_NO_STRING:
+                    method = "addYesNoQuestion()";
+                    break;
             }
             throw new IllegalArgumentException("You are not allowed to set this type of question. (Please use " + method + " to use this type.");
         }
@@ -82,6 +85,14 @@ public class Questionnaire {
     public Questionnaire addChoiceQuestion(String message, String... choices) {
         Question question = new Question(message).setType(QuestionType.CHOICE_STRING);
         questions.add(question);
+        this.choices.put(question, Arrays.asList(choices));
+        return this;
+    }
+
+    public Questionnaire addYesNoQuestion(String message) {
+        Question question = new Question(message).setType(QuestionType.YES_NO_STRING);
+        questions.add(question);
+        String[] choices = {"yes", "y", "no", "n"};
         this.choices.put(question, Arrays.asList(choices));
         return this;
     }
@@ -126,6 +137,16 @@ public class Questionnaire {
                             answers.add(choice.get());
                         }
                         break;
+                    case YES_NO_STRING:
+                        Optional<String> yesNoChoice = choices.get(question).stream().filter(c -> c.equalsIgnoreCase(e.getMessage().getContent())).findFirst();
+                        if (!yesNoChoice.isPresent()) {
+                            if (skipOnRepeat) skipQuestionMessage = true;
+                            errorMessage.queue();
+                            execute(i);
+                            return;
+                        } else {
+                            answers.add(yesNoChoice.get());
+                        }
                 }
                 if (i + 1 != questions.size()) {
                     if (skipOnRepeat && skipQuestionMessage) skipQuestionMessage = false;
