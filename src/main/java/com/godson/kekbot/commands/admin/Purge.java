@@ -54,7 +54,7 @@ public class Purge {
                                             List<Message> keywordPurge = msgs.stream().filter(mes -> mes.getRawContent().toLowerCase().contains(keyphrase.toLowerCase())).collect(Collectors.toList());
                                             if (keywordPurge.size() > 1) channel.deleteMessages(keywordPurge).queue();
                                             else if (keywordPurge.size() == 1)
-                                                keywordPurge.get(0).deleteMessage().queue();
+                                                keywordPurge.get(0).delete().queue();
                                             if (keywordPurge.size() >= 1)
                                                 msg.editMessage(KekBot.respond(context, Action.KEYPHRASE_PURGE_SUCCESS, "`" + keywordPurge.size() + "`", "`" + keyphrase + "`")).queue();
                                             else
@@ -71,7 +71,7 @@ public class Purge {
                                                 if (mentionPurge.size() > 1)
                                                     channel.deleteMessages(mentionPurge).queue();
                                                 else if (mentionPurge.size() == 1)
-                                                    mentionPurge.get(0).deleteMessage().queue();
+                                                    mentionPurge.get(0).delete().queue();
                                                 if (mentionPurge.size() >= 1)
                                                     msg.editMessage(KekBot.respond(context, Action.MENTION_PURGE_SUCCESS, "`" + mentionPurge.size() + "`", "`" + StringUtils.join(context.getMessage().getMentionedUsers().stream().map(user -> user.getName() + "#" + user.getDiscriminator()).collect(Collectors.toList()), ", ") + "`")).queue();
                                                 else
@@ -80,7 +80,7 @@ public class Purge {
                                         }
                                     } else {
                                         if (msgs.size() == 1)
-                                            msgs.get(0).deleteMessage().queue(delet -> msg.editMessage(KekBot.respond(context, Action.PURGE_SUCCESS, "`" + msgs.size() + "`")).queue());
+                                            msgs.get(0).delete().queue(delet -> msg.editMessage(KekBot.respond(context, Action.PURGE_SUCCESS, "`" + msgs.size() + "`")).queue());
                                         else
                                             channel.deleteMessages(msgs).queue(delet -> msg.editMessage(KekBot.respond(context, Action.PURGE_SUCCESS, "`" + msgs.size() + "`")).queue());
                                     }
