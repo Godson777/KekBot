@@ -522,7 +522,7 @@ public class Listener extends ListenerAdapter {
 
         if (settings.getAutoRoleID() != null) {
             try {
-                event.getGuild().getController().addRolesToMember(event.getMember(), event.getGuild().getRoleById(settings.getAutoRoleID())).queue();
+                event.getGuild().getController().addRolesToMember(event.getMember(), event.getGuild().getRoleById(settings.getAutoRoleID())).reason("Auto-Role").queue();
             } catch (PermissionException e) {
                 event.getGuild().getTextChannels().get(0).sendMessage("Unable to automatically set role due to not having the **Manage Roles** permission.").queue();
             } catch (NullPointerException e) {
