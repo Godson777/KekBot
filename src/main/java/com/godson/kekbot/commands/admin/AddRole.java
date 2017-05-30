@@ -44,7 +44,7 @@ public class AddRole {
                                 channel.sendMessage("The user(s) you want to assign this role to __**must**__ be in the form of a mention!").queue();
                             } else if (context.getMessage().getMentionedUsers().size() == 1) {
                                 Member member = context.getGuild().getMember(context.getMessage().getMentionedUsers().get(0));
-                                if (!context.getMember().getRoles().contains(context.getGuild().getRolesByName(params[0], true).get(0))) {
+                                if (!member.getRoles().contains(context.getGuild().getRolesByName(params[0], true).get(0))) {
                                     try {
                                         context.getGuild().getController().addRolesToMember(member, context.getGuild().getRolesByName(params[0], true).get(0)).reason("Role Given by: " + context.getAuthor().getName() + "#" + context.getAuthor().getDiscriminator() + " (" + context.getAuthor().getId() + ")").queue();
                                         channel.sendMessage(KekBot.respond(context, Action.ROLE_ADDED, context.getMessage().getMentionedUsers().get(0).getName() + "#" + context.getMessage().getMentionedUsers().get(0).getDiscriminator())).queue();
