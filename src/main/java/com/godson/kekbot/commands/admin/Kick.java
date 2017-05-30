@@ -38,7 +38,7 @@ public class Kick {
                             channel.sendMessage("You can't kick yourself, it just doesn't work that way.").queue();
                         } else {
                             try {
-                                server.getController().kick(context.getGuild().getMember(context.getMessage().getMentionedUsers().get(0))).queue();
+                                server.getController().kick(context.getGuild().getMember(context.getMessage().getMentionedUsers().get(0))).reason("Kicked by: " + context.getAuthor().getName() + "#" + context.getAuthor().getDiscriminator() + " (" + context.getAuthor().getId() + ")").queue();
                                 channel.sendMessage(KekBot.respond(context, Action.KICK_SUCCESS, context.getMessage().getMentionedUsers().get(0).getName())).queue();
                             } catch (PermissionException e) {
                                 channel.sendMessage(context.getMessage().getMentionedUsers().get(0).getName() + "'s role is higher than mine. I am unable to kick them.").queue();
@@ -50,7 +50,7 @@ public class Kick {
                         for (int i = 0; i < context.getMessage().getMentionedUsers().size(); i++) {
                             if (context.getMessage().getMentionedUsers().get(i) != context.getJDA().getSelfUser()) {
                                 try {
-                                    server.getController().kick(context.getGuild().getMember(context.getMessage().getMentionedUsers().get(0))).queue();
+                                    server.getController().kick(context.getGuild().getMember(context.getMessage().getMentionedUsers().get(0))).reason("Mass Kicked by: " + context.getAuthor().getName() + "#" + context.getAuthor().getDiscriminator() + " (" + context.getAuthor().getId() + ")").queue();
                                     users.add(context.getMessage().getMentionedUsers().get(i).getName());
                                 } catch (PermissionException e) {
                                     failed.add(context.getMessage().getMentionedUsers().get(i).getName());

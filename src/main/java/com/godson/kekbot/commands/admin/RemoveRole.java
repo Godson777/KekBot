@@ -45,7 +45,7 @@ public class RemoveRole {
                                 Member member = context.getGuild().getMember(context.getMessage().getMentionedUsers().get(0));
                                 if (member.getRoles().contains(context.getGuild().getRolesByName(params[0], true).get(0))) {
                                     try {
-                                        context.getGuild().getController().removeRolesFromMember(member, context.getGuild().getRolesByName(params[0], true).get(0)).queue();
+                                        context.getGuild().getController().removeRolesFromMember(member, context.getGuild().getRolesByName(params[0], true).get(0)).reason("Role Removed by: " + context.getAuthor().getName() + "#" + context.getAuthor().getDiscriminator() + " (" + context.getAuthor().getId() + ")").queue();
                                         channel.sendMessage(KekBot.respond(context, Action.ROLE_TAKEN, member.getUser().getName() + "#" + member.getUser().getDiscriminator())).queue();
                                     } catch (PermissionException e) {
                                         channel.sendMessage("That role is higher than mine! I cannot remove it from any users!").queue();
@@ -64,7 +64,7 @@ public class RemoveRole {
                                     Member member = context.getGuild().getMember(user);
                                     if (member.getRoles().contains(role)) {
                                         try {
-                                            controller.removeRolesFromMember(member, role).queue();
+                                            controller.removeRolesFromMember(member, role).reason("Mass Role Removed by: " + context.getAuthor().getName() + "#" + context.getAuthor().getDiscriminator() + " (" + context.getAuthor().getId() + ")").queue();
                                             success.add(user.getName() + "#" + user.getDiscriminator());
                                         } catch (PermissionException e) {
                                             failed = true;

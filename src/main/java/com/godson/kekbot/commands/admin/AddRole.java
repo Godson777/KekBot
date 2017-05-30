@@ -46,7 +46,7 @@ public class AddRole {
                                 Member member = context.getGuild().getMember(context.getMessage().getMentionedUsers().get(0));
                                 if (!context.getMember().getRoles().contains(context.getGuild().getRolesByName(params[0], true).get(0))) {
                                     try {
-                                        context.getGuild().getController().addRolesToMember(member, context.getGuild().getRolesByName(params[0], true).get(0)).queue();
+                                        context.getGuild().getController().addRolesToMember(member, context.getGuild().getRolesByName(params[0], true).get(0)).reason("Role Given by: " + context.getAuthor().getName() + "#" + context.getAuthor().getDiscriminator() + " (" + context.getAuthor().getId() + ")").queue();
                                         channel.sendMessage(KekBot.respond(context, Action.ROLE_ADDED, context.getMessage().getMentionedUsers().get(0).getName() + "#" + context.getMessage().getMentionedUsers().get(0).getDiscriminator())).queue();
                                     } catch (PermissionException e) {
                                         channel.sendMessage("That role is higher than mine! I cannot assign it to any users!").queue();
@@ -65,7 +65,7 @@ public class AddRole {
                                     Member member = context.getGuild().getMember(user);
                                     if (member.getRoles().contains(role)) {
                                         try {
-                                            controller.addRolesToMember(member, role).queue();
+                                            controller.addRolesToMember(member, role).reason("Mass Role Given by: " + context.getAuthor().getName() + "#" + context.getAuthor().getDiscriminator() + " (" + context.getAuthor().getId() + ")").queue();
                                             success.add(user.getName() + "#" + user.getDiscriminator());
                                         } catch (PermissionException e) {
                                             failed = true;
