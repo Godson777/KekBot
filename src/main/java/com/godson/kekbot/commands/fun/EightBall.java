@@ -2,6 +2,7 @@ package com.godson.kekbot.commands.fun;
 
 import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
+import com.godson.kekbot.CustomEmote;
 
 import java.util.Random;
 
@@ -21,10 +22,10 @@ public class EightBall {
                         question += context.getArgs()[i];
                         if (i != context.getArgs().length -1) question += " ";
                     }
-                    context.getTextChannel().sendMessage("\uD83E\uDD14 You asked: __**" + question + "**__\n\n" +
+                    context.getTextChannel().sendMessage(CustomEmote.think() + " You asked: __**" + question + "**__\n\n" +
                             "\uD83C\uDFB1 8-Ball's response: __**" + responses[random.nextInt(responses.length)] + "**__").queue();
                 } else {
-                    context.getTextChannel().sendMessage("\uD83E\uDD14 I ask: __**Did " + context.getAuthor().getName() + " give a question?**__\n\n" +
+                    context.getTextChannel().sendMessage(CustomEmote.think() + " I ask: __**Did " + context.getAuthor().getName() + " give a question?**__\n\n" +
                             "\uD83C\uDFB1 8-Ball's response: __**No, they didn't.**__").queue();
                 }
             });
