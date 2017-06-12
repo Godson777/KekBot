@@ -1,5 +1,8 @@
 package com.godson.kekbot;
 
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.entities.User;
+
 import java.io.File;
 
 public class Utils {
