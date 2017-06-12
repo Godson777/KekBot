@@ -97,7 +97,7 @@ public class GSONUtils {
     public static Config getConfig() {
         Config config = new Config();
         try {
-            BufferedReader br = new BufferedReader(new FileReader("config.json"));
+            BufferedReader br = new BufferedReader(new FileReader("config/config.json"));
             Gson gson = new Gson();
             config = gson.fromJson(br, Config.class);
             br.close();
