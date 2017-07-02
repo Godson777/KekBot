@@ -3,6 +3,7 @@ package com.godson.kekbot.Music;
 import com.godson.kekbot.Profile.Profile;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.Expose;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
@@ -14,13 +15,29 @@ import java.util.List;
 public class Playlist {
     private String name;
     private List<AudioTrackInfo> tracks = new ArrayList<>();
+    private boolean hidden = false;
+
+    public Playlist(String name) {
+        this.name = name;
+    }
+
+    private Playlist() {
+    }
 
     public List<AudioTrackInfo> getTracks() {
         return tracks;
     }
 
+    public void setHidden(boolean hidden) {
+        this.hidden = hidden;
+    }
+
     public void addTrack(AudioTrack track) {
         tracks.add(track.getInfo());
+    }
+
+    public void removeTrack(AudioTrackInfo track) {
+        tracks.remove(track);
     }
 
     public void setName(String name) {
@@ -31,36 +48,18 @@ public class Playlist {
         return name;
     }
 
-    public void save() {
-        File folder = new File("profiles");
-        File settings = new File("test/" + "music.json");
-        if (!folder.exists()) {
-            folder.mkdirs();
-        }
-        try {
-            FileWriter writer = new FileWriter(settings);
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            writer.write(gson.toJson(this, this.getClass()));
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public boolean isHidden() { return hidden; }
+
+    public void saveToProfile(Profile profile) {
+        profile.addPlaylist(this);
+        profile.save();
     }
 
-    public static Playlist getPlaylist() {
-        Playlist playlist = new Playlist();
-        if (new File("test/" + "music.json").exists()) {
-            try {
-                BufferedReader br = new BufferedReader(new FileReader("test/" + "music.json"));
-                Gson gson = new Gson();
-                playlist = gson.fromJson(br, Playlist.class);
-                br.close();
-            } catch (FileNotFoundException e) {
-                //do nothing
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+    public long getTotalLength() {
+        long length = 0;
+        for (AudioTrackInfo track : tracks) {
+            length += track.length;
         }
-        return playlist;
+        return length;
     }
 }
