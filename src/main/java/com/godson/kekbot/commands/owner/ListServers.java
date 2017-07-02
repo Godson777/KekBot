@@ -39,15 +39,15 @@ public class ListServers {
                         }
                     }
                     try {
-                        if ((page * 30) > guilds.size() || (page * 30) < 0) {
+                        if ((page * 20) > guilds.size() || (page * 20) < 0) {
                             context.getTextChannel().sendMessage("That page doesn't exist!").queue();
                             return;
                         }
-                        else message = StringUtils.join(guilds.subList((page * 30), ((page + 1) * 30)), "\n") +
-                                (guilds.size() > 30 ? "\n\nPage " + (page + 1) + "/" + (guilds.size() / 30 + 1) : "");
+                        else message = StringUtils.join(guilds.subList((page * 20), ((page + 1) * 20)), "\n") +
+                                (guilds.size() > 20 ? "\n\nPage " + (page + 1) + "/" + (guilds.size() / 20 + 1) : "");
                     } catch (IndexOutOfBoundsException e) {
-                        message = StringUtils.join(guilds.subList((page * 30), guilds.size()), "\n") +
-                                (guilds.size() > 30 ? "\n\nPage " + (page + 1) + "/" + (guilds.size() / 30 + 1) : "");
+                        message = StringUtils.join(guilds.subList((page * 20), guilds.size()), "\n") +
+                                (guilds.size() > 20 ? "\n\nPage " + (page + 1) + "/" + (guilds.size() / 20 + 1) : "");
                     }
                     context.getMessage().getChannel().sendMessage("```md\n" + message + "```").queue();
                 }
