@@ -407,24 +407,22 @@ public class MusicPlayer {
         }
     }
 
-    public void addToPlaylist(CommandContext context, Playlist playlist) {
-        String trackUrl = context.getArgs()[0];
+    public void addToPlaylist(Questionnaire.Results results, String trackUrl, Playlist playlist) {;
         playerManager.loadItemOrdered(playlist, trackUrl, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack track) {
-                if (playlist.getTracks().stream().noneMatch(audioTrackInfo -> audioTrackInfo.uri.equals(trackUrl))) {
+                if (playlist.getTracks().stream().noneMatch(audioTrackInfo -> audioTrackInfo.uri.equals(track.getInfo().uri))) {
                     playlist.addTrack(track);
-                    context.getTextChannel().sendMessage("Added " + track.getInfo().title + " to the playlist.").queue();
-                    playlist.save();
+                    results.getChannel().sendMessage("Added " + track.getInfo().title + " to the playlist.").queue();
                 } else {
-                    context.getTextChannel().sendMessage("This track is already in your playlist.").queue();
+                    results.getChannel().sendMessage("This track is already in your playlist.").queue();
                 }
 
             }
 
             @Override
             public void playlistLoaded(AudioPlaylist audioPlaylist) {
-                new Questionnaire(context)
+                new Questionnaire(results)
                         .addChoiceQuestion("Are you sure you want to add all " + audioPlaylist.getTracks().size() + " tracks to your playlist?", "Yes", "No", "Y", "N")
                         .withoutRepeats()
                         .execute(results -> {
@@ -435,22 +433,21 @@ public class MusicPlayer {
                                         playlist.addTrack(track);
                                     } else existing++;
                                 }
-                                playlist.save();
-                                context.getTextChannel().sendMessage("Done." + (existing > 0 ? " (" + existing + " tracks were already in your playlist, so they were skipped.)" : "")).queue();
+                                results.getChannel().sendMessage("Done." + (existing > 0 ? " (" + existing + " tracks were already in your playlist, so they were skipped.)" : "")).queue();
                             } else {
-                                context.getTextChannel().sendMessage("test message").queue();
+                                results.getChannel().sendMessage("Canceled.").queue();
                             }
                         });
             }
 
             @Override
             public void noMatches() {
-                context.getTextChannel().sendMessage("Hm, " + trackUrl + " doesn't appear to be a valid URL. Could you try again?").queue();
+                results.getChannel().sendMessage("Hm, `" + trackUrl + "` doesn't appear to be a valid URL. Could you try again?").queue();
             }
 
             @Override
             public void loadFailed(FriendlyException exception) {
-                context.getTextChannel().sendMessage("Could not add to the playlist: " + exception.getMessage()).queue();
+                results.getChannel().sendMessage("Could not add to the playlist: " + exception.getMessage()).queue();
             }
         });
     }
