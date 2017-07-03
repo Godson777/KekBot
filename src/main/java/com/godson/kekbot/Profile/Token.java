@@ -6,32 +6,34 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 
-public class Background {
+public enum Token {
+    //UNOBTAINABLE TOKENS
+    GRAND_DAD("GRAND DAD", "granddad.png"),
 
-    private String ID;
+    //OBTAINABLE TOKENS
+    SNEK("Snek", "snek.png", 1, 250),
+    KAPPA("Kappa", "kappa.png", 1, 500),
+    DOGECOIN("Doge Coin", "dogecoin.png", 1, 500, "From the depths of the internet, Dogecoins were invented in an attempt to be more popular than Bitcoin. Whether or not if it succeeded is still a mystery. But at least you can use one as a badge.");
+
     private String name;
     private String file;
     private int requiredLevel;
     private Integer price;
     private String description;
 
-
-    Background(String ID, String name, String file, int requiredLevel, int price) {
-        this.ID = ID;
+    Token(String name, String file, int requiredLevel, int price) {
         this.name = name;
         this.file = file;
         this.requiredLevel = requiredLevel;
         this.price = price;
     }
 
-    Background(String ID, String name, String file) {
-        this.ID = ID;
+    Token(String name, String file) {
         this.name = name;
         this.file = file;
     }
 
-    Background(String ID, String name, String file, int requiredLevel, int price, String description) {
-        this.ID = ID;
+    Token(String name, String file, int requiredLevel, int price, String description) {
         this.name = name;
         this.file = file;
         this.requiredLevel = requiredLevel;
@@ -39,17 +41,14 @@ public class Background {
         this.description = description;
     }
 
-    public BufferedImage drawBackground() throws IOException {
-        return ImageIO.read(new File("resources/profile/background/" + file));
+    public BufferedImage drawToken() throws IOException {
+        return ImageIO.read(new File("resources/profile/token/" + file));
     }
 
-    public byte[] drawBackgroundImage() throws IOException {
+    public byte[] drawTokenImage() throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        outputStream.flush();
-        ImageIO.write(drawBackground(), "png", outputStream);
-        byte[] image = outputStream.toByteArray();
-        outputStream.close();
-        return image;
+        ImageIO.write(drawToken(), "png", outputStream);
+        return outputStream.toByteArray();
     }
 
     public String getName() {
@@ -70,9 +69,5 @@ public class Background {
 
     public boolean hasPrice() {
         return price != null;
-    }
-
-    public String getID() {
-        return ID;
     }
 }
