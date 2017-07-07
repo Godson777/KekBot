@@ -54,7 +54,7 @@ public class LongLive {
                                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
                                     ImageIO.setUseCache(false);
                                     ImageIO.write(template, "png", stream);
-                                    channel.sendFile(stream.toByteArray(), "png", null).queue();
+                                    channel.sendFile(stream.toByteArray(), "theking.png", null).queue();
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }

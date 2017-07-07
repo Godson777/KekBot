@@ -56,7 +56,7 @@ public class DELET {
                                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
                                     ImageIO.setUseCache(false);
                                     ImageIO.write(bg, "png", stream);
-                                    channel.sendFile(stream.toByteArray(), "png", null).queue();
+                                    channel.sendFile(stream.toByteArray(), "delet.png", null).queue();
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }

@@ -48,7 +48,7 @@ public class Erase {
                                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
                                     ImageIO.setUseCache(false);
                                     ImageIO.write(template, "png", stream);
-                                    channel.sendFile(stream.toByteArray(), "png", null).queue();
+                                    channel.sendFile(stream.toByteArray(), "erase.png", null).queue();
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
