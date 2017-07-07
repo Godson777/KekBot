@@ -117,7 +117,7 @@ public class TicTacToe extends Game {
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             ImageIO.setUseCache(false);
             ImageIO.write(base, "png", stream);
-            channel.sendFile(stream.toByteArray(), "png", null).queue();
+            channel.sendFile(stream.toByteArray(), "tictactoe.png", null).queue();
         } catch (IOException e) {
             e.printStackTrace();
         }

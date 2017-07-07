@@ -33,7 +33,7 @@ public class ProfileCommand {
                 if (context.getArgs().length == 0) {
                     try {
                         context.getTextChannel().sendTyping().queue();
-                        context.getTextChannel().sendFile(Profile.getProfile(context.getAuthor()).drawCard(context.getJDA()), "png", null).queue();
+                        context.getTextChannel().sendFile(Profile.getProfile(context.getAuthor()).drawCard(context.getJDA()), "profile.png", null).queue();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -291,7 +291,7 @@ public class ProfileCommand {
                                         try {
                                             context.getTextChannel().sendTyping().queue();
                                             User user = Utils.findUser(context.getArgs()[2]);
-                                            context.getTextChannel().sendFile(Profile.getProfile(user).drawCard(context.getJDA()), "png", new MessageBuilder().append("Here is " + user.getName() + "#" + user.getDiscriminator() + "'s profile card.").build()).queue();
+                                            context.getTextChannel().sendFile(Profile.getProfile(user).drawCard(context.getJDA()), "profile.png", new MessageBuilder().append("Here is " + user.getName() + "#" + user.getDiscriminator() + "'s profile card.").build()).queue();
                                         } catch (NullPointerException e) {
                                             context.getTextChannel().sendMessage("User with that ID not found, or the ID specified is invalid.").queue();
                                         } catch (IOException e) {
@@ -558,7 +558,7 @@ public class ProfileCommand {
                             context.getTextChannel().sendTyping().queue();
                             User user = context.getMessage().getMentionedUsers().get(0);
                             Profile profile = Profile.getProfile(user);
-                            context.getTextChannel().sendFile(profile.drawCard(context.getJDA()), "png", new MessageBuilder().append("Here is ").append(user.getName()).append("'s profile card:").build()).queue();
+                            context.getTextChannel().sendFile(profile.drawCard(context.getJDA()), "profile.png", new MessageBuilder().append("Here is ").append(user.getName()).append("'s profile card:").build()).queue();
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
