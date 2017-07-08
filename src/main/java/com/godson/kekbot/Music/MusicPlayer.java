@@ -1,6 +1,7 @@
 package com.godson.kekbot.Music;
 
 import com.darichey.discord.api.CommandContext;
+import com.godson.kekbot.Games.Game;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.Questionaire.QuestionType;
 import com.godson.kekbot.Questionaire.Questionnaire;
@@ -239,10 +240,28 @@ public class MusicPlayer {
                     }
                 }
             } else {
-                context.getTextChannel().sendMessage(KekBot.replacePrefix(context.getGuild(), "Only the host can skip tracks.")).queue();
+                context.getTextChannel().sendMessage("Only the host and users with the `Administrator` permission can skip tracks.").queue();
             }
         } else {
             context.getTextChannel().sendMessage("I can't skip memes. :neutral_face:").queue();
+        }
+    }
+
+    public void pauseTrack(CommandContext context) {
+        GuildMusicManager musicManager = getGuildAudioPlayer(context, false);
+        Guild guild = context.getGuild();
+        if (!musicManager.isMeme()) {
+            if (getHost(guild).equals(context.getAuthor()) || context.getMember().hasPermission(Permission.ADMINISTRATOR)) {
+                if (!musicManager.player.isPaused()) {
+                    musicManager.player.setPaused(true);
+                    context.getTextChannel().sendMessage("Music Paused.").queue();
+                } else {
+                    musicManager.player.setPaused(false);
+                    context.getTextChannel().sendMessage("Music Resumed.").queue();
+                }
+            } else {
+                context.getTextChannel().sendMessage("Only the host and users with the `Administrator` permission can pause this session.").queue();
+            }
         }
     }
 
