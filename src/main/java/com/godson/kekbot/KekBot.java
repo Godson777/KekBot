@@ -91,7 +91,7 @@ public class KekBot {
                         Skip.skip, Playlist.playlist, Song.song, Stop.stop, Volume.volume, Host.host, Music.music, Pause.pause, VoteSkip.voteskip, Repeat.repeat, Invite.invite,
                         Erase.erase, Johnny.johnny, LongLive.longlive, BlockUser.blockUser, DELET.delet, AddPatron.addPatron, RemovePatron.removePatron,
                         Poosy.poosy, EightBall.eightBall, Pick.pick, GameCommand.game, ProfileCommand.profile, FullWidth.fullwidth, ShopCommand.shop, MyPlaylist.myPlaylist,
-                        Rip.rip, RateWaifu.rateWaifu);
+                        Rip.rip, RateWaifu.rateWaifu, Gabe.gabe);
             }
 
             for (Action action : Action.values()) {
