@@ -1,6 +1,7 @@
 package com.godson.kekbot;
 
 import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.User;
 
 import java.io.File;
@@ -25,13 +26,24 @@ public class Utils {
         return(directory.delete());
     }
 
-    public static User findUser(String userId) {
+    public static User findShardUser(String userId) {
+        List<User> users = collectShardUsers();
+        if (users.stream().anyMatch(user -> user.getId().equals(userId))) {
+            return users.stream().filter(user -> user.getId().equals(userId)).findAny().get();
+        } else throw new NullPointerException();
+    }
+
+    public static List<User> collectShardUsers() {
         List<User> users = new ArrayList<>();
         for (int i = 0; i < KekBot.jdas.length; i++) {
             users.addAll(KekBot.jdas[i].getUsers().stream().filter(user -> !users.contains(user)).collect(Collectors.toList()));
         }
-        if (users.stream().anyMatch(user -> user.getId().equals(userId))) {
-            return users.stream().filter(user -> user.getId().equals(userId)).findAny().get();
-        } else throw new NullPointerException();
+        return users;
+    }
+
+    public static List<Guild> collectShardGuilds() {
+        List<Guild> guilds = new ArrayList<>();
+        for (int i = 0; i < KekBot.jdas.length; i++ ) guilds.addAll(KekBot.jdas[i].getGuilds());
+        return guilds;
     }
 }
