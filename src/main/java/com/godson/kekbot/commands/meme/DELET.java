@@ -38,7 +38,7 @@ public class DELET {
                                 channel.sendTyping().queue();
                                 try {
                                     Member member = context.getGuild().getMemberById(context.getMessage().getMentionedUsers().get(0).getId());
-                                    BufferedImage template = ImageIO.read(new File("DELET_template.png"));
+                                    BufferedImage template = ImageIO.read(new File("resources/memegen/DELET_template.png"));
                                     BufferedImage bg = new BufferedImage(template.getWidth(), template.getHeight(), template.getType());
                                     Graphics2D image = bg.createGraphics();
                                     URL targetAva = new URL(member.getUser().getAvatarUrl());
@@ -56,7 +56,7 @@ public class DELET {
                                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
                                     ImageIO.setUseCache(false);
                                     ImageIO.write(bg, "png", stream);
-                                    channel.sendFile(stream.toByteArray(), "png", null).queue();
+                                    channel.sendFile(stream.toByteArray(), "delet.png", null).queue();
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }

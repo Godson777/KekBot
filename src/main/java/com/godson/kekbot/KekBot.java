@@ -3,7 +3,12 @@ package com.godson.kekbot;
 import com.darichey.discord.api.CommandContext;
 import com.darichey.discord.api.CommandRegistry;
 import com.godson.kekbot.EventWaiter.EventWaiter;
-import com.godson.kekbot.Moosic.MusicPlayer;
+import com.godson.kekbot.Games.GamesManager;
+import com.godson.kekbot.Music.MusicPlayer;
+import com.godson.kekbot.Objects.WaifuManager;
+import com.godson.kekbot.Profile.BackgroundManager;
+import com.godson.kekbot.Shop.BackgroundShop;
+import com.godson.kekbot.Shop.TokenShop;
 import com.godson.kekbot.Responses.Action;
 import com.godson.kekbot.Objects.PollManager;
 import com.godson.kekbot.commands.admin.*;
@@ -13,13 +18,13 @@ import com.godson.kekbot.commands.meme.*;
 import com.godson.kekbot.commands.music.*;
 import com.godson.kekbot.commands.music.Queue;
 import com.godson.kekbot.commands.owner.*;
+import com.godson.kekbot.commands.test;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.SystemUtils;
 
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
@@ -36,6 +41,11 @@ public class KekBot {
     public static EventWaiter waiter = new EventWaiter();
     private static Map<Action, List<String>> responses = new HashMap<>();
     public static MusicPlayer player = new MusicPlayer();
+    public static GamesManager gamesManager = new GamesManager();
+    public static TokenShop tokenShop = new TokenShop();
+    public static BackgroundManager backgroundManager = new BackgroundManager();
+    public static BackgroundShop backgroundShop = new BackgroundShop();
+    public static WaifuManager waifuManager = new WaifuManager();
 
     static {
         InputStream stream = KekBot.class.getClassLoader().getResourceAsStream("kekbot.properties");
@@ -70,6 +80,7 @@ public class KekBot {
             for (JDA jda : jdas) {
                 jda.addEventListener(new Listener());
                 jda.addEventListener(waiter);
+                jda.addEventListener(gamesManager);
 
                 CommandRegistry.getForClient(jda).registerAll(Help.help, Purge.purge, Say.say, Granddad.granddad, TicketCommand.ticket, Lenny.lenny,
                         Shrug.shrug, Credits.credits, Avatar.avatar, TagCommand.tagCommand, AddAllowedUser.addAllowedUser, AddGame.addGame, Triggered.triggered, Gril.gril,
@@ -77,8 +88,10 @@ public class KekBot {
                         Broadcast.broadcast, Stats.stats, Google.google, Lmgtfy.lmgtfy, Bots.bots, Shutdown.shutdown, UrbanDictionary.UrbanDictionary,
                         Emojify.emojify, AllowedUsers.allowedUsers, CoinFlip.coinFlip, Roll.roll, ListServers.listServers, Strawpoll.strawpoll, Poll.poll,
                         Poll.vote, AddRole.addRole, RemoveRole.removeRole, Quote.quote, Support.support, Eval.eval, Byemom.byemom, Queue.queue,
-                        Skip.skip, Playlist.playlist, Song.song, Stop.stop, Volume.volume, Host.host, Music.music, Invite.invite, Erase.erase, Johnny.johnny,
-                        LongLive.longlive, BlockUser.blockUser, CustomCMD.customCMD, DELET.delet, AddPatron.addPatron, RemovePatron.removePatron, Poosy.poosy, Gabe.gabe);
+                        Skip.skip, Playlist.playlist, Song.song, Stop.stop, Volume.volume, Host.host, Music.music, Pause.pause, VoteSkip.voteskip, Repeat.repeat, Invite.invite,
+                        Erase.erase, Johnny.johnny, LongLive.longlive, BlockUser.blockUser, DELET.delet, AddPatron.addPatron, RemovePatron.removePatron,
+                        Poosy.poosy, EightBall.eightBall, Pick.pick, GameCommand.game, ProfileCommand.profile, FullWidth.fullwidth, ShopCommand.shop, MyPlaylist.myPlaylist,
+                        Rip.rip, RateWaifu.rateWaifu);
             }
 
             for (Action action : Action.values()) {
@@ -127,7 +140,7 @@ public class KekBot {
         long seconds = TimeUnit.MILLISECONDS.toSeconds(millis) -
                 TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis));
         return (hours > 0 ? hours + ":" : "") +
-                (minutes > 0 ? minutes + ":" : "0:") +
+                (minutes > 0 ? minutes + ":" : (hours > 0 ? "00:" : "0:")) +
                 (seconds > 0 ? (seconds > 9 ? seconds : "0" + seconds) : "00");
     }
 
@@ -162,6 +175,14 @@ public class KekBot {
                 (lengthHours > 0 ? lengthHours + ":" : "") +
                 (lengthMinutes > 0 ? lengthMinutes : (lengthHours > 0 ? "00" : "")) + ":" +
                 (lengthSeconds > 9 ? lengthSeconds : "0" + lengthSeconds);
+    }
+
+    public static String removeWhitespaceEdges(String string) {
+        if (string.matches(".*\\w.*")) {
+            if (string.startsWith(" ")) string = string.replaceFirst("([ ]+)", "");
+            if (string.endsWith(" ")) string = string.replaceAll("([ ]+$)", "");
+        } else string = "";
+        return string;
     }
 
 }

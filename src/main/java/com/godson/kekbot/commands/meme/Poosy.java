@@ -29,7 +29,7 @@ public class Poosy {
                     if (server.getSelfMember().getRoles().contains(meme)) {
                         try {
                             channel.sendTyping().queue();
-                            channel.sendFile(new File("poosy.png"), null).queue();
+                            channel.sendFile(new File("resources/memegen/poosy.png"), null).queue();
                         } catch (IOException e) {
                             e.printStackTrace();
                         }

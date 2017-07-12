@@ -7,6 +7,8 @@ import com.godson.kekbot.KekBot;
 import com.godson.kekbot.Responses.Action;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import org.apache.commons.lang3.StringUtils;
@@ -37,11 +39,15 @@ public class Kick {
                         } else if (context.getMessage().getMentionedUsers().get(0).equals(context.getMessage().getAuthor())) {
                             channel.sendMessage("You can't kick yourself, it just doesn't work that way.").queue();
                         } else {
-                            try {
-                                server.getController().kick(context.getGuild().getMember(context.getMessage().getMentionedUsers().get(0))).queue();
-                                channel.sendMessage(KekBot.respond(context, Action.KICK_SUCCESS, context.getMessage().getMentionedUsers().get(0).getName())).queue();
-                            } catch (PermissionException e) {
-                                channel.sendMessage(context.getMessage().getMentionedUsers().get(0).getName() + "'s role is higher than mine. I am unable to kick them.").queue();
+                            if (context.getGuild().getMember(context.getMessage().getMentionedUsers().get(0)).getRoles().stream().map(Role::getPositionRaw).max(Integer::compareTo).get() >= context.getMember().getRoles().stream().map(Role::getPositionRaw).max(Integer::compareTo).get()) {
+                                channel.sendMessage("You can't kick someone who's highest role is the same as or is higher than yours.").queue();
+                            } else {
+                                try {
+                                    server.getController().kick(context.getGuild().getMember(context.getMessage().getMentionedUsers().get(0))).reason("Kicked by: " + context.getAuthor().getName() + "#" + context.getAuthor().getDiscriminator() + " (" + context.getAuthor().getId() + ")").queue();
+                                    channel.sendMessage(KekBot.respond(context, Action.KICK_SUCCESS, context.getMessage().getMentionedUsers().get(0).getName())).queue();
+                                } catch (PermissionException e) {
+                                    channel.sendMessage(context.getMessage().getMentionedUsers().get(0).getName() + "'s role is higher than mine. I am unable to kick them.").queue();
+                                }
                             }
                         }
                     } else {
@@ -49,11 +55,16 @@ public class Kick {
                         List<String> failed = new ArrayList<>();
                         for (int i = 0; i < context.getMessage().getMentionedUsers().size(); i++) {
                             if (context.getMessage().getMentionedUsers().get(i) != context.getJDA().getSelfUser()) {
-                                try {
-                                    server.getController().kick(context.getGuild().getMember(context.getMessage().getMentionedUsers().get(0))).queue();
-                                    users.add(context.getMessage().getMentionedUsers().get(i).getName());
-                                } catch (PermissionException e) {
+                                Member member = context.getGuild().getMember(context.getMessage().getMentionedUsers().get(i));
+                                if (member.getRoles().stream().map(Role::getPositionRaw).max(Integer::compareTo).get() >= context.getMember().getRoles().stream().map(Role::getPositionRaw).max(Integer::compareTo).get()) {
                                     failed.add(context.getMessage().getMentionedUsers().get(i).getName());
+                                } else {
+                                    try {
+                                        server.getController().kick(member).reason("Mass Kicked by: " + context.getAuthor().getName() + "#" + context.getAuthor().getDiscriminator() + " (" + context.getAuthor().getId() + ")").queue();
+                                        users.add(context.getMessage().getMentionedUsers().get(i).getName());
+                                    } catch (PermissionException e) {
+                                        failed.add(context.getMessage().getMentionedUsers().get(i).getName());
+                                    }
                                 }
                             }
                         }

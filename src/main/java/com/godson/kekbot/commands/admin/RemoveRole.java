@@ -21,7 +21,7 @@ public class RemoveRole {
     public static Command removeRole = new Command("removerole")
             .withCategory(CommandCategory.ADMIN)
             .withDescription("Removes a role to a specified user (or users).")
-            .withUsage("{p}removerole <role> <@user> {@user}...")
+            .withUsage("{p}removerole <role> | <@user> {@user}...")
             .userRequiredPermissions(Permission.MANAGE_ROLES)
             .botRequiredPermissions(Permission.MANAGE_ROLES)
             .onExecuted(context -> {
@@ -44,11 +44,15 @@ public class RemoveRole {
                             } else if (context.getMessage().getMentionedUsers().size() == 1) {
                                 Member member = context.getGuild().getMember(context.getMessage().getMentionedUsers().get(0));
                                 if (member.getRoles().contains(context.getGuild().getRolesByName(params[0], true).get(0))) {
-                                    try {
-                                        context.getGuild().getController().removeRolesFromMember(member, context.getGuild().getRolesByName(params[0], true).get(0)).queue();
-                                        channel.sendMessage(KekBot.respond(context, Action.ROLE_TAKEN, member.getUser().getName() + "#" + member.getUser().getDiscriminator())).queue();
-                                    } catch (PermissionException e) {
-                                        channel.sendMessage("That role is higher than mine! I cannot remove it from any users!").queue();
+                                    if (member.getRoles().stream().map(Role::getPositionRaw).max(Integer::compareTo).get() >= context.getMember().getRoles().stream().map(Role::getPositionRaw).max(Integer::compareTo).get()) {
+                                        channel.sendMessage("You can't edit someone's roles when their highest role is the same as or is higher than yours.").queue();
+                                    } else {
+                                        try {
+                                            context.getGuild().getController().removeRolesFromMember(member, context.getGuild().getRolesByName(params[0], true).get(0)).reason("Role Removed by: " + context.getAuthor().getName() + "#" + context.getAuthor().getDiscriminator() + " (" + context.getAuthor().getId() + ")").queue();
+                                            channel.sendMessage(KekBot.respond(context, Action.ROLE_TAKEN, member.getUser().getName() + "#" + member.getUser().getDiscriminator())).queue();
+                                        } catch (PermissionException e) {
+                                            channel.sendMessage("That role is higher than mine! I cannot remove it from any users!").queue();
+                                        }
                                     }
                                 } else {
                                     channel.sendMessage("This user doesn't have the role you specified!").queue();
@@ -64,7 +68,7 @@ public class RemoveRole {
                                     Member member = context.getGuild().getMember(user);
                                     if (member.getRoles().contains(role)) {
                                         try {
-                                            controller.removeRolesFromMember(member, role).queue();
+                                            controller.removeRolesFromMember(member, role).reason("Mass Role Removed by: " + context.getAuthor().getName() + "#" + context.getAuthor().getDiscriminator() + " (" + context.getAuthor().getId() + ")").queue();
                                             success.add(user.getName() + "#" + user.getDiscriminator());
                                         } catch (PermissionException e) {
                                             failed = true;

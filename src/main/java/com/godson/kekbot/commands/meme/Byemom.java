@@ -40,7 +40,7 @@ public class Byemom {
                             String search = builder.toString();
                             channel.sendTyping().queue();
                             try {
-                                BufferedImage template = ImageIO.read(new File("byemom_template.png"));
+                                BufferedImage template = ImageIO.read(new File("resources/memegen/byemom_template.png"));
                                 Graphics2D image = template.createGraphics();
                                 URL userAva = new URL(context.getAuthor().getAvatarUrl());
                                 URLConnection connection = userAva.openConnection();
@@ -52,7 +52,7 @@ public class Byemom {
                                 image.rotate(-0.436332);
                                 image.setColor(Color.black);
                                 Font font = new Font("Ariel", Font.PLAIN, 20);
-                                while (font.getStringBounds(search,image.getFontRenderContext()).getWidth() > 372 && font.getSize() > 10) {
+                                while (font.getStringBounds(search, image.getFontRenderContext()).getWidth() > 372 && font.getSize() > 10) {
                                     font = new Font("Ariel", Font.PLAIN, font.getSize()-1);
                                 }
                                 image.setFont(font);
@@ -61,7 +61,7 @@ public class Byemom {
                                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                                 ImageIO.setUseCache(false);
                                 ImageIO.write(template, "png", stream);
-                                channel.sendFile(stream.toByteArray(), "png", null).queue();
+                                channel.sendFile(stream.toByteArray(), "byemom.png", null).queue();
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }

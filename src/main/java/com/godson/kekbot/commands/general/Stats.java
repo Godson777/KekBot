@@ -4,6 +4,7 @@ import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
 import com.darichey.discord.api.CommandRegistry;
 import com.godson.kekbot.KekBot;
+import com.godson.kekbot.Utils;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDAInfo;
 
@@ -40,11 +41,11 @@ public class Stats {
                         (hours != 0 ? hours + (hours > 1 ? " Hours, " : " Hour, ") : "") + minutes +
                         (minutes != 1 ? " Minutes and " : " Minute and ") + startTime + (startTime != 1 ? " Seconds." : " Second.");*/
                 for (JDA jda : KekBot.jdas) {
-                    totalGuilds += jda.getGuilds().size();
                     totalChannels += jda.getTextChannels().size();
                     totalVoiceChannels += jda.getVoiceChannels().size();
-                    totalUsers += jda.getUsers().size();
                 }
+                totalGuilds = Utils.collectShardGuilds().size();
+                totalUsers = Utils.collectShardUsers().size();
                 context.getTextChannel().sendMessage("```xl\nVersion: " + KekBot.version +
                         "\nLibrary: JDA" +
                         "\nJDA Version: " + JDAInfo.VERSION +
@@ -66,6 +67,7 @@ public class Stats {
                                         "\nChannels: " + context.getJDA().getTextChannels().size() +
                                         "\nVoice Channels: " + context.getJDA().getVoiceChannels().size() +
                                         "\nUsers: " + context.getJDA().getUsers().size()) +
-                        "\nCommands: " + CommandRegistry.getForClient(context.getJDA()).getCommands().size() + "```").queue();
+                        "\nCommands: " + CommandRegistry.getForClient(context.getJDA()).getCommands().size() +
+                        "\nMusic Players: " + KekBot.player.getActivePlayerCount() + "```").queue();
             });
 }

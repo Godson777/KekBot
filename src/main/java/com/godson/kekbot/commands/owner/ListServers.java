@@ -5,6 +5,7 @@ import com.darichey.discord.api.CommandCategory;
 import com.godson.kekbot.GSONUtils;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.Responses.Action;
+import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.User;
 import org.apache.commons.lang3.StringUtils;
@@ -19,12 +20,14 @@ public class ListServers {
             .onExecuted(context -> {
                 if (context.getMessage().getAuthor().equals(context.getJDA().getUserById(GSONUtils.getConfig().getBotOwner()))) {
                     List<String> guilds = new ArrayList<String>();
-                    context.getJDA().getGuilds().forEach(guild -> {
-                        int bots = guild.getMembers().stream().map(Member::getUser).filter(User::isBot).collect(Collectors.toList()).size();
-                        int users = guild.getMembers().size() - bots;
-                        guilds.add("#" + guild.getName() /*+ " <in shard " + (guild.getInfo()[0]+1) + "/" + KekBot.jda.getShardCount() + ">"*/ +
-                        " - Users: " + users + " - Bots: " + bots);
-                    });
+                    for (JDA jda : KekBot.jdas) {
+                        jda.getGuilds().forEach(guild -> {
+                            int bots = guild.getMembers().stream().map(Member::getUser).filter(User::isBot).collect(Collectors.toList()).size();
+                            int users = guild.getMembers().size() - bots;
+                            guilds.add("#" + guild.getName() + (KekBot.jdas.length > 1 ? " - Shard " + (jda.getShardInfo().getShardId()+1) : "") +
+                                    " - Users: " + users + " - Bots: " + bots);
+                        });
+                    }
                     String message;
                     int page = 0;
                     if (context.getArgs().length > 0) {
@@ -36,15 +39,15 @@ public class ListServers {
                         }
                     }
                     try {
-                        if ((page * 30) > guilds.size() || (page * 30) < 0) {
+                        if ((page * 20) > guilds.size() || (page * 20) < 0) {
                             context.getTextChannel().sendMessage("That page doesn't exist!").queue();
                             return;
                         }
-                        else message = StringUtils.join(guilds.subList((page * 30), ((page + 1) * 30)), "\n") +
-                                (guilds.size() > 30 ? "\n\nPage " + (page + 1) + "/" + (guilds.size() / 30 + 1) : "");
+                        else message = StringUtils.join(guilds.subList((page * 20), ((page + 1) * 20)), "\n") +
+                                (guilds.size() > 20 ? "\n\nPage " + (page + 1) + "/" + (guilds.size() / 20 + 1) : "");
                     } catch (IndexOutOfBoundsException e) {
-                        message = StringUtils.join(guilds.subList((page * 30), guilds.size()), "\n") +
-                                (guilds.size() > 30 ? "\n\nPage " + (page + 1) + "/" + (guilds.size() / 30 + 1) : "");
+                        message = StringUtils.join(guilds.subList((page * 20), guilds.size()), "\n") +
+                                (guilds.size() > 20 ? "\n\nPage " + (page + 1) + "/" + (guilds.size() / 20 + 1) : "");
                     }
                     context.getMessage().getChannel().sendMessage("```md\n" + message + "```").queue();
                 }

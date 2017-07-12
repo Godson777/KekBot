@@ -36,7 +36,7 @@ public class Johnny {
                             if (context.getMessage().getMentionedUsers().size() > 0) {
                                 channel.sendTyping().queue();
                                 try {
-                                    BufferedImage template = ImageIO.read(new File("johnny_template.png"));
+                                    BufferedImage template = ImageIO.read(new File("resources/memegen/johnny_template.png"));
                                     BufferedImage bg = new BufferedImage(template.getWidth(), template.getHeight(), template.getType());
                                     Graphics2D image = bg.createGraphics();
                                     URL targetAva = new URL(context.getMessage().getMentionedUsers().get(0).getAvatarUrl());
@@ -56,7 +56,7 @@ public class Johnny {
                                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
                                     ImageIO.setUseCache(false);
                                     ImageIO.write(bg, "png", stream);
-                                    channel.sendFile(stream.toByteArray(), "png", null).queue();
+                                    channel.sendFile(stream.toByteArray(), "jahnny.png", null).queue();
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }

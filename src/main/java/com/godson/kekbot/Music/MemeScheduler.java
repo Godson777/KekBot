@@ -1,4 +1,4 @@
-package com.godson.kekbot.Moosic;
+package com.godson.kekbot.Music;
 
 import com.godson.kekbot.KekBot;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;

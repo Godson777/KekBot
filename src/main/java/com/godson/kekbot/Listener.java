@@ -13,13 +13,14 @@ import com.godson.kekbot.Settings.TicketManager;
 import com.godson.kekbot.commands.community.AddResponse;
 import com.godson.kekbot.commands.community.Suggestions;
 import com.godson.kekbot.commands.community.Suggest;
+import com.godson.kekbot.commands.fun.GameCommand;
 import com.godson.kekbot.commands.test;
-import com.google.gson.Gson;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.ReadyEvent;
+import net.dv8tion.jda.core.events.channel.voice.VoiceChannelDeleteEvent;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.events.guild.update.GenericGuildUpdateEvent;
@@ -33,15 +34,14 @@ import net.dv8tion.jda.core.events.message.priv.PrivateMessageReceivedEvent;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.SystemUtils;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
-import static java.lang.System.console;
 import static java.lang.System.out;
 
 public class Listener extends ListenerAdapter {
@@ -74,7 +74,7 @@ public class Listener extends ListenerAdapter {
                     CommandRegistry.getForClient(jda).setPrefixForGuild(guild, settings.getPrefix());
                 }
 
-                if (GSONUtils.numberOfCCommands(guild) > 0) {
+                /*if (GSONUtils.numberOfCCommands(guild) > 0) {
                     List<CustomCommand> commands = GSONUtils.getCCommands(guild);
                     for (CustomCommand command : commands) {
                         try {
@@ -83,16 +83,14 @@ public class Listener extends ListenerAdapter {
                             //ignore
                         }
                     }
-                }
+                }*/
             });
-            try {
+            if (jda.getGuilds().stream().anyMatch(guild -> guild.getId().equals("221910104495095808"))) {
                 CommandRegistry registry = CommandRegistry.getForClient(jda);
                 //registry.customRegister(test.test, jda.getGuildById("221910104495095808"));
                 registry.customRegister(Suggest.suggest, jda.getGuildById("221910104495095808"));
                 registry.customRegister(AddResponse.addResponse, jda.getGuildById("221910104495095808"));
                 registry.customRegister(Suggestions.suggestions, jda.getGuildById("221910104495095808"));
-            } catch (IllegalArgumentException e) {
-                //do nothing? Hopefully?
             }
         }
 
@@ -325,7 +323,18 @@ public class Listener extends ListenerAdapter {
                                                 Ticket ticket = tickets.getTickets().get(Integer.valueOf(rawSplit[2])-1);
                                                 channel.sendMessage("Ticket Closed.").queue();
                                                 for (JDA jda : KekBot.jdas) {
-                                                    jda.getUserById(ticket.getAuthorID()).getPrivateChannel().sendMessage("Your ticket (**" + ticket.getTitle() + "**) has been closed.").queue();
+                                                    try {
+                                                        if (jda.getUserById(ticket.getAuthorID()).hasPrivateChannel()) {
+                                                            jda.getUserById(ticket.getAuthorID()).getPrivateChannel().sendMessage("Your ticket (**" + ticket.getTitle() + "**) has been closed.").queue();
+                                                            break;
+                                                        }
+                                                        else {
+                                                            jda.getUserById(ticket.getAuthorID()).openPrivateChannel().queue(pr -> pr.sendMessage("Your ticket (**" + ticket.getTitle() + "**) has been closed.").queue());
+                                                            break;
+                                                        }
+                                                    } catch (NullPointerException e) {
+                                                        //do nothing
+                                                    }
                                                 }
                                                 tickets.closeTicket(ticket);
                                                 tickets.save();
@@ -476,6 +485,11 @@ public class Listener extends ListenerAdapter {
 
     @Override
     public void onGuildLeave(GuildLeaveEvent event) {
+        if (KekBot.player.containsConnection(event.getGuild())) {
+            event.getGuild().getAudioManager().closeAudioConnection();
+            KekBot.player.killConnection(event.getGuild());
+        }
+
         if (!GSONUtils.getConfig().getBlockedUsers().contains(event.getGuild().getOwner().getUser().getId())) {
             for (JDA jda : KekBot.jdas) {
                 try {
@@ -522,7 +536,7 @@ public class Listener extends ListenerAdapter {
 
         if (settings.getAutoRoleID() != null) {
             try {
-                event.getGuild().getController().addRolesToMember(event.getMember(), event.getGuild().getRoleById(settings.getAutoRoleID())).queue();
+                event.getGuild().getController().addRolesToMember(event.getMember(), event.getGuild().getRoleById(settings.getAutoRoleID())).reason("Auto-Role").queue();
             } catch (PermissionException e) {
                 event.getGuild().getTextChannels().get(0).sendMessage("Unable to automatically set role due to not having the **Manage Roles** permission.").queue();
             } catch (NullPointerException e) {
@@ -594,15 +608,12 @@ public class Listener extends ListenerAdapter {
         if (event.getGuild().getAudioManager().isConnected()) {
             if (!KekBot.player.isMeme(event.getGuild())) {
                 if (event.getChannelLeft().equals(event.getGuild().getAudioManager().getConnectedChannel())) {
-                    if (event.getChannelLeft().getMembers().size() > 1) {
+                    List<User> potentialHosts = event.getChannelLeft().getMembers().stream().map(Member::getUser).filter(user -> !user.isBot()).collect(Collectors.toList());
+                    if (potentialHosts.size() >= 1) {
                         if (KekBot.player.getHost(event.getGuild()).equals(event.getMember().getUser())) {
                             Random random = new Random();
-                            int user = random.nextInt(event.getChannelLeft().getMembers().size());
-                            User newHost = event.getChannelLeft().getMembers().get(user).getUser();
-                            while (newHost.isBot()) {
-                                user = random.nextInt(event.getChannelLeft().getMembers().size());
-                                newHost = event.getChannelLeft().getMembers().get(user).getUser();
-                            }
+                            int user = random.nextInt(potentialHosts.size());
+                            User newHost = potentialHosts.get(user);
                             KekBot.player.changeHost(event.getGuild(), newHost);
                             KekBot.player.announceToMusicSession(event.getGuild(), newHost.getName() + " is now the host of this music session.");
                         }
@@ -638,6 +649,13 @@ public class Listener extends ListenerAdapter {
                     }
                 }
             }
+        }
+    }
+
+    @Override
+    public void onVoiceChannelDelete(VoiceChannelDeleteEvent event) {
+        if (KekBot.player.containsConnection(event.getGuild()) && !event.getGuild().getAudioManager().isConnected()) {
+            KekBot.player.closeConnection(event.getGuild());
         }
     }
 }

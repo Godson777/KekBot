@@ -36,7 +36,7 @@ public class LongLive {
                             if (context.getMessage().getMentionedUsers().size() > 0) {
                                 channel.sendTyping().queue();
                                 try {
-                                    BufferedImage template = ImageIO.read(new File("longlivetheking_template.png"));
+                                    BufferedImage template = ImageIO.read(new File("resources/memegen/longlivetheking_template.png"));
                                     Graphics2D image = template.createGraphics();
                                     URL targetAva = new URL(context.getMessage().getMentionedUsers().get(0).getAvatarUrl());
                                     URLConnection connection = targetAva.openConnection();
@@ -54,7 +54,7 @@ public class LongLive {
                                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
                                     ImageIO.setUseCache(false);
                                     ImageIO.write(template, "png", stream);
-                                    channel.sendFile(stream.toByteArray(), "png", null).queue();
+                                    channel.sendFile(stream.toByteArray(), "theking.png", null).queue();
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }

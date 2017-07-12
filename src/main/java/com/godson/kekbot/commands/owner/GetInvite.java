@@ -3,11 +3,15 @@ package com.godson.kekbot.commands.owner;
 import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
 import com.godson.kekbot.GSONUtils;
+import com.godson.kekbot.KekBot;
+import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.requests.Route;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -20,7 +24,15 @@ public class GetInvite {
                     if (rawSplit.length == 1) {
                         context.getTextChannel().sendMessage("No guild specified.").queue();
                     } else {
-                        Optional<Guild> guild = context.getJDA().getGuilds().stream().filter(g -> g.getName().equals(rawSplit[1])).findFirst();
+                        List<Guild> guilds = new ArrayList<>();
+                        if (KekBot.jdas.length > 1) {
+                            for (JDA jda : KekBot.jdas) {
+                                guilds.addAll(jda.getGuilds());
+                            }
+                        } else {
+                            guilds = context.getJDA().getGuilds();
+                        }
+                        Optional<Guild> guild = guilds.stream().filter(g -> g.getName().equals(rawSplit[1])).findFirst();
                         if (guild.isPresent()) {
                             for (TextChannel channel : guild.get().getTextChannels()) {
                                     try {
