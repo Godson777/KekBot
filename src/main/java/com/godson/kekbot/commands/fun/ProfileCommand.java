@@ -14,20 +14,14 @@ import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.User;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 public class ProfileCommand {
     public static Command profile = new Command("profile")
             .withCategory(CommandCategory.FUN)
-            .withDescription("Brings you to your profile.")
+            .withDescription("Lets you view and edit your profile, and also viewing other peoples profile.")
             .withUsage("{p}profile\n{p}profile {edit} <arguments> (arguments are specified by typing the command without them)\n{p}profile {@user}")
             .onExecuted(context -> {
                 if (context.getArgs().length == 0) {
@@ -290,7 +284,7 @@ public class ProfileCommand {
                                     if (context.getArgs().length >= 3) {
                                         try {
                                             context.getTextChannel().sendTyping().queue();
-                                            User user = Utils.findUser(context.getArgs()[2]);
+                                            User user = Utils.findShardUser(context.getArgs()[2]);
                                             context.getTextChannel().sendFile(Profile.getProfile(user).drawCard(context.getJDA()), "profile.png", new MessageBuilder().append("Here is " + user.getName() + "#" + user.getDiscriminator() + "'s profile card.").build()).queue();
                                         } catch (NullPointerException e) {
                                             context.getTextChannel().sendMessage("User with that ID not found, or the ID specified is invalid.").queue();
@@ -308,7 +302,7 @@ public class ProfileCommand {
                                                         int toGive = Integer.valueOf(context.getArgs()[3]);
                                                         if (context.getArgs().length >= 5) {
                                                             try {
-                                                                User user = Utils.findUser(context.getArgs()[4]);
+                                                                User user = Utils.findShardUser(context.getArgs()[4]);
                                                                 Profile profile = Profile.getProfile(user);
                                                                 profile.addTopKeks(toGive);
                                                                 profile.save();
@@ -328,7 +322,7 @@ public class ProfileCommand {
                                                         Background background = KekBot.backgroundManager.get(context.getArgs()[3]);
                                                         if (context.getArgs().length >= 5) {
                                                             try {
-                                                                User user = Utils.findUser(context.getArgs()[4]);
+                                                                User user = Utils.findShardUser(context.getArgs()[4]);
                                                                 Profile profile = Profile.getProfile(user);
                                                                 if (profile.hasBackground(background)) {
                                                                     context.getTextChannel().sendMessage(user.getName() + "#" + user.getDiscriminator() + " already owns this background.").queue();
@@ -352,7 +346,7 @@ public class ProfileCommand {
                                                         Token token = Token.valueOf(context.getArgs()[3]);
                                                         if (context.getArgs().length >= 5) {
                                                             try {
-                                                                User user = Utils.findUser(context.getArgs()[4]);
+                                                                User user = Utils.findShardUser(context.getArgs()[4]);
                                                                 Profile profile = Profile.getProfile(user);
                                                                 if (profile.hasToken(token)) {
                                                                     context.getTextChannel().sendMessage(user.getName() + "#" + user.getDiscriminator() + " already owns this token.").queue();
@@ -382,7 +376,7 @@ public class ProfileCommand {
                                                         int toTake = Integer.valueOf(context.getArgs()[3]);
                                                         if (context.getArgs().length >= 5) {
                                                             try {
-                                                                User user = Utils.findUser(context.getArgs()[4]);
+                                                                User user = Utils.findShardUser(context.getArgs()[4]);
                                                                 Profile profile = Profile.getProfile(user);
                                                                 if (toTake > profile.getTopkeks()) toTake = profile.getTopkeks();
                                                                 profile.spendTopKeks(toTake);
@@ -403,7 +397,7 @@ public class ProfileCommand {
                                                         Background background = KekBot.backgroundManager.get(context.getArgs()[3]);
                                                         if (context.getArgs().length >= 5) {
                                                             try {
-                                                                User user = Utils.findUser(context.getArgs()[4]);
+                                                                User user = Utils.findShardUser(context.getArgs()[4]);
                                                                 Profile profile = Profile.getProfile(user);
                                                                 if (profile.hasBackground(background)) {
                                                                     if (profile.getCurrentBackground().equals(background)) profile.setCurrentBackground(null);
@@ -428,7 +422,7 @@ public class ProfileCommand {
                                                         Token token = Token.valueOf(context.getArgs()[3]);
                                                         if (context.getArgs().length >= 5) {
                                                             try {
-                                                                User user = Utils.findUser(context.getArgs()[4]);
+                                                                User user = Utils.findShardUser(context.getArgs()[4]);
                                                                 Profile profile = Profile.getProfile(user);
                                                                 if (profile.hasToken(token)) {
                                                                     if (profile.getToken().equals(token)) profile.unequipToken();
@@ -459,7 +453,7 @@ public class ProfileCommand {
                                                         int toSet = Integer.valueOf(context.getArgs()[3]);
                                                         if (context.getArgs().length >= 5) {
                                                             try {
-                                                                User user = Utils.findUser(context.getArgs()[4]);
+                                                                User user = Utils.findShardUser(context.getArgs()[4]);
                                                                 Profile profile = Profile.getProfile(user);
                                                                 profile.setTopKeks(toSet);
                                                                 profile.save();
@@ -481,7 +475,7 @@ public class ProfileCommand {
                                                         else background = KekBot.backgroundManager.get(context.getArgs()[3]);
                                                         if (context.getArgs().length >= 5) {
                                                             try {
-                                                                User user = Utils.findUser(context.getArgs()[4]);
+                                                                User user = Utils.findShardUser(context.getArgs()[4]);
                                                                 Profile profile = Profile.getProfile(user);
                                                                 if (background == null || profile.hasBackground(background)) {
                                                                     profile.setCurrentBackground(background);
@@ -509,7 +503,7 @@ public class ProfileCommand {
                                                         else token = Token.valueOf(context.getArgs()[3]);
                                                         if (context.getArgs().length >= 5) {
                                                             try {
-                                                                User user = Utils.findUser(context.getArgs()[4]);
+                                                                User user = Utils.findShardUser(context.getArgs()[4]);
                                                                 Profile profile = Profile.getProfile(user);
                                                                 if (profile.hasToken(token) || token == null) {
                                                                     profile.equipToken(token);
@@ -535,7 +529,7 @@ public class ProfileCommand {
                                                         else badge = Badge.valueOf(context.getArgs()[3]);
                                                         if (context.getArgs().length >= 5) {
                                                             try {
-                                                                User user = Utils.findUser(context.getArgs()[4]);
+                                                                User user = Utils.findShardUser(context.getArgs()[4]);
                                                                 Profile profile = Profile.getProfile(user);
                                                                 profile.setBadge(badge);
                                                                 profile.save();
