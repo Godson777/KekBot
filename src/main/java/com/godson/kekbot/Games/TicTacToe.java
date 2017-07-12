@@ -270,7 +270,7 @@ public class TicTacToe extends Game {
             drawBoard();
             channel.sendMessage("\uD83C\uDF89 **" + player.getName() + " wins!** \uD83C\uDF89").queue();
             if (players.size() == numberOfPlayers) endGame(player, ThreadLocalRandom.current().nextInt(4, 7), ThreadLocalRandom.current().nextInt(3, 6) + 1);
-            else endGame(player, random.nextInt(3) + 1, random.nextInt(3));
+            else endGame(player, random.nextInt(3), random.nextInt(3));
         }
         return winner;
     }
