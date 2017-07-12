@@ -13,7 +13,7 @@ public class Google {
                 if (rawSplit.length == 1) {
                     context.getTextChannel().sendMessage("You haven't given me anything to search for!").queue();
                 } else if (rawSplit.length == 2) {
-                    String search = rawSplit[1].replace(" ", "+");
+                    String search = rawSplit[1].replace(" ", "+").replace("@everyone", "@\u200Beveryone");
                     context.getTextChannel().sendMessage("http://google.com/#q=" + search).queue();
                 }
             });
