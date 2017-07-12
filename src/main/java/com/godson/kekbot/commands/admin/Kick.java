@@ -40,7 +40,7 @@ public class Kick {
                             channel.sendMessage("You can't kick yourself, it just doesn't work that way.").queue();
                         } else {
                             if (context.getGuild().getMember(context.getMessage().getMentionedUsers().get(0)).getRoles().stream().map(Role::getPositionRaw).max(Integer::compareTo).get() >= context.getMember().getRoles().stream().map(Role::getPositionRaw).max(Integer::compareTo).get()) {
-                                channel.sendMessage("You can't kick someone with a higher role than you.").queue();
+                                channel.sendMessage("You can't kick someone who's highest role is the same as or is higher than yours.").queue();
                             } else {
                                 try {
                                     server.getController().kick(context.getGuild().getMember(context.getMessage().getMentionedUsers().get(0))).reason("Kicked by: " + context.getAuthor().getName() + "#" + context.getAuthor().getDiscriminator() + " (" + context.getAuthor().getId() + ")").queue();

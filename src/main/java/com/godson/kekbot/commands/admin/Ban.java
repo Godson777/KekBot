@@ -39,7 +39,7 @@ public class Ban {
                             channel.sendMessage("Why would you want to ban yourself? That seems kinda useless to me...").queue();
                         } else {
                             if (context.getGuild().getMember(context.getMessage().getMentionedUsers().get(0)).getRoles().stream().map(Role::getPositionRaw).max(Integer::compareTo).get() >= context.getMember().getRoles().stream().map(Role::getPositionRaw).max(Integer::compareTo).get()) {
-                                channel.sendMessage("You can't ban someone with a higher role than you.").queue();
+                                channel.sendMessage("You can't ban someone who's highest role is the same as or is higher than yours.").queue();
                             } else {
                                 try {
                                     server.getController().ban(context.getMessage().getMentionedUsers().get(0), 0).reason("Banned by: " + context.getAuthor().getName() + "#" + context.getAuthor().getDiscriminator() + " (" + context.getAuthor().getId() + ")").queue();
