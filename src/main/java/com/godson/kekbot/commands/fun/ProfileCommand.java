@@ -10,6 +10,7 @@ import com.godson.kekbot.Questionaire.QuestionType;
 import com.godson.kekbot.Questionaire.Questionnaire;
 import com.godson.kekbot.Responses.Action;
 import com.godson.kekbot.Utils;
+import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.User;
 import org.apache.commons.lang3.StringUtils;
@@ -285,7 +286,7 @@ public class ProfileCommand {
                                         try {
                                             context.getTextChannel().sendTyping().queue();
                                             User user = Utils.findShardUser(context.getArgs()[2]);
-                                            context.getTextChannel().sendFile(Profile.getProfile(user).drawCard(context.getJDA()), "profile.png", new MessageBuilder().append("Here is " + user.getName() + "#" + user.getDiscriminator() + "'s profile card.").build()).queue();
+                                            context.getTextChannel().sendFile(Profile.getProfile(user).drawCard(Utils.getShardUsersShard(user)), "profile.png", new MessageBuilder().append("Here is " + user.getName() + "#" + user.getDiscriminator() + "'s profile card.").build()).queue();
                                         } catch (NullPointerException e) {
                                             context.getTextChannel().sendMessage("User with that ID not found, or the ID specified is invalid.").queue();
                                         } catch (IOException e) {
@@ -508,7 +509,8 @@ public class ProfileCommand {
                                                                 if (profile.hasToken(token) || token == null) {
                                                                     profile.equipToken(token);
                                                                     profile.save();
-                                                                    context.getTextChannel().sendMessage("Set " + user.getName() + "#" + user.getDiscriminator() + "'s token to `" + token.getName() + "`.").queue();
+                                                                    if (token != null) context.getTextChannel().sendMessage("Set " + user.getName() + "#" + user.getDiscriminator() + "'s token to `" + token.getName() + "`.").queue();
+                                                                    else context.getTextChannel().sendMessage("Reset " + user.getName() + "#" + user.getDiscriminator() + "'s token.").queue();
                                                                 } else {
                                                                     context.getTextChannel().sendMessage(user.getName() + "#" + user.getDiscriminator() + " doesn't own this token.").queue();
                                                                 }
@@ -533,7 +535,8 @@ public class ProfileCommand {
                                                                 Profile profile = Profile.getProfile(user);
                                                                 profile.setBadge(badge);
                                                                 profile.save();
-                                                                context.getTextChannel().sendMessage("Set " + user.getName() + "#" + user.getDiscriminator() + "'s badge to `" + badge.getName() + "`.").queue();
+                                                                if (badge != null) context.getTextChannel().sendMessage("Set " + user.getName() + "#" + user.getDiscriminator() + "'s badge to `" + badge.getName() + "`.").queue();
+                                                                else context.getTextChannel().sendMessage("Reset " + user.getName() + "#" + user.getDiscriminator() + "'s badge.").queue();
                                                             } catch (NullPointerException e) {
                                                                 context.getTextChannel().sendMessage("User with that ID not found, or the ID specified is invalid.").queue();
                                                             }

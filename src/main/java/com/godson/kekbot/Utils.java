@@ -26,6 +26,15 @@ public class Utils {
         return(directory.delete());
     }
 
+    public static JDA getShardUsersShard(User user) {
+        JDA jda = null;
+        for (JDA shard : KekBot.jdas) {
+            if (shard.getUsers().stream().anyMatch(user1 -> user1.equals(user))) jda = shard;
+        }
+        if (jda != null) return jda;
+        else throw new NullPointerException("Couldn't find this user's shard!");
+    }
+
     public static User findShardUser(String userId) {
         List<User> users = collectShardUsers();
         if (users.stream().anyMatch(user -> user.getId().equals(userId))) {
