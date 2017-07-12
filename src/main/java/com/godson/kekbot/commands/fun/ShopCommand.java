@@ -212,7 +212,7 @@ public class ShopCommand {
                 graphics.drawImage(backgrounds.get(x + (y * 2)).drawBackground(), 75 + (166 * x), 205 + (130 * y), 156, 94, null);
                 if (backgrounds.get(x + (y * 2)).getRequiredLevel() > profile.getLevel()) graphics.drawImage(locked, 75 + (166 * x), 205 + (130 * y),null);
                 graphics.drawImage(topkek, 4 + (393 * x), 199 + (130 * y), null);
-                graphics.drawString(String.valueOf(backgrounds.get(x + (y * 2)).getPrice()), 49 + (393 * x),220 + (130 * y));
+                graphics.drawString(String.valueOf(backgrounds.get(x + (y * 2)).getPrice()), 40 + (393 * x),220 + (130 * y));
                 graphics.drawString(String.valueOf(((x + (y * 2)) + 1) + (subset * 9) ), 32 + (393 * x), 252 + (130 * y));
             }
         }
