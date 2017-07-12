@@ -33,7 +33,8 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class KekBot {
-    public static JDA[] jdas;
+    public static int shards = GSONUtils.getConfig().getShards();
+    public static JDA[] jdas = new JDA[shards];
     public static final String version;
     public static PollManager manager = new PollManager();
     public static long startTime = System.currentTimeMillis();
@@ -60,12 +61,11 @@ public class KekBot {
 
     public static void main(String[] args) throws LoginException, InterruptedException, RateLimitedException {
         String token = GSONUtils.getConfig().getToken();
-        int shards = GSONUtils.getConfig().getShards();
+
         if (shards == 0) {
             System.out.println("You must enter the number of shards in your \"config.json\"! Please go back and specify it before launching.");
             System.exit(0);
         }
-        jdas = new JDA[shards];
 
         if (token == null) {
             System.out.println("Token was not specified in \"config.json\"! Please go back and specify one before launching!");
