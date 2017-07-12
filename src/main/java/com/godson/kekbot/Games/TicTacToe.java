@@ -17,6 +17,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class TicTacToe extends Game {
     private int[] board = {0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -101,6 +102,7 @@ public class TicTacToe extends Game {
 
     private void drawBoard() {
         try {
+            channel.sendTyping().queue();
             BufferedImage base = ImageIO.read(new File("resources/games/tictactoe/tictactoe.png"));
             Graphics2D board = base.createGraphics();
             board.drawImage(player1, 22, 22, 158, 158, null);
@@ -267,8 +269,8 @@ public class TicTacToe extends Game {
         if (winner) {
             drawBoard();
             channel.sendMessage("\uD83C\uDF89 **" + player.getName() + " wins!** \uD83C\uDF89").queue();
-            if (players.size() == numberOfPlayers) endGame(player, random.nextInt(5), random.nextInt(3) + 1);
-            else endGame(player, random.nextInt(3) + 1, 1);
+            if (players.size() == numberOfPlayers) endGame(player, ThreadLocalRandom.current().nextInt(4, 7), ThreadLocalRandom.current().nextInt(3, 6) + 1);
+            else endGame(player, random.nextInt(3) + 1, random.nextInt(3));
         }
         return winner;
     }
@@ -312,6 +314,7 @@ public class TicTacToe extends Game {
         if (draw) {
             drawBoard();
             channel.sendMessage("**It's a draw!**").queue();
+            endTie(random.nextInt(2), random.nextInt(3));
             KekBot.gamesManager.closeGame(channel);
         }
         return draw;
