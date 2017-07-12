@@ -30,12 +30,12 @@ public class JustRight {
                 } else {
                     Role meme = checkForMeme.get(0);
                     if (server.getSelfMember().getRoles().contains(meme)) {
-                        if (new File("justright").isDirectory()) {
-                            File justrights[] = new File("justright").listFiles();
+                        if (new File("resources/justright").isDirectory()) {
+                            File justrights[] = new File("resources/justright").listFiles();
                             Random random = new Random();
                             int index = random.nextInt(justrights.length);
                                 try {
-                                    channel.sendTyping();
+                                    channel.sendTyping().queue();
                                     channel.sendFile(justrights[index], null).queue();
                                 } catch (PermissionException e) {
                                     out.println("I do not have the 'Send Messages' permission in server: " + server.getName() + " - #" + channel.getName() + "! Aborting!");

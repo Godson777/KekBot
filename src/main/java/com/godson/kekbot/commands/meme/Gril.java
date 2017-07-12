@@ -31,8 +31,8 @@ public class Gril {
                     Role meme = checkForMeme.get(0);
                     if (server.getSelfMember().getRoles().contains(meme)) {
                         try {
-                            channel.sendTyping();
-                            channel.sendFile(new File("topless_grill.png"), null).queue();
+                            channel.sendTyping().queue();
+                            channel.sendFile(new File("resources/memegen/topless_grill.png"), null).queue();
                         } catch (PermissionException e) {
                             out.println("I do not have the 'Send Messages' permission in server: " + server.getName() + " - #" + channel.getName() + "! Aborting!");
                         } catch (IOException e) {

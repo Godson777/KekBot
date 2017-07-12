@@ -36,7 +36,7 @@ public class Erase {
                             if (context.getMessage().getMentionedUsers().size() > 0) {
                                 channel.sendTyping().queue();
                                 try {
-                                    BufferedImage template = ImageIO.read(new File("mistake_template.png"));
+                                    BufferedImage template = ImageIO.read(new File("resources/memegen/mistake_template.png"));
                                     Graphics2D image = template.createGraphics();
                                     URL userAva = new URL(context.getMessage().getMentionedUsers().get(0).getAvatarUrl());
                                     URLConnection connection = userAva.openConnection();

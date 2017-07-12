@@ -40,7 +40,7 @@ public class Byemom {
                             String search = builder.toString();
                             channel.sendTyping().queue();
                             try {
-                                BufferedImage template = ImageIO.read(new File("byemom_template.png"));
+                                BufferedImage template = ImageIO.read(new File("resources/memegen/byemom_template.png"));
                                 Graphics2D image = template.createGraphics();
                                 URL userAva = new URL(context.getAuthor().getAvatarUrl());
                                 URLConnection connection = userAva.openConnection();
