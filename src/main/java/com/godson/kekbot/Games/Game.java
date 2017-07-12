@@ -71,6 +71,14 @@ public abstract class Game {
         KekBot.gamesManager.closeGame(channel);
     }
 
+    public void endTie(int topkeks, int KXP) {
+        for (User player : players) {
+            Profile profile = Profile.getProfile(player);
+            profile.tieGame(channel, topkeks, KXP);
+            profile.save();
+        }
+    }
+
     public void endGame() {
         KekBot.gamesManager.closeGame(channel);
     }
@@ -93,5 +101,13 @@ public abstract class Game {
                 isReady = true;
             }
         }
+    }
+
+    public boolean hasRoomForPlayers() {
+        return numberOfPlayers > players.size();
+    }
+
+    public boolean hasAI() {
+        return hasAI;
     }
 }
