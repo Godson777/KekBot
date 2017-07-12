@@ -16,6 +16,7 @@ public class GameCommand {
             .withUsage("{p}game createlobby <gamename> - Creates a lobby for the specified game." +
                     "\n{p}game join - Joins the lobby created in the channel." +
                     "\n{p}game ready (or start) - Starts the game." +
+                    "\n\nKeep in mind, you cannot have more than one lobby in a single channel." +
                     "\n\nAvailable Games:" +
                     "\nTic-Tac-Toe (or \"ttt\" for short.)")
             .onExecuted(context -> {
