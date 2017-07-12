@@ -40,13 +40,13 @@
         <dependency>
             <groupId>com.sedmelluq</groupId>
             <artifactId>lavaplayer</artifactId>
-            <version>1.1.36</version>
+            <version>1.2.36</version>
         </dependency>
 
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>3.0.BETA2_120</version>
+            <version>3.1.1_220</version>
         </dependency>
 
         <dependency>
@@ -58,7 +58,7 @@
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>2.7</version>
+            <version>2.8.1</version>
         </dependency>
 
         <dependency>
@@ -80,62 +80,23 @@
         </dependency>
 
         <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.1</version>
+        </dependency>
+
+        <dependency>
             <!-- jsoup HTML parser library @ http://jsoup.org/ -->
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
             <version>1.10.1</version>
         </dependency>
-
     </dependencies>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
-
-    <build>
-        <plugins>
-            <!-- To create an executable fat JAR when using mvn package -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>2.4.3</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <transformers>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>bootstrap.Main</mainClass>
-                                </transformer>
-                            </transformers>
-                            <filters>
-                                <filter>
-                                    <!--
-                                        Exclude files that sign a jar
-                                        (one or multiple of the dependencies).
-                                        One may not repack a signed jar without
-                                        this, or you will getResponder a
-                                        SecurityException at program start.
-                                    -->
-                                    <artifact>*:*</artifact>
-                                    <excludes>
-                                        <exclude>META-INF/*.SF</exclude>
-                                        <exclude>META-INF/*.RSA</exclude>
-                                        <exclude>META-INF/*.INF</exclude> <!-- This one may not be required -->
-                                    </excludes>
-                                </filter>
-                            </filters>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 
 
 </project>
