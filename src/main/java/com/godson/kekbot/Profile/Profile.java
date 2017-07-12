@@ -67,7 +67,13 @@ public class Profile {
 
     public void wonGame(TextChannel channel, int topkeks, int KXP) {
         ++wins;
-        stateEarnings(channel, topkeks, KXP);
+        if (!(topkeks == 0 && KXP == 0)) stateEarnings(channel, topkeks, KXP);
+        this.topkeks += topkeks;
+        addKXP(channel.getJDA(), KXP);
+    }
+
+    public void tieGame(TextChannel channel, int topkeks, int KXP) {
+        if (!(topkeks == 0 && KXP == 0)) stateEarnings(channel, topkeks, KXP);
         this.topkeks += topkeks;
         addKXP(channel.getJDA(), KXP);
     }
@@ -80,7 +86,8 @@ public class Profile {
         channel.sendMessage(channel.getGuild().getMemberById(String.valueOf(userID)).getAsMention() + ", you've earned " +
                 (topkeks > 0 ? topkeks + CustomEmote.TOPKEK : "") +
                 (topkeks > 0 && KXP > 0 ? ", and " : "") +
-                (KXP > 0 ? KXP + " KXP" : "") + "!").queue();
+                (KXP > 0 ? KXP + " KXP" : "") +
+                (KXP == 0 && topkeks == 0 ? "nothing" : "") + "!").queue();
     }
 
     public byte[] drawCard(JDA jda) throws IOException {
@@ -157,8 +164,8 @@ public class Profile {
     private BufferedImage drawDefaultBackground() {
         BufferedImage background = new BufferedImage(1000, 600, BufferedImage.BITMASK);
         Graphics2D graphics = background.createGraphics();
-        graphics.setColor(Color.GRAY);
-        graphics.drawRect(0, 0, 1000, 600);
+        graphics.setColor(Color.DARK_GRAY);
+        graphics.fillRect(0, 0, 1000, 600);
         return background;
     }
 
@@ -221,8 +228,8 @@ public class Profile {
 
     public void addKXP(JDA jda, int KXP) {
         this.KXP += KXP;
-        if (KXP >= maxKXP) {
-            KXP -= maxKXP;
+        if (this.KXP >= maxKXP) {
+            this.KXP -= maxKXP;
             levelUp(jda);
         }
     }
@@ -325,6 +332,10 @@ public class Profile {
 
     public int getTopkeks() {
         return topkeks;
+    }
+
+    public int getLevel() {
+        return level;
     }
 
     public static Profile getProfile(User user) {
