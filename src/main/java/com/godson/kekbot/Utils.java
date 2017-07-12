@@ -36,7 +36,7 @@ public class Utils {
     public static List<User> collectShardUsers() {
         List<User> users = new ArrayList<>();
         for (int i = 0; i < KekBot.jdas.length; i++) {
-            users.addAll(KekBot.jdas[i].getUsers().stream().filter(user -> !users.contains(user)).collect(Collectors.toList()));
+            users.addAll(KekBot.jdas[i].getUsers());
         }
         return users;
     }
