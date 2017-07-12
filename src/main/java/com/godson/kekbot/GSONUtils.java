@@ -26,7 +26,7 @@ public class GSONUtils {
             settings = gson.fromJson(br, Settings.class);
             br.close();
         } catch (FileNotFoundException e) {
-            //do nothing
+            settings = new Settings();
         } catch (IOException e) {
             e.printStackTrace();
         }
