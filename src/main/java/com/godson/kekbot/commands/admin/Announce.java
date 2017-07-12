@@ -14,7 +14,7 @@ public class Announce {
     public static Command announce = new Command("announce")
             .withCategory(CommandCategory.ADMIN)
             .withDescription("Allows you to config various \"announcement\" Settings, including the welcome message, farewell message, and KekBot's broadcasts.")
-            .withUsage("{p}announce <welcome|farewell|broadcasts>")
+            .withUsage("{p}announce <welcome|farewell|broadcasts|review>")
             .userRequiredPermissions(Permission.ADMINISTRATOR)
             .onExecuted(context -> {
                 TextChannel channel = context.getTextChannel();
@@ -36,7 +36,7 @@ public class Announce {
                                 channel.sendMessage("```md\n[Subcommand](announce welcome)" +
                                         "\n\n[Description](Allows the user to set the welcome message, the channel the message will be sent to, as well as review their server's Settings.)" +
                                         "\n\n# Paramaters (<> Required, {} Optional)" +
-                                        "\n[Usage](" + prefix + "announce welcome <message|channel|toggle|review>)```").queue();
+                                        "\n[Usage](" + prefix + "announce welcome <message|channel|toggle>)```").queue();
                             } else {
                                 switch (rawSplit[2]) {
                                     case "message":
@@ -91,7 +91,7 @@ public class Announce {
                                 channel.sendMessage("```md\n[Subcommand](announce farewell)" +
                                         "\n\n[Description](Allows the user to set the farewell message, the channel the message will be sent to, as well as review their server's Settings.)" +
                                         "\n\n# Paramaters (<> Required, {} Optional)" +
-                                        "\n[Usage](" + prefix + "announce farewell <message|channel|toggle|review>)```").queue();
+                                        "\n[Usage](" + prefix + "announce farewell <message|channel|toggle>)```").queue();
                             } else {
                                 switch (rawSplit[2]) {
                                     case "message":
@@ -145,7 +145,7 @@ public class Announce {
                                 channel.sendMessage("```md\n[Subcommand](announce broadcasts)" +
                                         "\n\n[Description](Allows the user to enable or disabled KekBot's broadcasts, set the channel KekBot's broadcats will be sent to, as well as review their server's Settings.)" +
                                         "\n\n# Paramaters (<> Required, {} Optional)" +
-                                        "\n[Usage](" + prefix + "announce broadcasts <channel|toggle|review>)```").queue();
+                                        "\n[Usage](" + prefix + "announce broadcasts <channel|toggle>)```").queue();
                             } else {
                                 switch (rawSplit[2]) {
                                     case "channel":
