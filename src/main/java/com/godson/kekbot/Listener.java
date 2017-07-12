@@ -73,7 +73,7 @@ public class Listener extends ListenerAdapter {
                     CommandRegistry.getForClient(jda).setPrefixForGuild(guild, settings.getPrefix());
                 }
 
-                if (GSONUtils.numberOfCCommands(guild) > 0) {
+                /*if (GSONUtils.numberOfCCommands(guild) > 0) {
                     List<CustomCommand> commands = GSONUtils.getCCommands(guild);
                     for (CustomCommand command : commands) {
                         try {
@@ -82,13 +82,15 @@ public class Listener extends ListenerAdapter {
                             //ignore
                         }
                     }
-                }
+                }*/
             });
-            CommandRegistry registry = CommandRegistry.getForClient(jda);
-            //registry.customRegister(test.test, jda.getGuildById("221910104495095808"));
-            registry.customRegister(Suggest.suggest, jda.getGuildById("221910104495095808"));
-            registry.customRegister(AddResponse.addResponse, jda.getGuildById("221910104495095808"));
-            registry.customRegister(Suggestions.suggestions, jda.getGuildById("221910104495095808"));
+            if (jda.getGuilds().stream().anyMatch(guild -> guild.getId().equals("221910104495095808"))) {
+                CommandRegistry registry = CommandRegistry.getForClient(jda);
+                //registry.customRegister(test.test, jda.getGuildById("221910104495095808"));
+                registry.customRegister(Suggest.suggest, jda.getGuildById("221910104495095808"));
+                registry.customRegister(AddResponse.addResponse, jda.getGuildById("221910104495095808"));
+                registry.customRegister(Suggestions.suggestions, jda.getGuildById("221910104495095808"));
+            }
         }
 
 

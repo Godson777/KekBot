@@ -34,6 +34,6 @@ import java.util.Optional;
 public class test {
     public static Command test = new Command("test")
             .onExecuted(context -> {
-
+                //Empty for now.
             });
 }
