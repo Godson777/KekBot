@@ -9,6 +9,7 @@ import com.google.gson.reflect.TypeToken;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,11 +37,14 @@ public class BackgroundManager {
                 "Submitted by `SkylordryanZ™`.\nThe hyper beast has arrived! Unleash your own inner beast with this background!"));
         backgrounds.add(new Background("SAMURAI_JACK_RAIN", "Samurai Jack (Rain)", "SAMURAI_JACK_RAIN.png", 2, 500,
                 "Submitted by `SkylordryanZ™`.\nA scene from the teaser trailer for Samurai Jack (Season 5)."));
+        backgrounds.add(new Background("8BIT_MARIO", "8-Bit Mario", "8BIT_MARIO.png", 2, 350,
+                "Based on the most iconic character in all of gaming, show your love for the retro world with this 8-Bit Mario standing in front of the sunrise!"));
+        backgrounds.add(new Background("SIMPLISTIC_PM", "Simplistic Paper Mario", "PAPER_MARIO_SIMPLISTIC.png", 2, 400,
+                "Based on the most iconic character in all of gaming, show off your love for the popular spin off series with this background!"));
 
         if (!getExclusiveBackgrounds().isEmpty()) {
             backgrounds.addAll(getExclusiveBackgrounds());
         }
-
     }
 
     public Background get(String ID) {
