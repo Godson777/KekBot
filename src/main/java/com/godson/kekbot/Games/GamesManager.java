@@ -1,5 +1,6 @@
 package com.godson.kekbot.Games;
 
+import com.godson.kekbot.KekBot;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
@@ -16,10 +17,11 @@ public class GamesManager extends ListenerAdapter {
     public void joinGame(TextChannel channel, User player) {
         if (activeGames.containsKey(Long.valueOf(channel.getId()))) {
             Game game = activeGames.get(Long.valueOf(channel.getId()));
-            if (game.players.size() < game.numberOfPlayers) {
+            if (game.hasRoomForPlayers()) {
                 game.addPlayer(player);
-                channel.sendMessage("**" + player.getName() + " joined the game.**").queue();
-            } else channel.sendMessage("This **" + game.gameName + "** lobby is already full.").queue();
+                channel.sendMessage("**" + player.getName() + " joined the game. (" + game.players.size() + "/" + game.numberOfPlayers + ")**").queue();
+                if (!game.hasRoomForPlayers()) channel.sendMessage("The lobby is now full! " + game.players.get(0).getAsMention() + KekBot.replacePrefix(channel.getGuild(), "! Start the game with `{p}game ready`!")).queue();
+            } else channel.sendMessage("This `" + game.gameName + "` lobby is already full.").queue();
         }
     }
 
@@ -27,7 +29,10 @@ public class GamesManager extends ListenerAdapter {
         if (!activeGames.containsKey(Long.valueOf(channel.getId()))) {
             game.addPlayer(host);
             activeGames.put(Long.valueOf(channel.getId()), game);
-            channel.sendMessage(game.gameName + " lobby created!").queue();
+            channel.sendMessage(game.gameName + " lobby created!" +
+                    (game.hasRoomForPlayers() ? KekBot.replacePrefix(channel.getGuild(), " Players can join by using `{p}game join`.") : "") +
+                    (game.hasRoomForPlayers() && game.hasAI() ? KekBot.replacePrefix(channel.getGuild(), " Or, you can start the game early with `{p}game ready`, and play with an AI.") : "") +
+                    (game.hasAI() && !game.hasRoomForPlayers() ? KekBot.replacePrefix(channel.getGuild(), " You can now start the game with `{p}game ready`") : "")).queue();
         }
     }
 
