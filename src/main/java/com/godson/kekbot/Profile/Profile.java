@@ -234,9 +234,28 @@ public class Profile {
         }
     }
 
+    public void takeKXP(int KXP) {
+        this.KXP -= KXP;
+        if (this.KXP < 0) {
+            levelDown();
+            this.KXP += maxKXP;
+        }
+    }
+
+    public void setKXP(int KXP) {
+        this.KXP = KXP;
+    }
+
     public void levelUp(JDA jda) {
         User user = jda.getUserById(String.valueOf(userID));
         if (user.hasPrivateChannel()) user.getPrivateChannel().sendMessage("Congrats, you've successfully levelled up to level " + level + "!").queue();
+        maxKXP = (int) Math.round(maxKXP * 1.10);
+        level++;
+    }
+
+    public void levelDown() {
+        maxKXP = (int) Math.round(maxKXP / 1.10);
+        level--;
     }
 
     public void addTopKeks(int topkeks) {
