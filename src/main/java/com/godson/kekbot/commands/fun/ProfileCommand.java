@@ -317,6 +317,27 @@ public class ProfileCommand {
                                                     }
                                                 }
                                                 break;
+                                            case "XP":
+                                            case "KXP":
+                                                if (context.getArgs().length >= 4) {
+                                                    try {
+                                                        int toGive = Integer.valueOf(context.getArgs()[3]);
+                                                        if (context.getArgs().length >= 5) {
+                                                            try {
+                                                                User user = Utils.findShardUser(context.getArgs()[4]);
+                                                                Profile profile = Profile.getProfile(user);
+                                                                profile.addKXP(Utils.getShardUsersShard(user), toGive);
+                                                                profile.save();
+                                                                context.getTextChannel().sendMessage("Gave " + user.getName() + "#" + user.getDiscriminator() + toGive + " KXP.").queue();
+                                                            } catch (NullPointerException e) {
+                                                                context.getTextChannel().sendMessage("User with that ID not found, or the ID specified is invalid.").queue();
+                                                            }
+                                                        }
+                                                    } catch (NumberFormatException e) {
+                                                        context.getTextChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, context.getArgs()[3])).queue();
+                                                    }
+                                                }
+                                                break;
                                             case "background":
                                                 if (context.getArgs().length >= 4) {
                                                     try {
@@ -383,6 +404,27 @@ public class ProfileCommand {
                                                                 profile.spendTopKeks(toTake);
                                                                 profile.save();
                                                                 context.getTextChannel().sendMessage("Took away " + toTake + CustomEmote.TOPKEK + " from " + user.getName() + "#" + user.getDiscriminator() + ".").queue();
+                                                            } catch (NullPointerException e) {
+                                                                context.getTextChannel().sendMessage("User with that ID not found, or the ID specified is invalid.").queue();
+                                                            }
+                                                        }
+                                                    } catch (NumberFormatException e) {
+                                                        context.getTextChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, context.getArgs()[3])).queue();
+                                                    }
+                                                }
+                                                break;
+                                            case "XP":
+                                            case "KXP":
+                                                if (context.getArgs().length >= 4) {
+                                                    try {
+                                                        int toTake = Integer.valueOf(context.getArgs()[3]);
+                                                        if (context.getArgs().length >= 5) {
+                                                            try {
+                                                                User user = Utils.findShardUser(context.getArgs()[4]);
+                                                                Profile profile = Profile.getProfile(user);
+                                                                profile.takeKXP(toTake);
+                                                                profile.save();
+                                                                context.getTextChannel().sendMessage("Took away " + toTake + " KXP from " + user.getName() + "#" + user.getDiscriminator() + ".").queue();
                                                             } catch (NullPointerException e) {
                                                                 context.getTextChannel().sendMessage("User with that ID not found, or the ID specified is invalid.").queue();
                                                             }
@@ -459,6 +501,27 @@ public class ProfileCommand {
                                                                 profile.setTopKeks(toSet);
                                                                 profile.save();
                                                                 context.getTextChannel().sendMessage("Set " + user.getName() + "#" + user.getDiscriminator() + "'s " + CustomEmote.TOPKEK + "to " + + toSet + ".").queue();
+                                                            } catch (NullPointerException e) {
+                                                                context.getTextChannel().sendMessage("User with that ID not found, or the ID specified is invalid.").queue();
+                                                            }
+                                                        }
+                                                    } catch (NumberFormatException e) {
+                                                        context.getTextChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, context.getArgs()[3])).queue();
+                                                    }
+                                                }
+                                                break;
+                                            case "XP":
+                                            case "KXP":
+                                                if (context.getArgs().length >= 4) {
+                                                    try {
+                                                        int toSet = Integer.valueOf(context.getArgs()[3]);
+                                                        if (context.getArgs().length >= 5) {
+                                                            try {
+                                                                User user = Utils.findShardUser(context.getArgs()[4]);
+                                                                Profile profile = Profile.getProfile(user);
+                                                                profile.setKXP(toSet);
+                                                                profile.save();
+                                                                context.getTextChannel().sendMessage("Set " + user.getName() + "#" + user.getDiscriminator() + "'s KXP to " + + toSet + ".").queue();
                                                             } catch (NullPointerException e) {
                                                                 context.getTextChannel().sendMessage("User with that ID not found, or the ID specified is invalid.").queue();
                                                             }
