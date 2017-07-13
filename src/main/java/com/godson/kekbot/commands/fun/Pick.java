@@ -13,12 +13,12 @@ import java.util.Random;
 
 public class Pick {
     /**
-     * Removes "or " from the last element of coll.
+     * Removes "or " from the last element of list.
      */
-    protected static Collection<String> stripOr(Collection<String> coll) {
-        int lastIndex = coll.size() - 1;
-        coll[lastIndex] = coll[lastIndex].replace("^or ", "");
-        return coll;
+    protected static List<String> stripOr(List<String> list) {
+        int lastIndex = list.size() - 1;
+        list.get(lastIndex) = list.get(lastIndex).replace("^or ", "");
+        return list;
     }
 
     protected static List<String> prepareChoices(String choicesString, String splitOn) {
