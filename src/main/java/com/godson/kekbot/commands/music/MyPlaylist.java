@@ -55,7 +55,6 @@ public class MyPlaylist {
                                                                 String URL = results2.getAnswer(0).toString();
                                                                 if (!URL.equalsIgnoreCase("done")) {
                                                                     KekBot.player.addToPlaylist(results2, URL, playlist);
-                                                                    results2.reExecuteWithoutMessage();
                                                                 } else {
                                                                     if (playlist.getTracks().size() > 0) {
                                                                         new Questionnaire(results2)
@@ -287,7 +286,6 @@ public class MyPlaylist {
                                         String URL = results2.getAnswer(0).toString();
                                         if (!URL.equalsIgnoreCase("done")) {
                                             KekBot.player.addToPlaylist(results2, URL, playlist);
-                                            results2.reExecuteWithoutMessage();
                                         } else {
                                             profile.save();
                                             new Questionnaire(results2)

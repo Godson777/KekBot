@@ -426,15 +426,17 @@ public class MusicPlayer {
         }
     }
 
-    public void addToPlaylist(Questionnaire.Results results, String trackUrl, Playlist playlist) {;
+    public void addToPlaylist(Questionnaire.Results results, String trackUrl, Playlist playlist) {
         playerManager.loadItemOrdered(playlist, trackUrl, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack track) {
                 if (playlist.getTracks().stream().noneMatch(audioTrackInfo -> audioTrackInfo.uri.equals(track.getInfo().uri))) {
                     playlist.addTrack(track);
                     results.getChannel().sendMessage("Added " + track.getInfo().title + " to the playlist.").queue();
+                    results.reExecuteWithoutMessage();
                 } else {
                     results.getChannel().sendMessage("This track is already in your playlist.").queue();
+                    results.reExecuteWithoutMessage();
                 }
 
             }
@@ -444,17 +446,19 @@ public class MusicPlayer {
                 new Questionnaire(results)
                         .addChoiceQuestion("Are you sure you want to add all " + audioPlaylist.getTracks().size() + " tracks to your playlist?", "Yes", "No", "Y", "N")
                         .withoutRepeats()
-                        .execute(results -> {
-                            if (results.getAnswer(0).toString().equalsIgnoreCase("Yes") || results.getAnswer(0).toString().equalsIgnoreCase("Y")) {
+                        .execute(results1 -> {
+                            if (results1.getAnswer(0).toString().equalsIgnoreCase("Yes") || results1.getAnswer(0).toString().equalsIgnoreCase("Y")) {
                                 int existing = 0;
                                 for (AudioTrack track : audioPlaylist.getTracks()) {
                                     if (playlist.getTracks().stream().noneMatch(audioTrackInfo -> audioTrackInfo.uri.equals(track.getInfo().uri))) {
                                         playlist.addTrack(track);
                                     } else existing++;
                                 }
-                                results.getChannel().sendMessage("Done." + (existing > 0 ? " (" + existing + " tracks were already in your playlist, so they were skipped.)" : "")).queue();
+                                results1.getChannel().sendMessage("Done." + (existing > 0 ? " (" + existing + " tracks were already in your playlist, so they were skipped.)" : "")).queue();
+                                results.reExecuteWithoutMessage();
                             } else {
-                                results.getChannel().sendMessage("Canceled.").queue();
+                                results1.getChannel().sendMessage("Alright, I won't add those tracks. You can still paste URLs, though.").queue();
+                                results.reExecuteWithoutMessage();
                             }
                         });
             }
@@ -462,11 +466,13 @@ public class MusicPlayer {
             @Override
             public void noMatches() {
                 results.getChannel().sendMessage("Hm, `" + trackUrl + "` doesn't appear to be a valid URL. Could you try again?").queue();
+                results.reExecuteWithoutMessage();
             }
 
             @Override
             public void loadFailed(FriendlyException exception) {
                 results.getChannel().sendMessage("Could not add to the playlist: " + exception.getMessage()).queue();
+                results.reExecuteWithoutMessage();
             }
         });
     }
