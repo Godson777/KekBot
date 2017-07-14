@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class Game {
-    String gameName;
+    private String gameName;
     int numberOfPlayers;
     private boolean hasAI;
     private boolean isReady = false;
@@ -109,5 +109,9 @@ public abstract class Game {
 
     public boolean hasAI() {
         return hasAI;
+    }
+
+    public String getGameName() {
+        return gameName;
     }
 }
