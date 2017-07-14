@@ -15,7 +15,6 @@ public class BackgroundShop extends Shop<Background> {
         for (Background background : KekBot.backgroundManager.getBackgrounds()) {
             if (background.hasPrice()) addToInventory(background);
         }
-        addToInventory(KekBot.backgroundManager.getBackgrounds().get(1));
         getInventory().sort(Comparator.comparing(Background::getRequiredLevel).thenComparing(Background::getPrice));
     }
 
