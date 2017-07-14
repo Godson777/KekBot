@@ -631,15 +631,12 @@ public class Listener extends ListenerAdapter {
         if (event.getGuild().getAudioManager().isConnected()) {
             if (!KekBot.player.isMeme(event.getGuild())) {
                 if (event.getChannelLeft().equals(event.getGuild().getAudioManager().getConnectedChannel())) {
-                    if (event.getChannelLeft().getMembers().size() > 1) {
+                    List<User> potentialHosts = event.getChannelLeft().getMembers().stream().map(Member::getUser).filter(user -> !user.isBot()).collect(Collectors.toList());
+                    if (potentialHosts.size() >= 1) {
                         if (KekBot.player.getHost(event.getGuild()).equals(event.getMember().getUser())) {
                             Random random = new Random();
-                            int user = random.nextInt(event.getChannelLeft().getMembers().size());
-                            User newHost = event.getChannelLeft().getMembers().get(user).getUser();
-                            while (newHost.isBot()) {
-                                user = random.nextInt(event.getChannelLeft().getMembers().size());
-                                newHost = event.getChannelLeft().getMembers().get(user).getUser();
-                            }
+                            int user = random.nextInt(potentialHosts.size());
+                            User newHost = potentialHosts.get(user);
                             KekBot.player.changeHost(event.getGuild(), newHost);
                             KekBot.player.announceToMusicSession(event.getGuild(), newHost.getName() + " is now the host of this music session.");
                         }
