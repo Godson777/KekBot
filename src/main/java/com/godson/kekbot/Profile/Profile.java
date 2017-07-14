@@ -28,7 +28,7 @@ public class Profile {
     private Badge badge;
     private int topkeks;
     private int KXP = 0;
-    private int maxKXP = 100;
+    private int maxKXP = 250;
     private int level = 1;
     private int wins;
     private int losses;
@@ -87,7 +87,7 @@ public class Profile {
                 (topkeks > 0 ? topkeks + CustomEmote.TOPKEK : "") +
                 (topkeks > 0 && KXP > 0 ? ", and " : "") +
                 (KXP > 0 ? KXP + " KXP" : "") +
-                (KXP == 0 && topkeks == 0 ? "nothing" : "") + "!").queue();
+                (KXP <= 0 && topkeks <= 0 ? "nothing" : "") + "!").queue();
     }
 
     public byte[] drawCard(JDA jda) throws IOException {
@@ -246,11 +246,15 @@ public class Profile {
         this.KXP = KXP;
     }
 
+    public void overrideMaxKXP(int maxKXP) {
+        this.maxKXP = maxKXP;
+    }
+
     public void levelUp(JDA jda) {
         User user = jda.getUserById(String.valueOf(userID));
-        if (user.hasPrivateChannel()) user.getPrivateChannel().sendMessage("Congrats, you've successfully levelled up to level " + level + "!").queue();
         maxKXP = (int) Math.round(maxKXP * 1.10);
         level++;
+        if (user.hasPrivateChannel()) user.getPrivateChannel().sendMessage("Congrats, you've successfully levelled up to level " + level + "!").queue();
     }
 
     public void levelDown() {
