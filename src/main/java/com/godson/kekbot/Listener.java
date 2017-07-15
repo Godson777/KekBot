@@ -180,7 +180,7 @@ public class Listener extends ListenerAdapter {
                             if (rawSplit.length >= 3) {
                                 if (rawSplit.length == 4) {
                                     try {
-                                        event.getJDA().getUserById(rawSplit[2]).getPrivateChannel().sendMessage(rawSplit[3]).queue();
+                                        event.getJDA().getUserById(rawSplit[2]).openPrivateChannel().queue(ch -> ch.sendMessage(rawSplit[3]).queue());
                                         channel.sendMessage("Successfully sent message to: __**" + event.getJDA().getUserById(rawSplit[2]).getName() + "**__!").queue();
                                     } catch (PermissionException e) {
                                         channel.sendMessage("It appears that I'm not able to send messages to" + event.getJDA().getUserById(rawSplit[2]).getName() + "!").queue();
@@ -324,14 +324,8 @@ public class Listener extends ListenerAdapter {
                                                 channel.sendMessage("Ticket Closed.").queue();
                                                 for (JDA jda : KekBot.jdas) {
                                                     try {
-                                                        if (jda.getUserById(ticket.getAuthorID()).hasPrivateChannel()) {
-                                                            jda.getUserById(ticket.getAuthorID()).getPrivateChannel().sendMessage("Your ticket (**" + ticket.getTitle() + "**) has been closed.").queue();
-                                                            break;
-                                                        }
-                                                        else {
-                                                            jda.getUserById(ticket.getAuthorID()).openPrivateChannel().queue(pr -> pr.sendMessage("Your ticket (**" + ticket.getTitle() + "**) has been closed.").queue());
-                                                            break;
-                                                        }
+                                                        jda.getUserById(ticket.getAuthorID()).openPrivateChannel().queue(pr -> pr.sendMessage("Your ticket (**" + ticket.getTitle() + "**) has been closed.").queue());
+                                                        break;
                                                     } catch (NullPointerException e) {
                                                         //do nothing
                                                     }
@@ -442,7 +436,7 @@ public class Listener extends ListenerAdapter {
         if (!GSONUtils.getConfig().getBlockedUsers().contains(event.getGuild().getOwner().getUser().getId())) {
             for (JDA jda : KekBot.jdas) {
                 try {
-                    jda.getUserById(GSONUtils.getConfig().getBotOwner()).getPrivateChannel().sendMessage("Joined server: \"" + event.getGuild().getName() + "\" (ID: " + event.getGuild().getId() + ")").queue();
+                    jda.getUserById(GSONUtils.getConfig().getBotOwner()).openPrivateChannel().queue(ch -> ch.sendMessage("Joined server: \"" + event.getGuild().getName() + "\" (ID: " + event.getGuild().getId() + ")").queue());
                     break;
                 } catch (NullPointerException | IllegalStateException e) {
                     //do nothing.
@@ -493,7 +487,7 @@ public class Listener extends ListenerAdapter {
         if (!GSONUtils.getConfig().getBlockedUsers().contains(event.getGuild().getOwner().getUser().getId())) {
             for (JDA jda : KekBot.jdas) {
                 try {
-                    jda.getUserById(GSONUtils.getConfig().getBotOwner()).getPrivateChannel().sendMessage("Left/Kicked from server: \"" + event.getGuild().getName() + "\" (ID: " + event.getGuild().getId() + ")").queue();
+                    jda.getUserById(GSONUtils.getConfig().getBotOwner()).openPrivateChannel().queue(ch -> ch.sendMessage("Left/Kicked from server: \"" + event.getGuild().getName() + "\" (ID: " + event.getGuild().getId() + ")").queue());
                     break;
                 } catch (NullPointerException | IllegalStateException e) {
                     //do nothing.

@@ -30,10 +30,7 @@ public class TicketManager {
         String replierName = replier.getName() + "#" + replier.getDiscriminator();
         for (JDA jda : KekBot.jdas) {
             try {
-                if (jda.getUserById(ticket.getAuthorID()).hasPrivateChannel())
-                jda.getUserById(ticket.getAuthorID()).getPrivateChannel().sendMessage("You have received a reply for your ticket. (**" + ticket.getTitle() + "**)\n**" + replierName
-                        + "**:\n\n" + response).queue();
-                else jda.getUserById(ticket.getAuthorID()).openPrivateChannel().queue(chan -> chan.sendMessage("You have received a reply for your ticket. (**" + ticket.getTitle() + "**)\n**" + replierName
+                jda.getUserById(ticket.getAuthorID()).openPrivateChannel().queue(ch -> ch.sendMessage("You have received a reply for your ticket. (**" + ticket.getTitle() + "**)\n**" + replierName
                         + "**:\n\n" + response).queue());
                 closeTicket(ticket);
                 ticket.setStatus(TicketStatus.AWAITING_REPLY);
@@ -50,8 +47,8 @@ public class TicketManager {
         String replierName = replier.getName() + "#" + replier.getDiscriminator();
         for (JDA jda : KekBot.jdas) {
             try {
-                jda.getUserById(GSONUtils.getConfig().getBotOwner()).getPrivateChannel().sendMessage("You have received a reply for a ticket. (**" + ticket.getTitle() + "**)\n**" + replierName
-                        + "**:\n\n" + response).queue();
+                jda.getUserById(GSONUtils.getConfig().getBotOwner()).openPrivateChannel().queue(ch -> ch.sendMessage("You have received a reply for a ticket. (**" + ticket.getTitle() + "**)\n**" + replierName
+                        + "**:\n\n" + response).queue());
                 closeTicket(ticket);
                 ticket.setStatus(TicketStatus.RECEIVED_REPLY);
                 addTicket(ticket);
