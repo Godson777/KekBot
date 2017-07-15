@@ -4,6 +4,7 @@ import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.Responses.Action;
+import com.godson.kekbot.Utils;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -14,8 +15,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.List;
 
 public class Erase {
@@ -35,14 +34,10 @@ public class Erase {
                         if (context.getArgs().length > 0) {
                             if (context.getMessage().getMentionedUsers().size() > 0) {
                                 channel.sendTyping().queue();
+                                BufferedImage ava = Utils.getAvatar(context.getMessage().getMentionedUsers().get(0));
                                 try {
                                     BufferedImage template = ImageIO.read(new File("resources/memegen/mistake_template.png"));
                                     Graphics2D image = template.createGraphics();
-                                    URL userAva = new URL(context.getMessage().getMentionedUsers().get(0).getAvatarUrl());
-                                    URLConnection connection = userAva.openConnection();
-                                    connection.setRequestProperty("User-Agent", "Mozilla/5.0");
-                                    connection.connect();
-                                    BufferedImage ava = ImageIO.read(connection.getInputStream());
                                     image.drawImage(ava, 368, 375, 277, 270, null);
                                     image.dispose();
                                     ByteArrayOutputStream stream = new ByteArrayOutputStream();

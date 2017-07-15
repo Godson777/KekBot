@@ -4,9 +4,8 @@ import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.Responses.Action;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.entities.TextChannel;
+import com.godson.kekbot.Utils;
+import net.dv8tion.jda.core.entities.*;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -14,8 +13,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.List;
 
 public class LongLive {
@@ -35,19 +32,12 @@ public class LongLive {
                         if (context.getArgs().length > 0) {
                             if (context.getMessage().getMentionedUsers().size() > 0) {
                                 channel.sendTyping().queue();
+                                User user = context.getMessage().getMentionedUsers().get(0);
+                                BufferedImage target = Utils.getAvatar(user);
+                                BufferedImage ava = Utils.getAvatar(context.getAuthor());
                                 try {
                                     BufferedImage template = ImageIO.read(new File("resources/memegen/longlivetheking_template.png"));
                                     Graphics2D image = template.createGraphics();
-                                    URL targetAva = new URL(context.getMessage().getMentionedUsers().get(0).getAvatarUrl());
-                                    URLConnection connection = targetAva.openConnection();
-                                    connection.setRequestProperty("User-Agent", "Mozilla/5.0");
-                                    connection.connect();
-                                    BufferedImage target = ImageIO.read(connection.getInputStream());
-                                    URL userAva = new URL(context.getAuthor().getAvatarUrl());
-                                    URLConnection connection2 = userAva.openConnection();
-                                    connection2.setRequestProperty("User-Agent", "Mozilla/5.0");
-                                    connection2.connect();
-                                    BufferedImage ava = ImageIO.read(connection2.getInputStream());
                                     image.drawImage(ava, 1026, 42, 479, 479, null);
                                     image.drawImage(target, 503, 558, 442, 442, null);
                                     image.dispose();

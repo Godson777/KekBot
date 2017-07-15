@@ -4,6 +4,7 @@ import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.Responses.Action;
+import com.godson.kekbot.Utils;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Role;
@@ -15,8 +16,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.List;
 
 public class DELET {
@@ -36,16 +35,12 @@ public class DELET {
                         if (context.getArgs().length > 0) {
                             if (context.getMessage().getMentionedUsers().size() > 0) {
                                 channel.sendTyping().queue();
+                                Member member = context.getGuild().getMemberById(context.getMessage().getMentionedUsers().get(0).getId());
+                                BufferedImage target = Utils.getAvatar(member.getUser());
                                 try {
-                                    Member member = context.getGuild().getMemberById(context.getMessage().getMentionedUsers().get(0).getId());
                                     BufferedImage template = ImageIO.read(new File("resources/memegen/DELET_template.png"));
                                     BufferedImage bg = new BufferedImage(template.getWidth(), template.getHeight(), template.getType());
                                     Graphics2D image = bg.createGraphics();
-                                    URL targetAva = new URL(member.getUser().getAvatarUrl());
-                                    URLConnection connection = targetAva.openConnection();
-                                    connection.setRequestProperty("User-Agent", "Mozilla/5.0");
-                                    connection.connect();
-                                    BufferedImage target = ImageIO.read(connection.getInputStream());
                                     image.drawImage(target, 40, 147, 40, 40, null);
                                     image.drawImage(template, 0, 0, null);
                                     Font font = new Font("Whitney", Font.BOLD, 12);
