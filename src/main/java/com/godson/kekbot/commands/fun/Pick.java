@@ -12,11 +12,40 @@ import java.util.List;
 import java.util.Random;
 
 public class Pick {
+    /**
+     * Removes "or " from the last element of list.
+     */
+    protected static List<String> stripOr(List<String> list) {
+        int lastIndex = list.size() - 1;
+        list.get(lastIndex) = list.get(lastIndex).replace("^or ", "");
+        return list;
+    }
+
+    protected static List<String> prepareChoices(String choicesString, String splitOn) {
+        return Arrays.stream(choicesString.split(splitOn))
+            .map(c -> KekBot.removeWhitespaceEdges(c))
+            .filter(c -> !c.isEmpty())
+            .collect(Collectors.toList());
+    }
+
+    protected static List<String> parseChoices(String choicesString) {
+        List<String> choices = Pick.prepareChoices(choicesString, "\\u007c");
+        if (choices.size() == 1) {
+            // choices[0] is obviously the only element
+            choices = choices.contains(",") ?
+                Pick.stripOr(Pick.prepareChoices(choices[0], ",")) :
+                Pick.prepareChoices(choices[0], " ");
+        }
+        return choices;
+    }
+
     public static Command pick = new Command("pick")
             .withAliases("choose", "decide")
             .withCategory(CommandCategory.FUN)
             .withDescription("Has KekBot pick ")
-            .withUsage("{p}pick <option> | <option> {can continue adding more options by seperating them with | }")
+            .withUsage("{p}pick <option> | <option> {can continue adding more options by seperating them with | }\n" +
+                "{p}pick <option>, <option>, [or ]<option> {can continue adding more options by seperating them with a comma}\n" +
+                "{p}pick <option> <option> {can continue adding more options by seperating them with a space}")
             .onExecuted(context -> {
                 String noChoicesGiven = "You haven't given me any choices, though...";
 
@@ -27,17 +56,12 @@ public class Pick {
                     return;
                 }
 
-                List<String> toFormat = Arrays.asList(rawSplit[1].split("\\u007c"));
-                List<String> choices = new ArrayList<>();
-                for (String string : toFormat) {
-                    String choice = KekBot.removeWhitespaceEdges(string);
-                    if (!choice.equals("")) choices.add(choice);
-                }
+                List<String> choices = Pick.parseChoices(rawSplit[1]);
                 if (choices.size() > 1) {
                     Random random = new Random();
                     channel.sendMessage(KekBot.respond(context, Action.CHOICE_MADE, choices.get(random.nextInt(choices.size())))).queue();
                 } else if (choices.size() == 1) {
-                    channel.sendMessage("Well, I guess I'm choosing `" + choices.get(0) + "`, since you haven't given me anything else to pick...").queue();
+                    channel.sendMessage("Well, I guess I'm choosing `" + choices[0] + "`, since you haven't given me anything else to pick...").queue();
                 } else {
                     channel.sendMessage(noChoicesGiven).queue();
                 }
