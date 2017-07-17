@@ -26,20 +26,28 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.imageio.ImageIO;
 import javax.security.auth.login.LoginException;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class KekBot {
+    //Seting configs, and resources.
     public static int shards = GSONUtils.getConfig().getShards();
     public static JDA[] jdas = new JDA[shards];
     public static final String version;
-    public static PollManager manager = new PollManager();
     public static long startTime = System.currentTimeMillis();
-    public static EventWaiter waiter = new EventWaiter();
+    public static BufferedImage genericAvatar;
     private static Map<Action, List<String>> responses = new HashMap<>();
+
+
+    //ALL THE MANAGERS.
+    public static PollManager manager = new PollManager();
+    public static EventWaiter waiter = new EventWaiter();
     public static MusicPlayer player = new MusicPlayer();
     public static GamesManager gamesManager = new GamesManager();
     public static TokenShop tokenShop = new TokenShop();
@@ -48,6 +56,7 @@ public class KekBot {
     public static WaifuManager waifuManager = new WaifuManager();
 
     static {
+        //TODO: Remove this later in favor of hardcoding the version, instead of relying on a .properties file.
         InputStream stream = KekBot.class.getClassLoader().getResourceAsStream("kekbot.properties");
         java.util.Properties properties = new java.util.Properties();
         try {
@@ -57,6 +66,12 @@ public class KekBot {
             e.printStackTrace();
         }
         version = properties.getProperty("kekbot.version");
+
+        try {
+            genericAvatar = ImageIO.read(new File("resources/discordGeneric.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) throws LoginException, InterruptedException, RateLimitedException {
@@ -127,12 +142,14 @@ public class KekBot {
         else responses.put(action, new ArrayList<>()).add(response);
     }
 
+    //TODO: This may wind up being depreciated in a later revision of The Fun Update, in favor of a "insertPrefix", which merely returns the prefix as a string, instead of going through an entire string just to replace one or two instances of "{p}".
     public static String replacePrefix(Guild guild, String contents) {
         return contents.replace("{p}",
                 (CommandRegistry.getForClient(guild.getJDA()).getPrefixForGuild(guild) != null
                         ? CommandRegistry.getForClient(guild.getJDA()).getPrefixForGuild(guild) : "$"));
     }
 
+    //TODO: Perhaps add this to the Utils class instead of cluttering KekBot's main class with this.
     public static String convertMillisToHMmSs(long millis) {
         long hours = TimeUnit.MILLISECONDS.toHours(millis);
         long minutes = TimeUnit.MILLISECONDS.toMinutes(millis) -
@@ -144,6 +161,7 @@ public class KekBot {
                 (seconds > 0 ? (seconds > 9 ? seconds : "0" + seconds) : "00");
     }
 
+    //TODO: This too.
     public static String convertMillisToTime(long millis) {
         long days = TimeUnit.MILLISECONDS.toDays(millis);
         long hours = TimeUnit.MILLISECONDS.toHours(millis) -
@@ -157,10 +175,12 @@ public class KekBot {
                 (minutes != 1 ? " Minutes and " : " Minute and ") + seconds + (seconds != 1 ? " Seconds." : " Second.");
     }
 
+    //TODO: And this.
     public static String songTimestamp(long current, long length) {
         return convertMillisToHMmSs(current) + "/" + convertMillisToHMmSs(length);
     }
 
+    //TODO: And yes, this too.
     public static String removeWhitespaceEdges(String string) {
         if (string.matches(".*\\w.*")) {
             if (string.startsWith(" ")) string = string.replaceFirst("([ ]+)", "");
