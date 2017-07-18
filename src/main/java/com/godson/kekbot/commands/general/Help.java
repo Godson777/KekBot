@@ -55,8 +55,7 @@ public class Help {
                     String message = "__**KekBot**__\n*Your helpful meme-based bot!*\n" +
                             "```md\n" + pages.get(0) + "\n\n" + "[Page](1" + "/" + pages.size() + ")\n" +
                             "# Type \"help <number>\" to view that page!" + "```";
-                    if (!context.getAuthor().hasPrivateChannel()) context.getAuthor().openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage(message).queue());
-                    else context.getAuthor().getPrivateChannel().sendMessage(message).queue();
+                    context.getAuthor().openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage(message).queue());
                     context.getTextChannel().sendMessage(context.getMessage().getAuthor().getAsMention() + " Alright, check your PMs! :thumbsup:").queue();
                 } else {
                     Optional<Command> cmd = CommandRegistry.getForClient(context.getJDA()).getCommandByName(args[0], true);

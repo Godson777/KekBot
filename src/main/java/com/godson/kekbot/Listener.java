@@ -180,7 +180,7 @@ public class Listener extends ListenerAdapter {
                             if (rawSplit.length >= 3) {
                                 if (rawSplit.length == 4) {
                                     try {
-                                        event.getJDA().getUserById(rawSplit[2]).getPrivateChannel().sendMessage(rawSplit[3]).queue();
+                                        event.getJDA().getUserById(rawSplit[2]).openPrivateChannel().queue(ch -> ch.sendMessage(rawSplit[3]).queue());
                                         channel.sendMessage("Successfully sent message to: __**" + event.getJDA().getUserById(rawSplit[2]).getName() + "**__!").queue();
                                     } catch (PermissionException e) {
                                         channel.sendMessage("It appears that I'm not able to send messages to" + event.getJDA().getUserById(rawSplit[2]).getName() + "!").queue();
@@ -324,14 +324,8 @@ public class Listener extends ListenerAdapter {
                                                 channel.sendMessage("Ticket Closed.").queue();
                                                 for (JDA jda : KekBot.jdas) {
                                                     try {
-                                                        if (jda.getUserById(ticket.getAuthorID()).hasPrivateChannel()) {
-                                                            jda.getUserById(ticket.getAuthorID()).getPrivateChannel().sendMessage("Your ticket (**" + ticket.getTitle() + "**) has been closed.").queue();
-                                                            break;
-                                                        }
-                                                        else {
-                                                            jda.getUserById(ticket.getAuthorID()).openPrivateChannel().queue(pr -> pr.sendMessage("Your ticket (**" + ticket.getTitle() + "**) has been closed.").queue());
-                                                            break;
-                                                        }
+                                                        jda.getUserById(ticket.getAuthorID()).openPrivateChannel().queue(pr -> pr.sendMessage("Your ticket (**" + ticket.getTitle() + "**) has been closed.").queue());
+                                                        break;
                                                     } catch (NullPointerException e) {
                                                         //do nothing
                                                     }
@@ -442,7 +436,7 @@ public class Listener extends ListenerAdapter {
         if (!GSONUtils.getConfig().getBlockedUsers().contains(event.getGuild().getOwner().getUser().getId())) {
             for (JDA jda : KekBot.jdas) {
                 try {
-                    jda.getUserById(GSONUtils.getConfig().getBotOwner()).getPrivateChannel().sendMessage("Joined server: \"" + event.getGuild().getName() + "\" (ID: " + event.getGuild().getId() + ")").queue();
+                    jda.getUserById(GSONUtils.getConfig().getBotOwner()).openPrivateChannel().queue(ch -> ch.sendMessage("Joined server: \"" + event.getGuild().getName() + "\" (ID: " + event.getGuild().getId() + ")").queue());
                     break;
                 } catch (NullPointerException | IllegalStateException e) {
                     //do nothing.
@@ -493,7 +487,7 @@ public class Listener extends ListenerAdapter {
         if (!GSONUtils.getConfig().getBlockedUsers().contains(event.getGuild().getOwner().getUser().getId())) {
             for (JDA jda : KekBot.jdas) {
                 try {
-                    jda.getUserById(GSONUtils.getConfig().getBotOwner()).getPrivateChannel().sendMessage("Left/Kicked from server: \"" + event.getGuild().getName() + "\" (ID: " + event.getGuild().getId() + ")").queue();
+                    jda.getUserById(GSONUtils.getConfig().getBotOwner()).openPrivateChannel().queue(ch -> ch.sendMessage("Left/Kicked from server: \"" + event.getGuild().getName() + "\" (ID: " + event.getGuild().getId() + ")").queue());
                     break;
                 } catch (NullPointerException | IllegalStateException e) {
                     //do nothing.
@@ -631,15 +625,12 @@ public class Listener extends ListenerAdapter {
         if (event.getGuild().getAudioManager().isConnected()) {
             if (!KekBot.player.isMeme(event.getGuild())) {
                 if (event.getChannelLeft().equals(event.getGuild().getAudioManager().getConnectedChannel())) {
-                    if (event.getChannelLeft().getMembers().size() > 1) {
+                    List<User> potentialHosts = event.getChannelLeft().getMembers().stream().map(Member::getUser).filter(user -> !user.isBot()).collect(Collectors.toList());
+                    if (potentialHosts.size() >= 1) {
                         if (KekBot.player.getHost(event.getGuild()).equals(event.getMember().getUser())) {
                             Random random = new Random();
-                            int user = random.nextInt(event.getChannelLeft().getMembers().size());
-                            User newHost = event.getChannelLeft().getMembers().get(user).getUser();
-                            while (newHost.isBot()) {
-                                user = random.nextInt(event.getChannelLeft().getMembers().size());
-                                newHost = event.getChannelLeft().getMembers().get(user).getUser();
-                            }
+                            int user = random.nextInt(potentialHosts.size());
+                            User newHost = potentialHosts.get(user);
                             KekBot.player.changeHost(event.getGuild(), newHost);
                             KekBot.player.announceToMusicSession(event.getGuild(), newHost.getName() + " is now the host of this music session.");
                         }

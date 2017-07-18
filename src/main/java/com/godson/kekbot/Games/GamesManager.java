@@ -21,7 +21,7 @@ public class GamesManager extends ListenerAdapter {
                 game.addPlayer(player);
                 channel.sendMessage("**" + player.getName() + " joined the game. (" + game.players.size() + "/" + game.numberOfPlayers + ")**").queue();
                 if (!game.hasRoomForPlayers()) channel.sendMessage("The lobby is now full! " + game.players.get(0).getAsMention() + KekBot.replacePrefix(channel.getGuild(), "! Start the game with `{p}game ready`!")).queue();
-            } else channel.sendMessage("This `" + game.gameName + "` lobby is already full.").queue();
+            } else channel.sendMessage("This `" + game.getGameName() + "` lobby is already full.").queue();
         }
     }
 
@@ -29,7 +29,7 @@ public class GamesManager extends ListenerAdapter {
         if (!activeGames.containsKey(Long.valueOf(channel.getId()))) {
             game.addPlayer(host);
             activeGames.put(Long.valueOf(channel.getId()), game);
-            channel.sendMessage(game.gameName + " lobby created!" +
+            channel.sendMessage(game.getGameName() + " lobby created!" +
                     (game.hasRoomForPlayers() ? KekBot.replacePrefix(channel.getGuild(), " Players can join by using `{p}game join`.") : "") +
                     (game.hasRoomForPlayers() && game.hasAI() ? KekBot.replacePrefix(channel.getGuild(), " Or, you can start the game early with `{p}game ready`, and play with an AI.") : "") +
                     (game.hasAI() && !game.hasRoomForPlayers() ? KekBot.replacePrefix(channel.getGuild(), " You can now start the game with `{p}game ready`") : "")).queue();
@@ -57,7 +57,7 @@ public class GamesManager extends ListenerAdapter {
             if (game.players.contains(event.getAuthor())) {
                 if (game.isReady()) {
                     String contents = event.getMessage().getRawContent();
-                    switch (game.gameName) {
+                    switch (game.getGameName()) {
                         case "TicTacToe":
                             TicTacToe ticTacToe = (TicTacToe) game;
                             try {

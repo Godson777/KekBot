@@ -36,7 +36,7 @@ public class TicketCommand {
                         channel.sendMessage(context.getMessage().getAuthor().getAsMention() + " Thanks for submitting your ticket!").queue();
                         for (JDA jda : KekBot.jdas) {
                             try {
-                                jda.getUserById(config.getBotOwner()).getPrivateChannel().sendMessage("New ticket made by: **" + context.getMessage().getAuthor().getName() + "** (ID: **" + context.getMessage().getAuthor().getId() + "**)").queue();
+                                jda.getUserById(config.getBotOwner()).openPrivateChannel().queue(ch -> ch.sendMessage("New ticket made by: **" + context.getMessage().getAuthor().getName() + "** (ID: **" + context.getMessage().getAuthor().getId() + "**)").queue());
                                 break;
                             } catch (NullPointerException e) {
                                 //do nothing.

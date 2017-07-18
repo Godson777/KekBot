@@ -100,10 +100,7 @@ public class Suggestions {
                                                                 .setDescription("Response accepted.");
                                                         KekBot.addResponse(Action.valueOf(response.getActionName()), response.getSuggestedResponse());
                                                         String messsage = "Your response suggestion was accepted by " + context.getAuthor().getName() + "! (*" + response.getActionName() + "* || **\"" + response.getSuggestedResponse() + "\"**)";
-                                                        if (!suggester.hasPrivateChannel())
-                                                            suggester.openPrivateChannel().queue(priv -> priv.sendMessage(messsage).queue());
-                                                        else
-                                                            suggester.getPrivateChannel().sendMessage(messsage).queue();
+                                                        suggester.openPrivateChannel().queue(priv -> priv.sendMessage(messsage).queue());
                                                         suggestions.getSuggestions().remove(response);
                                                         suggestions.save();
                                                         channel.sendMessage(builder.build()).queue();
@@ -161,7 +158,6 @@ public class Suggestions {
         builder.setColor(Color.red)
                 .setDescription("Response rejected.");
         context.getTextChannel().sendMessage(builder.build()).queue();
-        if (!suggester.hasPrivateChannel()) suggester.openPrivateChannel().queue(priv -> priv.sendMessage(message).queue());
-        else suggester.getPrivateChannel().sendMessage(message).queue();
+        suggester.openPrivateChannel().queue(priv -> priv.sendMessage(message).queue());
     }
 }

@@ -4,6 +4,7 @@ import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.Responses.Action;
+import com.godson.kekbot.Utils;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -12,8 +13,6 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.List;
 
 public class Byemom {
@@ -39,14 +38,10 @@ public class Byemom {
                             }
                             String search = builder.toString();
                             channel.sendTyping().queue();
+                            BufferedImage ava = Utils.getAvatar(context.getAuthor());
                             try {
                                 BufferedImage template = ImageIO.read(new File("resources/memegen/byemom_template.png"));
                                 Graphics2D image = template.createGraphics();
-                                URL userAva = new URL(context.getAuthor().getAvatarUrl());
-                                URLConnection connection = userAva.openConnection();
-                                connection.setRequestProperty("User-Agent", "Mozilla/5.0");
-                                connection.connect();
-                                BufferedImage ava = ImageIO.read(connection.getInputStream());
                                 image.drawImage(ava, 523, 12, 80, 80, null);
                                 image.drawImage(ava, 73, 338, 128, 128, null);
                                 image.rotate(-0.436332);

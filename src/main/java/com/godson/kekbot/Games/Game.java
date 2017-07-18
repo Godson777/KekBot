@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class Game {
-    String gameName;
+    private String gameName;
     int numberOfPlayers;
     private boolean hasAI;
     private boolean isReady = false;
@@ -47,10 +47,10 @@ public abstract class Game {
         for (User player : players) {
             Profile profile = Profile.getProfile(player);
             if (player.equals(winner)) {
-                profile.wonGame();
+                //profile.wonGame();
                 profile.save();
             } else {
-                profile.lostGame();
+                //profile.lostGame();
                 profile.save();
             }
         }
@@ -64,7 +64,7 @@ public abstract class Game {
                 profile.wonGame(channel, topkeks, KXP);
                 profile.save();
             } else {
-                profile.lostGame();
+                //profile.lostGame();
                 profile.save();
             }
         }
@@ -109,5 +109,9 @@ public abstract class Game {
 
     public boolean hasAI() {
         return hasAI;
+    }
+
+    public String getGameName() {
+        return gameName;
     }
 }

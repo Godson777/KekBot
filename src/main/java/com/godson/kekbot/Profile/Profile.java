@@ -3,6 +3,7 @@ package com.godson.kekbot.Profile;
 import com.godson.kekbot.CustomEmote;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.Music.Playlist;
+import com.godson.kekbot.Utils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.dv8tion.jda.core.JDA;
@@ -14,8 +15,6 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.math.BigDecimal;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,10 +27,10 @@ public class Profile {
     private Badge badge;
     private int topkeks;
     private int KXP = 0;
-    private int maxKXP = 100;
+    private int maxKXP = 250;
     private int level = 1;
-    private int wins;
-    private int losses;
+    //private int wins;
+    //private int losses;
     private String subtitle = "Just another user.";
     private String bio;
     private transient long userID;
@@ -61,12 +60,18 @@ public class Profile {
         return new File("profiles/" + user.getId() + ".json").exists();
     }
 
+    /*
+    For the time being, this method is not needed.
+    But it will be reused.
     public void wonGame() {
         ++wins;
     }
+    */
+
+
 
     public void wonGame(TextChannel channel, int topkeks, int KXP) {
-        ++wins;
+        //++wins;
         if (!(topkeks == 0 && KXP == 0)) stateEarnings(channel, topkeks, KXP);
         this.topkeks += topkeks;
         addKXP(channel.getJDA(), KXP);
@@ -78,16 +83,20 @@ public class Profile {
         addKXP(channel.getJDA(), KXP);
     }
 
+    /*
+    For the time being, this method is not needed.
+    But it will be reused.
     public void lostGame() {
         ++losses;
     }
+    */
 
     private void stateEarnings(TextChannel channel, int topkeks, int KXP) {
         channel.sendMessage(channel.getGuild().getMemberById(String.valueOf(userID)).getAsMention() + ", you've earned " +
                 (topkeks > 0 ? topkeks + CustomEmote.TOPKEK : "") +
                 (topkeks > 0 && KXP > 0 ? ", and " : "") +
                 (KXP > 0 ? KXP + " KXP" : "") +
-                (KXP == 0 && topkeks == 0 ? "nothing" : "") + "!").queue();
+                (KXP <= 0 && topkeks <= 0 ? "nothing" : "") + "!").queue();
     }
 
     public byte[] drawCard(JDA jda) throws IOException {
@@ -96,12 +105,7 @@ public class Profile {
         BufferedImage base = new BufferedImage(cardTemplate.getWidth(), cardTemplate.getHeight(), cardTemplate.getType());
         BufferedImage topkek = ImageIO.read(new File("resources/profile/topkek.png"));
         BufferedImage kxpBar = drawKXP();
-        BufferedImage ava;
-        URL avaURL = new URL(jda.getUserById(String.valueOf(userID)).getAvatarUrl());
-        URLConnection connection = avaURL.openConnection();
-        connection.setRequestProperty("User-Agent", "Mozilla/5.0");
-        connection.connect();
-        ava = ImageIO.read(connection.getInputStream());
+        BufferedImage ava = Utils.getAvatar(jda.getUserById(String.valueOf(userID)));
         Graphics2D card = base.createGraphics();
         //Draw background (implement later)
         card.drawImage(background, 0, 0, background.getWidth(), background.getHeight(), null);
@@ -131,8 +135,11 @@ public class Profile {
         card.drawImage(kxpBar, 46, 262, kxpBar.getWidth(), kxpBar.getHeight(), null);
         card.drawImage(topkek, 60, 314, 51, 51, null);
         card.drawString(shortenNumber(topkeks), 116, 351);
-        card.drawString("Wins: " + shortenNumber(wins), 66, 395);
-        card.drawString("Losses: " + shortenNumber(losses), 66, 428);
+
+        //May likely remove these two lines below:
+        //card.drawString("Wins: " + shortenNumber(wins), 66, 395);
+        //card.drawString("Losses: " + shortenNumber(losses), 66, 428);
+
         card.drawString("Tokens: ", 251, 264);
         card.drawString("Playlists: ", 251, 466);
         card.setFont(ProfileUtils.topBarBio);
@@ -234,9 +241,32 @@ public class Profile {
         }
     }
 
+    public void takeKXP(int KXP) {
+        this.KXP -= KXP;
+        if (this.KXP < 0) {
+            levelDown();
+            this.KXP += maxKXP;
+        }
+    }
+
+    public void setKXP(int KXP) {
+        this.KXP = KXP;
+    }
+
+    public void overrideMaxKXP(int maxKXP) {
+        this.maxKXP = maxKXP;
+    }
+
     public void levelUp(JDA jda) {
         User user = jda.getUserById(String.valueOf(userID));
-        if (user.hasPrivateChannel()) user.getPrivateChannel().sendMessage("Congrats, you've successfully levelled up to level " + level + "!").queue();
+        maxKXP = (int) Math.round(maxKXP * 1.10);
+        level++;
+        user.openPrivateChannel().queue(ch -> ch.sendMessage("Congrats, you've successfully levelled up to level " + level + "!").queue());
+    }
+
+    public void levelDown() {
+        maxKXP = (int) Math.round(maxKXP / 1.10);
+        level--;
     }
 
     public void addTopKeks(int topkeks) {

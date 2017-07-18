@@ -29,8 +29,8 @@ public class Gabe {
                 } else {
                     Role meme = checkForMeme.get(0);
                     if (server.getSelfMember().getRoles().contains(meme)) {
-                        if (new File("gabe").isDirectory()) {
-                            File gabes[] = new File("gabe").listFiles();
+                        if (new File("resources/gabe").isDirectory()) {
+                            File gabes[] = new File("resources/gabe").listFiles();
                             Random random = new Random();
                             int index = random.nextInt(gabes.length);
                             Optional<VoiceChannel> voiceChannel = context.getGuild().getVoiceChannels().stream().filter(c -> c.getMembers().contains(context.getMember())).findFirst();

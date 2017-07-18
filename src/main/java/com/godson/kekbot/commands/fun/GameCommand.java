@@ -8,6 +8,7 @@ import com.godson.kekbot.KekBot;
 import com.godson.kekbot.Settings.Config;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 
 public class GameCommand {
     public static Command game = new Command("game")
@@ -16,6 +17,7 @@ public class GameCommand {
             .withUsage("{p}game createlobby <gamename> - Creates a lobby for the specified game." +
                     "\n{p}game join - Joins the lobby created in the channel." +
                     "\n{p}game ready (or start) - Starts the game." +
+                    "\n\nKeep in mind, you cannot have more than one lobby in a single channel." +
                     "\n\nAvailable Games:" +
                     "\nTic-Tac-Toe (or \"ttt\" for short.)")
             .onExecuted(context -> {
@@ -34,7 +36,10 @@ public class GameCommand {
                                         }
                                     }
                                 } else {
-                                    channel.sendMessage("There is already a game being played on this channel.").queue();
+                                    Game game = KekBot.gamesManager.getGame(channel);
+                                    User host = game.players.get(0);
+                                    if (KekBot.gamesManager.getGame(channel).isReady()) context.getTextChannel().sendMessage("There's already a game of `" + game.getGameName() + "` being played here. The game was started by " + host.getName() + ".").queue();
+                                    context.getTextChannel().sendMessage("There's already a lobby for `" + game.getGameName() + "` in this channel, the lobby was created by " + host.getName() + ".").queue();
                                 }
                             } /*else {
                             if (KekBot.gamesManager.getGame(guild, context.getAuthor()).getChannel().equals(channel)) {
@@ -56,11 +61,14 @@ public class GameCommand {
                             break;
                         case "join":
                             if (!KekBot.gamesManager.isChannelFree(channel)) {
-                                if (KekBot.gamesManager.getGame(channel).players.contains(context.getAuthor())) {
-                                    channel.sendMessage("You're already in this game!").queue();
-                                } else {
-                                    KekBot.gamesManager.joinGame(channel, context.getAuthor());
-                                }
+                                Game game = KekBot.gamesManager.getGame(channel);
+                                if (!game.isReady()) {
+                                    if (game.players.contains(context.getAuthor())){
+                                        channel.sendMessage("You're already in this game!").queue();
+                                    } else{
+                                        KekBot.gamesManager.joinGame(channel, context.getAuthor());
+                                    }
+                                } else context.getTextChannel().sendMessage("This game's already started, you can't join it now!").queue();
                             }
                     }
                 } else {
