@@ -3,6 +3,7 @@ package com.godson.kekbot.Games;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.Profile.Profile;
 import com.godson.kekbot.Profile.Token;
+import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 
@@ -84,7 +85,7 @@ public class TicTacToe extends Game {
             e.printStackTrace();
         }
         turn = random.nextInt(2)+1;
-        if (players.size() < numberOfPlayers) {
+        if (players.size() < maxNumberOfPlayers) {
             prepareAI();
             if (turn == 2) {
                 aiFillSlot();
@@ -97,6 +98,17 @@ public class TicTacToe extends Game {
         } else {
             drawBoard();
             channel.sendMessage("**" + players.get(turn-1).getName() + ", you're first!**").queue();
+        }
+    }
+
+    @Override
+    public void acceptInputFromMessage(Message message) {
+        String contents = message.getRawContent();
+        try {
+            int slot = Integer.valueOf(contents);
+            fillSlot(slot-1, message.getAuthor());
+        } catch (NumberFormatException e) {
+            //do nothing.
         }
     }
 
@@ -269,7 +281,7 @@ public class TicTacToe extends Game {
         if (winner) {
             drawBoard();
             channel.sendMessage("\uD83C\uDF89 **" + player.getName() + " wins!** \uD83C\uDF89").queue();
-            if (players.size() == numberOfPlayers) endGame(player, random.nextInt(8), ThreadLocalRandom.current().nextInt(4, 7));
+            if (players.size() == maxNumberOfPlayers) endGame(player, random.nextInt(8), ThreadLocalRandom.current().nextInt(4, 7));
             else endGame(player, random.nextInt(3) + 1, random.nextInt(3) + 1);
         }
         return winner;
