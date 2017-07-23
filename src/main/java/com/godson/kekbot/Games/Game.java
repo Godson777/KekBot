@@ -2,6 +2,7 @@ package com.godson.kekbot.Games;
 
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.Profile.Profile;
+import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 
@@ -12,15 +13,25 @@ import java.util.Map;
 
 public abstract class Game {
     private String gameName;
-    int numberOfPlayers;
+    int minNumberOfPlayers = 0;
+    int maxNumberOfPlayers;
     private boolean hasAI;
     private boolean isReady = false;
+    private boolean reachedMinimum = false;
     public List<User> players = new ArrayList<>();
     private Map<User, Integer> playerNumber = new HashMap<>();
     public TextChannel channel;
 
-    public Game(int numberOfPlayers, boolean hasAI, TextChannel channel, String gameName) {
-        this.numberOfPlayers = numberOfPlayers;
+    public Game(int minNumberOfPlayers, int maxNumberOfPlayers, boolean hasAI, TextChannel channel, String gameName) {
+        this.minNumberOfPlayers = minNumberOfPlayers;
+        this.maxNumberOfPlayers = maxNumberOfPlayers;
+        this.hasAI = hasAI;
+        this.channel = channel;
+        this.gameName = gameName;
+    }
+
+    public Game(int maxNumberOfPlayers, boolean hasAI, TextChannel channel, String gameName) {
+        this.maxNumberOfPlayers = maxNumberOfPlayers;
         this.hasAI = hasAI;
         this.channel = channel;
         this.gameName = gameName;
@@ -28,8 +39,10 @@ public abstract class Game {
 
     public abstract void startGame();
 
+    public abstract void acceptInputFromMessage(Message message);
+
     public void addPlayer(User player) {
-        if (players.size() < numberOfPlayers) {
+        if (players.size() < maxNumberOfPlayers) {
             players.add(player);
             playerNumber.put(player, players.size());
         }
@@ -92,19 +105,47 @@ public abstract class Game {
     }
 
     public void ready() {
-        if (players.size() == numberOfPlayers) {
-            startGame();
-            isReady = true;
-        } else {
-            if (hasAI) {
+        if (hasMinimum()) {
+            if (players.size() >= minNumberOfPlayers) {
                 startGame();
                 isReady = true;
+            } else {
+                if (hasAI) {
+                    startGame();
+                    isReady = true;
+                }
+            }
+        } else {
+            if (players.size() == maxNumberOfPlayers) {
+                startGame();
+                isReady = true;
+            } else {
+                if (hasAI) {
+                    startGame();
+                    isReady = true;
+                }
             }
         }
     }
 
     public boolean hasRoomForPlayers() {
-        return numberOfPlayers > players.size();
+        return maxNumberOfPlayers > players.size();
+    }
+
+    public boolean reachedMinimumPlayers() {
+        return reachedMinimum;
+    }
+
+    public boolean hasMinimumPlayers() {
+        return players.size() >= minNumberOfPlayers;
+    }
+
+    public void minimumReached() {
+        reachedMinimum = true;
+    }
+
+    public boolean hasMinimum() {
+        return minNumberOfPlayers != 0;
     }
 
     public boolean hasAI() {
