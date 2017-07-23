@@ -12,8 +12,9 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.List;
+import java.text.NumberFormat;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class Utils {
@@ -62,7 +63,7 @@ public class Utils {
      * @return The now found user object.
      */
     public static User findShardUser(String userId) {
-        List<User> users = collectShardUsers();
+        Set<User> users = collectShardUsers();
         if (users.stream().anyMatch(user -> user.getId().equals(userId))) {
             return users.stream().filter(user -> user.getId().equals(userId)).findAny().get();
         } else throw new NullPointerException();
@@ -75,8 +76,8 @@ public class Utils {
      * but during this hang time it <i>does</i> freeze the entire bot (if running on one shard, otherwise it freezes the shard this was ran in.)
      * @return The merged {@link List list} object.
      */
-    public static List<User> collectShardUsers() {
-        List<User> users = new ArrayList<>();
+    public static Set<User> collectShardUsers() {
+        Set<User> users = new HashSet<>();
         for (int i = 0; i < KekBot.jdas.length; i++) {
             users.addAll(KekBot.jdas[i].getUsers());
         }
@@ -120,5 +121,82 @@ public class Utils {
         }
         if (ava == null) ava = KekBot.genericAvatar;
         return ava;
+    }
+
+    /**
+     * Converts milliseconds to a H:Mm:Ss format. (Example: 1:02:30)
+     * @param millis The milliseconds to convert.
+     * @return The converted H:Mm:Ss format.
+     */
+    public static String convertMillisToHMmSs(long millis) {
+        long hours = TimeUnit.MILLISECONDS.toHours(millis);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(millis) -
+                TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis));
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(millis) -
+                TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis));
+        return (hours > 0 ? hours + ":" : "") +
+                (minutes > 0 ? (minutes > 9 ? minutes + ":" : (hours > 0 ? "0" + minutes + ":" : minutes + ":" )) : (hours > 0 ? "00:" : "0:")) +
+                (seconds > 0 ? (seconds > 9 ? seconds : "0" + seconds) : "00");
+    }
+
+    /**
+     * Converts milliseconds to a "Time" format. (Example, 1 Day, 20 Hours, 10 minutes, and 5 Seconds.
+     * @param millis The milliseconds to convert.
+     * @return The converted "Time" format.
+     */
+    public static String convertMillisToTime(long millis) {
+        long days = TimeUnit.MILLISECONDS.toDays(millis);
+        long hours = TimeUnit.MILLISECONDS.toHours(millis) -
+                TimeUnit.DAYS.toHours(TimeUnit.MILLISECONDS.toDays(millis));
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(millis) -
+                TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis));
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(millis) -
+                TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis));
+        return (days != 0 ? days + (days > 1 ? " Days, " : " Day, ") : "") +
+                (hours != 0 ? hours + (hours > 1 ? " Hours, " : " Hour, ") : "") + minutes +
+                (minutes != 1 ? " Minutes and " : " Minute and ") + seconds + (seconds != 1 ? " Seconds." : " Second.");
+    }
+
+    /**
+     * Converts two millis to a H:Mm:Ss format. Mostly to compare one to the other.
+     * This is mostly meant to be used within the music player, since the first variable is the current timestamp, while the second variable is the length of the track.
+     * @param current Current position in track.
+     * @param length Total track length.
+     * @return The converted H:Mm:Ss format.
+     */
+    //This may wind up being a private method in the music player in a later version.
+    public static String songTimestamp(long current, long length) {
+        return convertMillisToHMmSs(current) + "/" + convertMillisToHMmSs(length);
+    }
+
+    /**
+     * Removes any whitespace from the edges of a string.
+     * @param string The {@link String string} we're going to remove whitespaces from.
+     * @return The {@link String string}, minus the unnecessary whitespaces at the edges.
+     */
+    public static String removeWhitespaceEdges(String string) {
+        if (string.matches(".*\\w.*")) {
+            if (string.startsWith(" ")) string = string.replaceFirst("([ ]+)", "");
+            if (string.endsWith(" ")) string = string.replaceAll("([ ]+$)", "");
+        } else string = "";
+        return string;
+    }
+
+    /**
+     * Combines a set of arguments to a single string.
+     * @param arguments The arguments to combine.
+     * @return The combined {@link String string} object.
+     */
+    public static String combineArguments(String[] arguments) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < arguments.length; i++) {
+            builder.append(arguments[i]);
+            if (i != arguments.length-1) builder.append(" ");
+        }
+        return builder.toString();
+    }
+
+    public static String printReadableNumber(int number) {
+        return NumberFormat.getNumberInstance(Locale.US).format(number);
     }
 }
