@@ -168,7 +168,7 @@ public class ShopCommand {
                 }
             });
 
-    private static byte[] drawTokenShop(Profile profile, List<Token> tokens, boolean prev, boolean next, int subset) throws IOException {
+    private static byte[] drawTokenShop(Profile profile, List<Token> tokens, boolean prev, boolean next, int offset) throws IOException {
         BufferedImage shop3Shelf = ImageIO.read(new File("resources/shop/3shelf.png"));
         BufferedImage prevImg = ImageIO.read(new File("resources/shop/prev.png"));
         BufferedImage nextImg = ImageIO.read(new File(("resources/shop/next.png")));
@@ -185,7 +185,7 @@ public class ShopCommand {
                 if (tokens.get(x + (y * 3)).getRequiredLevel() > profile.getLevel()) graphics.drawImage(locked, 70 + (125 * x), 226 + (130 * y),null);
                 graphics.drawImage(topkek, 40 + (125 * x), 196 + (130 * y), null);
                 graphics.drawString(String.valueOf(tokens.get(x + (y * 3)).getPrice()), 85 + (125 * x),215 + (130 * y));
-                graphics.drawString(String.valueOf(((x + (y * 3)) + 1) + (subset * 9)), 53 + (125 * x), 257 + (130 * y));
+                graphics.drawString(String.valueOf(((x + (y * 3)) + 1) + (offset * 9)), 53 + (125 * x), 257 + (130 * y));
             }
         }
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -196,7 +196,7 @@ public class ShopCommand {
         return image;
     }
 
-    private static byte[] drawBackgroundShop(Profile profile, List<Background> backgrounds, boolean prev, boolean next, int subset) throws IOException {
+    private static byte[] drawBackgroundShop(Profile profile, List<Background> backgrounds, boolean prev, boolean next, int offset) throws IOException {
         BufferedImage shop3Shelf = ImageIO.read(new File("resources/shop/3shelf.png"));
         BufferedImage prevImg = ImageIO.read(new File("resources/shop/prev.png"));
         BufferedImage nextImg = ImageIO.read(new File(("resources/shop/next.png")));
@@ -213,7 +213,7 @@ public class ShopCommand {
                 if (backgrounds.get(x + (y * 2)).getRequiredLevel() > profile.getLevel()) graphics.drawImage(locked, 75 + (166 * x), 205 + (130 * y),null);
                 graphics.drawImage(topkek, 4 + (393 * x), 199 + (130 * y), null);
                 graphics.drawString(String.valueOf(backgrounds.get(x + (y * 2)).getPrice()), 40 + (393 * x),220 + (130 * y));
-                graphics.drawString(String.valueOf(((x + (y * 2)) + 1) + (subset * 9) ), 32 + (393 * x), 252 + (130 * y));
+                graphics.drawString(String.valueOf(((x + (y * 2)) + 1) + (offset * 6) ), 32 + (393 * x), 252 + (130 * y));
             }
         }
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
