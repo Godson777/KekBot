@@ -2,18 +2,16 @@ package com.godson.kekbot.commands.music;
 
 import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
-import com.darichey.discord.api.CommandContext;
 import com.godson.kekbot.CustomEmote;
 import com.godson.kekbot.KekBot;
-import com.godson.kekbot.Music.*;
 import com.godson.kekbot.Music.Playlist;
 import com.godson.kekbot.Profile.Profile;
 import com.godson.kekbot.Questionaire.QuestionType;
 import com.godson.kekbot.Questionaire.Questionnaire;
+import com.godson.kekbot.Utils;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -151,7 +149,7 @@ public class MyPlaylist {
                     } else {
                         playlists = profile.getPlaylists().stream().filter(playlist -> !playlist.isHidden()).collect(Collectors.toList());
                     }
-                    List<String> playlistNames = playlists.stream().map(playlist -> "`" + playlist.getName() + "` - (" + KekBot.convertMillisToTime(playlist.getTotalLength()) + ")" + (playlist.isHidden() ? " ***(HIDDEN)***" : "")).collect(Collectors.toList());
+                    List<String> playlistNames = playlists.stream().map(playlist -> "`" + playlist.getName() + "` - (" + Utils.convertMillisToTime(playlist.getTotalLength()) + ")" + (playlist.isHidden() ? " ***(HIDDEN)***" : "")).collect(Collectors.toList());
                     final int page[] = {0};
                     String message = "Here are your playlists: \n\n" +
                             StringUtils.join(playlistNames.subList(page[0] * 15, ((page[0] + 1) * 15 <= playlistNames.size() ? (page[0] + 1) * 15 : playlistNames.size())), "\n") +
@@ -239,7 +237,7 @@ public class MyPlaylist {
 
     private static void editPlaylist(Questionnaire.Results results, Playlist playlist, Profile profile) {
         List<AudioTrackInfo> tracks = playlist.getTracks();
-        List<String> trackNames = tracks.stream().map(track -> (tracks.indexOf(track) + 1) + ". `" + track.title + "` - (" + KekBot.convertMillisToTime(track.length) + ")").collect(Collectors.toList());
+        List<String> trackNames = tracks.stream().map(track -> (tracks.indexOf(track) + 1) + ". `" + track.title + "` - (" + Utils.convertMillisToTime(track.length) + ")").collect(Collectors.toList());
         final int[] page = {0};
         String message = "Alright, I found these tracks lying around in your playlist: \n\n" +
                 StringUtils.join(trackNames.subList(page[0] * 15, ((page[0] + 1) * 15 <= trackNames.size() ? (page[0] + 1) * 15 : trackNames.size())), "\n") +
