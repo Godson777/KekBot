@@ -39,8 +39,6 @@ public class JustRight {
                                     channel.sendFile(justrights[index], null).queue();
                                 } catch (PermissionException e) {
                                     out.println("I do not have the 'Send Messages' permission in server: " + server.getName() + " - #" + channel.getName() + "! Aborting!");
-                                } catch (IOException e) {
-                                    e.printStackTrace();
                                 }
                         }
                     } else {

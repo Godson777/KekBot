@@ -57,11 +57,13 @@ public class Listener extends ListenerAdapter {
         //Announce Ready
         System.out.println("KekBot is ready to roll!");
         //Randomize the game the bot is playing.
-        Timer gameStatusTimer = new Timer();
-        gameStatusTimer.schedule(new GameStatus(), 0, TimeUnit.MINUTES.toMillis(10));
+        if (event.getJDA().getShardInfo().getShardId() == KekBot.shards-1) {
+            Timer gameStatusTimer = new Timer();
+            gameStatusTimer.schedule(new GameStatus(), 0, TimeUnit.MINUTES.toMillis(10));
+        }
         //Set startup time
         start = Calendar.getInstance().getTime();
-        for (JDA jda : KekBot.jdas) {
+        JDA jda = event.getJDA();
             jda.getGuilds().forEach(guild -> {
                 Settings settings = GSONUtils.getSettings(guild);
 
@@ -92,7 +94,6 @@ public class Listener extends ListenerAdapter {
                 registry.customRegister(AddResponse.addResponse, jda.getGuildById("221910104495095808"));
                 registry.customRegister(Suggestions.suggestions, jda.getGuildById("221910104495095808"));
             }
-        }
 
 
     }
