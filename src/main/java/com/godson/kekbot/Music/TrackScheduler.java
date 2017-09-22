@@ -13,8 +13,7 @@ import net.dv8tion.jda.core.entities.User;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 public class TrackScheduler extends AudioEventAdapter {
@@ -116,7 +115,7 @@ public class TrackScheduler extends AudioEventAdapter {
         if (endReason.mayStartNext) {
             if (repeat == 1) player.startTrack(track.makeClone(), false);
             else if (queue.size() > 0 || repeat == 2) nextTrack();
-            else KekBot.player.closeConnection(guild);
+            else closeConnection();
         }
     }
 
@@ -125,6 +124,14 @@ public class TrackScheduler extends AudioEventAdapter {
             voteSkip = 0;
             voteSkippers.clear();
         }
+    }
+
+    private void closeConnection() {
+        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+        executor.schedule(() -> {
+            KekBot.player.closeConnection(guild);
+            executor.shutdown();
+        }, 1, TimeUnit.SECONDS);
     }
 
     public BlockingQueue<AudioTrack> getQueue() {
