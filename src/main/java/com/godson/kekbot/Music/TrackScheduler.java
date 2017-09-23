@@ -131,7 +131,7 @@ public class TrackScheduler extends AudioEventAdapter {
         executor.schedule(() -> {
             KekBot.player.closeConnection(guild);
             executor.shutdown();
-        }, 1, TimeUnit.SECONDS);
+        }, 0, TimeUnit.SECONDS);
     }
 
     public BlockingQueue<AudioTrack> getQueue() {
