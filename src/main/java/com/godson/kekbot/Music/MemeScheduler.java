@@ -7,8 +7,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import net.dv8tion.jda.core.entities.Guild;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.*;
 
 public class MemeScheduler extends AudioEventAdapter {
     private final AudioPlayer player;
@@ -52,7 +51,15 @@ public class MemeScheduler extends AudioEventAdapter {
         // Only start the next track if the end reason is suitable for it (FINISHED or LOAD_FAILED)
         if (endReason.mayStartNext) {
             if (queue.size() > 0) nextTrack();
-            else KekBot.player.closeConnection(guild);
+            else closeConnection();
         }
+    }
+
+    private void closeConnection() {
+        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+        executor.schedule(() -> {
+            KekBot.player.closeConnection(guild);
+            executor.shutdown();
+        }, 0, TimeUnit.SECONDS);
     }
 }

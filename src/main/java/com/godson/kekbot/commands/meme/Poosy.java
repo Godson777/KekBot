@@ -27,12 +27,8 @@ public class Poosy {
                 } else {
                     Role meme = checkForMeme.get(0);
                     if (server.getSelfMember().getRoles().contains(meme)) {
-                        try {
-                            channel.sendTyping().queue();
-                            channel.sendFile(new File("resources/memegen/poosy.png"), null).queue();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                        channel.sendTyping().queue();
+                        channel.sendFile(new File("resources/memegen/poosy.png"), null).queue();
                     } else {
                         channel.sendMessage(KekBot.respond(context, Action.MEME_NOT_APPLIED, "__**Living Meme**__")).queue();
                     }

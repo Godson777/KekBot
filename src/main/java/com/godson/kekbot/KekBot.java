@@ -25,6 +25,7 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.exceptions.RateLimitedException;
+import net.dv8tion.jda.core.requests.SessionReconnectQueue;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.imageio.ImageIO;
@@ -87,18 +88,20 @@ public class KekBot {
         if (token == null) {
             System.out.println("Token was not specified in \"config.json\"! Please go back and specify one before launching!");
         } else {
+            JDABuilder builder = new JDABuilder(AccountType.BOT).setToken(token)
+                    .setReconnectQueue(new SessionReconnectQueue())
+                    .addEventListener(new Listener())
+                    .addEventListener(waiter)
+                    .addEventListener(gamesManager);
+
             if (shards > 1) {
                 for (int i = 0; i < shards; i++) {
-                    jdas[i] = new JDABuilder(AccountType.BOT).setToken(token).useSharding(i, shards).buildAsync();
+                    jdas[i] = builder.useSharding(i, shards).buildAsync();
                 }
             } else {
-                jdas[0] = new JDABuilder(AccountType.BOT).setToken(token).buildAsync();
+                jdas[0] = builder.buildAsync();
             }
             for (JDA jda : jdas) {
-                jda.addEventListener(new Listener());
-                jda.addEventListener(waiter);
-                jda.addEventListener(gamesManager);
-
                 CommandRegistry.getForClient(jda).registerAll(Help.help, Purge.purge, Say.say, Granddad.granddad, TicketCommand.ticket, Lenny.lenny,
                         Shrug.shrug, Credits.credits, Avatar.avatar, TagCommand.tagCommand, AddAllowedUser.addAllowedUser, AddGame.addGame, Triggered.triggered, Gril.gril,
                         Salt.salt, JustRight.justRight, GetInvite.getInvite, Ban.ban, Kick.kick, Prefix.prefix, AutoRole.autoRole, Announce.announce,
