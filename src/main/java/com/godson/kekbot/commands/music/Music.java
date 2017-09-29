@@ -25,6 +25,7 @@ public class Music {
                         "\n{p}stop - **Stops the current music session. (Host Only)**" +
                         "\n{p}pause - **Pauses the current music session. (Host Only)**" +
                         "\n{p}repeat - **Toggles repeat mode, switched from OFF, SINGLE, and MULTI. (Host Only)**" +
+                        "\n{p}shuffle - **Shuffles all the tracks that are in the queue.**" +
                         "\n" +
                         "\nAll \"Host Only\" commands can also be executed by a user with `Administrator` permissions.")).queue();
             });
