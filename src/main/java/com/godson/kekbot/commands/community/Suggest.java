@@ -4,13 +4,11 @@ import com.darichey.discord.api.Command;
 import com.godson.kekbot.GSONUtils;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.Responses.Action;
-import com.godson.kekbot.EventWaiter.EventWaiter;
 import com.godson.kekbot.Questionaire.QuestionType;
 import com.godson.kekbot.Questionaire.Questionnaire;
 import com.godson.kekbot.Responses.ResponseSuggestions;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
@@ -22,7 +20,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Suggest {
-    private static EventWaiter waiter = KekBot.waiter;
     public static Command suggest = new Command("suggest")
             .onExecuted(context -> {
                 TextChannel channel = context.getTextChannel();
