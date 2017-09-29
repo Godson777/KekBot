@@ -3,12 +3,16 @@ package com.godson.kekbot.Games;
 import com.godson.kekbot.KekBot;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.channel.text.TextChannelDeleteEvent;
+import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class GamesManager extends ListenerAdapter {
     private Map<Long, Game> activeGames = new HashMap<>();
+    private Map<Game, BetManager> bets = new HashMap<>();
 
     public Game getGame(TextChannel channel) {
         return activeGames.get(Long.valueOf(channel.getId()));
@@ -34,7 +38,8 @@ public class GamesManager extends ListenerAdapter {
         if (!activeGames.containsKey(Long.valueOf(channel.getId()))) {
             game.addPlayer(host);
             activeGames.put(Long.valueOf(channel.getId()), game);
-            channel.sendMessage(game.getGameName() + " lobby created! ***(Minimum " + game.minNumberOfPlayers + " players to play. Maximum " + game.maxNumberOfPlayers + " players.)***" +
+            channel.sendMessage(game.getGameName() + " lobby created!" +
+                    (game.hasMinimum() ? " ***(Minimum " + game.minNumberOfPlayers + " players to play. Maximum " + game.maxNumberOfPlayers + " players.)***" : "") +
                     (game.hasRoomForPlayers() ? KekBot.replacePrefix(channel.getGuild(), " Players can join by using `{p}game join`.") : "") +
                     (game.hasRoomForPlayers() && game.hasAI() ? KekBot.replacePrefix(channel.getGuild(), " Or, you can start the game early with `{p}game ready`, and play with an AI.") : "") +
                     (game.hasAI() && !game.hasRoomForPlayers() ? KekBot.replacePrefix(channel.getGuild(), " You can now start the game with `{p}game ready`") : "")).queue();
@@ -62,6 +67,24 @@ public class GamesManager extends ListenerAdapter {
             if (game.players.contains(event.getAuthor())) {
                 if (game.isReady()) {
                     game.acceptInputFromMessage(event.getMessage());
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onTextChannelDelete(TextChannelDeleteEvent event) {
+        if (activeGames.containsKey(Long.valueOf(event.getChannel().getId()))) closeGame(event.getChannel());
+    }
+
+    @Override
+    public void onGuildMemberLeave(GuildMemberLeaveEvent event) {
+        if (event.getGuild().getTextChannels().stream().anyMatch(channel -> activeGames.containsKey(Long.valueOf(channel.getId())))) {
+            List<TextChannel> gameChannels = event.getGuild().getTextChannels().stream().filter(channel -> activeGames.containsKey(Long.valueOf(channel.getId()))).collect(Collectors.toList());
+            for (TextChannel channel : gameChannels) {
+                if (activeGames.get(Long.valueOf(channel.getId())).players.contains(event.getUser())) {
+                    activeGames.get(Long.valueOf(channel.getId())).channel.sendMessage("This game has ended abruptly due to a player (" + event.getUser().getAsMention() + ") having left or having been removed from this server.").queue();
+                    closeGame(channel);
                 }
             }
         }
