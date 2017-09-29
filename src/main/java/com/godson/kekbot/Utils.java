@@ -102,11 +102,11 @@ public class Utils {
     }
 
     /**
-     * Attempts to get the user's avatar.
+     * Attempts to get a BufferedImage of the user's avatar. If the user doesn't have one, a generic one is used instead.
      * @param user The User KekBot will try to steal the avatar from.
-     * @return The user's profile picture. Will return a generic avatar if the user doesn't happen (which will only happen if a MalformedURLException occurs).
+     * @return The user's avatar as a {@link BufferedImage BufferedImage object}. Will return a generic avatar if the user doesn't happen (which will only happen if a MalformedURLException occurs).
      */
-    public static BufferedImage getAvatar(User user) {
+    public static BufferedImage getUserAvatarImage(User user) {
         BufferedImage ava = null;
         try {
             URL userAva = new URL(user.getAvatarUrl());
@@ -115,12 +115,21 @@ public class Utils {
             connection.connect();
             ava = ImageIO.read(connection.getInputStream());
         } catch (MalformedURLException e) {
-            ava = KekBot.genericAvatar;
+           ava = KekBot.genericAvatar;
         } catch (IOException e) {
             e.printStackTrace();
         }
         if (ava == null) ava = KekBot.genericAvatar;
         return ava;
+    }
+
+    /**
+     * Gets the user's avatar URL. If they don't have one, their default is returned.
+     * @param user The User KekBot will try to steal the avatar from.
+     * @return The user's avatar URL.
+     */
+    public static String getUserAvatarURL(User user) {
+        return user.getAvatarUrl() == null ? user.getDefaultAvatarUrl() : user.getAvatarUrl();
     }
 
     /**
