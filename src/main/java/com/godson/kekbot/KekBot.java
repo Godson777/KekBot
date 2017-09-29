@@ -2,7 +2,7 @@ package com.godson.kekbot;
 
 import com.darichey.discord.api.CommandContext;
 import com.darichey.discord.api.CommandRegistry;
-import com.godson.kekbot.EventWaiter.EventWaiter;
+import com.godson.discoin4j.Discoin4J;
 import com.godson.kekbot.Games.GamesManager;
 import com.godson.kekbot.Music.MusicPlayer;
 import com.godson.kekbot.Objects.WaifuManager;
@@ -20,6 +20,7 @@ import com.godson.kekbot.commands.music.*;
 import com.godson.kekbot.commands.music.Queue;
 import com.godson.kekbot.commands.owner.*;
 import com.godson.kekbot.commands.test;
+import com.jagrosh.jdautilities.waiter.EventWaiter;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
@@ -39,7 +40,7 @@ import java.util.concurrent.TimeUnit;
 
 public class KekBot {
     //Seting configs, and resources.
-    private static int shards = GSONUtils.getConfig().getShards();
+    public static int shards = GSONUtils.getConfig().getShards();
     public static JDA[] jdas = new JDA[shards];
     public static final String version;
     public static long startTime = System.currentTimeMillis();
@@ -57,6 +58,7 @@ public class KekBot {
     public static BackgroundShop backgroundShop = new BackgroundShop();
     public static WaifuManager waifuManager = new WaifuManager();
     public static Lottery lottery = new Lottery();
+    public static Discoin4J discoin;
 
     static {
         //TODO: Remove this later in favor of hardcoding the version, instead of relying on a .properties file.
@@ -79,6 +81,7 @@ public class KekBot {
 
     public static void main(String[] args) throws LoginException, InterruptedException, RateLimitedException {
         String token = GSONUtils.getConfig().getToken();
+        if (GSONUtils.getConfig().getDcoinToken() != null) discoin = new Discoin4J(GSONUtils.getConfig().getDcoinToken());
 
         if (shards == 0) {
             System.out.println("You must enter the number of shards in your \"config.json\"! Please go back and specify it before launching.");
@@ -111,7 +114,7 @@ public class KekBot {
                         Skip.skip, Playlist.playlist, Song.song, Stop.stop, Volume.volume, Host.host, Music.music, Pause.pause, VoteSkip.voteskip, Repeat.repeat, Invite.invite,
                         Erase.erase, Johnny.johnny, LongLive.longlive, BlockUser.blockUser, DELET.delet, AddPatron.addPatron, RemovePatron.removePatron,
                         Poosy.poosy, EightBall.eightBall, Pick.pick, GameCommand.game, ProfileCommand.profile, FullWidth.fullwidth, ShopCommand.shop, MyPlaylist.myPlaylist,
-                        Rip.rip, RateWaifu.rateWaifu, Gabe.gabe, Changelog.changelog, LotteryCommand.lottery);
+                        Rip.rip, RateWaifu.rateWaifu, Gabe.gabe, Changelog.changelog, LotteryCommand.lottery, Shuffle.shuffle, Balance.balanace);
             }
 
             for (Action action : Action.values()) {
