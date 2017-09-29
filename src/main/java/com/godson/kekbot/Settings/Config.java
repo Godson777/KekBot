@@ -12,6 +12,8 @@ import java.util.List;
 public class Config {
     private String token;
     private String dApiToken;
+    private String dListBotsToken;
+    private String dcoinToken;
     private String botOwner;
     private int shards;
     private List<String> allowedUsers = new ArrayList<String>();
@@ -68,6 +70,14 @@ public class Config {
 
     public String getdApiToken() {
         return dApiToken;
+    }
+
+    public String getdListBotsToken() {
+        return dListBotsToken;
+    }
+
+    public String getDcoinToken() {
+        return dcoinToken;
     }
 
     public List<String> getPatrons() {
