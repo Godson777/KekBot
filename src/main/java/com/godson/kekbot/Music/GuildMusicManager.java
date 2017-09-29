@@ -19,6 +19,7 @@ public class GuildMusicManager {
     public final TextChannel channel;
     public final boolean meme;
     public User host;
+    public boolean queueing = false;
 
     /**
      * Creates a player and a track scheduler.

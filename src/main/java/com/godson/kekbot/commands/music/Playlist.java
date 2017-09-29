@@ -22,12 +22,12 @@ public class Playlist {
                             if (context.getArgs().length > 0) {
                                 try {
                                     int page = Integer.valueOf(context.getArgs()[0]);
-                                    KekBot.player.getPlaylist(context.getTextChannel(), page - 1);
+                                    KekBot.player.getPlaylist(context);
                                 } catch (NumberFormatException e) {
                                     context.getTextChannel().sendMessage(KekBot.respond(context, Action.NOT_A_NUMBER, context.getArgs()[0])).queue();
                                 }
                             } else {
-                                KekBot.player.getPlaylist(context.getTextChannel(), 0);
+                                KekBot.player.getPlaylist(context);
                             }
                         } else
                             context.getTextChannel().sendMessage(KekBot.respond(context, Action.MUSIC_NOT_IN_CHANNEL, "`" + context.getGuild().getAudioManager().getConnectedChannel().getName() + "`")).queue();
