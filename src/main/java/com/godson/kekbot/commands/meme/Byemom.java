@@ -38,7 +38,7 @@ public class Byemom {
                             }
                             String search = builder.toString();
                             channel.sendTyping().queue();
-                            BufferedImage ava = Utils.getAvatar(context.getAuthor());
+                            BufferedImage ava = Utils.getUserAvatarImage(context.getAuthor());
                             try {
                                 BufferedImage template = ImageIO.read(new File("resources/memegen/byemom_template.png"));
                                 Graphics2D image = template.createGraphics();

@@ -36,7 +36,7 @@ public class DELET {
                             if (context.getMessage().getMentionedUsers().size() > 0) {
                                 channel.sendTyping().queue();
                                 Member member = context.getGuild().getMemberById(context.getMessage().getMentionedUsers().get(0).getId());
-                                BufferedImage target = Utils.getAvatar(member.getUser());
+                                BufferedImage target = Utils.getUserAvatarImage(member.getUser());
                                 try {
                                     BufferedImage template = ImageIO.read(new File("resources/memegen/DELET_template.png"));
                                     BufferedImage bg = new BufferedImage(template.getWidth(), template.getHeight(), template.getType());
