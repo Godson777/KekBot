@@ -16,7 +16,7 @@ public class Lottery {
     private int ticketMax = 10;
     private int pot = 0;
     private int ticketsCount = 0;
-    private long lengthOfLottery = TimeUnit.SECONDS.toMillis(20);
+    private long lengthOfLottery = TimeUnit.HOURS.toMillis(4);
     private List<LotteryTicket> ballot = new ArrayList<>();
     private List<Pair<User, Integer>> winners = new ArrayList<>();
 
@@ -53,7 +53,7 @@ public class Lottery {
         return "Draw in: **" + (Utils.convertMillisToTime(nextExecutionTime - System.currentTimeMillis())) + "**" +
                 "\nYou can buy a ticket for **" + CustomEmote.printPrice(ticketPrice) + "** with `" + KekBot.insertPrefix(guild) + "lottery buy`." +
                 "\nThere is currently **" + CustomEmote.printPrice(pot) + "** in the pot." +
-                "\nYou have **" + getOwnedTickets(gambler) + (getOwnedTickets(gambler) == 1 ? " tickets" : " ticket") + " **.";
+                "\nYou have **" + getOwnedTickets(gambler) + (getOwnedTickets(gambler) != 1 ? " tickets" : " ticket") + " **.";
     }
 
     public String addTicket(User gambler) throws IllegalArgumentException {
