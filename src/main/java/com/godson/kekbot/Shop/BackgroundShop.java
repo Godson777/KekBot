@@ -28,7 +28,7 @@ public class BackgroundShop extends Shop<Background> {
                     profile.save();
                     return "Purchase complete. \uD83D\uDCB0";
                 } else
-                    return "You can't afford this background! This costs **" + background.getPrice() + CustomEmote.TOPKEK + "**, you have **" + profile.getTopkeks() + CustomEmote.TOPKEK + "**.";
+                    return "You can't afford this background! This costs **" + CustomEmote.printPrice(background.getPrice()) + "**, you have **" + CustomEmote.printPrice(profile.getTopkeks()) + "**.";
             } else return "You already have this background!";
         } else return "This background requires you to be at least Level " + background.getRequiredLevel() + ". You are Level " + profile.getLevel() + ".";
     }
