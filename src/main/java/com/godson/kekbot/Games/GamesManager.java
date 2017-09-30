@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 public class GamesManager extends ListenerAdapter {
     private Map<Long, Game> activeGames = new HashMap<>();
     private Map<Game, BetManager> bets = new HashMap<>();
+    private GameRegistry gameRegistry = new GameRegistry();
 
     public Game getGame(TextChannel channel) {
         return activeGames.get(Long.valueOf(channel.getId()));
@@ -34,8 +35,12 @@ public class GamesManager extends ListenerAdapter {
         }
     }
 
-    public void addGame(TextChannel channel, Game game, User host) {
-        if (!activeGames.containsKey(Long.valueOf(channel.getId()))) {
+    public void addGame(TextChannel channel, String gameName, User host) {
+        if (isChannelFree(channel)) {
+            if (!gameRegistry.hasGame(gameName)) {
+                return;
+            }
+            Game game = gameRegistry.getGame(gameName, channel);
             game.addPlayer(host);
             activeGames.put(Long.valueOf(channel.getId()), game);
             channel.sendMessage(game.getGameName() + " lobby created!" +
@@ -43,6 +48,15 @@ public class GamesManager extends ListenerAdapter {
                     (game.hasRoomForPlayers() ? KekBot.replacePrefix(channel.getGuild(), " Players can join by using `{p}game join`.") : "") +
                     (game.hasRoomForPlayers() && game.hasAI() ? KekBot.replacePrefix(channel.getGuild(), " Or, you can start the game early with `{p}game ready`, and play with an AI.") : "") +
                     (game.hasAI() && !game.hasRoomForPlayers() ? KekBot.replacePrefix(channel.getGuild(), " You can now start the game with `{p}game ready`") : "")).queue();
+        } else {
+            Game game = getGame(channel);
+            User otherHost = game.players.get(0);
+            if (otherHost == host) {
+                channel.sendMessage("You're already hosting a game of " + game.getGameName() + " in this channel!").queue();
+                return;
+            }
+            if (game.isReady()) channel.sendMessage("There's already a game of `" + game.getGameName() + "` being played here. The game was started by " + otherHost.getName() + ".").queue();
+            else channel.sendMessage("There's already a lobby for `" + game.getGameName() + "` in this channel, the lobby was created by " + otherHost.getName() + ".").queue();
         }
     }
 
