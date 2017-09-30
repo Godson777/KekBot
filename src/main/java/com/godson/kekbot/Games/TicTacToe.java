@@ -40,7 +40,7 @@ public class TicTacToe extends Game {
     private BufferedImage player2;
 
     public TicTacToe(TextChannel channel) {
-        super(2, true, channel, "TicTacToe");
+        super(2, true, channel, "TicTacToe", false);
     }
 
     @Override
