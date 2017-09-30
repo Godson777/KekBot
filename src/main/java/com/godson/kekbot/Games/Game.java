@@ -147,7 +147,8 @@ public abstract class Game {
                 } else {
                     double betEarnings = bets.declareWinners(this, winnerIDs);
                     profile.wonGame(channel.getJDA(), baseTopkeks + (players.size() - i) + betEarnings, baseKXP + (players.size() - i));
-                    builder.append(stateEarnings(winners.get(i), topkeks, KXP, betEarnings, "Won Bet"));
+                    if (bets.hasPlayerBets()) builder.append(stateEarnings(winners.get(i), topkeks, KXP, betEarnings, "Won Bet"));
+                    else builder.append(stateEarnings(winners.get(i), topkeks, KXP));
                 }
             } else {
                 profile.wonGame(channel.getJDA(), topkeks, KXP);
