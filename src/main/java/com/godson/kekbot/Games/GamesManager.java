@@ -24,9 +24,8 @@ public class GamesManager extends ListenerAdapter {
             Game game = activeGames.get(Long.valueOf(channel.getId()));
             if (game.hasRoomForPlayers()) {
                 game.addPlayer(player);
-                String joinMessage = "**" + player.getName() + " joined the game. (" + game.players.size() + "/" + game.maxNumberOfPlayers + ")**";
+                String joinMessage = "**" + player.getName() + " joined the game. (" + game.players.size() + "/" + game.getMaxNumberOfPlayers() + ")**";
                 if (game.hasMinimum() && game.hasMinimumPlayers() && !game.reachedMinimumPlayers()) {
-                    game.minimumReached();
                     joinMessage += " *(Minimum Players Reached! You can now start the game with `" + KekBot.insertPrefix(channel.getGuild()) + "game ready`!)*";
                 }
                 channel.sendMessage(joinMessage).queue();
@@ -44,7 +43,7 @@ public class GamesManager extends ListenerAdapter {
             game.addPlayer(host);
             activeGames.put(Long.valueOf(channel.getId()), game);
             channel.sendMessage(game.getGameName() + " lobby created!" +
-                    (game.hasMinimum() ? " ***(Minimum " + game.minNumberOfPlayers + " players to play. Maximum " + game.maxNumberOfPlayers + " players.)***" : "") +
+                    (game.hasMinimum() ? " ***(Minimum " + game.getMinNumberOfPlayers() + " players to play. Maximum " + game.getMaxNumberOfPlayers() + " players.)***" : "") +
                     (game.hasRoomForPlayers() ? KekBot.replacePrefix(channel.getGuild(), " Players can join by using `{p}game join`.") : "") +
                     (game.hasRoomForPlayers() && game.hasAI() ? KekBot.replacePrefix(channel.getGuild(), " Or, you can start the game early with `{p}game ready`, and play with an AI.") : "") +
                     (game.hasAI() && !game.hasRoomForPlayers() ? KekBot.replacePrefix(channel.getGuild(), " You can now start the game with `{p}game ready`") : "")).queue();

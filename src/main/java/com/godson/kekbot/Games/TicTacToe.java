@@ -85,7 +85,7 @@ public class TicTacToe extends Game {
             e.printStackTrace();
         }
         turn = random.nextInt(2)+1;
-        if (players.size() < maxNumberOfPlayers) {
+        if (players.size() < getMaxNumberOfPlayers()) {
             prepareAI();
             if (turn == 2) {
                 aiFillSlot();
@@ -281,7 +281,7 @@ public class TicTacToe extends Game {
         if (winner) {
             drawBoard();
             channel.sendMessage("\uD83C\uDF89 **" + player.getName() + " wins!** \uD83C\uDF89").queue();
-            if (players.size() == maxNumberOfPlayers) endGame(player, random.nextInt(8), ThreadLocalRandom.current().nextInt(4, 7));
+            if (players.size() == getMaxNumberOfPlayers()) endGame(player, random.nextInt(8), ThreadLocalRandom.current().nextInt(4, 7));
             else endGame(player, random.nextInt(3) + 1, random.nextInt(3) + 1);
         }
         return winner;

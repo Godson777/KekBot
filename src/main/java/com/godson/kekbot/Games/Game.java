@@ -14,8 +14,8 @@ import java.util.Map;
 
 public abstract class Game {
     private String gameName;
-    int minNumberOfPlayers = 0;
-    int maxNumberOfPlayers;
+    private int minNumberOfPlayers = 0;
+    private int maxNumberOfPlayers;
     private boolean hasAI;
     private boolean isReady = false;
     private boolean reachedMinimum = false;
@@ -68,11 +68,28 @@ public abstract class Game {
 
     public abstract void acceptInputFromMessage(Message message);
 
+    /**
+     * Adds a player into the game.
+     * @param player The user to add.
+     */
     public void addPlayer(User player) {
         if (players.size() < maxNumberOfPlayers) {
             players.add(player);
             playerNumber.put(player, players.size());
+            if (players.size() > minNumberOfPlayers) reachedMinimum = true;
         }
+    }
+
+    public void removePlayer(User player) {
+        if (players.contains(player)) {
+            int position = getPlayerNumber(player)-1;
+            players.remove(player);
+            playerNumber.remove(player);
+            for (int i = position; i < players.size(); i++) {
+                playerNumber.replace(players.get(i), i+1);
+            }
+            if (players.size() < minNumberOfPlayers) reachedMinimum = false;
+        } else throw new NullPointerException("Player not in game.");
     }
 
     public int getPlayerNumber(User player) {
@@ -104,11 +121,12 @@ public abstract class Game {
             if (player.equals(winner)) {
                 if (!betsEnabled) {
                     profile.wonGame(channel.getJDA(), topkeks, KXP);
-                    if (!(topkeks == 0 && KXP == 0)) builder.append(stateEarnings(winner, topkeks, KXP));
+                    if (!(topkeks == 0 && KXP == 0)) builder.append(stateEarnings(winner, topkeks, KXP)).append("\n");
                 } else {
                     double betEarnings = bets.declareWinners(this, winnerIDs);
                     profile.wonGame(channel.getJDA(), topkeks + betEarnings, KXP);
-                    builder.append(stateEarnings(winner, topkeks, KXP, betEarnings, "Won Bet"));
+                    if (bets.hasPlayerBets()) builder.append(stateEarnings(winner, topkeks, KXP, betEarnings, "Won Bet")).append("\n");
+                    else builder.append(stateEarnings(winner, topkeks, KXP)).append("\n");
                 }
                 profile.save();
             } else {
@@ -125,8 +143,8 @@ public abstract class Game {
      * Ends the game, and gives the appropriate earnings to the winner(s).
      * This is called whenever a game ends with more than one winner. This usually applies in games that allow more than one winner, like Snail Race.
      * @param winners The list of users who won the game.
-     * @param baseTopkeks The base amount of topkeks to give, a bonus will be applied here.
-     * @param baseKXP The base amount of KXP to give, a bonus will be applied here.
+     * @param baseTopkeks The base amount of topkeks to give.
+     * @param baseKXP The base amount of KXP to give.
      */
     public void endGame(List<User> winners, int baseTopkeks, int baseKXP) {
         StringBuilder builder = new StringBuilder();
@@ -143,12 +161,12 @@ public abstract class Game {
             if (winners.get(i).equals(winners.get(0))) {
                 if (!betsEnabled) {
                     profile.wonGame(channel.getJDA(), topkeks, KXP);
-                    if (!(topkeks == 0 && KXP == 0)) builder.append(stateEarnings(winners.get(i), topkeks, KXP));
+                    if (!(topkeks == 0 && KXP == 0)) builder.append(stateEarnings(winners.get(i), topkeks, KXP)).append("\n");
                 } else {
                     double betEarnings = bets.declareWinners(this, winnerIDs);
                     profile.wonGame(channel.getJDA(), baseTopkeks + (players.size() - i) + betEarnings, baseKXP + (players.size() - i));
-                    if (bets.hasPlayerBets()) builder.append(stateEarnings(winners.get(i), topkeks, KXP, betEarnings, "Won Bet"));
-                    else builder.append(stateEarnings(winners.get(i), topkeks, KXP));
+                    if (bets.hasPlayerBets()) builder.append(stateEarnings(winners.get(i), topkeks, KXP, betEarnings, "Won Bet")).append("\n");
+                    else builder.append(stateEarnings(winners.get(i), topkeks, KXP)).append("\n");
                 }
             } else {
                 profile.wonGame(channel.getJDA(), topkeks, KXP);
@@ -250,6 +268,10 @@ public abstract class Game {
         return hasAI;
     }
 
+    public boolean areBetsAllowed() {
+        return betsEnabled;
+    }
+
     public BetManager getBets() {
         return bets;
     }
@@ -264,5 +286,13 @@ public abstract class Game {
 
     public String getGameName() {
         return gameName;
+    }
+
+    public int getMaxNumberOfPlayers() {
+        return maxNumberOfPlayers;
+    }
+
+    public int getMinNumberOfPlayers() {
+        return minNumberOfPlayers;
     }
 }
