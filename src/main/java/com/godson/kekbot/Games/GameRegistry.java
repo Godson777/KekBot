@@ -16,6 +16,7 @@ public class GameRegistry {
     public GameRegistry() {
         registerGame(0,"tictactoe", "ttt", "tic-tac-toe", "tic tac toe");
         registerGame(1, "snail race", "sr", "snailrace");
+        registerGame(2, "hangman");
     }
 
     /**
