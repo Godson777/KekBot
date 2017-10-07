@@ -51,12 +51,14 @@ public class Byemom {
                                     font = new Font("Ariel", Font.PLAIN, font.getSize()-1);
                                 }
                                 image.setFont(font);
+                                image.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                                 image.drawString(search, 69, 701);
                                 image.dispose();
                                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                                 ImageIO.setUseCache(false);
                                 ImageIO.write(template, "png", stream);
                                 channel.sendFile(stream.toByteArray(), "byemom.png", null).queue();
+                                stream.close();
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
