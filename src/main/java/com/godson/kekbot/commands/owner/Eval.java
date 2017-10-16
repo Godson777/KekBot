@@ -34,10 +34,11 @@ public class Eval {
                                             rawSplit[1] +
                                             "}" +
                                             "})();");
-                            context.getTextChannel().sendMessage(out == null ? "`Success!`" : "`" + out.toString() + "`").queue();
-                        } catch (ScriptException e1) {
-                            context.getTextChannel().sendMessage("```js\n" + e1.getMessage() + "```").queue();
-
+                            context.getTextChannel().sendMessage(out == null ? "`Success! (Unless you're trying to find an object, then it failed...)`" : "`" + out.toString() + "`").queue();
+                        } catch (ScriptException e) {
+                            context.getTextChannel().sendMessage("```js\n" + e.getMessage() + "```").queue();
+                        } catch (Exception e) {
+                            context.getTextChannel().sendMessage("Exception was thrown:\n```java\n" + e + "```").queue();
                         }
                     }
                 }
