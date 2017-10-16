@@ -2,11 +2,16 @@ package com.godson.kekbot.commands.fun;
 
 import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
+import com.godson.discoin4j.Discoin4J;
+import com.godson.discoin4j.exceptions.*;
 import com.godson.kekbot.CustomEmote;
+import com.godson.kekbot.GSONUtils;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.Profile.Background;
 import com.godson.kekbot.Profile.Profile;
 import com.godson.kekbot.Profile.Token;
+import com.godson.kekbot.Questionaire.QuestionType;
+import com.godson.kekbot.Questionaire.Questionnaire;
 import com.godson.kekbot.Responses.Action;
 import net.dv8tion.jda.core.MessageBuilder;
 import org.apache.commons.lang3.StringUtils;
@@ -15,9 +20,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.font.GlyphVector;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +28,7 @@ public class ShopCommand {
     public static Command shop = new Command("shop")
             .withCategory(CommandCategory.FUN)
             .withDescription("Opens up the item shop.")
-            .withUsage("{p}shop <category>\n{p}shop <category> <page>\n{p}shop buy <category> <itemID>\n{p}shop info <category> <itemID>\n\nAvailable Categories:\nTokens\nBackgrounds\n\n#Notes:\nArrows signify other pages in a shop.\nCrossed out items require you to be a higher level. You can find out what level is required by using {p}shop info <category> <itemID>.")
+            .withUsage("{p}shop <category>\n{p}shop <category> <page>\n{p}shop buy <category> <itemID>\n{p}shop info <category> <itemID>" + (GSONUtils.getConfig().getDcoinToken() == null ? "" : "\n{p}shop convert") + "\n\nAvailable Categories:\nTokens\nBackgrounds\n\n#Notes:\nArrows signify other pages in a shop.\nCrossed out items require you to be a higher level. You can find out what level is required by using {p}shop info <category> <itemID>.")
             .onExecuted(context -> {
                 if (context.getArgs().length == 0) {
                     context.getTextChannel().sendMessage("Missing arguments, check " + KekBot.replacePrefix(context.getGuild(), "`{p}" + "help shop` to check all the arguments.")).queue();
@@ -44,16 +47,16 @@ public class ShopCommand {
                                     break;
                                 }
                             }
-                                try {
-                                    if ((tokenShopPage * 9) >= tokenShop.size() || (tokenShopPage * 9) < 0) {
-                                        context.getTextChannel().sendMessage("That page doesn't exist!").queue();
-                                    } else {
-                                        context.getTextChannel().sendTyping().queue();
-                                        context.getTextChannel().sendFile(drawTokenShop(Profile.getProfile(context.getAuthor()), tokenShop.subList(tokenShopPage * 9, ((tokenShopPage + 1) * 9 <= tokenShop.size() ? (tokenShopPage + 1) * 9 : tokenShop.size())), tokenShopPage > 0, (tokenShopPage + 1) * 9 < tokenShop.size(), tokenShopPage), "tokenshop.png", null).queue();
-                                    }
-                                } catch (IOException e) {
-                                    e.printStackTrace();
+                            try {
+                                if ((tokenShopPage * 9) >= tokenShop.size() || (tokenShopPage * 9) < 0) {
+                                    context.getTextChannel().sendMessage("That page doesn't exist!").queue();
+                                } else {
+                                    context.getTextChannel().sendTyping().queue();
+                                    context.getTextChannel().sendFile(drawTokenShop(Profile.getProfile(context.getAuthor()), tokenShop.subList(tokenShopPage * 9, ((tokenShopPage + 1) * 9 <= tokenShop.size() ? (tokenShopPage + 1) * 9 : tokenShop.size())), tokenShopPage > 0, (tokenShopPage + 1) * 9 < tokenShop.size(), tokenShopPage), "tokenshop.png", null).queue();
                                 }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                             break;
                         case "background":
                         case "backgrounds":
@@ -73,15 +76,16 @@ public class ShopCommand {
                                     context.getTextChannel().sendMessage("That page doesn't exist!").queue();
                                 } else {
                                     context.getTextChannel().sendTyping().queue();
-                                    context.getTextChannel().sendFile(drawBackgroundShop(Profile.getProfile(context.getAuthor()) ,backgroundShop.subList(backgroundShopPage * 6, ((backgroundShopPage + 1) * 6 <= backgroundShop.size() ? (backgroundShopPage + 1) * 6 : backgroundShop.size())), backgroundShopPage > 0, (backgroundShopPage + 1) * 6 < backgroundShop.size(), backgroundShopPage), "backgroundshop.png", null).queue();
+                                    context.getTextChannel().sendFile(drawBackgroundShop(Profile.getProfile(context.getAuthor()), backgroundShop.subList(backgroundShopPage * 6, ((backgroundShopPage + 1) * 6 <= backgroundShop.size() ? (backgroundShopPage + 1) * 6 : backgroundShop.size())), backgroundShopPage > 0, (backgroundShopPage + 1) * 6 < backgroundShop.size(), backgroundShopPage), "backgroundshop.png", null).queue();
                                 }
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
                             break;
                         case "buy":
-                            if (context.getArgs().length < 2) context.getTextChannel().sendMessage(KekBot.replacePrefix(context.getGuild(), "Missing arguments, check `{p}help shop` to get more info.")).queue();
-                                else {
+                            if (context.getArgs().length < 2)
+                                context.getTextChannel().sendMessage(KekBot.replacePrefix(context.getGuild(), "Missing arguments, check `{p}help shop` to get more info.")).queue();
+                            else {
                                 switch (context.getArgs()[1]) {
                                     case "token":
                                     case "tokens":
@@ -113,7 +117,8 @@ public class ShopCommand {
                             }
                             break;
                         case "info":
-                            if (context.getArgs().length < 2) context.getTextChannel().sendMessage(KekBot.replacePrefix(context.getGuild(), "Missing arguments, check `{p}help shop` to get more info.")).queue();
+                            if (context.getArgs().length < 2)
+                                context.getTextChannel().sendMessage(KekBot.replacePrefix(context.getGuild(), "Missing arguments, check `{p}help shop` to get more info.")).queue();
                             else {
                                 switch (context.getArgs()[1].toLowerCase()) {
                                     case "token":
@@ -164,6 +169,64 @@ public class ShopCommand {
                                         context.getTextChannel().sendMessage(KekBot.replacePrefix(context.getGuild(), "Invalid arguments, check `{p}help shop` to get more info.")).queue();
                                 }
                             }
+                            break;
+                        case "convert":
+                            String url = "https://discoin.sidetrip.xyz/rates";
+                            String unauthorized = "An error has occurred. This likely is because the bot owner screwed up somewhere...\n\nTranaction Canceled.";
+                            if (GSONUtils.getConfig().getDcoinToken() != null) {
+                                new Questionnaire(context)
+                                        .addQuestion("Welcome to the Discoin Association's currency converter! You can convert all of your topkeks to currencies from other bots here!\n\nType the currency you want to convert to. (For the list of currencies, and their conversion rates, use the following link: " + url + ")\nYou can say `cancel` at any time to back out.", QuestionType.STRING)
+                                        .execute(results -> {
+                                            String to = results.getAnswer(0).toString();
+                                            if (to.length() == 3) {
+                                                new Questionnaire(results)
+                                                        .addQuestion("How many topkeks do you want to convert?", QuestionType.INT)
+                                                        .execute(results1 -> {
+                                                            int amount = (int) results1.getAnswer(0);
+                                                            Profile profile = Profile.getProfile(context.getAuthor());
+                                                            if (!profile.canSpend(amount)) {
+                                                                context.getTextChannel().sendMessage("You don't have that many topkeks.\n\nTransaction Canceled.").queue();
+                                                                return;
+                                                            }
+                                                            try {
+                                                                profile.spendTopKeks(amount);
+                                                                profile.save();
+                                                                Discoin4J.Confirmation confirmation = KekBot.discoin.makeTransaction(context.getAuthor().getId(), amount, to);
+                                                                context.getTextChannel().sendMessage("Done! You should be receiving `" + confirmation.getResultAmount() + "` in the currency you selected shortly." +
+                                                                        "\nYour reciept ID is: `" + confirmation.getReceiptCode() + "`." +
+                                                                        "\nToday's remaining Discoin limit for currency `" + to + "`: " + confirmation.getLimitNow()).queue();
+                                                            } catch (IOException e) {
+                                                                e.printStackTrace();
+                                                            } catch (RejectedException e) {
+                                                                switch (e.getStatus().getReason()) {
+                                                                    case "verify required":
+                                                                        context.getTextChannel().sendMessage("Hm, you're not verified on Discoin. You'll need to verify yourself before you can convert topkeks. You can do so here: " + url + "/verify\n\nTranaction Canceled.").queue();
+                                                                        break;
+                                                                    case "per-user limit exceeded":
+                                                                        context.getTextChannel().sendMessage("You've already converted the maximum amount of coins for today! Try again tomorrow.\n\nTranaction Canceled.").queue();
+                                                                        break;
+                                                                    case "total limit exceeded":
+                                                                        context.getTextChannel().sendMessage("Woah, this feature's been used so much, I've already transferred " + e.getStatus().getLimit() + " Discoins! I can't transfer anymore today! Check back tomorrow.\n\nTranaction Canceled.").queue();
+                                                                        break;
+                                                                    default:
+                                                                        e.printStackTrace();
+                                                                        break;
+                                                                }
+                                                            } catch (DiscoinErrorException e) {
+                                                                context.getTextChannel().sendMessage("Hm, that doesn't seem like a valid currency.\n\nTranaction Canceled.").queue();
+                                                            } catch (UnauthorizedException e) {
+                                                                context.getTextChannel().sendMessage(unauthorized).queue();
+                                                            } catch (UnknownErrorException e) {
+                                                                context.getTextChannel().sendMessage("Yikes! I've found an error that shouldn't exist! Report this to the bot owner with the `ticket` command right away! `" + e.getMessage() + "`").queue();
+                                                            }
+                                                        });
+                                            } else {
+                                                context.getTextChannel().sendMessage("That's too " + (to.length() < 3 ? "short" : "long") + ", currency IDs are 3 characters long. Try again.").queue();
+                                                results.reExecuteWithoutMessage();
+                                            }
+                                        });
+                            }
+                            break;
                     }
                 }
             });
