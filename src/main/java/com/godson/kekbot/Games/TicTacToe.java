@@ -112,6 +112,12 @@ public class TicTacToe extends Game {
         }
     }
 
+    @Override
+    public String getRules() {
+        return "A board game classic! As soon as the game starts, players have to take turns trying to create a line. It's exactly what you'd expect from TicTacToe." +
+                "Players are able to place their piece down by typing the number representing a space on the board in chat. The player who finishes their line first wins!";
+    }
+
     private void drawBoard() {
         try {
             channel.sendTyping().queue();

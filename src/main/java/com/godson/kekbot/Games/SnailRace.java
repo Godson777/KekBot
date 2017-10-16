@@ -36,9 +36,18 @@ public class SnailRace extends Game {
         prepareMessage();
     }
 
+
     @Override
     public void acceptInputFromMessage(Message message) {
         //No input will ever be needed, so the method is simply here to get Java to stop yelling at me.
+    }
+
+    @Override
+    public String getRules() {
+        return "It's a race to the finish! As soon as the game starts, everyone will have a snail trying to race for the finish line." +
+                "Players don't have to do anything to win, snails move automatically, making this a game of chance!" +
+                "\n\nFirst snail to reach the finish wins!" +
+                "\nDepending on how many players are playing, there can also be second and third place winners!";
     }
 
     private void prepareMessage() {

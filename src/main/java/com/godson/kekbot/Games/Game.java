@@ -68,6 +68,8 @@ public abstract class Game {
 
     public abstract void acceptInputFromMessage(Message message);
 
+    public abstract String getRules();
+
     /**
      * Adds a player into the game.
      * @param player The user to add.

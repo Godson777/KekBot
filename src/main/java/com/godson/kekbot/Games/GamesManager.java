@@ -7,6 +7,8 @@ import net.dv8tion.jda.core.events.channel.text.TextChannelDeleteEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
+
+import javax.rmi.CORBA.Util;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -42,7 +44,7 @@ public class GamesManager extends ListenerAdapter {
             Game game = gameRegistry.getGame(gameName, channel);
             game.addPlayer(host);
             activeGames.put(Long.valueOf(channel.getId()), game);
-            channel.sendMessage(game.getGameName() + " lobby created!" +
+            channel.sendMessage(game.getGameName() + " lobby created! (If you don't know how to play, you can use `" + KekBot.insertPrefix(channel.getGuild()) + "game rules` to view the rules and instructions.)" +
                     (game.hasMinimum() ? " ***(Minimum " + game.getMinNumberOfPlayers() + " players to play. Maximum " + game.getMaxNumberOfPlayers() + " players.)***" : "") +
                     (game.hasRoomForPlayers() ? KekBot.replacePrefix(channel.getGuild(), " Players can join by using `{p}game join`.") : "") +
                     (game.hasRoomForPlayers() && game.hasAI() ? KekBot.replacePrefix(channel.getGuild(), " Or, you can start the game early with `{p}game ready`, and play with an AI.") : "") +
