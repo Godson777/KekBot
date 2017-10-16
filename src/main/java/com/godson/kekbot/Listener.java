@@ -375,7 +375,7 @@ public class Listener extends ListenerAdapter {
 
 
 
-        if (event.getMessage().getContent().startsWith("help")) {
+        if (event.getMessage().getContent().toLowerCase().startsWith("help")) {
             String rawSplit[] = event.getMessage().getContent().split(" ", 2);
             List<String> commands = new ArrayList<String>();
             List<String> pages = new ArrayList<String>();
@@ -408,7 +408,7 @@ public class Listener extends ListenerAdapter {
                     pages.add(StringUtils.join(commands.subList(i, commands.size()), "\n"));
                 }
             }
-            if (rawSplit[0].equals("help")) {
+            if (rawSplit[0].equalsIgnoreCase("help")) {
                 if (rawSplit.length == 1) {
                     channel.sendMessage("__**KekBot**__\n*Your helpful meme-based bot!*\n" +
                             "```md\n" + pages.get(0) + "\n\n" + "[Page](1" + "/" + pages.size() + ")\n" +
