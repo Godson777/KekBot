@@ -11,6 +11,7 @@ public class CustomEmote {
             "<:thonkang:319056771027304448>",
             "\uD83E\uDD14"};
     private final static String TOPKEK = "<:topkek:317825573441503243>";
+    private final static String[] TROPHIES = {"<:GoldTrophy:363572128592822272>", "<:SilverTrophy:363572121928204299>", "<:BronzeTrophy:363572119101112320>"};
     private static Random random = new Random();
 
     public static String think() {
@@ -24,5 +25,10 @@ public class CustomEmote {
 
     public static String printTopKek() {
         return TOPKEK;
+    }
+
+    public static String getTrophy(int place) {
+        if (place < 0 || place > TROPHIES.length) return TROPHIES[0];
+        else return TROPHIES[place];
     }
 }
