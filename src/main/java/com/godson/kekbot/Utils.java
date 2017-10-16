@@ -1,9 +1,14 @@
 package com.godson.kekbot;
 
 import com.godson.kekbot.Profile.BackgroundManager;
+import com.godson.kekbot.Settings.Config;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.impl.JDAImpl;
+import net.dv8tion.jda.core.requests.Requester;
+import okhttp3.*;
+import org.json.JSONObject;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -15,7 +20,6 @@ import java.net.URLConnection;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 public class Utils {
 
@@ -92,6 +96,111 @@ public class Utils {
         List<Guild> guilds = new ArrayList<>();
         for (int i = 0; i < KekBot.jdas.length; i++ ) guilds.addAll(KekBot.jdas[i].getGuilds());
         return guilds;
+    }
+
+    /**
+     * Sends stats to DiscordBots, DiscordBotsList, DiscordListBots, and Carbonitex. (If tokens for those sites are provided in the config file.)
+     * Featuring slightly borrowed code from JDA-Utilites (jag pls don't hate me)
+     * @param jda The instance of JDA (or shard) to send stats from.
+     */
+    public static void sendStats(JDA jda) {
+        OkHttpClient client = ((JDAImpl) jda).getHttpClientBuilder().build();
+        Config config = GSONUtils.getConfig();
+        String carbonToken = config.getCarbonToken();
+        String botsListToken = config.getdBotsListToken();
+        String botsToken = config.getdApiToken();
+        String dListBotsToken = config.getdListBotsToken();
+
+        if (carbonToken != null) {
+            FormBody.Builder bodyBuilder = new FormBody.Builder().add("key", carbonToken).add("servercount", Integer.toString(jda.getGuilds().size()));
+
+            if (jda.getShardInfo() != null)
+                bodyBuilder.add("shard_id", Integer.toString(jda.getShardInfo().getShardId()))
+                        .add("shard_count", Integer.toString(jda.getShardInfo().getShardTotal()));
+
+            Request.Builder builder = new Request.Builder()
+                    .post(bodyBuilder.build())
+                    .url("https://www.carbonitex.net/discord/data/botdata.php");
+
+            client.newCall(builder.build()).enqueue(new Callback() {
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    response.close();
+                }
+
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    //Do nothing for now.
+                }
+            });
+        }
+
+        if (botsListToken != null) {
+            JSONObject body = new JSONObject().put("server_count", jda.getGuilds().size());
+            if (jda.getShardInfo() != null)
+                body.put("shard_id", jda.getShardInfo().getShardId()).put("shard_count", jda.getShardInfo().getShardTotal());
+
+            Request.Builder builder = new Request.Builder()
+                    .post(RequestBody.create(Requester.MEDIA_TYPE_JSON, body.toString()))
+                    .url("https://discordbots.org/api/bots/" + jda.getSelfUser().getId() + "/stats")
+                    .header("Authorization", botsListToken)
+                    .header("Content-Type", "application/json");
+
+            client.newCall(builder.build()).enqueue(new Callback() {
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    response.close();
+                }
+
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    //Do nothing for now.
+                }
+            });
+        }
+
+        if (botsToken != null) {
+            JSONObject body = new JSONObject().put("server_count", jda.getGuilds().size());
+
+            if (jda.getShardInfo() != null) body.put("shard_id", jda.getShardInfo().getShardId()).put("shard_count", jda.getShardInfo().getShardTotal());
+
+            Request.Builder builder = new Request.Builder()
+                    .post(RequestBody.create(Requester.MEDIA_TYPE_JSON, body.toString()))
+                    .url("https://bots.discord.pw/api/bots/" + jda.getSelfUser().getId() + "/stats")
+                    .header("Authorization", botsToken)
+                    .header("Content-Type", "application/json");
+
+            client.newCall(builder.build()).enqueue(new Callback() {
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    response.close();
+                }
+
+                @Override
+                public void onFailure(Call call, IOException e) {
+                }
+            });
+        }
+
+        if (dListBotsToken != null) {
+            JSONObject body = new JSONObject().put("token", dListBotsToken).put("servers", collectShardGuilds());
+
+            Request.Builder builder = new Request.Builder().post(RequestBody.create(Requester.MEDIA_TYPE_JSON, body.toString()))
+                    .url("https://bots.discordlist.net/api")
+                    .header("Content-Tytpe", "application/json");
+
+            client.newCall(builder.build()).enqueue(new Callback() {
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    response.close();
+                }
+
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    //Do nothing for now.
+                }
+            });
+        }
     }
 
     /**

@@ -61,8 +61,11 @@ public class Listener extends ListenerAdapter {
             Timer gameStatusTimer = new Timer();
             gameStatusTimer.schedule(new GameStatus(), 0, TimeUnit.MINUTES.toMillis(10));
         }
+        //Send stats to the important sites.
+        Utils.sendStats(event.getJDA());
         //Set startup time
         start = Calendar.getInstance().getTime();
+        //Prepare some per-server stuff.
         JDA jda = event.getJDA();
             jda.getGuilds().forEach(guild -> {
                 Settings settings = GSONUtils.getSettings(guild);
@@ -89,8 +92,6 @@ public class Listener extends ListenerAdapter {
             });
             if (jda.getGuilds().stream().anyMatch(guild -> guild.getId().equals("221910104495095808"))) {
                 CommandRegistry registry = CommandRegistry.getForClient(jda);
-                //registry.customRegister(test.test, jda.getGuildById("221910104495095808"));
-                registry.customRegister(Suggest.suggest, jda.getGuildById("221910104495095808"));
                 registry.customRegister(AddResponse.addResponse, jda.getGuildById("221910104495095808"));
                 registry.customRegister(Suggestions.suggestions, jda.getGuildById("221910104495095808"));
             }
@@ -456,23 +457,7 @@ public class Listener extends ListenerAdapter {
                     //¯\_(ツ)_/¯
                 }
             }
-            String token = GSONUtils.getConfig().getdApiToken();
-            if (token != null) {
-                try {
-                    Unirest.post("https://bots.discord.pw/api/bots/" + event.getJDA().getSelfUser().getId() + "/stats")
-                            .header("Content-Type", "application/json")
-                            .header("Authorization", token)
-                            .body("{\n" +
-                                    (KekBot.jdas.length > 1 ? "    \"shard_id\": " + event.getJDA().getShardInfo().getShardId() + "," +
-                                            "    \n\"shard_count\": " + KekBot.jdas.length + "," +
-                                            "    \n\"server_count\": " + event.getJDA().getGuilds().size() :
-                                            "    \"server_count\": " + event.getJDA().getGuilds().size())
-                                    +
-                                    "\n}").asJson();
-                } catch (UnirestException e) {
-                    e.printStackTrace();
-                }
-            }
+            Utils.sendStats(event.getJDA());
         } else {
             event.getGuild().leave().queue();
         }
@@ -496,23 +481,7 @@ public class Listener extends ListenerAdapter {
             }
             File folder = new File("settings/" + event.getGuild().getId());
             Utils.deleteDirectory(folder);
-            String token = GSONUtils.getConfig().getdApiToken();
-            if (token != null) {
-                try {
-                    Unirest.post("https://bots.discord.pw/api/bots/" + event.getJDA().getSelfUser().getId() + "/stats")
-                            .header("Content-Type", "application/json")
-                            .header("Authorization", token)
-                            .body("{\n" +
-                                            (KekBot.jdas.length > 1 ? "    \"shard_id\": " + event.getJDA().getShardInfo().getShardId() + "," +
-                                                    "    \n\"shard_count\": " + KekBot.jdas.length + "," +
-                                                    "    \n\"server_count\": " + event.getJDA().getGuilds().size() :
-                                                    "    \"server_count\": " + event.getJDA().getGuilds().size())
-                                     +
-                                    "\n}").asJson();
-                } catch (UnirestException e) {
-                    e.printStackTrace();
-                }
-            }
+            Utils.sendStats(event.getJDA());
         }
     }
 
