@@ -93,7 +93,8 @@ public class Listener extends ListenerAdapter {
             if (jda.getGuilds().stream().anyMatch(guild -> guild.getId().equals("221910104495095808"))) {
                 CommandRegistry registry = CommandRegistry.getForClient(jda);
                 registry.customRegister(AddResponse.addResponse, jda.getGuildById("221910104495095808"));
-                registry.customRegister(Suggestions.suggestions, jda.getGuildById("221910104495095808"));
+                //registry.customRegister(Suggest.suggest, jda.getGuildById("221910104495095808"));
+                //registry.customRegister(Suggestions.suggestions, jda.getGuildById("221910104495095808"));
             }
 
 
