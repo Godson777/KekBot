@@ -5,6 +5,7 @@ import com.darichey.discord.api.CommandRegistry;
 import com.godson.discoin4j.Discoin4J;
 import com.godson.kekbot.Games.GamesManager;
 import com.godson.kekbot.Music.MusicPlayer;
+import com.godson.kekbot.Objects.DiscoinManager;
 import com.godson.kekbot.Objects.WaifuManager;
 import com.godson.kekbot.Profile.BackgroundManager;
 import com.godson.kekbot.Profile.Rewards.Lottery.Lottery;
@@ -36,7 +37,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 public class KekBot {
     //Seting configs, and resources.
@@ -59,6 +59,7 @@ public class KekBot {
     public static WaifuManager waifuManager = new WaifuManager();
     public static Lottery lottery = new Lottery();
     public static Discoin4J discoin;
+    public static DiscoinManager discoinManager;
 
     static {
         //TODO: Remove this later in favor of hardcoding the version, instead of relying on a .properties file.
@@ -81,7 +82,10 @@ public class KekBot {
 
     public static void main(String[] args) throws LoginException, InterruptedException, RateLimitedException {
         String token = GSONUtils.getConfig().getToken();
-        if (GSONUtils.getConfig().getDcoinToken() != null) discoin = new Discoin4J(GSONUtils.getConfig().getDcoinToken());
+        if (GSONUtils.getConfig().getDcoinToken() != null) {
+            discoin = new Discoin4J(GSONUtils.getConfig().getDcoinToken());
+            discoinManager = new DiscoinManager();
+        }
 
         if (shards == 0) {
             System.out.println("You must enter the number of shards in your \"config.json\"! Please go back and specify it before launching.");
