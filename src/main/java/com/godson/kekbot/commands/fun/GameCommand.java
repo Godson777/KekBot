@@ -22,9 +22,10 @@ public class GameCommand {
     public static Command game = new Command("game")
             .withCategory(CommandCategory.FUN)
             .withDescription("Central command for all the game related commands.")
-            .withUsage("{p}game createlobby <gamename> - Creates a lobby for the specified game." +
+            .withUsage("{p}game create <gamename> - Creates a lobby for the specified game." +
                     "\n{p}game join - Joins the lobby created in the channel." +
                     "\n{p}game ready (or start) - Starts the game." +
+                    "\n{p}game rules - Gives the rules (or instructions) of the game. (This requires you to create a lobby for the game first.)" +
                     "\n{p}game quit - Quits the game, ending it early. (This will have consequences.)" +
                     "\n{p}game cancel - Cancels/Closes the game lobby before it has started." +
                     "\n{p}game bet <amount> - Places a bet in favor of you winning. (When in a game lobby.)" +
@@ -38,7 +39,7 @@ public class GameCommand {
                 TextChannel channel = context.getTextChannel();
                 if (context.getArgs().length >= 1) {
                     switch (context.getArgs()[0].toLowerCase()) {
-                        case "createlobby":
+                        case "create":
                             if (context.getArgs().length >= 2) {
                                 String game = Utils.combineArguments(Arrays.copyOfRange(context.getArgs(), 1, context.getArgs().length));
                                 KekBot.gamesManager.addGame(channel, game.toLowerCase(), context.getAuthor());
@@ -56,6 +57,12 @@ public class GameCommand {
                                 else channel.sendMessage("The game has already started!").queue();
                             }
                             break;
+                        case "rules":
+                            if (!KekBot.gamesManager.isChannelFree(channel)) {
+                                Game game = KekBot.gamesManager.getGame(channel);
+                                channel.sendMessage(game.getRules()).queue();
+                            } else channel.sendMessage("There doesn't seem to be a game lobby in here...").queue();
+                            break;
                         case "join":
                             if (!KekBot.gamesManager.isChannelFree(channel)) {
                                 Game game = KekBot.gamesManager.getGame(channel);
@@ -66,7 +73,7 @@ public class GameCommand {
                                         KekBot.gamesManager.joinGame(channel, context.getAuthor());
                                     }
                                 } else channel.sendMessage("This game's already started, you can't join it now!").queue();
-                            }
+                            } else channel.sendMessage("There doesn't seem to be a game lobby in here...").queue();
                             break;
                         case "quit":
                             if (!KekBot.gamesManager.isChannelFree(channel)) {
@@ -89,7 +96,7 @@ public class GameCommand {
                                         } else channel.sendMessage("**" + context.getAuthor().getName() + " left the game. (" + game.players.size() + "/" + game.getMaxNumberOfPlayers() + ")**").queue();
                                     }
                                 }
-                            }
+                            } else channel.sendMessage("There doesn't seem to be a game lobby in here...").queue();
                             break;
                         case "cancel":
                             if (!KekBot.gamesManager.isChannelFree(channel)) {
@@ -104,13 +111,13 @@ public class GameCommand {
                                         } else channel.sendMessage("Only player 1 or someone with the `Administrator` permission can cancel a game.").queue();
                                     } else channel.sendMessage("This game has already started. If you want to quit, you can use `" + KekBot.insertPrefix(channel.getGuild()) + "game quit`, however, there will be consequences.").queue();
                                 }
-                            } else channel.sendMessage("There is no game lobby in this channel.").queue();
+                            } else channel.sendMessage("There doesn't seem to be a game lobby in here...").queue();
                             break;
                         case "bet":
                             if (!KekBot.gamesManager.isChannelFree(channel)) {
                                 Game game = KekBot.gamesManager.getGame(channel);
                                 if (!game.isReady()) {
-                                    if (game.players.contains(context.getAuthor())){
+                                    if (game.players.contains(context.getAuthor())) {
                                         if (context.getArgs().length >= 2) {
                                             double bet;
                                             try {
@@ -137,8 +144,8 @@ public class GameCommand {
                                             } else channel.sendMessage("The user you want to bet on must be in the form of a mention!").queue();
                                         }
                                     }
-                                } else channel.sendMessage("This game's already started, you can't join it now!").queue();
-                            }
+                                } else channel.sendMessage("This game's already started, you can't bet in it now!").queue();
+                            } else channel.sendMessage("There doesn't seem to be a game lobby in here...").queue();
                             break;
                     }
                 } else {
