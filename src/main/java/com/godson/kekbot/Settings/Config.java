@@ -14,6 +14,7 @@ public class Config {
     private String dApiToken;
     private String dListBotsToken;
     private String dBotsListToken;
+    private String carbonToken;
     private String dcoinToken;
     private String botOwner;
     private int shards;
@@ -91,6 +92,14 @@ public class Config {
      */
     public String getdBotsListToken() {
         return dBotsListToken;
+    }
+
+    /**
+     * Gets token for Carbonitex.
+     * @return The token.
+     */
+    public String getCarbonToken() {
+        return carbonToken;
     }
 
     /**
