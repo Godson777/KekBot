@@ -18,35 +18,33 @@ public class LotteryCommand {
                     return;
                 }
 
-                if (args.length > 0) {
-                    switch (args[0].toLowerCase()) {
-                        case "buy":
-                            if (args.length > 1) {
-                                int tickets;
-                                try {
-                                    tickets = Integer.valueOf(context.getArgs()[1]);
-                                } catch (NumberFormatException e) {
-                                    context.getTextChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, "`" + context.getArgs()[1] + "`")).queue();
-                                    return;
-                                }
-                                if (tickets > 0) context.getTextChannel().sendMessage(KekBot.lottery.addTicket(context.getAuthor(), tickets)).queue();
-                                else context.getTextChannel().sendMessage("You wanna buy *how many* tickets? " + tickets + "? That doesn't make any sense...").queue();
-                            } else context.getTextChannel().sendMessage(KekBot.lottery.addTicket(context.getAuthor())).queue();
-                            break;
-                        case "winners":
-                            context.getTextChannel().sendMessage(KekBot.lottery.listWinners()).queue();
-                            break;
-                        case "draw":
-                            if (context.getAuthor().equals(context.getJDA().getUserById(GSONUtils.getConfig().getBotOwner()))) {
-                                KekBot.lottery.forceDraw(false);
+                switch (args[0].toLowerCase()) {
+                    case "buy":
+                        if (args.length > 1) {
+                            int tickets;
+                            try {
+                                tickets = Integer.valueOf(context.getArgs()[1]);
+                            } catch (NumberFormatException e) {
+                                context.getTextChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, "`" + context.getArgs()[1] + "`")).queue();
+                                return;
                             }
-                            break;
-                        case "forcejackpot":
-                            if (context.getAuthor().equals(context.getJDA().getUserById(GSONUtils.getConfig().getBotOwner()))) {
-                                KekBot.lottery.forceDraw(true);
-                            }
-                            break;
-                    }
+                            if (tickets > 0) context.getTextChannel().sendMessage(KekBot.lottery.addTicket(context.getAuthor(), tickets)).queue();
+                            else context.getTextChannel().sendMessage("You wanna buy *how many* tickets? " + tickets + "? That doesn't make any sense...").queue();
+                        } else context.getTextChannel().sendMessage(KekBot.lottery.addTicket(context.getAuthor())).queue();
+                        break;
+                    case "winners":
+                        context.getTextChannel().sendMessage(KekBot.lottery.listWinners()).queue();
+                        break;
+                    case "draw":
+                        if (context.getAuthor().equals(context.getJDA().getUserById(GSONUtils.getConfig().getBotOwner()))) {
+                            KekBot.lottery.forceDraw(false);
+                        }
+                        break;
+                    case "forcejackpot":
+                        if (context.getAuthor().equals(context.getJDA().getUserById(GSONUtils.getConfig().getBotOwner()))) {
+                            KekBot.lottery.forceDraw(true);
+                        }
+                        break;
                 }
             });
 }
