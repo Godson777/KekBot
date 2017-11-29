@@ -10,13 +10,16 @@ import com.godson.kekbot.Profile.Profile;
 import com.godson.kekbot.Responses.Action;
 import com.godson.kekbot.Settings.Config;
 import com.godson.kekbot.Utils;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 public class GameCommand {
     public static Command game = new Command("game")
@@ -26,6 +29,7 @@ public class GameCommand {
                     "\n{p}game join - Joins the lobby created in the channel." +
                     "\n{p}game ready (or start) - Starts the game." +
                     "\n{p}game rules - Gives the rules (or instructions) of the game. (This requires you to create a lobby for the game first.)" +
+                    "\n{p}game lobby - Gives you info on the current game lobby. (This requires you to create a lobby for the game first.)" +
                     "\n{p}game quit - Quits the game, ending it early. (This will have consequences.)" +
                     "\n{p}game cancel - Cancels/Closes the game lobby before it has started." +
                     "\n{p}game bet <amount> - Places a bet in favor of you winning. (When in a game lobby.)" +
@@ -62,6 +66,22 @@ public class GameCommand {
                                 Game game = KekBot.gamesManager.getGame(channel);
                                 channel.sendMessage(game.getRules()).queue();
                             } else channel.sendMessage("There doesn't seem to be a game lobby in here...").queue();
+                            break;
+                        case "lobby":
+                            if (!KekBot.gamesManager.isChannelFree(channel)) {
+                                Game game = KekBot.gamesManager.getGame(channel);
+                                EmbedBuilder embed = new EmbedBuilder();
+                                embed.setTitle("Current Game:")
+                                        .addBlankField(false)
+                                        .addField("Game:", game.getGameName(), false);
+                                if (game.hasMinimum()) embed.addField("Minimum Players Needed:", String.valueOf(game.getMinNumberOfPlayers()), true);
+                                embed.addField("Maximum Players Allowed:", String.valueOf(game.getMaxNumberOfPlayers()), true)
+                                        .addField("Number of Players:", String.valueOf(game.players.size()), true)
+                                        .addField("Status:", getGameStatus(game), false)
+                                        .addField("Players:", StringUtils.join(game.players.stream().map(user -> game.getPlayerNumber(user) + ". " + user.getName()).collect(Collectors.toList()), "\n"), false);
+
+                                channel.sendMessage(embed.build()).queue();
+                            }
                             break;
                         case "join":
                             if (!KekBot.gamesManager.isChannelFree(channel)) {
@@ -152,4 +172,18 @@ public class GameCommand {
                     channel.sendMessage(KekBot.replacePrefix(context.getGuild(), "No args specified. Use `{p}help game` for help.")).queue();
                 }
             });
+
+    private static String getGameStatus(Game game) {
+        final String ready = "Ready to Play!";
+        final String morePlayers = "Awaiting more players...";
+        if (game.hasMinimum()) {
+            if (game.hasMinimumPlayers()) return ready;
+            else return morePlayers;
+        } else {
+            if (game.hasRoomForPlayers()) {
+                if (game.hasAI()) return ready;
+                else return morePlayers;
+            } else return ready;
+        }
+    }
 }
