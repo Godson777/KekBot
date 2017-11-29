@@ -172,11 +172,11 @@ public abstract class Game {
                 }
             } else {
                 profile.wonGame(channel.getJDA(), topkeks, KXP);
-                builder.append(stateEarnings(winners.get(i), topkeks, KXP));
+                builder.append(stateEarnings(winners.get(i), topkeks, KXP)).append("\n");
             }
             profile.save();
         }
-        channel.sendMessage(builder.toString()).queue();
+        if (!builder.toString().isEmpty()) channel.sendMessage(builder.toString()).queue();
         KekBot.gamesManager.closeGame(channel);
     }
 
