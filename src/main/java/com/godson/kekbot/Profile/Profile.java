@@ -11,6 +11,7 @@ import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import javax.imageio.ImageIO;
+import javax.rmi.CORBA.Util;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -399,9 +400,11 @@ public class Profile {
      */
     public void payUser(double topkeks, User user) {
         spendTopKeks(topkeks);
+        save();
         Profile payee = Profile.getProfile(user);
         payee.addTopKeks(topkeks);
-        Utils.findShardUser(String.valueOf(userID)).openPrivateChannel().queue(c -> c.sendMessage("Woohoo! You just got paid " + CustomEmote.printPrice(topkeks) + " by `" + user.getName()));
+        payee.save();
+        user.openPrivateChannel().queue(c -> c.sendMessage("Woohoo! You just got paid " + CustomEmote.printPrice(topkeks) + " by `" + Utils.findShardUser(Long.toString(userID)).getName() + "`.").queue());
     }
 
     /**
