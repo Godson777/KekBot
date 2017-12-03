@@ -34,10 +34,17 @@ public class TagCommand {
                 if (rawSplit.length == 1) {
                     channel.sendMessage("Not enough parameters. Check " + prefix + "help for usage on this command!").queue();
                 } else if (rawSplit.length >= 2) {
-                    switch (rawSplit[1]) {
+                    switch (rawSplit[1].toLowerCase()) {
                         case "add":
                             if (context.getGuild().getSelfMember().hasPermission(channel, Permission.MESSAGE_WRITE)) {
                                 if (rawSplit.length >= 3) {
+                                    String[] invalidWords = {"add", "remove", "list", "info", "list"};
+                                    for (String word : invalidWords) {
+                                        if (rawSplit[2].equalsIgnoreCase(word)) {
+                                            channel.sendMessage("You're not allowed to make a tag of that name.").queue();
+                                            return;
+                                        }
+                                    }
                                     if (rawSplit.length == 4) {
                                         Date creation = Calendar.getInstance().getTime();
                                         SimpleDateFormat format = new SimpleDateFormat("EEEE, MMMM dd, hh:mma ('EST')");
