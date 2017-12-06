@@ -1,8 +1,8 @@
 package com.godson.kekbot.Questionaire;
 
 import com.darichey.discord.api.CommandContext;
-import com.godson.kekbot.EventWaiter.EventWaiter;
 import com.godson.kekbot.KekBot;
+import com.jagrosh.jdautilities.waiter.EventWaiter;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -126,6 +126,7 @@ public class Questionnaire {
                             execute(i);
                             return;
                         }
+                        break;
                     case CHOICE_STRING:
                         Optional<String> choice = choices.get(question).stream().filter(c -> c.equalsIgnoreCase(e.getMessage().getContent())).findFirst();
                         if (!choice.isPresent()) {

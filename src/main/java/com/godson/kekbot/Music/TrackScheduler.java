@@ -2,32 +2,36 @@ package com.godson.kekbot.Music;
 
 import com.darichey.discord.api.CommandContext;
 import com.godson.kekbot.KekBot;
+import com.godson.kekbot.Utils;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
+import javafx.util.Pair;
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 
+import java.awt.*;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
 
 public class TrackScheduler extends AudioEventAdapter {
     private final AudioPlayer player;
-    private final BlockingQueue<AudioTrack> queue;
-    private final BlockingQueue<User> users;
+    private final BlockingQueue<Pair<AudioTrack, User>> queue;
     private final Guild guild;
     private final TextChannel channel;
     public User currentPlayer;
     public int voteSkip;
     public final List<User> voteSkippers = new ArrayList<>();
     public int repeat = 0;
-    private final List<AudioTrack> repeatQueue = new ArrayList<>();
-    private final List<User> repeatQueueUsers = new ArrayList<>();
+    private final List<Pair<AudioTrack, User>> repeatQueue = new ArrayList<>();
     private int currentRepeatTrack = 0;
 
     /**
@@ -36,7 +40,6 @@ public class TrackScheduler extends AudioEventAdapter {
     public TrackScheduler(AudioPlayer player, CommandContext context) {
         this.player = player;
         this.queue = new LinkedBlockingQueue<>();
-        this.users = new LinkedBlockingQueue<>();
         this.guild = context.getGuild();
         this.channel = context.getTextChannel();
     }
@@ -52,11 +55,9 @@ public class TrackScheduler extends AudioEventAdapter {
         // track goes to the queue instead.
         if (!player.startTrack(track, true)) {
             if (repeat != 2) {
-                queue.offer(track);
-                users.offer(user);
+                queue.offer(new Pair<>(track, user));
             } else {
-                repeatQueue.add(track);
-                repeatQueueUsers.add(user);
+                repeatQueue.add(new Pair<>(track, user));
             }
         }
     }
@@ -68,18 +69,30 @@ public class TrackScheduler extends AudioEventAdapter {
         // Start the next track, regardless of if something is already playing or not. In case queue was empty, we are
         // giving null to startTrack, which is a valid argument and will simply stop the player.
         if (repeat != 2) {
-            AudioTrack track = queue.poll();
-            this.currentPlayer = users.poll();
+            Pair<AudioTrack, User> pair = queue.poll();
+            AudioTrack track = pair.getKey();
+            this.currentPlayer = pair.getValue();
             player.startTrack(track, false);
-            channel.sendMessage("Now playing: `" + track.getInfo().title + "` Queued by: " + currentPlayer.getAsMention()).queue();
+            //channel.sendMessage("Now playing: `" + track.getInfo().title + "` Queued by: " + currentPlayer.getAsMention()).queue();
+            channel.sendMessage(embedTrack(track.getInfo(), currentPlayer)).queue();
         } else {
             if (currentRepeatTrack < repeatQueue.size()-1) ++currentRepeatTrack;
             else currentRepeatTrack = 0;
-            player.startTrack(repeatQueue.get(currentRepeatTrack).makeClone(), false);
-            channel.sendMessage("Now playing: `" + repeatQueue.get(currentRepeatTrack).getInfo().title + "` Queued by: " + repeatQueueUsers.get(currentRepeatTrack).getAsMention()).queue();
+            player.startTrack(repeatQueue.get(currentRepeatTrack).getKey().makeClone(), false);
+            //channel.sendMessage("Now playing: `" + repeatQueue.get(currentRepeatTrack).getKey().getInfo().title + "` Queued by: " + repeatQueue.get(currentRepeatTrack).getValue().getAsMention()).queue();
+            channel.sendMessage(embedTrack(repeatQueue.get(currentRepeatTrack).getKey().getInfo(), repeatQueue.get(currentRepeatTrack).getValue())).queue();
         }
-
             clearVotes();
+    }
+
+    private MessageEmbed embedTrack(AudioTrackInfo track, User queuer) {
+        EmbedBuilder builder = new EmbedBuilder();
+        builder.setColor(channel.getGuild().getSelfMember().getColor() == null ? Color.RED : channel.getGuild().getSelfMember().getColor());
+        builder.addField("Now Playing:", track.title, true);
+        builder.addField("Queued By:", queuer.getAsMention(), true);
+        builder.addField("URL:", track.uri, false);
+        builder.setThumbnail(Utils.getUserAvatarURL(queuer));
+        return builder.build();
     }
 
     public void toggleRepeat() {
@@ -89,24 +102,30 @@ public class TrackScheduler extends AudioEventAdapter {
                 break;
             case 1:
                 ++repeat;
-                repeatQueue.add(player.getPlayingTrack().makeClone());
-                repeatQueueUsers.add(currentPlayer);
+                repeatQueue.add(new Pair<>(player.getPlayingTrack().makeClone(), currentPlayer));
                 queue.drainTo(repeatQueue);
-                users.drainTo(repeatQueueUsers);
                 break;
             case 2:
                 repeat = 0;
                 for (int i = currentRepeatTrack + 1; i < repeatQueue.size(); i++) {
                     queue.offer(repeatQueue.get(i));
-                    this.users.offer(repeatQueueUsers.get(i));
                 }
                 repeatQueue.clear();
-                repeatQueueUsers.clear();
         }
     }
 
     public void shuffle() {
-
+        List<Pair<AudioTrack, User>> queue = new ArrayList<>();
+        if (repeat != 2) {
+            this.queue.drainTo(queue);
+            Collections.shuffle(queue);
+            this.queue.addAll(queue);
+        } else {
+            queue.addAll(repeatQueue);
+            repeatQueue.clear();
+            Collections.shuffle(queue);
+            repeatQueue.addAll(queue);
+        }
     }
 
     @Override
@@ -134,20 +153,12 @@ public class TrackScheduler extends AudioEventAdapter {
         }, 0, TimeUnit.SECONDS);
     }
 
-    public BlockingQueue<AudioTrack> getQueue() {
+    public BlockingQueue<Pair<AudioTrack, User>> getQueue() {
         return queue;
     }
 
-    public BlockingQueue<User> getUsers() {
-        return users;
-    }
-
-    public List<AudioTrack> getRepeatQueue() {
+    public List<Pair<AudioTrack, User>> getRepeatQueue() {
         return repeatQueue;
-    }
-
-    public List<User> getRepeatQueueUsers() {
-        return repeatQueueUsers;
     }
 
     public int getCurrentRepeatTrack() {

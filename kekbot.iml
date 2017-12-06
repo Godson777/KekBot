@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module org.jetbrains.idea.maven.project.MavenProjectsManager.isMavenModule="true" type="JAVA_MODULE" version="4">
-  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8" inherit-compiler-output="false">
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
     <output url="file://$MODULE_DIR$/target/classes" />
     <output-test url="file://$MODULE_DIR$/target/test-classes" />
     <content url="file://$MODULE_DIR$">
@@ -13,9 +13,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Maven: com.sedmelluq:lavaplayer:1.1.45" level="project" />
-    <orderEntry type="library" name="Maven: net.dv8tion:JDA:3.1.1_220" level="project" />
-    <orderEntry type="library" scope="RUNTIME" name="Maven: com.neovisionaries:nv-websocket-client:2.0" level="project" />
-    <orderEntry type="library" name="Maven: com.sedmelluq:lavaplayer:1.2.43" level="project" />
+    <orderEntry type="library" name="Maven: com.sedmelluq:lavaplayer:1.2.45" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: com.sedmelluq:lavaplayer-common:1.0.5" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.22" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpclient:4.5.2" level="project" />
@@ -26,7 +24,7 @@
     <orderEntry type="library" scope="RUNTIME" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.8.5" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: com.fasterxml.jackson.core:jackson-annotations:2.8.0" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: net.iharder:base64:2.3.9" level="project" />
-    <orderEntry type="library" name="Maven: net.dv8tion:JDA:3.3.1_276" level="project" />
+    <orderEntry type="library" name="Maven: net.dv8tion:JDA:3.3.1_308" level="project" />
     <orderEntry type="library" name="Maven: com.google.code.findbugs:jsr305:3.0.2" level="project" />
     <orderEntry type="library" name="Maven: org.apache.commons:commons-collections4:4.1" level="project" />
     <orderEntry type="library" name="Maven: org.json:json:20160810" level="project" />
@@ -37,8 +35,10 @@
     <orderEntry type="library" name="Maven: com.squareup.okio:okio:1.13.0" level="project" />
     <orderEntry type="library" name="Maven: commons-io:commons-io:2.5" level="project" />
     <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.8.1" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.commons:commons-lang3:3.6" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.commons:commons-lang3:3.7" level="project" />
     <orderEntry type="library" name="Maven: com.github.Godson777:Commands4J:32d3f53" level="project" />
+    <orderEntry type="library" name="Maven: com.github.Godson777:Discoin4J:v1.0.1" level="project" />
+    <orderEntry type="library" name="Maven: com.jagrosh:JDA-Utilities:1.7" level="project" />
     <orderEntry type="library" name="Maven: com.mashape.unirest:unirest-java:1.4.9" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpasyncclient:4.1.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpcore-nio:4.4.4" level="project" />

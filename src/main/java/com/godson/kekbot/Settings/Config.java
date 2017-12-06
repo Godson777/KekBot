@@ -12,6 +12,10 @@ import java.util.List;
 public class Config {
     private String token;
     private String dApiToken;
+    private String dListBotsToken;
+    private String dBotsListToken;
+    private String carbonToken;
+    private String dcoinToken;
     private String botOwner;
     private int shards;
     private List<String> allowedUsers = new ArrayList<String>();
@@ -66,8 +70,44 @@ public class Config {
         return token;
     }
 
+    /**
+     * Gets token for the Discord Bots website.
+     * @return The token.
+     */
     public String getdApiToken() {
         return dApiToken;
+    }
+
+    /**
+     * Gets token for the DiscordList Bots website.
+     * @return The token.
+     */
+    public String getdListBotsToken() {
+        return dListBotsToken;
+    }
+
+    /**
+     * Gets token for the Discord Bots List website.
+     * @return The token.
+     */
+    public String getdBotsListToken() {
+        return dBotsListToken;
+    }
+
+    /**
+     * Gets token for Carbonitex.
+     * @return The token.
+     */
+    public String getCarbonToken() {
+        return carbonToken;
+    }
+
+    /**
+     * Gets token for Discoin.
+     * @return The token.
+     */
+    public String getDcoinToken() {
+        return dcoinToken;
     }
 
     public List<String> getPatrons() {

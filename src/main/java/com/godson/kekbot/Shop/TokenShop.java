@@ -26,8 +26,7 @@ public class TokenShop extends Shop<Token> {
                     profile.addToken(token);
                     profile.save();
                     return "Purchase complete. \uD83D\uDCB0";
-                } else
-                    return "You can't afford this token! This costs **" + token.getPrice() + CustomEmote.TOPKEK + "**, you have **" + profile.getTopkeks() + CustomEmote.TOPKEK + "**.";
+                } else return "You can't afford this token! This costs **" + CustomEmote.printPrice(token.getPrice()) + "**, you have **" + CustomEmote.printPrice(profile.getTopkeks()) + "**.";
             } else return "You already have this token!";
         } else return "This token requires you to be at least Level " + token.getRequiredLevel() + ". You are Level " + profile.getLevel() + ".";
     }

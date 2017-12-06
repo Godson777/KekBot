@@ -52,7 +52,7 @@ public class Stats {
                         "\nCommands4J Version: 1.1.0-MODDED" +
                         "\nRAM: " + (used / mb) + "MB / " + (total / mb) + "MB " + "(" + usedPercent + "% Used)" +
                         "\nAllocated: " + ((max / mb) < 1024 ? (total / mb) + "MB / " + (max / mb) + "MB " : (total / mb) < 1024 ? (total / mb) + "MB / " + Float.valueOf(format.format((float) max / gb)) + "GB " : Float.valueOf(format.format((float) total / gb)) + "GB / " + Float.valueOf(format.format((float) max / gb)) + "GB ") + "(" + allocatedPercent + "% Used)" +
-                        "\nActive for: " + KekBot.convertMillisToTime(startTime) +
+                        "\nActive for: " + Utils.convertMillisToTime(startTime) +
                         (KekBot.jdas.length > 1 ? "\nThis server is on Shard " + (context.getJDA().getShardInfo().getShardId() + 1) +
                                 "\nNumber of Shards: " + KekBot.jdas.length +
                                 "\nServers (In this Shard): " + context.getJDA().getGuilds().size() +

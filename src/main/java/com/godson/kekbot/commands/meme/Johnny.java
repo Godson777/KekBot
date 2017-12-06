@@ -33,8 +33,8 @@ public class Johnny {
                             if (context.getMessage().getMentionedUsers().size() > 0) {
                                 channel.sendTyping().queue();
                                 User user = context.getMessage().getMentionedUsers().get(0);
-                                BufferedImage target = Utils.getAvatar(user);
-                                BufferedImage ava = Utils.getAvatar(context.getAuthor());
+                                BufferedImage target = Utils.getUserAvatarImage(user);
+                                BufferedImage ava = Utils.getUserAvatarImage(context.getAuthor());
                                 try {
                                     BufferedImage template = ImageIO.read(new File("resources/memegen/johnny_template.png"));
                                     BufferedImage bg = new BufferedImage(template.getWidth(), template.getHeight(), template.getType());

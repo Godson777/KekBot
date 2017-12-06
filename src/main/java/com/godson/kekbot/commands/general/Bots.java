@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public class Bots {
     public static Command bots = new Command("bots")
             .withCategory(CommandCategory.GENERAL)
-            .withDescription("Sends a list of bots found on ths server the command was used in.")
+            .withDescription("Sends a list of bots found on the server the command was used in.")
             .withUsage("{p}bots")
             .onExecuted(context -> {
                 List<String> bots = context.getGuild().getMembers().stream().map(Member::getUser).filter(User::isBot).map(User::getName).collect(Collectors.toList());

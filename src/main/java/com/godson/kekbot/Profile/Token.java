@@ -19,7 +19,12 @@ public enum Token {
     MUSHROOM_1UP_PAPER("Paper 1-UP Mushroom", "paper_1up.png", 2, 200, "A 1-UP Mushroom, based on its appearance from the \"Paper Mario\" series. Although since we can easily print these out, we don't see a reason why they can't be affordable."),
     EYES("Eyes Emote", "eyes.png", 3, 600, "An emote commonly used on both Discord and Twitter. Except now it's also a token. If that's your kinda thing, anyway..."),
     NICK_CAGE("Nicholas Cage", "cage.png", 3, 1000, "We loved Nicholas Cage so much, we made a coin with his face on it, and then dipped it in gold... That counts as a valid token, right?"),
-    POOSY("Poosy Destroyer", "poosy.png", 1, 200, "Based off a quick meme from Joel, and a command that's used quite often. You can now destroy poosies all over with this token. (NOTE: Does not actually help you destroy any poosies.)");
+    POOSY("Poosy Destroyer", "poosy.png", 1, 200, "Based off a quick meme from Joel, and a command that's used quite often. You can now destroy poosies all over with this token. (NOTE: Does not actually help you destroy any poosies.)"),
+    MARIO_COIN("Coin (Mario Bros)", "mario_coin.png", 3, 600, "It's a coin, based on the world of \"Super Mario\"! It's worthless in *this* world, but we think it'll have some use for you..."),
+    MARIO_COIN_8BIT("Coin (8-Bit Mario)", "mario_coin_8bit.png", 3, 450, "It's a coin from the \"Super Mario\" world alright, except it kinda just... turned 8-Bit. I know, right? Weird. I don't think it'll have much use for us here."),
+    GOLDEN_MUSHROOM("Golden Mushroom", "golden_mushroom.png", 10, 1000, "It's a golden mushroom! These things are from \"New Super Mario Bros. 2\", and since they're hard to come by, we're only letting the best of the best get their hands on these...for a price."),
+    STAR_COIN("Star Coin", "star_coin.png", 5, 500, "It's a star coin. These are usually hidden all over \"New Super Mario Bros\" games. Because they're hard to find, we only allow super stars get their hands on these."),
+    STARMAN("Starman", "starman.png", 5, 500, "It's a starman. The use for these things vary from powerups to collectables withn the \"Super Mario\" universe. Looks like we found a use for it here, too...");
 
     private String name;
     private String file;

@@ -2,11 +2,13 @@ package com.godson.kekbot;
 
 import com.darichey.discord.api.CommandContext;
 import com.darichey.discord.api.CommandRegistry;
-import com.godson.kekbot.EventWaiter.EventWaiter;
+import com.godson.discoin4j.Discoin4J;
 import com.godson.kekbot.Games.GamesManager;
 import com.godson.kekbot.Music.MusicPlayer;
+import com.godson.kekbot.Objects.DiscoinManager;
 import com.godson.kekbot.Objects.WaifuManager;
 import com.godson.kekbot.Profile.BackgroundManager;
+import com.godson.kekbot.Profile.Rewards.Lottery.Lottery;
 import com.godson.kekbot.Shop.BackgroundShop;
 import com.godson.kekbot.Shop.TokenShop;
 import com.godson.kekbot.Responses.Action;
@@ -19,6 +21,7 @@ import com.godson.kekbot.commands.music.*;
 import com.godson.kekbot.commands.music.Queue;
 import com.godson.kekbot.commands.owner.*;
 import com.godson.kekbot.commands.test;
+import com.jagrosh.jdautilities.waiter.EventWaiter;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
@@ -34,7 +37,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 public class KekBot {
     //Seting configs, and resources.
@@ -55,6 +57,9 @@ public class KekBot {
     public static BackgroundManager backgroundManager = new BackgroundManager();
     public static BackgroundShop backgroundShop = new BackgroundShop();
     public static WaifuManager waifuManager = new WaifuManager();
+    public static Lottery lottery = new Lottery();
+    public static Discoin4J discoin;
+    public static DiscoinManager discoinManager;
 
     static {
         //TODO: Remove this later in favor of hardcoding the version, instead of relying on a .properties file.
@@ -77,6 +82,10 @@ public class KekBot {
 
     public static void main(String[] args) throws LoginException, InterruptedException, RateLimitedException {
         String token = GSONUtils.getConfig().getToken();
+        if (GSONUtils.getConfig().getDcoinToken() != null) {
+            discoin = new Discoin4J(GSONUtils.getConfig().getDcoinToken());
+            discoinManager = new DiscoinManager();
+        }
 
         if (shards == 0) {
             System.out.println("You must enter the number of shards in your \"config.json\"! Please go back and specify it before launching.");
@@ -109,7 +118,8 @@ public class KekBot {
                         Skip.skip, Playlist.playlist, Song.song, Stop.stop, Volume.volume, Host.host, Music.music, Pause.pause, VoteSkip.voteskip, Repeat.repeat, Invite.invite,
                         Erase.erase, Johnny.johnny, LongLive.longlive, BlockUser.blockUser, DELET.delet, AddPatron.addPatron, RemovePatron.removePatron,
                         Poosy.poosy, EightBall.eightBall, Pick.pick, GameCommand.game, ProfileCommand.profile, FullWidth.fullwidth, ShopCommand.shop, MyPlaylist.myPlaylist,
-                        Rip.rip, RateWaifu.rateWaifu, Gabe.gabe, Changelog.changelog);
+                        Rip.rip, RateWaifu.rateWaifu, Gabe.gabe, Changelog.changelog, LotteryCommand.lottery, Shuffle.shuffle, Balance.balanace, SlotMachine.slotMachine,
+                        Pay.pay);
             }
 
             for (Action action : Action.values()) {
@@ -152,44 +162,9 @@ public class KekBot {
                         ? CommandRegistry.getForClient(guild.getJDA()).getPrefixForGuild(guild) : "$"));
     }
 
-    //TODO: Perhaps add this to the Utils class instead of cluttering KekBot's main class with this.
-    public static String convertMillisToHMmSs(long millis) {
-        long hours = TimeUnit.MILLISECONDS.toHours(millis);
-        long minutes = TimeUnit.MILLISECONDS.toMinutes(millis) -
-                TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis));
-        long seconds = TimeUnit.MILLISECONDS.toSeconds(millis) -
-                TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis));
-        return (hours > 0 ? hours + ":" : "") +
-                (minutes > 0 ? (minutes > 9 ? minutes + ":" : (hours > 0 ? "0" + minutes + ":" : minutes + ":" )) : (hours > 0 ? "00:" : "0:")) +
-                (seconds > 0 ? (seconds > 9 ? seconds : "0" + seconds) : "00");
-    }
-
-    //TODO: This too.
-    public static String convertMillisToTime(long millis) {
-        long days = TimeUnit.MILLISECONDS.toDays(millis);
-        long hours = TimeUnit.MILLISECONDS.toHours(millis) -
-                TimeUnit.DAYS.toHours(TimeUnit.MILLISECONDS.toDays(millis));
-        long minutes = TimeUnit.MILLISECONDS.toMinutes(millis) -
-                TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis));
-        long seconds = TimeUnit.MILLISECONDS.toSeconds(millis) -
-                TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis));
-        return (days != 0 ? days + (days > 1 ? " Days, " : " Day, ") : "") +
-                (hours != 0 ? hours + (hours > 1 ? " Hours, " : " Hour, ") : "") + minutes +
-                (minutes != 1 ? " Minutes and " : " Minute and ") + seconds + (seconds != 1 ? " Seconds." : " Second.");
-    }
-
-    //TODO: And this.
-    public static String songTimestamp(long current, long length) {
-        return convertMillisToHMmSs(current) + "/" + convertMillisToHMmSs(length);
-    }
-
-    //TODO: And yes, this too.
-    public static String removeWhitespaceEdges(String string) {
-        if (string.matches(".*\\w.*")) {
-            if (string.startsWith(" ")) string = string.replaceFirst("([ ]+)", "");
-            if (string.endsWith(" ")) string = string.replaceAll("([ ]+$)", "");
-        } else string = "";
-        return string;
+    public static String insertPrefix(Guild guild) {
+        return (CommandRegistry.getForClient(guild.getJDA()).getPrefixForGuild(guild) != null
+                ? CommandRegistry.getForClient(guild.getJDA()).getPrefixForGuild(guild) : "$");
     }
 
 }

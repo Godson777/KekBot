@@ -1,6 +1,6 @@
 package com.godson.kekbot.Profile;
 
-import com.godson.kekbot.KekBot;
+import com.godson.kekbot.Utils;
 
 import java.awt.*;
 import java.awt.font.FontRenderContext;
@@ -25,6 +25,6 @@ public class ProfileUtils {
         } catch (StringIndexOutOfBoundsException e) {
             return false;
         }
-        return tempBio.length() == bio.length() || test.getFont().getStringBounds(KekBot.removeWhitespaceEdges(bio.substring(tempBio.length(), bio.length())), test.getFontRenderContext()).getWidth() < 736;
+        return tempBio.length() == bio.length() || test.getFont().getStringBounds(Utils.removeWhitespaceEdges(bio.substring(tempBio.length(), bio.length())), test.getFontRenderContext()).getWidth() < 736;
     }
 }

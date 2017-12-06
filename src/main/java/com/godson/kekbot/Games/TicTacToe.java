@@ -3,6 +3,7 @@ package com.godson.kekbot.Games;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.Profile.Profile;
 import com.godson.kekbot.Profile.Token;
+import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 
@@ -39,7 +40,7 @@ public class TicTacToe extends Game {
     private BufferedImage player2;
 
     public TicTacToe(TextChannel channel) {
-        super(2, true, channel, "TicTacToe");
+        super(2, true, channel, "TicTacToe", false);
     }
 
     @Override
@@ -84,7 +85,7 @@ public class TicTacToe extends Game {
             e.printStackTrace();
         }
         turn = random.nextInt(2)+1;
-        if (players.size() < numberOfPlayers) {
+        if (players.size() < getMaxNumberOfPlayers()) {
             prepareAI();
             if (turn == 2) {
                 aiFillSlot();
@@ -98,6 +99,23 @@ public class TicTacToe extends Game {
             drawBoard();
             channel.sendMessage("**" + players.get(turn-1).getName() + ", you're first!**").queue();
         }
+    }
+
+    @Override
+    public void acceptInputFromMessage(Message message) {
+        String contents = message.getRawContent();
+        try {
+            int slot = Integer.valueOf(contents);
+            fillSlot(slot-1, message.getAuthor());
+        } catch (NumberFormatException e) {
+            //do nothing.
+        }
+    }
+
+    @Override
+    public String getRules() {
+        return "A board game classic! As soon as the game starts, players have to take turns trying to create a line. It's exactly what you'd expect from TicTacToe." +
+                "Players are able to place their piece down by typing the number representing a space on the board in chat. The player who finishes their line first wins!";
     }
 
     private void drawBoard() {
@@ -120,6 +138,7 @@ public class TicTacToe extends Game {
             ImageIO.setUseCache(false);
             ImageIO.write(base, "png", stream);
             channel.sendFile(stream.toByteArray(), "tictactoe.png", null).queue();
+            stream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -269,7 +288,7 @@ public class TicTacToe extends Game {
         if (winner) {
             drawBoard();
             channel.sendMessage("\uD83C\uDF89 **" + player.getName() + " wins!** \uD83C\uDF89").queue();
-            if (players.size() == numberOfPlayers) endGame(player, random.nextInt(8), ThreadLocalRandom.current().nextInt(4, 7));
+            if (players.size() == getMaxNumberOfPlayers()) endGame(player, random.nextInt(8), ThreadLocalRandom.current().nextInt(4, 7));
             else endGame(player, random.nextInt(3) + 1, random.nextInt(3) + 1);
         }
         return winner;

@@ -18,6 +18,7 @@ public class Music {
                 context.getTextChannel().sendMessage(KekBot.replacePrefix(context.getGuild(), "Music Commands: " +
                         "\n{p}queue - **Queues a music track.**" +
                         "\n{p}skip - **Skips a track. (Host Only)**" +
+                        "\n{p}voteskip - **Casts a vote to skip the track.**" +
                         "\n{p}song - **Gets the current song info.**" +
                         "\n{p}playlist - **Lists all the tracks that are in the queue.**" +
                         "\n{p}volume - **Sets the volume. (Host Only)**" +
@@ -25,6 +26,7 @@ public class Music {
                         "\n{p}stop - **Stops the current music session. (Host Only)**" +
                         "\n{p}pause - **Pauses the current music session. (Host Only)**" +
                         "\n{p}repeat - **Toggles repeat mode, switched from OFF, SINGLE, and MULTI. (Host Only)**" +
+                        "\n{p}shuffle - **Shuffles all the tracks that are in the queue.**" +
                         "\n" +
                         "\nAll \"Host Only\" commands can also be executed by a user with `Administrator` permissions.")).queue();
             });

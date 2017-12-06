@@ -4,6 +4,7 @@ import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.Objects.PollObject;
+import com.godson.kekbot.Utils;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.TextChannel;
 
@@ -31,7 +32,7 @@ public class Poll {
                         } else {
                             String pollVariables[] = timeSplit[1].split("\\u007c");
                             long time = 0;
-                            String timeStr = KekBot.removeWhitespaceEdges(pollVariables[0]);
+                            String timeStr = Utils.removeWhitespaceEdges(pollVariables[0]);
                             String[] split = timeStr.split(":");
                             try {
                                 for (int i = split.length - 1, num = 0; i >= 0; i--, num++) {
@@ -59,13 +60,13 @@ public class Poll {
                                     List<String> list = new ArrayList<>();
                                     for (String option : pollVariables) {
                                         if (!option.equals(pollVariables[0])) {
-                                            String formattedOption = KekBot.removeWhitespaceEdges(option);
+                                            String formattedOption = Utils.removeWhitespaceEdges(option);
                                             if (!formattedOption.equals("")) list.add(formattedOption);
                                         }
                                     }
                                     String options[] = list.toArray(EMPTY_STRING_ARRAY);
                                     if (options.length != 1) {
-                                        PollObject poll = KekBot.manager.createPoll(context, time, KekBot.removeWhitespaceEdges(rawSplit[1].substring(0, rawSplit[1].indexOf("|"))), options);
+                                        PollObject poll = KekBot.manager.createPoll(context, time, Utils.removeWhitespaceEdges(rawSplit[1].substring(0, rawSplit[1].indexOf("|"))), options);
                                         StringBuilder builder = new StringBuilder();
                                         for (int i = 0; i < poll.getOptions().length; i++) {
                                             builder.append(i + 1).append(". ").append("**").append(poll.getOptions()[i]).append("**").append("\n");

@@ -4,9 +4,9 @@ import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.Responses.Action;
+import com.godson.kekbot.Utils;
 import net.dv8tion.jda.core.entities.TextChannel;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -26,7 +26,7 @@ public class Pick {
     //This method may be moved later to Utils.
     private static List<String> prepareChoices(String choicesString, String splitOn) {
         return Arrays.stream(choicesString.split(splitOn))
-            .map(KekBot::removeWhitespaceEdges)
+            .map(Utils::removeWhitespaceEdges)
             .filter(c -> !c.isEmpty())
             .collect(Collectors.toList());
     }

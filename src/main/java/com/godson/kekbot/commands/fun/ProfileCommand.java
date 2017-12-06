@@ -143,8 +143,8 @@ public class ProfileCommand {
                                     if (context.getArgs().length < 3) {
                                         context.getTextChannel().sendMessage("**Number of Tokens: ** " + tokens.size() +
                                                 //"\n**Token Display: **" + KekBot.replacePrefix(context.getGuild(), "Use `{p}profile edit token display` to enter the token display editor.") +
-                                                "\n**Equipped Token: **" + (profile.hasTokenEquipped() ? profile.getToken().getName() : "¯\\_(ツ)_/¯" +
-                                                "\n**Available Options:** List, Equip")).queue();
+                                                "\n**Equipped Token: **" + (profile.hasTokenEquipped() ? profile.getToken().getName() : "¯\\_(ツ)_/¯") +
+                                                "\n**Available Options:** List, Equip").queue();
                                     } else {
                                         switch (context.getArgs()[2]) {
                                             case "list":
@@ -215,8 +215,8 @@ public class ProfileCommand {
                                     }
                                     if (context.getArgs().length < 3) {
                                         context.getTextChannel().sendMessage("**Number of Backgrounds: ** " + backgrounds.size() +
-                                                "\n**Current Background: **" + (profile.hasBackgroundEquipped() ? profile.getCurrentBackground().getName() : "¯\\_(ツ)_/¯" +
-                                                "\n**Available Options:** List, Set")).queue();
+                                                "\n**Current Background: **" + (profile.hasBackgroundEquipped() ? profile.getCurrentBackground().getName() : "¯\\_(ツ)_/¯") +
+                                                "\n**Available Options:** List, Set").queue();
                                     } else {
                                         switch (context.getArgs()[2]) {
                                             case "list":
@@ -307,7 +307,7 @@ public class ProfileCommand {
                                                                 Profile profile = Profile.getProfile(user);
                                                                 profile.addTopKeks(toGive);
                                                                 profile.save();
-                                                                context.getTextChannel().sendMessage("Gave " + user.getName() + "#" + user.getDiscriminator() + " " + toGive + " " + CustomEmote.TOPKEK + ".").queue();
+                                                                context.getTextChannel().sendMessage("Gave " + user.getName() + "#" + user.getDiscriminator() + " " + CustomEmote.printPrice(toGive) + ".").queue();
                                                             } catch (NullPointerException e) {
                                                                 context.getTextChannel().sendMessage("User with that ID not found, or the ID specified is invalid.").queue();
                                                             }
@@ -395,7 +395,7 @@ public class ProfileCommand {
                                             case "topkeks":
                                                 if (context.getArgs().length >= 4) {
                                                     try {
-                                                        int toTake = Integer.valueOf(context.getArgs()[3]);
+                                                        double toTake = Integer.valueOf(context.getArgs()[3]);
                                                         if (context.getArgs().length >= 5) {
                                                             try {
                                                                 User user = Utils.findShardUser(context.getArgs()[4]);
@@ -403,7 +403,7 @@ public class ProfileCommand {
                                                                 if (toTake > profile.getTopkeks()) toTake = profile.getTopkeks();
                                                                 profile.spendTopKeks(toTake);
                                                                 profile.save();
-                                                                context.getTextChannel().sendMessage("Took away " + toTake + CustomEmote.TOPKEK + " from " + user.getName() + "#" + user.getDiscriminator() + ".").queue();
+                                                                context.getTextChannel().sendMessage("Took away " + CustomEmote.printPrice(toTake) + " from " + user.getName() + "#" + user.getDiscriminator() + ".").queue();
                                                             } catch (NullPointerException e) {
                                                                 context.getTextChannel().sendMessage("User with that ID not found, or the ID specified is invalid.").queue();
                                                             }
@@ -500,7 +500,7 @@ public class ProfileCommand {
                                                                 Profile profile = Profile.getProfile(user);
                                                                 profile.setTopKeks(toSet);
                                                                 profile.save();
-                                                                context.getTextChannel().sendMessage("Set " + user.getName() + "#" + user.getDiscriminator() + "'s " + CustomEmote.TOPKEK + "to " + + toSet + ".").queue();
+                                                                context.getTextChannel().sendMessage("Set " + user.getName() + "#" + user.getDiscriminator() + "'s " + CustomEmote.printTopKek() + "to " + + toSet + ".").queue();
                                                             } catch (NullPointerException e) {
                                                                 context.getTextChannel().sendMessage("User with that ID not found, or the ID specified is invalid.").queue();
                                                             }
