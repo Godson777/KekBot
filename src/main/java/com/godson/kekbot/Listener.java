@@ -122,7 +122,7 @@ public class Listener extends ListenerAdapter {
 
         if (!event.getAuthor().isBot()) {
 
-            if (message.equals(event.getJDA().getSelfUser().getAsMention() + " prefix")) {
+            if (message.equals(event.getGuild().getSelfMember().getAsMention() + " prefix")) {
                 channel.sendMessage("The prefix for __**" + server.getName() + "**__ is: **" + prefix + "**").queue();
             }
 
