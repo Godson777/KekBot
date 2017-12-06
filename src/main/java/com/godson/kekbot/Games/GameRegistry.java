@@ -1,10 +1,8 @@
 package com.godson.kekbot.Games;
 
-import com.sun.javaws.exceptions.InvalidArgumentException;
 import net.dv8tion.jda.core.entities.TextChannel;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class GameRegistry {
     private Map<String, Integer> registeredGames = new HashMap<>();
