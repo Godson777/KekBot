@@ -41,6 +41,18 @@ public class BackgroundManager {
                 "Based on the most iconic character in all of gaming, show your love for the retro world with this 8-Bit Mario standing in front of the sunrise!"));
         backgrounds.add(new Background("SIMPLISTIC_PM", "Simplistic Paper Mario", "PAPER_MARIO_SIMPLISTIC.png", 2, 400,
                 "Based on the most iconic character in all of gaming, show off your love for the popular spin off series with this background!"));
+        backgrounds.add(new Background("CRAZY_CAP", "Crazy Cap", "CRAZY_CAP.png", 2, 500,
+                "Submitted by `Mr. 31415926`.\nA background based on the store found in Super Mario Odyssey! Show off your Crazy Cap pride with this background!"));
+        backgrounds.add(new Background("MANIA", "Sonic Mania Background", "MANIA.png", 1, 400,
+                "This is the level start screen, found on the ~~only good~~ Sonic game: \"Sonic Mania\"."));
+        backgrounds.add(new Background("SPACE_DOGE", "Space Doge", "SPACE_DOGE.png", 3, 750,
+                "This is a space background. But there's a *doge* in it."));
+        backgrounds.add(new Background("SPACE", "Space", "SPACE.png", 2, 500,
+                "This is a backgound. In *spaaaaaaaaaaace*!"));
+        backgrounds.add(new Background("NIGHT_SKY", "Night Sky", "NIGHT_SKY.png", 2, 250,
+                "Stare at the night sky with this background!"));
+        backgrounds.add(new Background("GOLDEN_LIGHT", "Golden Light", "GOLDEN_LIGHT.png", 10, 1000,
+                "Show off your gold pride with this background. It's so shiny, we're only letting the best of the best get their hands on this. For a not-so-cheap price, anyway..."));
 
         if (!getExclusiveBackgrounds().isEmpty()) {
             backgrounds.addAll(getExclusiveBackgrounds());
