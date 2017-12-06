@@ -22,7 +22,7 @@ public enum Token {
     POOSY("Poosy Destroyer", "poosy.png", 1, 200, "Based off a quick meme from Joel, and a command that's used quite often. You can now destroy poosies all over with this token. (NOTE: Does not actually help you destroy any poosies.)"),
     MARIO_COIN("Coin (Mario Bros)", "mario_coin.png", 3, 600, "It's a coin, based on the world of \"Super Mario\"! It's worthless in *this* world, but we think it'll have some use for you..."),
     MARIO_COIN_8BIT("Coin (8-Bit Mario)", "mario_coin_8bit.png", 3, 450, "It's a coin from the \"Super Mario\" world alright, except it kinda just... turned 8-Bit. I know, right? Weird. I don't think it'll have much use for us here."),
-    GOLDEN_MUSHROOM("Golden Mushroom", "golden_mushroom.png", 10, 1000, "It's a golden mushroom! These things are from \"New Super Mario Bros. 2\", and since they're hard to come by,  we're only letting the best of the best get their hands on these...for a price."),
+    GOLDEN_MUSHROOM("Golden Mushroom", "golden_mushroom.png", 10, 1000, "It's a golden mushroom! These things are from \"New Super Mario Bros. 2\", and since they're hard to come by, we're only letting the best of the best get their hands on these...for a price."),
     STAR_COIN("Star Coin", "star_coin.png", 5, 500, "It's a star coin. These are usually hidden all over \"New Super Mario Bros\" games. Because they're hard to find, we only allow super stars get their hands on these."),
     STARMAN("Starman", "starman.png", 5, 500, "It's a starman. The use for these things vary from powerups to collectables withn the \"Super Mario\" universe. Looks like we found a use for it here, too...");
 
