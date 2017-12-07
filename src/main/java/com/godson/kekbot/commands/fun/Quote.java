@@ -106,57 +106,6 @@ public class Quote {
                             } else {
                                 channel.sendMessage("There are no quotes to list!").queue();
                             }
-
-
-
-                            /*
-                            List<String> quotesList = new ArrayList<>();
-                            List<String> pages = new ArrayList<>();
-                            String pageNumber = (rawSplit.length == 3 ? rawSplit[2] : null);
-
-                            if (size != 0) {
-                                for (int i = 0; i < size; i++) {
-                                    String quote = quotes.getQuotes().get(i);
-                                    quotesList.add(String.valueOf(i+1) + ". " + quote);
-                                }
-                                try {
-                                    if (pageNumber == null || Integer.valueOf(pageNumber) == 1) {
-                                        if (quotesList.size() <= 10) {
-                                            channel.sendMessage("```md\n" + StringUtils.join(quotesList, "\n") + "```").queue();
-                                        } else {
-                                            for (int i = 0; i < quotesList.size(); i += 10) {
-                                                try {
-                                                    pages.add(StringUtils.join(quotesList.subList(i, i + 10), "\n"));
-                                                } catch (IndexOutOfBoundsException e) {
-                                                    pages.add(StringUtils.join(quotesList.subList(i, quotesList.size()), "\n"));
-                                                }
-                                            }
-                                            channel.sendMessage("```md\n" + pages.get(0) + "\n\n[Page](1" + "/" + pages.size() + ")" + "```").queue();
-                                        }
-                                    } else {
-                                        if (quotesList.size() <= 10) {
-                                            channel.sendMessage("There are no other pages!").queue();
-                                        } else {
-                                            for (int i = 0; i < quotesList.size(); i += 10) {
-                                                try {
-                                                    pages.add(StringUtils.join(quotesList.subList(i, i + 10), "\n"));
-                                                } catch (IndexOutOfBoundsException e) {
-                                                    pages.add(StringUtils.join(quotesList.subList(i, quotesList.size()), "\n"));
-                                                }
-                                            }
-                                            if (Integer.valueOf(pageNumber) > pages.size()) {
-                                                channel.sendMessage("Specified page does not exist!").queue();
-                                            } else {
-                                                channel.sendMessage("```md\n" + pages.get(Integer.valueOf(pageNumber) - 1) + "\n\n[Page](" + pageNumber + "/" + pages.size() + ")" + "```").queue();
-                                            }
-                                        }
-                                    }
-                                } catch (NumberFormatException e) {
-                                    channel.sendMessage("\"" + pageNumber + "\" is not a number!").queue();
-                                }
-                            } else {
-                                channel.sendMessage("There are no quotes to list!").queue();
-                            }*/
                             break;
                     }
                 }
