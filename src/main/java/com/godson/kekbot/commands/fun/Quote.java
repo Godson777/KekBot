@@ -7,6 +7,7 @@ import com.godson.kekbot.GSONUtils;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.Responses.Action;
 import com.godson.kekbot.Settings.Quotes;
+import com.jagrosh.jdautilities.menu.pagination.PaginatorBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -15,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class Quote {
     public static Command quote = new Command("quote")
@@ -82,6 +84,32 @@ public class Quote {
                             break;
                         case "list":
                             int size = quotes.getQuotes().size();
+
+                            if (size != 0) {
+                                PaginatorBuilder builder = new PaginatorBuilder();
+                                for (int i = 0; i < size; i++) {
+                                    String quote = quotes.getQuotes().get(i);
+                                    builder.addItems(quote.length() > 100 ? quote.substring(0, 100) + "..." : quote);
+                                }
+
+                                builder.setText("Here are your quotes:")
+                                        .setEventWaiter(KekBot.waiter)
+                                        .setColor(context.getGuild().getSelfMember().getColor())
+                                        .setItemsPerPage(10)
+                                        .waitOnSinglePage(true)
+                                        .showPageNumbers(true)
+                                        .useNumberedItems(true)
+                                        .setTimeout(5, TimeUnit.MINUTES)
+                                        .setUsers(context.getAuthor());
+
+                                builder.build().display(context.getTextChannel());
+                            } else {
+                                channel.sendMessage("There are no quotes to list!").queue();
+                            }
+
+
+
+                            /*
                             List<String> quotesList = new ArrayList<>();
                             List<String> pages = new ArrayList<>();
                             String pageNumber = (rawSplit.length == 3 ? rawSplit[2] : null);
@@ -128,7 +156,7 @@ public class Quote {
                                 }
                             } else {
                                 channel.sendMessage("There are no quotes to list!").queue();
-                            }
+                            }*/
                             break;
                     }
                 }
