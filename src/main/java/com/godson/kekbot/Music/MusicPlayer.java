@@ -379,7 +379,7 @@ public class MusicPlayer {
                 } else {
                     List<String> tracks = new ArrayList<>();
                     List<Pair<AudioTrack, User>> queue = new ArrayList<>();
-                    queue.addAll(musicManager.scheduler.getQueue());
+                    queue.addAll(musicManager.scheduler.getRepeatQueue());
                     for (int i = 0; i < queue.size(); i++) {
                         AudioTrack track = queue.get(i).getKey();
                         User user = queue.get(i).getValue();
