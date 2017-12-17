@@ -190,6 +190,7 @@ public abstract class Game {
         }
         channel.sendMessage(builder.toString()).queue();
         if (betsEnabled) bets.declareTie();
+        KekBot.gamesManager.closeGame(channel);
     }
 
     private String stateEarnings(User user, double topkeks, int KXP) {
