@@ -40,7 +40,18 @@ public class Queue {
                                             KekBot.player.loadAndPlay(context, playlist.get());
                                         } else context.getTextChannel().sendMessage(CustomEmote.think() + " I'm not finding any playlists by that name... Did you type it correctly?").queue();
                                     } else context.getTextChannel().sendMessage("Huh? I get you want to queue a playlist, but you didn't give me the name of your playlist...").queue();
-                                } else KekBot.player.loadAndPlay(context, context.getArgs()[0]);
+                                } else {
+                                    String input = String.join(" ", Arrays.copyOfRange(context.getArgs(), 1, context.getArgs().length));
+                                    if(!(input.startsWith("http://") || input.startsWith("https://"))) {
+                                        context.getTextChannel().sendMessage("Searching youtube for: **"+input+"**");
+                                        input = "ytsearch:"+input;
+                                        KekBot.player.loadAndYT(context, input); //Loads the track if no url is provided. basicly searches yt
+                                        rerturn;
+                                    } else {
+                                        KekBot.player.loadAndYT(context, context.getArgs()[0]);
+                                        return;
+                                    }
+                                }
                             } else {
                                 context.getTextChannel().sendMessage("You haven't given a valid URL to queue. " + CustomEmote.think()).queue();
                             }
