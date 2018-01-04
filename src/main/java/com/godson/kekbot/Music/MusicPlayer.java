@@ -76,6 +76,35 @@ public class MusicPlayer {
         long guildId = Long.parseLong(guild.getId());
         musicManagers.get(guildId).setHost(user);
     }
+    
+    public void loadAndYT(final CommandContext context, final String search) {
+          GuildMusicManager musicManager = getGuildAudioPlayer(context, true);
+          if(!musicManager.isMeme()) {
+                playerManager.loadItemOrdered(musicManager, search, new AudioLoadResultHandler() {
+                    @Override
+                    public void trackLoaded(AudioTrack track) {
+                        context.getTextChannel().sendMessage("Added **"+track.getInfo().title+"** to the queue").queue();
+                        play(context, musicManager, track);
+                    }
+
+                    @Override
+                    public void playlistLoaded(AudioPlaylist playlist) {
+                        AudioTrack result = playlist.getTracks().get(0);
+                        context.getTextChannel().sendMessage("Added **"+result.getInfo().title+"** to the queue").queue();
+                        play(context, musicManager, result);
+                        //Godson add anything else Idfc.
+                    }
+
+                    @Override
+                    public void noMatches() {
+                    }
+
+                    @Override
+                    public void loadFailed(FriendlyException exception) {
+                    }
+                });
+          }
+    }
 
     public void loadAndMeme(final CommandContext context, final String trackUrl) {
         GuildMusicManager musicManager = getGuildAudioPlayer(context, true);
