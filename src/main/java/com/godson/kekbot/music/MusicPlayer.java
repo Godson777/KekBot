@@ -162,6 +162,56 @@ public class MusicPlayer {
         }
     }
 
+    public void loadAndSearchYT(final CommandEvent event, final String search) {
+        GuildMusicManager musicManager = getGuildAudioPlayer(event, false);
+        if(!musicManager.isMeme()) {
+            playerManager.loadItemOrdered(musicManager, search, new AudioLoadResultHandler() {
+                @Override
+                public void trackLoaded(AudioTrack track) {
+                    play(event, musicManager, track);
+                    String timeBefore;
+                    if (event.getGuild().getAudioManager().isConnected()) {
+                        if (musicManager.scheduler.repeat != 2) {
+                            final long[] totalLength = {0};
+                            musicManager.scheduler.getQueue().forEach(list -> {
+                                totalLength[0] += list.getKey().getDuration();
+                            });
+                            timeBefore = " (Time before it plays: " +
+                                    Utils.convertMillisToTime(
+                                            (musicManager.player.getPlayingTrack().getDuration() - musicManager.player.getPlayingTrack().getPosition() + (totalLength[0] - track.getDuration()))) + " **Queue Position: " + musicManager.scheduler.getQueue().size() + "**)";
+                        } else {
+                            long totalLength = 0;
+                            List<Pair<AudioTrack, User>> playlist = musicManager.scheduler.getRepeatQueue();
+                            for (int i = musicManager.scheduler.getCurrentRepeatTrack() + 1; i < playlist.size(); i++) {
+                                totalLength += playlist.get(i).getKey().getDuration();
+                            }
+                            timeBefore = " (Time before it plays: " +
+                                    Utils.convertMillisToTime(
+                                            (musicManager.player.getPlayingTrack().getDuration() - musicManager.player.getPlayingTrack().getPosition() + (totalLength - track.getDuration()))) + " **Queue Position: " + musicManager.scheduler.getRepeatQueue().size() + "**)";
+
+                        }
+                        event.getChannel().sendMessage("Added \"" + track.getInfo().title + "\" to the queue." + timeBefore).queue();
+                    }
+                }
+
+                @Override
+                public void playlistLoaded(AudioPlaylist playlist) {
+                    trackLoaded(playlist.getTracks().get(0));
+                }
+
+                @Override
+                public void noMatches() {
+                    event.getChannel().sendMessage("Hm, I can't seem to find `" + search.substring(9) + "` on youtube. Could you try something else?").queue();
+                }
+
+                @Override
+                public void loadFailed(FriendlyException exception) {
+                    event.getChannel().sendMessage("Could not play: " + exception.getMessage()).queue();
+                }
+            });
+        }
+    }
+
     public void loadAndPlay(final CommandEvent event, final Playlist playlist) {
         GuildMusicManager musicManager = getGuildAudioPlayer(event, false);
         if (!musicManager.isMeme()) {
@@ -328,8 +378,8 @@ public class MusicPlayer {
         musicManagers.get(Long.parseLong(guild.getId())).channel.sendMessage(message).queue();
     }
 
-    public void getPlaylist(CommandContext context) {
-        long guildId = Long.parseLong(context.getGuild().getId());
+    public void getPlaylist(CommandEvent event) {
+        long guildId = Long.parseLong(event.getGuild().getId());
         if (musicManagers.containsKey(guildId)) {
             GuildMusicManager musicManager = musicManagers.get(guildId);
             if (!musicManager.isMeme()) {
@@ -363,13 +413,13 @@ public class MusicPlayer {
                         pb.setText("**Total Length: " + (musicManager.scheduler.repeat == 1 ? "∞ Infinity." : Utils.convertMillisToTime(totalLength)) + "**");
                         pb.setEventWaiter(KekBot.waiter);
                         pb.setItemsPerPage(15);
-                        pb.setColor(context.getGuild().getSelfMember().getColor() == null?Color.RED:context.getGuild().getSelfMember().getColor());
+                        pb.setColor(event.getGuild().getSelfMember().getColor() == null?Color.RED:event.getGuild().getSelfMember().getColor());
                         pb.setTimeout(1, TimeUnit.MINUTES);
                         pb.showPageNumbers(true);
                         pb.waitOnSinglePage(true);
-                        pb.setUsers(context.getAuthor());
-                        pb.build().display(context.getTextChannel());
-                    } else context.getTextChannel().sendMessage("There is nothing in the playlist!").queue();
+                        pb.setUsers(event.getAuthor());
+                        pb.build().display(event.getChannel());
+                    } else event.getChannel().sendMessage("There is nothing in the playlist!").queue();
                 } else {
                     List<String> tracks = new ArrayList<>();
                     List<Pair<AudioTrack, User>> queue = new ArrayList<>();
@@ -396,15 +446,15 @@ public class MusicPlayer {
                     pb.setText("\n**Total Length: " + "∞ Infinity.**");
                     pb.setEventWaiter(KekBot.waiter);
                     pb.setItemsPerPage(15);
-                    pb.setColor(context.getGuild().getSelfMember().getColor() == null?Color.RED:context.getGuild().getSelfMember().getColor());
+                    pb.setColor(event.getGuild().getSelfMember().getColor() == null?Color.RED:event.getGuild().getSelfMember().getColor());
                     pb.setTimeout(1, TimeUnit.MINUTES);
                     pb.showPageNumbers(true);
                     pb.waitOnSinglePage(true);
-                    pb.setUsers(context.getAuthor());
-                    pb.build().display(context.getTextChannel());
+                    pb.setUsers(event.getAuthor());
+                    pb.build().display(event.getChannel());
                 }
-            } else context.getTextChannel().sendMessage("I'm memeing at the moment, there is no playlist...").queue();
-        } else context.getTextChannel().sendMessage("There is no music playing!").queue();
+            } else event.getChannel().sendMessage("I'm memeing at the moment, there is no playlist...").queue();
+        } else event.getChannel().sendMessage("There is no music playing!").queue();
     }
 
     public void getCurrentSong(TextChannel channel) {
@@ -451,22 +501,23 @@ public class MusicPlayer {
         this.musicManagers.remove(guildId);
     }
 
-    public void setVolume(CommandContext context, int volume) {
-        long guildId = Long.parseLong(context.getGuild().getId());
+    public void setVolume(CommandEvent event, int volume) {
+        long guildId = Long.parseLong(event.getGuild().getId());
         if (musicManagers.containsKey(guildId)) {
             if (volume <= 100 && volume >= 0) {
                 musicManagers.get(guildId).player.setVolume(volume);
-                context.getTextChannel().sendMessage("Volume set to " + volume).queue();
-            } else context.getTextChannel().sendMessage("Specified volume must be between 100 and 0!").queue();
+                event.getChannel().sendMessage("Volume set to " + volume).queue();
+            } else event.getChannel().sendMessage("Specified volume must be between 100 and 0!").queue();
         }
     }
 
-    public void shuffle(CommandContext context) {
-        long guildId = Long.parseLong(context.getGuild().getId());
+    public void shuffle(CommandEvent event) {
+        long guildId = Long.parseLong(event.getGuild().getId());
         if (musicManagers.containsKey(guildId)) {
+            if (musicManagers.get(guildId).isMeme()) return;
             musicManagers.get(guildId).scheduler.shuffle();
         }
-        context.getTextChannel().sendMessage("Shuffled! \uD83D\uDD04").queue();
+        event.getChannel().sendMessage("Shuffled! \uD83D\uDD04").queue();
     }
 
     public void addToPlaylist(Questionnaire.Results results, String trackUrl, Playlist playlist) {
