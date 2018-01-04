@@ -76,35 +76,6 @@ public class MusicPlayer {
         long guildId = Long.parseLong(guild.getId());
         musicManagers.get(guildId).setHost(user);
     }
-    
-    public void loadAndYT(final CommandContext context, final String search) {
-          GuildMusicManager musicManager = getGuildAudioPlayer(context, true);
-          if(!musicManager.isMeme()) {
-                playerManager.loadItemOrdered(musicManager, search, new AudioLoadResultHandler() {
-                    @Override
-                    public void trackLoaded(AudioTrack track) {
-                        context.getTextChannel().sendMessage("Added **"+track.getInfo().title+"** to the queue").queue();
-                        play(context, musicManager, track);
-                    }
-
-                    @Override
-                    public void playlistLoaded(AudioPlaylist playlist) {
-                        AudioTrack result = playlist.getTracks().get(0);
-                        context.getTextChannel().sendMessage("Added **"+result.getInfo().title+"** to the queue").queue();
-                        play(context, musicManager, result);
-                        //Godson add anything else Idfc.
-                    }
-
-                    @Override
-                    public void noMatches() {
-                    }
-
-                    @Override
-                    public void loadFailed(FriendlyException exception) {
-                    }
-                });
-          }
-    }
 
     public void loadAndMeme(final CommandContext context, final String trackUrl) {
         GuildMusicManager musicManager = getGuildAudioPlayer(context, true);
@@ -184,7 +155,7 @@ public class MusicPlayer {
 
                 @Override
                 public void noMatches() {
-                    context.getTextChannel().sendMessage("Hm, " + trackUrl + " doesn't appear to be a valid URL. Could you try again?").queue();
+                    context.getTextChannel().sendMessage("Hm, `" + trackUrl + "` doesn't appear to be a valid URL. Could you try again?").queue();
                 }
 
                 @Override
@@ -194,6 +165,56 @@ public class MusicPlayer {
             });
         } else {
             context.getTextChannel().sendMessage("I can't play music while I'm memeing...").queue();
+        }
+    }
+
+    public void loadAndSearchYT(final CommandContext context, final String search) {
+        GuildMusicManager musicManager = getGuildAudioPlayer(context, false);
+        if(!musicManager.isMeme()) {
+            playerManager.loadItemOrdered(musicManager, search, new AudioLoadResultHandler() {
+                @Override
+                public void trackLoaded(AudioTrack track) {
+                    play(context, musicManager, track);
+                    String timeBefore = "";
+                    if (context.getGuild().getAudioManager().isConnected()) {
+                        if (musicManager.scheduler.repeat != 2) {
+                            final long[] totalLength = {0};
+                            musicManager.scheduler.getQueue().forEach(list -> {
+                                totalLength[0] += list.getKey().getDuration();
+                            });
+                            timeBefore = " (Time before it plays: " +
+                                    Utils.convertMillisToTime(
+                                            (musicManager.player.getPlayingTrack().getDuration() - musicManager.player.getPlayingTrack().getPosition() + (totalLength[0] - track.getDuration()))) + " **Queue Position: " + musicManager.scheduler.getQueue().size() + "**)";
+                        } else {
+                            long totalLength = 0;
+                            List<Pair<AudioTrack, User>> playlist = musicManager.scheduler.getRepeatQueue();
+                            for (int i = musicManager.scheduler.getCurrentRepeatTrack() + 1; i < playlist.size(); i++) {
+                                totalLength += playlist.get(i).getKey().getDuration();
+                            }
+                            timeBefore = " (Time before it plays: " +
+                                    Utils.convertMillisToTime(
+                                            (musicManager.player.getPlayingTrack().getDuration() - musicManager.player.getPlayingTrack().getPosition() + (totalLength - track.getDuration()))) + " **Queue Position: " + musicManager.scheduler.getRepeatQueue().size() + "**)";
+
+                        }
+                        context.getTextChannel().sendMessage("Added \"" + track.getInfo().title + "\" to the queue." + timeBefore).queue();
+                    }
+                }
+
+                @Override
+                public void playlistLoaded(AudioPlaylist playlist) {
+                    trackLoaded(playlist.getTracks().get(0));
+                }
+
+                @Override
+                public void noMatches() {
+                    context.getTextChannel().sendMessage("Hm, I can't seem to find `" + search.substring(9) + "` on youtube. Could you try something else?").queue();
+                }
+
+                @Override
+                public void loadFailed(FriendlyException exception) {
+                    context.getTextChannel().sendMessage("Could not play: " + exception.getMessage()).queue();
+                }
+            });
         }
     }
 

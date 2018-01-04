@@ -4,13 +4,12 @@ import com.darichey.discord.api.Command;
 import com.darichey.discord.api.CommandCategory;
 import com.godson.kekbot.CustomEmote;
 import com.godson.kekbot.KekBot;
-import com.godson.kekbot.Music.*;
 import com.godson.kekbot.Music.Playlist;
 import com.godson.kekbot.Profile.Profile;
 import com.godson.kekbot.Responses.Action;
-import net.dv8tion.jda.client.entities.CallUser;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 public class Queue {
@@ -41,16 +40,12 @@ public class Queue {
                                         } else context.getTextChannel().sendMessage(CustomEmote.think() + " I'm not finding any playlists by that name... Did you type it correctly?").queue();
                                     } else context.getTextChannel().sendMessage("Huh? I get you want to queue a playlist, but you didn't give me the name of your playlist...").queue();
                                 } else {
-                                    String input = String.join(" ", Arrays.copyOfRange(context.getArgs(), 1, context.getArgs().length));
+                                    String input = String.join(" ", Arrays.copyOfRange(context.getArgs(), 0, context.getArgs().length));
                                     if(!(input.startsWith("http://") || input.startsWith("https://"))) {
-                                        context.getTextChannel().sendMessage("Searching youtube for: **"+input+"**");
+                                        context.getTextChannel().sendMessage("Searching youtube for: **"+input+"**").queue();
                                         input = "ytsearch:"+input;
-                                        KekBot.player.loadAndYT(context, input); //Loads the track if no url is provided. basicly searches yt
-                                        rerturn;
-                                    } else {
-                                        KekBot.player.loadAndYT(context, context.getArgs()[0]);
-                                        return;
-                                    }
+                                        KekBot.player.loadAndSearchYT(context, input); //Loads the track if no url is provided. basicly searches yt
+                                    } else KekBot.player.loadAndPlay(context, context.getArgs()[0]);
                                 }
                             } else {
                                 context.getTextChannel().sendMessage("You haven't given a valid URL to queue. " + CustomEmote.think()).queue();
@@ -74,7 +69,14 @@ public class Queue {
                                         KekBot.player.loadAndPlay(context, playlist.get());
                                     } else context.getTextChannel().sendMessage(CustomEmote.think() + " I'm not finding any playlists by that name... Did you type it correctly?").queue();
                                 } else context.getTextChannel().sendMessage("Huh? I get you want to queue a playlist, but you didn't give me the name of your playlist...").queue();
-                            } else KekBot.player.loadAndPlay(context, context.getArgs()[0]);
+                            } else {
+                                String input = String.join(" ", Arrays.copyOfRange(context.getArgs(), 0, context.getArgs().length));
+                                if(!(input.startsWith("http://") || input.startsWith("https://"))) {
+                                    context.getTextChannel().sendMessage("Searching youtube for: **"+input+"**").queue();
+                                    input = "ytsearch:"+input;
+                                    KekBot.player.loadAndSearchYT(context, input); //Loads the track if no url is provided. basicly searches yt
+                                } else KekBot.player.loadAndPlay(context, context.getArgs()[0]);
+                            }
                         } else {
                             context.getTextChannel().sendMessage("You haven't given a valid URL to queue. " + CustomEmote.think()).queue();
                         }
