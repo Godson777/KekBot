@@ -1,13 +1,20 @@
 package com.godson.kekbot.settings;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class TagManager {
+    @SerializedName("list")
     private List<Tag> tags = new ArrayList<>();
 
     public TagManager() {}
+
+    public TagManager(List<Tag> tags) {
+        this.tags = tags;
+    }
 
     public void addTag(Tag tag) {
         if (!getTagByName(tag.getName()).isPresent()) tags.add(tag);
@@ -22,7 +29,7 @@ public class TagManager {
         return tags.stream().filter(t -> t.getName().equals(name)).findFirst();
     }
 
-    public List<Tag> getTags() {
+    public List<Tag> getList() {
         return tags;
     }
 

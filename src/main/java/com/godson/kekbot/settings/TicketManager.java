@@ -3,81 +3,79 @@ package com.godson.kekbot.settings;
 import com.godson.kekbot.GSONUtils;
 import com.godson.kekbot.KekBot;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import net.dv8tion.jda.core.JDA;
+import com.google.gson.reflect.TypeToken;
+import com.rethinkdb.model.MapObject;
+import com.rethinkdb.net.Cursor;
+import com.sedmelluq.discord.lavaplayer.remote.RemoteNode;
 import net.dv8tion.jda.core.entities.User;
+import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
 public class TicketManager {
-    private List<Ticket> tickets = new ArrayList<>();
 
-    public TicketManager() {}
+    private static Type type = new TypeToken<List<Ticket>>(){}.getType();
+    private static Gson gson = new Gson();
 
-    public void addTicket(Ticket ticket) {
-        tickets.add(ticket);
+    public static void addTicket(Ticket ticket) {
+        User user = KekBot.jda.getUserById(ticket.getAuthorID());
+        KekBot.jda.getUserById(Config.getConfig().getBotOwner()).openPrivateChannel().queue(ch -> ch.sendMessage("New ticket made by: **" + user.getName() + "** (ID: **" + user.getId() + "**)").queue());
+        while (KekBot.r.table("Tickets").get(ticket.getID()).run(KekBot.conn) != null) {
+            ticket.resetID();
+        }
+        MapObject object = KekBot.r.hashMap("ID", ticket.getID())
+                .with("Status", ticket.getStatus().name())
+                .with("Title", ticket.getTitle())
+                .with("Contents", ticket.getContents())
+                .with("Author ID", ticket.getAuthorID())
+                .with("Guild ID", ticket.getGuildID())
+                .with("Replies", ticket.getReplies())
+                .with("Time Created", ticket.getTimeCreated());
+        KekBot.r.table("Tickets").insert(object).run(KekBot.conn);
     }
 
-    public void closeTicket(Ticket ticket) {
-        tickets.remove(ticket);
+    public static boolean closeTicket(String ticketID) {
+        if (KekBot.r.table("Tickets").get(ticketID).run(KekBot.conn) != null) {
+            KekBot.r.table("Tickets").get(ticketID).delete().run(KekBot.conn);
+            User user = KekBot.jda.getUserById(getTicket(ticketID).getAuthorID());
+            if (user != null) user.openPrivateChannel().queue(ch -> ch.sendMessage("Your ticket (" + ticketID + ") has been closed.").queue());
+            return true;
+        } return false;
     }
 
-    public void replyToTicketManager(Ticket ticket, String response, User replier) {
+    public static void addAdminReply(Ticket ticket, String response, User replier) {
         String replierName = replier.getName() + "#" + replier.getDiscriminator();
-        for (JDA jda : KekBot.jdas) {
-            try {
-                jda.getUserById(ticket.getAuthorID()).openPrivateChannel().queue(ch -> ch.sendMessage("You have received a reply for your ticket. (**" + ticket.getTitle() + "**)\n**" + replierName
-                        + "**:\n\n" + response).queue());
-                closeTicket(ticket);
-                ticket.setStatus(TicketStatus.AWAITING_REPLY);
-                addTicket(ticket);
-                save();
-                break;
-            } catch (NullPointerException e) {
-                //do nothing.
-            }
-        }
+        KekBot.jda.getUserById(ticket.getAuthorID()).openPrivateChannel().queue(ch -> ch.sendMessage("You have received a reply for your ticket. (**" + ticket.getTitle() + "**)\n**" + replierName
+                + "**:\n\n" + response).queue());
+        ticket.setStatus(Ticket.TicketStatus.AWAITING_REPLY);
+        ticket.addReply(replier, response, true);
+        KekBot.r.table("Tickets").get(ticket.getID()).update(KekBot.r.hashMap("Replies", ticket.getReplies()).with("Status", ticket.getStatus().name())).run(KekBot.conn);
     }
 
-    public void replyToTicketUser(Ticket ticket, String response, User replier) {
+    public static void addUserReply(Ticket ticket, String response, User replier) {
         String replierName = replier.getName() + "#" + replier.getDiscriminator();
-        for (JDA jda : KekBot.jdas) {
-            try {
-                jda.getUserById(GSONUtils.getConfig().getBotOwner()).openPrivateChannel().queue(ch -> ch.sendMessage("You have received a reply for a ticket. (**" + ticket.getTitle() + "**)\n**" + replierName
-                        + "**:\n\n" + response).queue());
-                closeTicket(ticket);
-                ticket.setStatus(TicketStatus.RECEIVED_REPLY);
-                addTicket(ticket);
-                save();
-                break;
-            } catch (NullPointerException e) {
-                //do nothing.
-            }
-        }
+        KekBot.jda.getUserById(Config.getConfig().getBotOwner()).openPrivateChannel().queue(ch -> ch.sendMessage("You have received a reply for a ticket. (**" + ticket.getTitle() + "**)\n**" + replierName
+                + "**:\n\n" + response).queue());
+
+        ticket.setStatus(Ticket.TicketStatus.RECEIVED_REPLY);
+        ticket.addReply(replier, response, false);
+        KekBot.r.table("Tickets").get(ticket.getID()).update(KekBot.r.hashMap("Replies", ticket.getReplies()).with("Status", ticket.getStatus().name())).run(KekBot.conn);
     }
 
-    public List<Ticket> getTickets() {
-        return tickets;
+    public static List<Ticket> getTickets() {
+        if (!(boolean) KekBot.r.table("Tickets").isEmpty().run(KekBot.conn)) {
+            Cursor cursor = KekBot.r.table("Tickets").run(KekBot.conn);
+            List<org.json.simple.JSONObject> list = cursor.bufferedItems();
+            List<Ticket> tickets = new ArrayList<>();
+            list.forEach(json -> tickets.add(gson.fromJson(json.toJSONString(), Ticket.class)));
+            return tickets;
+        } else return new ArrayList<>();
     }
 
-    @Override
-    public String toString() {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        return gson.toJson(this, this.getClass());
-    }
-
-    public void save() {
-        File tickets = new File("tickets.json");
-        try {
-            FileWriter writer = new FileWriter(tickets);
-            writer.write(this.toString());
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public static Ticket getTicket(String ticketID) {
+        if (KekBot.r.table("Tickets").get(ticketID).run(KekBot.conn) != null) return gson.fromJson((String) KekBot.r.table("Tickets").get(ticketID).toJson().run(KekBot.conn), Ticket.class);
+        return null;
     }
 }

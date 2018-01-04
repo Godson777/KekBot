@@ -24,7 +24,7 @@ public class Settings {
     @SerializedName("Tags")
     public TagManager tags = new TagManager();
     @SerializedName("Quotes")
-    public List<String> quotes;
+    public QuoteManager quotes = new QuoteManager();
 
     public class AnnounceSettings {
         private boolean welcome = false;
@@ -195,8 +195,7 @@ public class Settings {
     }
 
     public QuoteManager getQuotes() {
-        if (quotes != null) return new QuoteManager(quotes);
-        else return new QuoteManager();
+        return quotes;
     }
 
     public TagManager getTags() {

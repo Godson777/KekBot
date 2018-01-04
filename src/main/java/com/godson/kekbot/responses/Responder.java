@@ -42,26 +42,15 @@ public class Responder {
     }
 
     public static Responder getResponder(Action action) {
-        Responder response;
-        Gson gson = new Gson();
-        String json = KekBot.r.table("Responses").get(action.name()).toJson().run(KekBot.conn);
-        response = gson.fromJson(json, Responder.class);
-        response.setAction(action);
-        return response;
+        if (KekBot.r.table("Responses").get(action.name()).run(KekBot.conn) != null) {
+            Gson gson = new Gson();
+            return gson.fromJson((String) KekBot.r.table("Responses").get(action.name()).toJson().run(KekBot.conn), Responder.class);
+        } else return new Responder(action);
     }
 
     public void save() {
-        File folder = new File("responses/");
-        File settings = new File("responses/" + action.name() + ".json");
-        if (!folder.exists()) {
-            folder.mkdir();
-        }
-        try {
-            FileWriter writer = new FileWriter(settings);
-            writer.write(this.toString());
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        if (KekBot.r.table("Responses").get(action.name()).run(KekBot.conn) != null) {
+            KekBot.r.table("Responses").get(action.name()).update(KekBot.r.hashMap("Responses", responses)).run(KekBot.conn);
+        } else KekBot.r.table("Responses").insert(KekBot.r.hashMap("Action", action.name()).with("Responses", responses)).run(KekBot.conn);
     }
 }
