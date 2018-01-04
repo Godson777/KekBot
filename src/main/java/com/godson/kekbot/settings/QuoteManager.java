@@ -1,10 +1,13 @@
 package com.godson.kekbot.settings;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 public class QuoteManager {
+    @SerializedName("list")
     private List<String> quotes;
 
     public QuoteManager() {
@@ -23,7 +26,7 @@ public class QuoteManager {
         return quotes;
     }
 
-    public String getQuote() {
+    public String quote() {
         Random random = new Random();
         int index = random.nextInt(quotes.size());
         return quotes.get(index);
