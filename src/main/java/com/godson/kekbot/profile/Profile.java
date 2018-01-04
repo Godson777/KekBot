@@ -621,7 +621,7 @@ public class Profile {
     }
 
     /**
-     * Saves the user's profile, overriding the old file with a newer version.
+     * Saves the user's profile, overriding the old entry in the database with a newer version.
      */
     public void save() {
         MapObject object = KekBot.r.hashMap("User ID", userID)
