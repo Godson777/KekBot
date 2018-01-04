@@ -13,37 +13,37 @@ import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.requests.RestAction;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class Questionnaire {
-    private List<Question> questions = new ArrayList<>();
-    private EventWaiter waiter = KekBot.waiter;
-    private List<Object> answers = new ArrayList<>();
-    private Map<Question, List<String>> choices = new HashMap<>();
+    private final List<Question> questions = new ArrayList<>();
+    private final EventWaiter waiter = KekBot.waiter;
+    private final List<Object> answers = new ArrayList<>();
+    private final Map<Question, List<String>> choices = new HashMap<>();
     private boolean skipQuestionMessage = false;
     private boolean skipOnRepeat = false;
     private boolean customErrorMessageEnabled = false;
+    private boolean includeCancel = true;
     private String customErrorMessage;
 
     //Guild Info:
-    private Guild guild;
-    private TextChannel channel;
-    private User user;
-    private CommandContext context;
+    private final Guild guild;
+    private final TextChannel channel;
+    private final User user;
+    private CommandEvent event;
+
+    //Timeout Stuff:
+    private long timeout = 1;
+    private TimeUnit timeoutUnit = TimeUnit.MINUTES;
 
     private Consumer<Results> results = results -> {};
 
-    public Questionnaire(CommandContext context) {
-        this.context = context;
-        this.guild = context.getGuild();
-        this.channel = context.getTextChannel();
-        this.user = context.getAuthor();
-    }
-
     public Questionnaire(CommandEvent event) {
+        this.event = event;
         this.guild = event.getGuild();
         this.channel = event.getTextChannel();
-        this.user = event.getEvent().getAuthor();
+        this.user = event.getAuthor();
     }
 
     public Questionnaire(MessageReceivedEvent event) {
@@ -53,7 +53,7 @@ public class Questionnaire {
     }
 
     public Questionnaire(Results results) {
-        if (results.context != null) this.context = results.context;
+        if (results.event != null) this.event = results.event;
         this.guild = results.getGuild();
         this.channel = results.getChannel();
         this.user = results.getUser();
@@ -61,6 +61,16 @@ public class Questionnaire {
 
     public Questionnaire withoutRepeats() {
         this.skipOnRepeat = true;
+        return this;
+    }
+
+    public Questionnaire withTimeout(long time, TimeUnit unit) {
+        timeout = unit.toMillis(time);
+        return this;
+    }
+
+    public Questionnaire includeCancel(boolean includeCancel) {
+        this.includeCancel = includeCancel;
         return this;
     }
 
@@ -105,20 +115,20 @@ public class Questionnaire {
     }
 
     public void execute(Consumer<Results> results) {
-        if (context != null) context.getRegistry().disableUserInGuild(guild, user);
+        if (event != null) event.getClient().registerQuestionnaire(channel.getId(), user.getId());
         this.results = results;
         execute(0);
     }
 
     private void execute(int i) {
         Question question = questions.get(i);
-        if (!skipQuestionMessage) channel.sendMessage(question.getMessage()).queue();
+        if (!skipQuestionMessage) channel.sendMessage(question.getMessage() + (includeCancel ? " (Or say `cancel` to exit.)" : "")).queue();
         waiter.waitForEvent(GuildMessageReceivedEvent.class, e -> e.getAuthor().equals(user) && e.getChannel().equals(channel), e -> {
             String message = e.getMessage().getContent();
             RestAction<Message> errorMessage = e.getChannel().sendMessage((!customErrorMessageEnabled ? "I'm sorry, I didn't quite catch that, let's try that again..." : customErrorMessage));
             if (message.equalsIgnoreCase("cancel")) {
                 e.getChannel().sendMessage("Cancelled.").queue();
-                if (context != null) context.getRegistry().enableUserInGuild(guild, user);
+                event.getClient().unregisterQuestionnaire(channel.getId(), user.getId());
             } else {
                 switch (question.getType()) {
                     case STRING:
@@ -162,10 +172,13 @@ public class Questionnaire {
                     if (skipOnRepeat && skipQuestionMessage) skipQuestionMessage = false;
                     execute(i + 1);
                 } else {
-                    if (context != null) context.getRegistry().enableUserInGuild(guild, user);
+                    event.getClient().unregisterQuestionnaire(channel.getId(), user.getId());
                     finish();
                 }
             }
+        }, timeout, timeoutUnit, () -> {
+            event.getClient().unregisterQuestionnaire(channel.getId(), user.getId());
+            channel.sendMessage("You took too long. Canceled.").queue();
         });
     }
 
@@ -179,7 +192,7 @@ public class Questionnaire {
         private Guild guild;
         private TextChannel channel;
         private User user;
-        private CommandContext context;
+        private CommandEvent event;
 
 
         Results(Questionnaire questionnaire) {
@@ -188,7 +201,7 @@ public class Questionnaire {
             this.guild = questionnaire.guild;
             this.channel = questionnaire.channel;
             this.user = questionnaire.user;
-            if (questionnaire.context != null) this.context = questionnaire.context;
+            if (questionnaire.event != null) this.event = questionnaire.event;
         }
 
         public Object getAnswer(int i) {
