@@ -423,18 +423,7 @@ public class MusicPlayer {
     }
 
     public void closeConnection(Guild guild) {
-        long guildId = Long.parseLong(guild.getId());
-        if (!this.musicManagers.get(guildId).queueing) {
-            if (!isMeme(guild)) announceToMusicSession(guild, "This music session has now ended.");
-            this.musicManagers.remove(guildId);
-            guild.getAudioManager().closeAudioConnection();
-        } else {
-            musicManagers.get(guildId).queueing = false;
-            if (!isMeme(guild)) announceToMusicSession(guild, "This music session has now ended.");
-            this.musicManagers.get(guildId).player.destroy();
-            this.musicManagers.remove(guildId);
-            guild.getAudioManager().closeAudioConnection();
-        }
+        closeConnection(guild, "This music session has now ended.");
     }
 
     public void closeConnection(Guild guild, String reason) {
@@ -528,6 +517,17 @@ public class MusicPlayer {
                 results.getChannel().sendMessage("Could not add to the playlist: " + exception.getMessage()).queue();
                 results.reExecuteWithoutMessage();
             }
+        });
+    }
+
+    public void shutdown() {
+        shutdown("shut down");
+    }
+
+    public void shutdown(String reason) {
+        musicManagers.forEach((id, manager) -> {
+            Guild guild = KekBot.jda.getGuildById(id);
+            closeConnection(guild, "This music session was ended due to KekBot shutting down with the reason: `" + reason + "`");
         });
     }
 }
