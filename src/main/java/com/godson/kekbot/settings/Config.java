@@ -5,7 +5,9 @@ import com.google.gson.GsonBuilder;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Config {
     private String token;
@@ -15,28 +17,28 @@ public class Config {
     private String carbonToken;
     private String dcoinToken;
     private String botOwner;
+    private List<String> botAdmins = new ArrayList<>();
     private int shards;
-    private List<String> allowedUsers = new ArrayList<String>();
-    private List<String> blockedUsers = new ArrayList<>();
+    private Map<String, Integer> blockedUsers = new HashMap<>();
     private List<String> patrons = new ArrayList<>();
 
-    public Config addAllowedUser(String ID) {
-        allowedUsers.add(ID);
+    public Config addBotAdmin(String ID) {
+        botAdmins.add(ID);
         return this;
     }
 
-    public Config removeAllowedUser(String ID) {
-        allowedUsers.remove(ID);
+    public Config removeBotAdmin(String ID) {
+        botAdmins.remove(ID);
         return this;
     }
 
-    public Config addBlockedUser(String ID) {
-        blockedUsers.add(ID);
+    public Config addBlockedUser(String ID, int type) {
+        blockedUsers.put(ID, type);
         return this;
     }
 
     public Config removeBlockedUser(String ID) {
-        blockedUsers.remove(ID);
+        if (blockedUsers.containsKey(ID)) blockedUsers.remove(ID);
         return this;
     }
 
@@ -52,11 +54,11 @@ public class Config {
         return this;
     }
 
-    public List<String> getAllowedUsers() {
-        return allowedUsers;
+    public List<String> getBotAdmins() {
+        return botAdmins;
     }
 
-    public List<String> getBlockedUsers() {
+    public Map<String, Integer> getBlockedUsers() {
         return blockedUsers;
     }
 
@@ -123,7 +125,7 @@ public class Config {
     }
 
     public void save() {
-        File config = new File("config.json");
+        File config = new File("config/config.json");
         try {
             FileWriter writer = new FileWriter(config);
             writer.write(this.toString());

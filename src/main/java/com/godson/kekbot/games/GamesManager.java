@@ -74,6 +74,21 @@ public class GamesManager extends ListenerAdapter {
         return !activeGames.containsKey(Long.valueOf(channel.getId()));
     }
 
+    public int getActiveGames() {
+        return activeGames.size();
+    }
+
+    public void shutdown() {
+        shutdown("shut down");
+    }
+
+    public void shutdown(String reason) {
+        activeGames.forEach((id, game) -> {
+            game.getBets().declareTie();
+            game.channel.sendMessage("This game was ended due to KekBot shutting down with the reason: `" + reason + "` (Don't worry, any bets made were all returned.)").queue();
+        });
+    }
+
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
         if (activeGames.containsKey(Long.valueOf(event.getChannel().getId()))) {
