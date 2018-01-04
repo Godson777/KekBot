@@ -1,4 +1,4 @@
-package com.godson.kekbot.command.commands.owner.admin;
+package com.godson.kekbot.command.commands.botowner.botadmin;
 
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandCategories;

@@ -1,6 +1,5 @@
-package com.godson.kekbot.command.commands.owner;
+package com.godson.kekbot.command.commands.botowner;
 
-import com.godson.kekbot.GSONUtils;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandCategories;
@@ -8,8 +7,6 @@ import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.responses.Action;
 import com.godson.kekbot.settings.Config;
 import net.dv8tion.jda.core.entities.User;
-
-import java.util.Optional;
 
 public class BlockUser extends Command {
 
