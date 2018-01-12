@@ -3,6 +3,7 @@ package com.godson.kekbot.questionaire;
 import com.darichey.discord.api.CommandContext;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.command.CommandEvent;
+import com.google.gson.internal.Primitives;
 import com.jagrosh.jdautilities.waiter.EventWaiter;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
@@ -124,7 +125,7 @@ public class Questionnaire {
         Question question = questions.get(i);
         if (!skipQuestionMessage) channel.sendMessage(question.getMessage() + (includeCancel ? " (Or say `cancel` to exit.)" : "")).queue();
         waiter.waitForEvent(GuildMessageReceivedEvent.class, e -> e.getAuthor().equals(user) && e.getChannel().equals(channel), e -> {
-            String message = e.getMessage().getContent();
+            String message = e.getMessage().getContentDisplay();
             RestAction<Message> errorMessage = e.getChannel().sendMessage((!customErrorMessageEnabled ? "I'm sorry, I didn't quite catch that, let's try that again..." : customErrorMessage));
             if (message.equalsIgnoreCase("cancel")) {
                 e.getChannel().sendMessage("Cancelled.").queue();
@@ -145,7 +146,7 @@ public class Questionnaire {
                         }
                         break;
                     case CHOICE_STRING:
-                        Optional<String> choice = choices.get(question).stream().filter(c -> c.equalsIgnoreCase(e.getMessage().getContent())).findFirst();
+                        Optional<String> choice = choices.get(question).stream().filter(c -> c.equalsIgnoreCase(e.getMessage().getContentDisplay())).findFirst();
                         if (!choice.isPresent()) {
                             if (skipOnRepeat) skipQuestionMessage = true;
                             errorMessage.queue();
@@ -156,7 +157,7 @@ public class Questionnaire {
                         }
                         break;
                     case YES_NO_STRING:
-                        Optional<String> yesNoChoice = choices.get(question).stream().filter(c -> c.equalsIgnoreCase(e.getMessage().getContent())).findFirst();
+                        Optional<String> yesNoChoice = choices.get(question).stream().filter(c -> c.equalsIgnoreCase(e.getMessage().getContentDisplay())).findFirst();
                         if (!yesNoChoice.isPresent()) {
                             if (skipOnRepeat) skipQuestionMessage = true;
                             errorMessage.queue();
@@ -208,6 +209,10 @@ public class Questionnaire {
             return answers.get(i);
         }
 
+        public <T> T getAnswerAsType(int i, Class<T> classOfT) {
+            return Primitives.wrap(classOfT).cast(answers.get(i));
+        }
+
         public List<Object> getAnswers() {
             return answers;
         }
@@ -233,6 +238,28 @@ public class Questionnaire {
             questionnaire.answers.clear();
             questionnaire.skipQuestionMessage = true;
             questionnaire.execute(results);
+        }
+    }
+
+    class Question {
+        private QuestionType type;
+        private String message;
+
+        public Question(String message) {
+            this.message = message;
+        }
+
+        public Question setType(QuestionType type) {
+            this.type = type;
+            return this;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public QuestionType getType() {
+            return type;
         }
     }
 
