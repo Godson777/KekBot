@@ -11,7 +11,7 @@ public class JustRight extends Command {
 
     public JustRight() {
         name = "justright";
-        description = "When the memes are just right...";
+        description = "When you need Discord to be just right...";
         usage.add("justright");
         category = CommandCategories.meme;
         cooldownScope = CooldownScope.USER_GUILD;

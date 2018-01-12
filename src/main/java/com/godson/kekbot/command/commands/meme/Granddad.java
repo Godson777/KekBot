@@ -22,13 +22,13 @@ public class Granddad extends Command {
 
     @Override
     public void onExecuted(CommandEvent event) {
-        if (new File("resources/granddad").isDirectory()) {
-            File granddads[] = new File("resources/granddad").listFiles();
+        if (new File("resources/sound/granddad").isDirectory()) {
+            File granddads[] = new File("resources/sound/granddad").listFiles();
             Random random = new Random();
             int index = random.nextInt(granddads.length);
             Optional<VoiceChannel> voiceChannel = event.getEvent().getGuild().getVoiceChannels().stream().filter(c -> c.getMembers().contains(event.getEvent().getMember())).findFirst();
             if (!voiceChannel.isPresent()) {
-                event.getEvent().getChannel().sendMessage(KekBot.respond(event, Action.GET_IN_VOICE_CHANNEL)).queue();
+                event.getEvent().getChannel().sendMessage(KekBot.respond(Action.GET_IN_VOICE_CHANNEL)).queue();
             } else {
                 KekBot.player.loadAndMeme(event, granddads[index].getAbsolutePath());
             }
