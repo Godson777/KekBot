@@ -38,12 +38,14 @@ public class ShopCommand extends Command {
         if (Config.getConfig().getDcoinToken() != null) usage.add("shop convert");
         extendedDescription = "\nAvailable Categories:\nTokens\nBackgrounds\n\n#Notes:\nArrows signify other pages in a shop.\nCrossed out items require you to be a higher level. You can find out what level is required by using {p}shop info <category> <itemID>.";
         exDescPos = ExtendedPosition.AFTER;
+        category = new Category("Fun");
     }
 
     @Override
     public void onExecuted(CommandEvent event) {
+        String missingArgs = "Missing arguments, check `" + event.getPrefix() + "help shop` to get more info.";
         if (event.getArgs().length == 0) {
-            event.getChannel().sendMessage("Missing arguments, check " + KekBot.replacePrefix(event.getGuild(), "`{p}" + "help shop` to check all the arguments.")).queue();
+            event.getChannel().sendMessage(missingArgs).queue();
         } else {
             switch (event.getArgs()[0].toLowerCase()) {
                 case "token":
@@ -96,13 +98,13 @@ public class ShopCommand extends Command {
                     break;
                 case "buy":
                     if (event.getArgs().length < 2)
-                        event.getChannel().sendMessage(KekBot.replacePrefix(event.getGuild(), "Missing arguments, check `{p}help shop` to get more info.")).queue();
+                        event.getChannel().sendMessage(missingArgs).queue();
                     else {
                         switch (event.getArgs()[1]) {
                             case "token":
                             case "tokens":
                                 if (event.getArgs().length < 3)
-                                    event.getChannel().sendMessage(KekBot.replacePrefix(event.getGuild(), "Missing arguments, check `{p}help shop` to get more info.")).queue();
+                                    event.getChannel().sendMessage(missingArgs).queue();
                                 else {
                                     try {
                                         event.getChannel().sendMessage(KekBot.tokenShop.buy(KekBot.tokenShop.getInventory().get(Integer.valueOf(event.getArgs()[2]) - 1), event.getAuthor())).queue();
@@ -114,7 +116,7 @@ public class ShopCommand extends Command {
                             case "background":
                             case "backgrounds":
                                 if (event.getArgs().length < 3)
-                                    event.getChannel().sendMessage(KekBot.replacePrefix(event.getGuild(), "Missing arguments, check `{p}help shop` to get more info.")).queue();
+                                    event.getChannel().sendMessage(missingArgs).queue();
                                 else {
                                     try {
                                         event.getChannel().sendMessage(KekBot.backgroundShop.buy(KekBot.backgroundShop.getInventory().get(Integer.valueOf(event.getArgs()[2]) - 1), event.getAuthor())).queue();
@@ -124,19 +126,19 @@ public class ShopCommand extends Command {
                                 }
                                 break;
                             default:
-                                event.getChannel().sendMessage(KekBot.replacePrefix(event.getGuild(), "Invalid arguments, check `{p}help shop` to get more info.")).queue();
+                                event.getChannel().sendMessage(missingArgs).queue();
                         }
                     }
                     break;
                 case "info":
                     if (event.getArgs().length < 2)
-                        event.getChannel().sendMessage(KekBot.replacePrefix(event.getGuild(), "Missing arguments, check `{p}help shop` to get more info.")).queue();
+                        event.getChannel().sendMessage(missingArgs).queue();
                     else {
                         switch (event.getArgs()[1].toLowerCase()) {
                             case "token":
                             case "tokens":
                                 if (event.getArgs().length < 3)
-                                    event.getChannel().sendMessage(KekBot.replacePrefix(event.getGuild(), "Missing arguments, check `{p}help shop` to get more info.")).queue();
+                                    event.getChannel().sendMessage(missingArgs).queue();
                                 else {
                                     try {
                                         Token selectedToken = KekBot.tokenShop.getInventory().get(Integer.valueOf(event.getArgs()[2]) - 1);
@@ -158,7 +160,7 @@ public class ShopCommand extends Command {
                             case "background":
                             case "backgrounds":
                                 if (event.getArgs().length < 3)
-                                    event.getChannel().sendMessage(KekBot.replacePrefix(event.getGuild(), "Missing arguments, check `{p}help shop` to get more info.")).queue();
+                                    event.getChannel().sendMessage(missingArgs).queue();
                                 else {
                                     try {
                                         Background selectedBackground = KekBot.backgroundShop.getInventory().get(Integer.valueOf(event.getArgs()[2]) - 1);
@@ -178,14 +180,14 @@ public class ShopCommand extends Command {
                                 }
                                 break;
                             default:
-                                event.getChannel().sendMessage(KekBot.replacePrefix(event.getGuild(), "Invalid arguments, check `{p}help shop` to get more info.")).queue();
+                                event.getChannel().sendMessage(missingArgs).queue();
                         }
                     }
                     break;
                 case "convert":
                     String url = "https://discoin.sidetrip.xyz/rates";
                     String unauthorized = "An error has occurred. This likely is because the bot owner screwed up somewhere...\n\nTranaction Canceled.";
-                    if (GSONUtils.getConfig().getDcoinToken() != null) {
+                    if (Config.getConfig().getDcoinToken() != null) {
                         new Questionnaire(event)
                                 .addQuestion("Welcome to the Discoin Association's currency converter! You can convert all of your topkeks to currencies from other bots here!\n\nType the currency you want to convert to. (For the list of currencies, and their conversion rates, use the following link: " + url + ")\nYou can say `cancel` at any time to back out.", QuestionType.STRING)
                                 .execute(results -> {
@@ -201,9 +203,9 @@ public class ShopCommand extends Command {
                                                         return;
                                                     }
                                                     try {
+                                                        Discoin4J.Confirmation confirmation = KekBot.discoin.makeTransaction(event.getAuthor().getId(), amount, to);
                                                         profile.spendTopKeks(amount);
                                                         profile.save();
-                                                        Discoin4J.Confirmation confirmation = KekBot.discoin.makeTransaction(event.getAuthor().getId(), amount, to);
                                                         event.getChannel().sendMessage("Done! You should be receiving `" + confirmation.getResultAmount() + "` in the currency you selected shortly." +
                                                                 "\nYour reciept ID is: `" + confirmation.getReceiptCode() + "`." +
                                                                 "\nToday's remaining Discoin limit for currency `" + to + "`: " + confirmation.getLimitNow()).queue();
