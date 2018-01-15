@@ -16,8 +16,9 @@ public class GuildMusicManager {
      */
     public final TrackScheduler scheduler;
     public final MemeScheduler memeScheduler;
+    public final ErrorScheduler errorScheduler;
     public final MessageChannel channel;
-    public final boolean meme;
+    public final int status;
     public User host;
     public boolean queueing = false;
 
@@ -25,16 +26,20 @@ public class GuildMusicManager {
      * Creates a player and a track scheduler.
      * @param manager Audio player manager to use for creating the player.
      */
-    public GuildMusicManager(AudioPlayerManager manager, CommandEvent event, boolean meme) {
+    public GuildMusicManager(AudioPlayerManager manager, CommandEvent event, int status) {
         player = manager.createPlayer();
         scheduler = new TrackScheduler(player, event);
         memeScheduler = new MemeScheduler(player, event.getGuild());
+        errorScheduler = new ErrorScheduler(player, event.getGuild());
         channel = event.getChannel();
-        this.meme = meme;
-        if (meme) {
-            player.addListener(memeScheduler);
-        } else {
-            player.addListener(scheduler);
+        this.status = status;
+        switch (status) {
+            case 0: player.addListener(scheduler);
+            break;
+            case 1: player.addListener(memeScheduler);
+            break;
+            case 2: player.addListener(errorScheduler);
+            break;
         }
     }
 
@@ -50,7 +55,11 @@ public class GuildMusicManager {
         return new AudioPlayerSendHandler(player);
     }
 
-    public boolean isMeme() {
-        return meme;
+    public int getStatus() {
+        return status;
+    }
+
+    public boolean isMusic() {
+        return status == 0;
     }
 }

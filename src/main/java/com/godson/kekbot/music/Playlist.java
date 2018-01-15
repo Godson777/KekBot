@@ -9,7 +9,7 @@ import java.util.List;
 
 public class Playlist {
     private String name;
-    private List<AudioTrackInfo> tracks = new ArrayList<>();
+    private List<KAudioTrackInfo> tracks = new ArrayList<>();
     private boolean hidden = false;
 
     public Playlist(String name) {
@@ -19,7 +19,7 @@ public class Playlist {
     private Playlist() {
     }
 
-    public List<AudioTrackInfo> getTracks() {
+    public List<KAudioTrackInfo> getTracks() {
         return tracks;
     }
 
@@ -28,10 +28,10 @@ public class Playlist {
     }
 
     public void addTrack(AudioTrack track) {
-        tracks.add(track.getInfo());
+        tracks.add(new KAudioTrackInfo(track.getInfo()));
     }
 
-    public void removeTrack(AudioTrackInfo track) {
+    public void removeTrack(KAudioTrackInfo track) {
         tracks.remove(track);
     }
 
@@ -52,9 +52,44 @@ public class Playlist {
 
     public long getTotalLength() {
         long length = 0;
-        for (AudioTrackInfo track : tracks) {
+        for (KAudioTrackInfo track : tracks) {
             length += track.length;
         }
         return length;
+    }
+
+    public static class KAudioTrackInfo extends AudioTrackInfo {
+
+        private KAudioTrackInfo(String title, String author, long length, String identifier, boolean isStream, String uri) {
+            super(title, author, length, identifier, isStream, uri);
+        }
+
+        public KAudioTrackInfo(AudioTrackInfo info) {
+            super(info.title, info.author, info.length, info.identifier, info.isStream, info.uri);
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public String getAuthor() {
+            return author;
+        }
+
+        public long getLength() {
+            return length;
+        }
+
+        public String getIdentifier() {
+            return identifier;
+        }
+
+        public boolean getIsStream() {
+            return isStream;
+        }
+
+        public String getUri() {
+            return uri;
+        }
     }
 }

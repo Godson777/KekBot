@@ -2,6 +2,7 @@ package com.godson.kekbot.music;
 
 import com.darichey.discord.api.CommandContext;
 import com.godson.kekbot.KekBot;
+import com.godson.kekbot.profile.Profile;
 import com.godson.kekbot.questionaire.Questionnaire;
 import com.godson.kekbot.responses.Action;
 import com.godson.kekbot.Utils;
@@ -14,12 +15,14 @@ import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import javafx.util.Pair;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.entities.VoiceChannel;
+import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import net.dv8tion.jda.core.managers.AudioManager;
 
 import java.awt.*;
@@ -27,7 +30,7 @@ import java.util.*;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class MusicPlayer {
+public class MusicPlayer extends ListenerAdapter {
 
     private final AudioPlayerManager playerManager;
     private final Map<Long, GuildMusicManager> musicManagers;
@@ -40,21 +43,17 @@ public class MusicPlayer {
         AudioSourceManagers.registerLocalSource(playerManager);
     }
 
-    public boolean isMeme(Guild guild) {
-        return musicManagers.get(Long.parseLong(guild.getId())).isMeme();
-    }
-
     public User getHost(Guild guild) {
         long guildId = Long.parseLong(guild.getId());
         return musicManagers.get(guildId).host;
     }
 
-    private synchronized GuildMusicManager getGuildAudioPlayer(CommandEvent event, boolean meme) {
+    private synchronized GuildMusicManager getGuildAudioPlayer(CommandEvent event, int status) {
         long guildId = Long.parseLong(event.getGuild().getId());
         GuildMusicManager musicManager = musicManagers.get(guildId);
 
-        if (musicManager == null) {
-            musicManager = new GuildMusicManager(playerManager, event, meme).setHost(event.getEvent().getAuthor());
+        if (musicManager == null || (musicManager.getStatus() == 2 && status < 2)) {
+            musicManager = new GuildMusicManager(playerManager, event, status).setHost(event.getEvent().getAuthor());
             event.getGuild().getAudioManager().setSendingHandler(musicManager.getSendHandler());
             musicManagers.put(guildId, musicManager);
         }
@@ -71,9 +70,43 @@ public class MusicPlayer {
         musicManagers.get(guildId).setHost(user);
     }
 
+    public void loadAndError(final CommandEvent event, final String trackUrl) {
+        GuildMusicManager musicManager = getGuildAudioPlayer(event, 2);
+        if (musicManager.getStatus() < 2) {
+            return;
+        }
+
+        playerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
+            @Override
+            public void trackLoaded(AudioTrack track) {
+                playError(event, musicManager, track);
+            }
+
+            @Override
+            public void playlistLoaded(AudioPlaylist playlist) {
+                AudioTrack firstTrack = playlist.getSelectedTrack();
+                if (firstTrack == null) {
+                    firstTrack = playlist.getTracks().get(0);
+                }
+                playMeme(event, musicManager, firstTrack);
+            }
+
+            @Override
+            public void noMatches() {
+            }
+
+            @Override
+            public void loadFailed(FriendlyException exception) {
+            }
+        });
+    }
+
     public void loadAndMeme(final CommandEvent event, final String trackUrl) {
-        GuildMusicManager musicManager = getGuildAudioPlayer(event, true);
-        if (musicManager.isMeme()) {
+        GuildMusicManager musicManager = getGuildAudioPlayer(event, 1);
+        if (musicManager.getStatus() < 1) {
+            event.getChannel().sendMessage("I can't meme while music's playing...").queue();
+            return;
+        }
             playerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
                 @Override
                 public void trackLoaded(AudioTrack track) {
@@ -97,41 +130,18 @@ public class MusicPlayer {
                 public void loadFailed(FriendlyException exception) {
                 }
             });
-        } else {
-            event.getChannel().sendMessage("I can't meme while music's playing...").queue();
-        }
     }
 
     public void loadAndPlay(final CommandEvent event, final String trackUrl) {
-        GuildMusicManager musicManager = getGuildAudioPlayer(event, false);
-        if (!musicManager.isMeme()) {
+        GuildMusicManager musicManager = getGuildAudioPlayer(event, 0);
+        if (musicManager.getStatus() == 1) {
+            event.getChannel().sendMessage("I can't play music while I'm memeing...").queue();
+            return;
+        }
             playerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
                 @Override
                 public void trackLoaded(AudioTrack track) {
-                    play(event, musicManager, track);
-                    String timeBefore = "";
-                    if (event.getGuild().getAudioManager().isConnected()) {
-                        if (musicManager.scheduler.repeat != 2) {
-                            final long[] totalLength = {0};
-                            musicManager.scheduler.getQueue().forEach(list -> {
-                                totalLength[0] += list.getKey().getDuration();
-                            });
-                            timeBefore = " (Time before it plays: " +
-                                    Utils.convertMillisToTime(
-                                            (musicManager.player.getPlayingTrack().getDuration() - musicManager.player.getPlayingTrack().getPosition() + (totalLength[0] - track.getDuration()))) + " **Queue Position: " + musicManager.scheduler.getQueue().size() + "**)";
-                        } else {
-                            long totalLength = 0;
-                            List<Pair<AudioTrack, User>> playlist = musicManager.scheduler.getRepeatQueue();
-                            for (int i = musicManager.scheduler.getCurrentRepeatTrack() + 1; i < playlist.size(); i++) {
-                                totalLength += playlist.get(i).getKey().getDuration();
-                            }
-                            timeBefore = " (Time before it plays: " +
-                                    Utils.convertMillisToTime(
-                                            (musicManager.player.getPlayingTrack().getDuration() - musicManager.player.getPlayingTrack().getPosition() + (totalLength - track.getDuration()))) + " **Queue Position: " + musicManager.scheduler.getRepeatQueue().size() + "**)";
-
-                        }
-                        event.getChannel().sendMessage("Added \"" + track.getInfo().title + "\" to the queue." + timeBefore).queue();
-                    }
+                    queueTrack(event, musicManager, track);
                 }
 
                 @Override
@@ -157,41 +167,18 @@ public class MusicPlayer {
                     event.getChannel().sendMessage("Could not play: " + exception.getMessage()).queue();
                 }
             });
-        } else {
-            event.getChannel().sendMessage("I can't play music while I'm memeing...").queue();
-        }
     }
 
     public void loadAndSearchYT(final CommandEvent event, final String search) {
-        GuildMusicManager musicManager = getGuildAudioPlayer(event, false);
-        if(!musicManager.isMeme()) {
+        GuildMusicManager musicManager = getGuildAudioPlayer(event, 0);
+        if (musicManager.getStatus() == 1) {
+            event.getChannel().sendMessage("I can't play music while I'm memeing...").queue();
+            return;
+        }
             playerManager.loadItemOrdered(musicManager, search, new AudioLoadResultHandler() {
                 @Override
                 public void trackLoaded(AudioTrack track) {
-                    play(event, musicManager, track);
-                    String timeBefore;
-                    if (event.getGuild().getAudioManager().isConnected()) {
-                        if (musicManager.scheduler.repeat != 2) {
-                            final long[] totalLength = {0};
-                            musicManager.scheduler.getQueue().forEach(list -> {
-                                totalLength[0] += list.getKey().getDuration();
-                            });
-                            timeBefore = " (Time before it plays: " +
-                                    Utils.convertMillisToTime(
-                                            (musicManager.player.getPlayingTrack().getDuration() - musicManager.player.getPlayingTrack().getPosition() + (totalLength[0] - track.getDuration()))) + " **Queue Position: " + musicManager.scheduler.getQueue().size() + "**)";
-                        } else {
-                            long totalLength = 0;
-                            List<Pair<AudioTrack, User>> playlist = musicManager.scheduler.getRepeatQueue();
-                            for (int i = musicManager.scheduler.getCurrentRepeatTrack() + 1; i < playlist.size(); i++) {
-                                totalLength += playlist.get(i).getKey().getDuration();
-                            }
-                            timeBefore = " (Time before it plays: " +
-                                    Utils.convertMillisToTime(
-                                            (musicManager.player.getPlayingTrack().getDuration() - musicManager.player.getPlayingTrack().getPosition() + (totalLength - track.getDuration()))) + " **Queue Position: " + musicManager.scheduler.getRepeatQueue().size() + "**)";
-
-                        }
-                        event.getChannel().sendMessage("Added \"" + track.getInfo().title + "\" to the queue." + timeBefore).queue();
-                    }
+                    queueTrack(event, musicManager, track);
                 }
 
                 @Override
@@ -209,26 +196,55 @@ public class MusicPlayer {
                     event.getChannel().sendMessage("Could not play: " + exception.getMessage()).queue();
                 }
             });
+    }
+
+    private void queueTrack(CommandEvent event, GuildMusicManager musicManager, AudioTrack track) {
+        play(event, musicManager, track);
+        if (musicManager.scheduler.getQueueSize() < 1) return;
+        String timeBefore;
+        if (event.getGuild().getAudioManager().isConnected()) {
+            if (musicManager.scheduler.repeat != 2) {
+                final long[] totalLength = {0};
+                musicManager.scheduler.getQueue().forEach(list -> totalLength[0] += list.getKey().getDuration());
+                timeBefore = " (Time before it plays: " +
+                        Utils.convertMillisToTime(
+                                (musicManager.player.getPlayingTrack().getDuration() - musicManager.player.getPlayingTrack().getPosition() + (totalLength[0] - track.getDuration()))) + " **Queue Position: " + musicManager.scheduler.getQueue().size() + "**)";
+            } else {
+                long totalLength = 0;
+                List<Pair<AudioTrack, User>> playlist = musicManager.scheduler.getRepeatQueue();
+                for (int i = musicManager.scheduler.getCurrentRepeatTrack() + 1; i < playlist.size(); i++) {
+                    totalLength += playlist.get(i).getKey().getDuration();
+                }
+                timeBefore = " (Time before it plays: " +
+                        Utils.convertMillisToTime(
+                                (musicManager.player.getPlayingTrack().getDuration() - musicManager.player.getPlayingTrack().getPosition() + (totalLength - track.getDuration()))) + " **Queue Position: " + musicManager.scheduler.getRepeatQueue().size() + "**)";
+
+            }
+            event.getChannel().sendMessage("Added \"" + track.getInfo().title + "\" to the queue." + timeBefore).queue();
         }
     }
 
-    public void loadAndPlay(final CommandEvent event, final Playlist playlist) {
-        GuildMusicManager musicManager = getGuildAudioPlayer(event, false);
-        if (!musicManager.isMeme()) {
-            event.getChannel().sendMessage("Attempting to add all the songs in " + playlist.getName() + ". (Note: This may take a while depending on the size of the playlist...)").queue();
-            final int[] failed = {0};
-            musicManager.queueing = true;
+    public void loadAndPlay(final CommandEvent event, final Playlist playlist, final Profile profile) {
+        GuildMusicManager musicManager = getGuildAudioPlayer(event, 0);
+        if (musicManager.getStatus() == 1) {
+            event.getChannel().sendMessage("I can't play music while I'm memeing...").queue();
+            return;
+        }
+        event.getChannel().sendMessage("Attempting to add all the songs in " + playlist.getName() + ". (Note: This may take a while depending on the size of the playlist...)").queue();
+        final int[] failed = {0};
+        musicManager.queueing = true;
 
                 for (int i = 0; i < playlist.getTracks().size(); i++) {
                     if (musicManager.queueing) {
                         String trackUrl = playlist.getTracks().get(i).uri;
-                            playerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
+                        int finalI = i;
+                        playerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
                                 @Override
                                 public void trackLoaded(AudioTrack track) {
                                     if (musicManager.queueing) {
                                         play(event, musicManager, track);
                                         if (playlist.getTracks().get(playlist.getTracks().size() - 1).uri.equals(trackUrl)) {
-                                            event.getChannel().sendMessage("Complete." + (failed[0] > 0 ? " (" + failed[0] + " track(s) could not be added.)" : "")).queue();
+                                            event.getChannel().sendMessage("Complete." + (failed[0] > 0 ? " (" + failed[0] + " track(s) could not be added, and were therefore removed from your playlist.)" : "")).queue();
                                             musicManager.queueing = false;
                                         }
                                     }
@@ -248,19 +264,18 @@ public class MusicPlayer {
                                 public void loadFailed(FriendlyException exception) {
                                     if (musicManager.queueing) {
                                         failed[0]++;
+                                        playlist.removeTrack(playlist.getTracks().get(finalI));
                                         //The following statement is required in case the last track in the queue fails.
                                         if (playlist.getTracks().get(playlist.getTracks().size() - 1).uri.equals(trackUrl)) {
-                                            event.getChannel().sendMessage("Complete." + (failed[0] > 0 ? " (" + failed[0] + " track(s) could not be added.)" : "")).queue();
+                                            event.getChannel().sendMessage("Complete." + (failed[0] > 0 ? " (" + failed[0] + " track(s) could not be added, and were therefore removed from your playlist.)" : "")).queue();
                                             musicManager.queueing = false;
+                                            if (failed[0] > 0) profile.save();
                                         }
                                     }
                                 }
                             });
                     } else break;
                 }
-        } else {
-            event.getChannel().sendMessage("I can't play music while I'm memeing...").queue();
-        }
     }
 
     private void play(CommandEvent event, GuildMusicManager musicManager, AudioTrack track) {
@@ -275,14 +290,24 @@ public class MusicPlayer {
         musicManager.memeScheduler.queue(track);
     }
 
+    private void playError(CommandEvent event, GuildMusicManager musicManager, AudioTrack track) {
+        connectToUsersVoiceChannel(event);
+
+        musicManager.errorScheduler.play(track);
+    }
+
     public AudioTrack getCurrentTrack(CommandContext context) {
         return musicManagers.get(Long.valueOf(context.getGuild().getId())).player.getPlayingTrack();
     }
 
     public void skipTrack(CommandEvent event, boolean vote) {
-        GuildMusicManager musicManager = getGuildAudioPlayer(event, false);
+        GuildMusicManager musicManager = getGuildAudioPlayer(event, 0);
         Guild guild = event.getGuild();
-        if (!musicManager.isMeme()) {
+        if (!musicManager.isMusic()) {
+            if (musicManager.getStatus() == 1) event.getChannel().sendMessage("I can't skip memes. :neutral_face:").queue();
+            return;
+        }
+
             if (getHost(guild).equals(event.getEvent().getAuthor()) || event.getEvent().getMember().hasPermission(Permission.ADMINISTRATOR) || vote) {
                 if (musicManager.scheduler.repeat != 2) {
                     if (musicManager.scheduler.getQueue().size() > 0) {
@@ -302,15 +327,14 @@ public class MusicPlayer {
             } else {
                 event.getChannel().sendMessage("Only the host and users with the `Administrator` permission can skip tracks.").queue();
             }
-        } else {
-            event.getChannel().sendMessage("I can't skip memes. :neutral_face:").queue();
-        }
     }
 
     public void pauseTrack(CommandEvent event) {
-        GuildMusicManager musicManager = getGuildAudioPlayer(event, false);
+        GuildMusicManager musicManager = getGuildAudioPlayer(event, 0);
         Guild guild = event.getGuild();
-        if (!musicManager.isMeme()) {
+        if (!musicManager.isMusic()) {
+            return;
+        }
             if (getHost(guild).equals(event.getEvent().getAuthor()) || event.getEvent().getMember().hasPermission(Permission.ADMINISTRATOR)) {
                 if (!musicManager.player.isPaused()) {
                     musicManager.player.setPaused(true);
@@ -322,13 +346,14 @@ public class MusicPlayer {
             } else {
                 event.getChannel().sendMessage("Only the host and users with the `Administrator` permission can pause this session.").queue();
             }
-        }
     }
 
     public void voteSkip(CommandEvent event) {
-        GuildMusicManager musicManager = getGuildAudioPlayer(event, false);
+        GuildMusicManager musicManager = getGuildAudioPlayer(event, 0);
         Guild guild = event.getGuild();
-        if (!musicManager.isMeme()) {
+        if (!musicManager.isMusic()) {
+            return;
+        }
             if (musicManager.scheduler.getQueue().size() > 0) {
                 if (!musicManager.scheduler.voteSkippers.contains(event.getEvent().getAuthor())) {
                     ++musicManager.scheduler.voteSkip;
@@ -345,17 +370,17 @@ public class MusicPlayer {
             } else {
                 event.getChannel().sendMessage("There are no more tracks to skip to!").queue();
             }
-        }
     }
 
     public void repeat(CommandEvent event) {
-        GuildMusicManager musicManager = getGuildAudioPlayer(event, false);
-        if (!musicManager.isMeme()) {
+        GuildMusicManager musicManager = getGuildAudioPlayer(event, 0);
+        if (!musicManager.isMusic()) {
+            return;
+        }
             musicManager.scheduler.toggleRepeat();
             if (musicManager.scheduler.repeat == 0) event.getChannel().sendMessage("Repeat is now set to: **OFF**.").queue();
             else if (musicManager.scheduler.repeat == 1) event.getChannel().sendMessage("Repeat is now set to **SINGLE**.").queue();
             else if (musicManager.scheduler.repeat == 2) event.getChannel().sendMessage("Repeat is now set to **MULTI**.").queue();
-        }
     }
 
     private void connectToUsersVoiceChannel(CommandEvent event) {
@@ -363,14 +388,22 @@ public class MusicPlayer {
         if (!audioManager.isConnected() && !audioManager.isAttemptingToConnect()) {
             Optional<VoiceChannel> voiceChannel = event.getGuild().getVoiceChannels().stream().filter(c -> c.getMembers().contains(event.getEvent().getMember())).findFirst();
             if (!voiceChannel.isPresent()) {
-                event.getTextChannel().sendMessage(KekBot.respond(event, Action.GET_IN_VOICE_CHANNEL)).queue();
+                event.getTextChannel().sendMessage(KekBot.respond(Action.GET_IN_VOICE_CHANNEL)).queue();
             } else {
                 audioManager.openAudioConnection(voiceChannel.get());
-                if (!isMeme(event.getGuild())) {
-                    event.getChannel().sendMessage(event.getEvent().getAuthor().getAsMention() + " is now hosting a music session in: `" + voiceChannel.get().getName() + "`" + KekBot.replacePrefix(event.getGuild(), ", use {p}music to get the list of all music commands.")).queue();
-                    musicManagers.get(Long.parseLong(event.getGuild().getId())).scheduler.currentPlayer = event.getEvent().getAuthor();
-                }
+                announceStart(event, voiceChannel.get());
             }
+        } else {
+            announceStart(event, audioManager.getConnectedChannel());
+        }
+    }
+
+    private void announceStart(CommandEvent event, VoiceChannel channel) {
+        GuildMusicManager musicManager = musicManagers.get(Long.parseLong(event.getGuild().getId()));
+        if (musicManager.isMusic() && !musicManager.scheduler.hasStarted()) {
+            musicManagers.get(Long.parseLong(event.getGuild().getId())).scheduler.setStarted();
+            event.getChannel().sendMessage(event.getEvent().getAuthor().getAsMention() + " is now hosting a music session in: `" + channel.getName() + "`, use " + event.getPrefix() +  "music to get the list of all music commands.").queue();
+            musicManagers.get(Long.parseLong(event.getGuild().getId())).scheduler.currentPlayer = event.getEvent().getAuthor();
         }
     }
 
@@ -378,11 +411,17 @@ public class MusicPlayer {
         musicManagers.get(Long.parseLong(guild.getId())).channel.sendMessage(message).queue();
     }
 
+    public boolean isMusic(Guild guild) {
+        return musicManagers.get(Long.parseLong(guild.getId())).isMusic();
+    }
+
     public void getPlaylist(CommandEvent event) {
         long guildId = Long.parseLong(event.getGuild().getId());
         if (musicManagers.containsKey(guildId)) {
             GuildMusicManager musicManager = musicManagers.get(guildId);
-            if (!musicManager.isMeme()) {
+            if (!musicManager.isMusic()) {
+                return;
+            }
                 if (musicManager.scheduler.repeat != 2) {
                     if (musicManager.scheduler.getQueue().size() > 0) {
                         List<String> tracks = new ArrayList<>();
@@ -453,14 +492,13 @@ public class MusicPlayer {
                     pb.setUsers(event.getAuthor());
                     pb.build().display(event.getChannel());
                 }
-            } else event.getChannel().sendMessage("I'm memeing at the moment, there is no playlist...").queue();
         } else event.getChannel().sendMessage("There is no music playing!").queue();
     }
 
     public void getCurrentSong(TextChannel channel) {
         long guildId = Long.parseLong(channel.getGuild().getId());
         if (musicManagers.containsKey(guildId)) {
-            if (!musicManagers.get(guildId).isMeme()) {
+            if (musicManagers.get(guildId).isMusic()) {
                 AudioTrack track = musicManagers.get(guildId).player.getPlayingTrack();
                 channel.sendMessage("Currently Playing: `" + track.getInfo().title + "` [" + Utils.songTimestamp(track.getPosition(), track.getDuration()) + "]"
                         + "\nSong URL: `" + musicManagers.get(guildId).player.getPlayingTrack().getInfo().uri + "`"
@@ -479,12 +517,12 @@ public class MusicPlayer {
     public void closeConnection(Guild guild, String reason) {
         long guildId = Long.parseLong(guild.getId());
         if (!this.musicManagers.get(guildId).queueing) {
-            if (!isMeme(guild)) announceToMusicSession(guild, reason);
+            if (this.musicManagers.get(guildId).isMusic()) announceToMusicSession(guild, reason);
             this.musicManagers.remove(guildId);
             guild.getAudioManager().closeAudioConnection();
         } else {
             musicManagers.get(guildId).queueing = false;
-            if (!isMeme(guild)) announceToMusicSession(guild, reason);
+            if (this.musicManagers.get(guildId).isMusic()) announceToMusicSession(guild, reason);
             this.musicManagers.get(guildId).player.destroy();
             this.musicManagers.remove(guildId);
             guild.getAudioManager().closeAudioConnection();
@@ -514,7 +552,7 @@ public class MusicPlayer {
     public void shuffle(CommandEvent event) {
         long guildId = Long.parseLong(event.getGuild().getId());
         if (musicManagers.containsKey(guildId)) {
-            if (musicManagers.get(guildId).isMeme()) return;
+            if (!musicManagers.get(guildId).isMusic()) return;
             musicManagers.get(guildId).scheduler.shuffle();
         }
         event.getChannel().sendMessage("Shuffled! \uD83D\uDD04").queue();
@@ -541,7 +579,7 @@ public class MusicPlayer {
                         .addChoiceQuestion("Are you sure you want to add all " + audioPlaylist.getTracks().size() + " tracks to your playlist?", "Yes", "No", "Y", "N")
                         .withoutRepeats()
                         .execute(results1 -> {
-                            if (results1.getAnswer(0).toString().equalsIgnoreCase("Yes") || results1.getAnswer(0).toString().equalsIgnoreCase("Y")) {
+                            if (results1.getAnswerAsType(0, boolean.class)) {
                                 int existing = 0;
                                 for (AudioTrack track : audioPlaylist.getTracks()) {
                                     if (playlist.getTracks().stream().noneMatch(audioTrackInfo -> audioTrackInfo.uri.equals(track.getInfo().uri))) {

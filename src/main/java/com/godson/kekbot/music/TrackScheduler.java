@@ -31,6 +31,7 @@ public class TrackScheduler extends AudioEventAdapter {
     public int repeat = 0;
     private final List<Pair<AudioTrack, User>> repeatQueue = new ArrayList<>();
     private int currentRepeatTrack = 0;
+    private boolean started = false;
 
     /**
      * @param player The audio player this scheduler uses
@@ -144,15 +145,16 @@ public class TrackScheduler extends AudioEventAdapter {
     }
 
     private void closeConnection() {
-        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-        executor.schedule(() -> {
-            KekBot.player.closeConnection(guild);
-            executor.shutdown();
-        }, 0, TimeUnit.SECONDS);
+        new Thread(() -> KekBot.player.closeConnection(guild)).start();
     }
 
     public BlockingQueue<Pair<AudioTrack, User>> getQueue() {
         return queue;
+    }
+
+    public int getQueueSize() {
+        if (queue.size() == 0) return repeatQueue.size();
+        else return queue.size();
     }
 
     public List<Pair<AudioTrack, User>> getRepeatQueue() {
@@ -161,5 +163,13 @@ public class TrackScheduler extends AudioEventAdapter {
 
     public int getCurrentRepeatTrack() {
         return currentRepeatTrack;
+    }
+
+    public boolean hasStarted() {
+        return started;
+    }
+
+    public void setStarted() {
+        started = true;
     }
 }
