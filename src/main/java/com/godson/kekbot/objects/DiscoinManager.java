@@ -22,7 +22,7 @@ public class DiscoinManager {
             List<Discoin4J.PendingTransaction> transactions = KekBot.discoin.getPendingTransactions();
             for (Discoin4J.PendingTransaction transaction : transactions) {
                 try {
-                    User user = Utils.findShardUser(String.valueOf(transaction.getUserID()));
+                    User user = KekBot.jda.getUserById(transaction.getUserID());
                     Profile profile = Profile.getProfile(user);
                     if (transaction.getType() != null)
                         user.openPrivateChannel().queue(c -> c.sendMessage("One of your transactions from Discoin could not be completed entirely. Your " + CustomEmote.printPrice(transaction.getAmount()) + " have been returned. (Transaction ID: " + transaction.getReceipt() + ")").queue());

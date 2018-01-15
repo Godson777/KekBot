@@ -50,5 +50,13 @@ public class UDictionary {
         public String getWord() {
             return word;
         }
+
+        public int getThumbsUp() {
+            return thumbsUp;
+        }
+
+        public int getThumbsDown() {
+            return thumbsDown;
+        }
     }
 }

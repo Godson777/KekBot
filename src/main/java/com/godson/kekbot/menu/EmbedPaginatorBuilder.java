@@ -29,7 +29,6 @@ public class EmbedPaginatorBuilder extends MenuBuilder<EmbedPaginatorBuilder, Em
         return new EmbedPaginator(waiter, users, roles, timeout, unit, color, finalAction, showPageNumbers, waitOnSinglePage, embeds);
     }
 
-    @Override
     public EmbedPaginatorBuilder setColor(Color color) {
         this.color = color;
         return this;
