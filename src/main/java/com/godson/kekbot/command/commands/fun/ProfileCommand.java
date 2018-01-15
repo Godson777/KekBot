@@ -10,6 +10,7 @@ import com.godson.kekbot.responses.Action;
 import com.godson.kekbot.Utils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
+import com.godson.kekbot.settings.Config;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.User;
 import org.apache.commons.lang3.StringUtils;
@@ -34,7 +35,7 @@ public class ProfileCommand extends Command {
         if (event.getArgs().length == 0) {
             try {
                 event.getChannel().sendTyping().queue();
-                event.getChannel().sendFile(Profile.getProfile(event.getAuthor()).drawCard(event.getJDA()), "profile.png", null).queue();
+                event.getChannel().sendFile(Profile.getProfile(event.getAuthor()).drawCard(), "profile.png", null).queue();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -218,15 +219,15 @@ public class ProfileCommand extends Command {
                             break;
                     }
                 }
-            } else if (event.getArgs()[0].equalsIgnoreCase("admin") && event.getAuthor().getId().equals(GSONUtils.getConfig().getBotOwner())) {
+            } else if (event.getArgs()[0].equalsIgnoreCase("admin") && event.isBotOwner()) {
                 if (event.getArgs().length >= 2) {
                     switch (event.getArgs()[1]) {
                         case "view":
                             if (event.getArgs().length >= 3) {
                                 try {
                                     event.getChannel().sendTyping().queue();
-                                    User user = Utils.findShardUser(event.getArgs()[2]);
-                                    event.getChannel().sendFile(Profile.getProfile(user).drawCard(Utils.getShardUsersShard(user)), "profile.png", new MessageBuilder().append("Here is " + user.getName() + "#" + user.getDiscriminator() + "'s profile card.").build()).queue();
+                                    User user = KekBot.jda.getUserById(event.getArgs()[2]);
+                                    event.getChannel().sendFile(Profile.getProfile(user).drawCard(), "profile.png", new MessageBuilder().append("Here is " + user.getName() + "#" + user.getDiscriminator() + "'s profile card.").build()).queue();
                                 } catch (NullPointerException e) {
                                     event.getChannel().sendMessage("User with that ID not found, or the ID specified is invalid.").queue();
                                 } catch (IOException e) {
@@ -243,7 +244,7 @@ public class ProfileCommand extends Command {
                                                 int toGive = Integer.valueOf(event.getArgs()[3]);
                                                 if (event.getArgs().length >= 5) {
                                                     try {
-                                                        User user = Utils.findShardUser(event.getArgs()[4]);
+                                                        User user = KekBot.jda.getUserById(event.getArgs()[4]);
                                                         Profile profile = Profile.getProfile(user);
                                                         profile.addTopKeks(toGive);
                                                         profile.save();
@@ -264,9 +265,9 @@ public class ProfileCommand extends Command {
                                                 int toGive = Integer.valueOf(event.getArgs()[3]);
                                                 if (event.getArgs().length >= 5) {
                                                     try {
-                                                        User user = Utils.findShardUser(event.getArgs()[4]);
+                                                        User user = KekBot.jda.getUserById(event.getArgs()[4]);
                                                         Profile profile = Profile.getProfile(user);
-                                                        profile.addKXP(Utils.getShardUsersShard(user), toGive);
+                                                        profile.addKXP(toGive);
                                                         profile.save();
                                                         event.getChannel().sendMessage("Gave " + user.getName() + "#" + user.getDiscriminator() + toGive + " KXP.").queue();
                                                     } catch (NullPointerException e) {
@@ -284,7 +285,7 @@ public class ProfileCommand extends Command {
                                                 Background background = KekBot.backgroundManager.get(event.getArgs()[3]);
                                                 if (event.getArgs().length >= 5) {
                                                     try {
-                                                        User user = Utils.findShardUser(event.getArgs()[4]);
+                                                        User user = KekBot.jda.getUserById(event.getArgs()[4]);
                                                         Profile profile = Profile.getProfile(user);
                                                         if (profile.hasBackground(background)) {
                                                             event.getChannel().sendMessage(user.getName() + "#" + user.getDiscriminator() + " already owns this background.").queue();
@@ -308,7 +309,7 @@ public class ProfileCommand extends Command {
                                                 Token token = Token.valueOf(event.getArgs()[3]);
                                                 if (event.getArgs().length >= 5) {
                                                     try {
-                                                        User user = Utils.findShardUser(event.getArgs()[4]);
+                                                        User user = KekBot.jda.getUserById(event.getArgs()[4]);
                                                         Profile profile = Profile.getProfile(user);
                                                         if (profile.hasToken(token)) {
                                                             event.getChannel().sendMessage(user.getName() + "#" + user.getDiscriminator() + " already owns this token.").queue();
@@ -338,7 +339,7 @@ public class ProfileCommand extends Command {
                                                 double toTake = Integer.valueOf(event.getArgs()[3]);
                                                 if (event.getArgs().length >= 5) {
                                                     try {
-                                                        User user = Utils.findShardUser(event.getArgs()[4]);
+                                                        User user = KekBot.jda.getUserById(event.getArgs()[4]);
                                                         Profile profile = Profile.getProfile(user);
                                                         if (toTake > profile.getTopkeks()) toTake = profile.getTopkeks();
                                                         profile.spendTopKeks(toTake);
@@ -360,7 +361,7 @@ public class ProfileCommand extends Command {
                                                 int toTake = Integer.valueOf(event.getArgs()[3]);
                                                 if (event.getArgs().length >= 5) {
                                                     try {
-                                                        User user = Utils.findShardUser(event.getArgs()[4]);
+                                                        User user = KekBot.jda.getUserById(event.getArgs()[4]);
                                                         Profile profile = Profile.getProfile(user);
                                                         profile.takeKXP(toTake);
                                                         profile.save();
@@ -380,7 +381,7 @@ public class ProfileCommand extends Command {
                                                 Background background = KekBot.backgroundManager.get(event.getArgs()[3]);
                                                 if (event.getArgs().length >= 5) {
                                                     try {
-                                                        User user = Utils.findShardUser(event.getArgs()[4]);
+                                                        User user = KekBot.jda.getUserById(event.getArgs()[4]);
                                                         Profile profile = Profile.getProfile(user);
                                                         if (profile.hasBackground(background)) {
                                                             if (profile.getCurrentBackground().equals(background)) profile.setCurrentBackground(null);
@@ -405,7 +406,7 @@ public class ProfileCommand extends Command {
                                                 Token token = Token.valueOf(event.getArgs()[3]);
                                                 if (event.getArgs().length >= 5) {
                                                     try {
-                                                        User user = Utils.findShardUser(event.getArgs()[4]);
+                                                        User user = KekBot.jda.getUserById(event.getArgs()[4]);
                                                         Profile profile = Profile.getProfile(user);
                                                         if (profile.hasToken(token)) {
                                                             if (profile.getToken().equals(token)) profile.unequipToken();
@@ -436,7 +437,7 @@ public class ProfileCommand extends Command {
                                                 int toSet = Integer.valueOf(event.getArgs()[3]);
                                                 if (event.getArgs().length >= 5) {
                                                     try {
-                                                        User user = Utils.findShardUser(event.getArgs()[4]);
+                                                        User user = KekBot.jda.getUserById(event.getArgs()[4]);
                                                         Profile profile = Profile.getProfile(user);
                                                         profile.setTopKeks(toSet);
                                                         profile.save();
@@ -457,7 +458,7 @@ public class ProfileCommand extends Command {
                                                 int toSet = Integer.valueOf(event.getArgs()[3]);
                                                 if (event.getArgs().length >= 5) {
                                                     try {
-                                                        User user = Utils.findShardUser(event.getArgs()[4]);
+                                                        User user = KekBot.jda.getUserById(event.getArgs()[4]);
                                                         Profile profile = Profile.getProfile(user);
                                                         profile.setKXP(toSet);
                                                         profile.save();
@@ -479,7 +480,7 @@ public class ProfileCommand extends Command {
                                                 else background = KekBot.backgroundManager.get(event.getArgs()[3]);
                                                 if (event.getArgs().length >= 5) {
                                                     try {
-                                                        User user = Utils.findShardUser(event.getArgs()[4]);
+                                                        User user = KekBot.jda.getUserById(event.getArgs()[4]);
                                                         Profile profile = Profile.getProfile(user);
                                                         if (background == null || profile.hasBackground(background)) {
                                                             profile.setCurrentBackground(background);
@@ -507,7 +508,7 @@ public class ProfileCommand extends Command {
                                                 else token = Token.valueOf(event.getArgs()[3]);
                                                 if (event.getArgs().length >= 5) {
                                                     try {
-                                                        User user = Utils.findShardUser(event.getArgs()[4]);
+                                                        User user = KekBot.jda.getUserById(event.getArgs()[4]);
                                                         Profile profile = Profile.getProfile(user);
                                                         if (profile.hasToken(token) || token == null) {
                                                             profile.equipToken(token);
@@ -534,7 +535,7 @@ public class ProfileCommand extends Command {
                                                 else badge = Badge.valueOf(event.getArgs()[3]);
                                                 if (event.getArgs().length >= 5) {
                                                     try {
-                                                        User user = Utils.findShardUser(event.getArgs()[4]);
+                                                        User user = KekBot.jda.getUserById(event.getArgs()[4]);
                                                         Profile profile = Profile.getProfile(user);
                                                         profile.setBadge(badge);
                                                         profile.save();
@@ -558,7 +559,7 @@ public class ProfileCommand extends Command {
                     event.getChannel().sendTyping().queue();
                     User user = event.getEvent().getMessage().getMentionedUsers().get(0);
                     Profile profile = Profile.getProfile(user);
-                    event.getChannel().sendFile(profile.drawCard(event.getJDA()), "profile.png", new MessageBuilder().append("Here is ").append(user.getName()).append("'s profile card:").build()).queue();
+                    event.getChannel().sendFile(profile.drawCard(), "profile.png", new MessageBuilder().append("Here is ").append(user.getName()).append("'s profile card:").build()).queue();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -571,7 +572,7 @@ public class ProfileCommand extends Command {
             new Questionnaire(event)
                     .addYesNoQuestion("Are you sure you want to use the title: `" + title + "`?")
                     .execute(results -> {
-                        if (results.getAnswer(0).toString().equalsIgnoreCase("Yes") || results.getAnswer(0).toString().equalsIgnoreCase("Y")) {
+                        if (results.getAnswerAsType(0, boolean.class)) {
                             profile.setSubtitle(title);
                             profile.save();
                             event.getChannel().sendMessage("Title set!").queue();
@@ -589,7 +590,7 @@ public class ProfileCommand extends Command {
             new Questionnaire(event)
                     .addYesNoQuestion("For your bio, you wrote: `" + bio + "` Is this correct?")
                     .execute(results -> {
-                        if (results.getAnswer(0).toString().equalsIgnoreCase("Yes") || results.getAnswer(0).toString().equalsIgnoreCase("Y")) {
+                        if (results.getAnswerAsType(0, boolean.class)) {
                             profile.setBio(bio);
                             profile.save();
                             event.getChannel().sendMessage("Bio set!").queue();

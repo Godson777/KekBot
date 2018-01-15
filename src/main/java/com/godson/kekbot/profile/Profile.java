@@ -5,6 +5,7 @@ import com.godson.kekbot.KekBot;
 import com.godson.kekbot.music.Playlist;
 import com.godson.kekbot.Utils;
 import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
 import com.rethinkdb.model.MapObject;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Message;
@@ -21,32 +22,32 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Profile {
-    //@SerializedName("User ID")
+    @SerializedName("User ID")
     private long userID;
-    //@SerializedName("Token")
+    @SerializedName("Token")
     public Token token;
-    //@SerializedName("Tokens")
+    @SerializedName("Tokens")
     private List<Token> tokens = new ArrayList<Token>();
-    //@SerializedName("Backgrounds")
+    @SerializedName("Backgrounds")
     private List<String> backgrounds = new ArrayList<String>();
-    //@SerializedName("Current Background ID")
+    @SerializedName("Current Background ID")
     private String currentBackgroundID;
-    //@SerializedName("Badge")
+    @SerializedName("Badge")
     private Badge badge;
-    //@SerializedName("Topkeks")
+    @SerializedName("Topkeks")
     private double topkeks;
     private int KXP = 0;
-    //@SerializedName("Max KXP")
+    @SerializedName("Max KXP")
     private int maxKXP = 250;
-    //@SerializedName("Level")
+    @SerializedName("Level")
     private int level = 1;
     //private int wins;
     //private int losses;
-    //@SerializedName("Subtitle")
+    @SerializedName("Subtitle")
     private String subtitle = "Just another user.";
-    //@SerializedName("Bio")
+    @SerializedName("Bio")
     private String bio;
-    //@SerializedName("Playlists")
+    @SerializedName("Playlists")
     private List<Playlist> playlists = new ArrayList<>();
 
     /**
@@ -121,20 +122,20 @@ public class Profile {
      * @param topkeks The topkeks the user has earned.
      * @param KXP The KXP the user has earned.
      */
-    public void wonGame(JDA jda, double topkeks, int KXP) {
+    public void wonGame(double topkeks, int KXP) {
         //++wins;
         this.topkeks += topkeks;
-        addKXP(jda, KXP);
+        addKXP(KXP);
     }
 
     /**
-     * Same as {@link Profile#wonGame(JDA, double, int) wonGame}, however this doesn't increment the win counter.
+     * Same as {@link Profile#wonGame(double, int) wonGame}, however this doesn't increment the win counter.
      * @param topkeks The topkeks the user has earned.
      * @param KXP The KXP the user has earned.
      */
-    public void tieGame(JDA jda, double topkeks, int KXP) {
+    public void tieGame(double topkeks, int KXP) {
         this.topkeks += topkeks;
-        addKXP(jda, KXP);
+        addKXP(KXP);
     }
 
     /*
@@ -147,17 +148,16 @@ public class Profile {
 
     /**
      * Draws the user's card.
-     * @param jda The instance of JDA
      * @return The byte array of the card. This is mostly meant to be used with {@link TextChannel#sendFile(File, String, Message) TextChannel#sendFile}.
      * @throws IOException If for some reason, the files are missing, this exception is thrown.
      */
-    public byte[] drawCard(JDA jda) throws IOException {
+    public byte[] drawCard() throws IOException {
         BufferedImage cardTemplate = ImageIO.read(new File("resources/profile/template.png"));
         BufferedImage background = (currentBackgroundID == null ? drawDefaultBackground() : KekBot.backgroundManager.get(currentBackgroundID).drawBackground());
         BufferedImage base = new BufferedImage(cardTemplate.getWidth(), cardTemplate.getHeight(), cardTemplate.getType());
         BufferedImage topkek = ImageIO.read(new File("resources/profile/topkek.png"));
         BufferedImage kxpBar = drawKXP();
-        BufferedImage ava = Utils.getUserAvatarImage(jda.getUserById(String.valueOf(userID)));
+        BufferedImage ava = Utils.getUserAvatarImage(KekBot.jda.getUserById(String.valueOf(userID)));
         Graphics2D card = base.createGraphics();
         //Draw background
         card.drawImage(background, 0, 0, background.getWidth(), background.getHeight(), null);
@@ -168,7 +168,7 @@ public class Profile {
         //Draw Text
         card.setFont(ProfileUtils.topBarTitle);
         card.setColor(Color.BLACK);
-        card.drawString(jda.getUserById(String.valueOf(userID)).getName(), 249, 45);
+        card.drawString(KekBot.jda.getUserById(String.valueOf(userID)).getName(), 249, 45);
         card.setFont(ProfileUtils.topBarSubtitle);
         card.drawString(subtitle, 249, 75);
         card.drawString("Bio:", 249, 145);
@@ -216,14 +216,13 @@ public class Profile {
 
     /**
      * Draws a copy of a user's profile card, but with a different background applied.
-     * @param jda The instance of JDA
      * @param background The background to apply to this card.
      * @return The byte array of the card. This is mostly meant to be used with {@link TextChannel#sendFile(File, String, Message) TextChannel#sendFile}.
      * @throws IOException If for some reason, the files are missing, this exception is thrown.
      */
-    public byte[] previewBackground(JDA jda, Background background) throws IOException {
+    public byte[] previewBackground(Background background) throws IOException {
         currentBackgroundID = background.getID();
-        return drawCard(jda);
+        return drawCard();
     }
 
     /**
@@ -332,14 +331,12 @@ public class Profile {
 
     /**
      * Adds KXP to the user's total, and levels them up if they've reached their maximum.
-     * @param jda The instance of JDA that may be called to DM the user for when they're leveled up.
      * @param KXP The amount of KXP to add.
      */
-    public void addKXP(JDA jda, int KXP) {
+    public void addKXP(int KXP) {
         this.KXP += KXP;
         if (this.KXP >= maxKXP) {
             this.KXP -= maxKXP;
-            levelUp(jda);
         }
     }
 
@@ -365,10 +362,9 @@ public class Profile {
 
     /**
      * Levels up the user, alerts them via DM, and adjusts appropriate values based on their new state.
-     * @param jda The instance of JDA to use to DM the user.
      */
-    private void levelUp(JDA jda) {
-        User user = jda.getUserById(String.valueOf(userID));
+    private void levelUp() {
+        User user = KekBot.jda.getUserById(String.valueOf(userID));
         maxKXP = (int) Math.round(maxKXP * 1.10);
         level++;
         user.openPrivateChannel().queue(ch -> ch.sendMessage("Congrats, you've successfully levelled up to level " + level + "!").queue());
@@ -431,7 +427,7 @@ public class Profile {
         Profile payee = Profile.getProfile(user);
         payee.addTopKeks(topkeks);
         payee.save();
-        user.openPrivateChannel().queue(c -> c.sendMessage("Woohoo! You just got paid " + CustomEmote.printPrice(topkeks) + " by `" + Utils.findShardUser(Long.toString(userID)).getName() + "`.").queue());
+        user.openPrivateChannel().queue(c -> c.sendMessage("Woohoo! You just got paid " + CustomEmote.printPrice(topkeks) + " by `" + KekBot.jda.getUserById(userID).getName() + "`.").queue());
     }
 
     /**
