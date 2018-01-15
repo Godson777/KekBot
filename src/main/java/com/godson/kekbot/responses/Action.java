@@ -46,7 +46,9 @@ public enum Action {
     //{} no longer has that role.
     ROLE_TAKEN(1),
     //Hm, I'll go with {}.
-    CHOICE_MADE(1);
+    CHOICE_MADE(1),
+    //Generic Error Message wew
+    EXCEPTION_THROWN(0);
 
     Action(int blanks) {
         this.blanks = blanks;
