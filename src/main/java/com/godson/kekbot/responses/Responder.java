@@ -31,6 +31,11 @@ public class Responder {
         return this;
     }
 
+    public Responder removeResponse(int response) {
+        if (response < responses.size() && response > -1) responses.remove(response);
+        return this;
+    }
+
     public List<String> getResponses() {
         return responses;
     }
