@@ -32,6 +32,10 @@ public class Pay extends Command {
                     }
                     if (payer.canSpend(toPay)) {
                         User payee = event.getEvent().getMessage().getMentionedUsers().get(0);
+                        if (payee.isBot()) {
+                            event.getChannel().sendMessage("You can't pay a bot! They have no use for topkeks, anyway.").queue();
+                            return;
+                        }
                         payer.payUser(toPay, payee);
                         event.getChannel().sendMessage("You have successfully paid " + payee.getName() + "#" + payee.getDiscriminator() + " " + CustomEmote.printPrice(toPay) + ".").queue();
                     } else {
