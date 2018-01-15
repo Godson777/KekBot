@@ -234,8 +234,8 @@ public class Hangman extends Game {
             return;
         }
 
-        if (message.getContent().length() == 1) {
-            char letter = message.getContent().toUpperCase().charAt(0);
+        if (message.getContentDisplay().length() == 1) {
+            char letter = message.getContentDisplay().toUpperCase().charAt(0);
             if (letter <= 'Z' && letter >= 'A') {
                 if (isLetterUsed(letter)) {
                     channel.sendMessage("That letter's already been used.").queue();
@@ -250,15 +250,15 @@ public class Hangman extends Game {
                 return;
             }
         } else {
-            if (!Pattern.compile("[A-Z\\s]+", Pattern.CASE_INSENSITIVE).matcher(message.getRawContent()).matches()) {
+            if (!Pattern.compile("[A-Z\\s]+", Pattern.CASE_INSENSITIVE).matcher(message.getContentRaw()).matches()) {
                 channel.sendMessage("That's not a valid word/phrase.").queue();
                 return;
             }
-            if (message.getRawContent().length() != word.length()) {
-                channel.sendMessage("That guess is " + (message.getRawContent().length() < word.length() ? "shorter" : "longer") + " than the actual word/phrase, and cannot be a valid guess.").queue();
+            if (message.getContentRaw().length() != word.length()) {
+                channel.sendMessage("That guess is " + (message.getContentRaw().length() < word.length() ? "shorter" : "longer") + " than the actual word/phrase, and cannot be a valid guess.").queue();
                 return;
             }
-            if (!guessWord(message.getRawContent(), getPlayerNumber(message.getAuthor()))) {
+            if (!guessWord(message.getContentRaw(), getPlayerNumber(message.getAuthor()))) {
                 eliminatePlayer(message.getAuthor());
                 channel.sendMessage("**" + message.getAuthor().getAsMention() + " has guessed the " + (isWordPhrase() ? "phrase" : "word") + " incorrectly, and has been eliminated!**").queue();
             } else {

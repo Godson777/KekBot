@@ -27,10 +27,10 @@ public class GamesManager extends ListenerAdapter {
                 game.addPlayer(player);
                 String joinMessage = "**" + player.getName() + " joined the game. (" + game.players.size() + "/" + game.getMaxNumberOfPlayers() + ")**";
                 if (game.hasMinimum() && game.hasMinimumPlayers() && !game.reachedMinimumPlayers()) {
-                    joinMessage += " *(Minimum Players Reached! You can now start the game with `" + KekBot.insertPrefix(channel.getGuild()) + "game ready`!)*";
+                    joinMessage += " *(Minimum Players Reached! You can now start the game with `" + KekBot.getGuildPrefix(channel.getGuild()) + "game ready`!)*";
                 }
                 channel.sendMessage(joinMessage).queue();
-                if (!game.hasRoomForPlayers()) channel.sendMessage("The lobby is now full! " + game.players.get(0).getAsMention() + "! Start the game with `" + KekBot.insertPrefix(channel.getGuild()) + "game ready`!").queue();
+                if (!game.hasRoomForPlayers()) channel.sendMessage("The lobby is now full! " + game.players.get(0).getAsMention() + "! Start the game with `" + KekBot.getGuildPrefix(channel.getGuild()) + "game ready`!").queue();
             } else channel.sendMessage("This `" + game.getGameName() + "` lobby is already full.").queue();
         }
     }
@@ -43,11 +43,11 @@ public class GamesManager extends ListenerAdapter {
             Game game = gameRegistry.getGame(gameName, channel);
             game.addPlayer(host);
             activeGames.put(Long.valueOf(channel.getId()), game);
-            channel.sendMessage(game.getGameName() + " lobby created! (If you don't know how to play, you can use `" + KekBot.insertPrefix(channel.getGuild()) + "game rules` to view the rules and instructions.)" +
+            channel.sendMessage(game.getGameName() + " lobby created! (If you don't know how to play, you can use `" + KekBot.getGuildPrefix(channel.getGuild()) + "game rules` to view the rules and instructions.)" +
                     (game.hasMinimum() ? " ***(Minimum " + game.getMinNumberOfPlayers() + " players to play. Maximum " + game.getMaxNumberOfPlayers() + " players.)***" : "") +
-                    (game.hasRoomForPlayers() ? KekBot.replacePrefix(channel.getGuild(), " Players can join by using `{p}game join`.") : "") +
-                    (game.hasRoomForPlayers() && game.hasAI() ? KekBot.replacePrefix(channel.getGuild(), " Or, you can start the game early with `{p}game ready`, and play with an AI.") : "") +
-                    (game.hasAI() && !game.hasRoomForPlayers() ? KekBot.replacePrefix(channel.getGuild(), " You can now start the game with `{p}game ready`") : "")).queue();
+                    (game.hasRoomForPlayers() ? " Players can join by using `{p}game join`." : "") +
+                    (game.hasRoomForPlayers() && game.hasAI() ? " Or, you can start the game early with `{p}game ready`, and play with an AI." : "") +
+                    (game.hasAI() && !game.hasRoomForPlayers() ? " You can now start the game with `" + KekBot.getGuildPrefix(channel.getGuild()) + "game ready`" : "")).queue();
         } else {
             Game game = getGame(channel);
             User otherHost = game.players.get(0);

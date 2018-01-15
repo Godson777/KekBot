@@ -122,11 +122,11 @@ public abstract class Game {
             Profile profile = Profile.getProfile(player);
             if (player.equals(winner)) {
                 if (!betsEnabled) {
-                    profile.wonGame(channel.getJDA(), topkeks, KXP);
+                    profile.wonGame(topkeks, KXP);
                     if (!(topkeks == 0 && KXP == 0)) builder.append(stateEarnings(winner, topkeks, KXP)).append("\n");
                 } else {
                     double betEarnings = bets.declareWinners(this, winnerIDs);
-                    profile.wonGame(channel.getJDA(), topkeks + betEarnings, KXP);
+                    profile.wonGame(topkeks + betEarnings, KXP);
                     if (bets.hasPlayerBets()) builder.append(stateEarnings(winner, topkeks, KXP, betEarnings, "Won Bet")).append("\n");
                     else builder.append(stateEarnings(winner, topkeks, KXP)).append("\n");
                 }
@@ -162,16 +162,16 @@ public abstract class Game {
             int KXP = baseKXP + (players.size() - i);
             if (winners.get(i).equals(winners.get(0))) {
                 if (!betsEnabled) {
-                    profile.wonGame(channel.getJDA(), topkeks, KXP);
+                    profile.wonGame(topkeks, KXP);
                     if (!(topkeks == 0 && KXP == 0)) builder.append(stateEarnings(winners.get(i), topkeks, KXP)).append("\n");
                 } else {
                     double betEarnings = bets.declareWinners(this, winnerIDs);
-                    profile.wonGame(channel.getJDA(), baseTopkeks + (players.size() - i) + betEarnings, baseKXP + (players.size() - i));
+                    profile.wonGame(baseTopkeks + (players.size() - i) + betEarnings, baseKXP + (players.size() - i));
                     if (bets.hasPlayerBets()) builder.append(stateEarnings(winners.get(i), topkeks, KXP, betEarnings, "Won Bet")).append("\n");
                     else builder.append(stateEarnings(winners.get(i), topkeks, KXP)).append("\n");
                 }
             } else {
-                profile.wonGame(channel.getJDA(), topkeks, KXP);
+                profile.wonGame(topkeks, KXP);
                 builder.append(stateEarnings(winners.get(i), topkeks, KXP)).append("\n");
             }
             profile.save();
@@ -184,7 +184,7 @@ public abstract class Game {
         StringBuilder builder = new StringBuilder();
         for (User player : players) {
             Profile profile = Profile.getProfile(player);
-            profile.tieGame(channel.getJDA(), topkeks, KXP);
+            profile.tieGame(topkeks, KXP);
             builder.append(stateEarnings(player, topkeks, KXP)).append("\n");
             profile.save();
         }

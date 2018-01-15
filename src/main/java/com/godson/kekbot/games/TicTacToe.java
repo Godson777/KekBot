@@ -103,7 +103,7 @@ public class TicTacToe extends Game {
 
     @Override
     public void acceptInputFromMessage(Message message) {
-        String contents = message.getRawContent();
+        String contents = message.getContentRaw();
         try {
             int slot = Integer.valueOf(contents);
             fillSlot(slot-1, message.getAuthor());
