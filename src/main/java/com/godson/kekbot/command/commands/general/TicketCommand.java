@@ -4,7 +4,7 @@ import com.godson.kekbot.KekBot;
 import com.godson.kekbot.Utils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
-import com.godson.kekbot.menu.EmbedPaginatorBuilder;
+import com.godson.kekbot.menu.EmbedPaginator;
 import com.godson.kekbot.settings.Ticket;
 import com.godson.kekbot.settings.TicketManager;
 import com.jagrosh.jdautilities.menu.pagination.PaginatorBuilder;
@@ -80,7 +80,7 @@ public class TicketCommand extends Command {
                             else ticketGuild = "Guild Not Found. Close this ticket if the ticket isn't concerning a bug.";
                             String ticketStatus = ticket.getStatus().getName();
 
-                            EmbedPaginatorBuilder builder = new EmbedPaginatorBuilder();
+                            EmbedPaginator.Builder builder = new EmbedPaginator.Builder();
                             builder.setEventWaiter(KekBot.waiter);
                             EmbedBuilder eBuilder = new EmbedBuilder();
 

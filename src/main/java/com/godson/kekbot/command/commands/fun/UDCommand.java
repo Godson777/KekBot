@@ -3,15 +3,10 @@ package com.godson.kekbot.command.commands.fun;
 import com.godson.kekbot.GSONUtils;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.menu.EmbedPaginator;
-import com.godson.kekbot.menu.EmbedPaginatorBuilder;
 import com.godson.kekbot.objects.UDictionary;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.MessageEmbed;
-
-import java.util.List;
-import java.util.Random;
 
 public class UDCommand extends Command {
 
@@ -32,7 +27,7 @@ public class UDCommand extends Command {
             UDictionary results = GSONUtils.getUDResults(event.combineArgs().replace(" ", "+"));
             //Random random = new Random();
             if (!results.getResultType().equals("no_results")) {
-                EmbedPaginatorBuilder pBuilder = new EmbedPaginatorBuilder();
+                EmbedPaginator.Builder pBuilder = new EmbedPaginator.Builder();
 
                 for (UDictionary.Definition definition : results.getDefinitions()) {
                     EmbedBuilder builder = new EmbedBuilder();

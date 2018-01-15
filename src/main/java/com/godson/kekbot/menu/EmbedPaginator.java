@@ -1,6 +1,7 @@
 package com.godson.kekbot.menu;
 
 import com.jagrosh.jdautilities.menu.Menu;
+import com.jagrosh.jdautilities.menu.MenuBuilder;
 import com.jagrosh.jdautilities.waiter.EventWaiter;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
@@ -9,8 +10,9 @@ import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import net.dv8tion.jda.core.requests.RestAction;
 
-import javax.annotation.Nullable;
 import java.awt.*;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -122,5 +124,59 @@ public class EmbedPaginator extends Menu {
             ebuilder.setFooter("Page " + pageNum + "/" + pages, null);
         mbuilder.setEmbed(ebuilder.build());
         return mbuilder.build();
+    }
+
+    public static class Builder extends MenuBuilder<Builder, EmbedPaginator> {
+
+        private Color color;
+        private Consumer<Message> finalAction = m -> m.delete().queue();
+        private boolean showPageNumbers = true;
+        private boolean waitOnSinglePage = true;
+
+        private final List<MessageEmbed> embeds = new LinkedList<>();
+
+
+        @Override
+        public EmbedPaginator build() {
+            if (waiter == null) throw new IllegalArgumentException("Must set an EventWaiter.");
+            if (embeds.isEmpty()) throw new IllegalArgumentException("Must include at least one item to paginate.");
+            return new EmbedPaginator(waiter, users, roles, timeout, unit, color, finalAction, showPageNumbers, waitOnSinglePage, embeds);
+        }
+
+        public Builder setColor(Color color) {
+            this.color = color;
+            return this;
+        }
+
+        public Builder setFinalAction(Consumer<Message> finalAction) {
+            this.finalAction = finalAction;
+            return this;
+        }
+
+        public Builder showPageNumbers(boolean show) {
+            showPageNumbers = show;
+            return this;
+        }
+
+        public Builder waitOnSinglePage(boolean wait) {
+            waitOnSinglePage = wait;
+            return this;
+        }
+
+        public Builder clearItems() {
+            embeds.clear();
+            return this;
+        }
+
+        public Builder addItems(MessageEmbed... embeds) {
+            this.embeds.addAll(Arrays.asList(embeds));
+            return this;
+        }
+
+        public Builder setItems(MessageEmbed... embeds) {
+            this.embeds.clear();
+            this.embeds.addAll(Arrays.asList(embeds));
+            return this;
+        }
     }
 }
