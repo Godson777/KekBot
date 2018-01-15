@@ -67,7 +67,7 @@ public class Pick extends Command {
         List<String> choices = parseChoices(event.combineArgs());
         if (choices.size() > 1) {
             Random random = new Random();
-            event.getChannel().sendMessage(KekBot.respond(event, Action.CHOICE_MADE, choices.get(random.nextInt(choices.size())))).queue();
+            event.getChannel().sendMessage(KekBot.respond(Action.CHOICE_MADE, choices.get(random.nextInt(choices.size())))).queue();
         } else if (choices.size() == 1) {
             event.getChannel().sendMessage("Well, I guess I'm choosing `" + choices.get(0) + "`, since you haven't given me anything else to pick...").queue();
         } else {

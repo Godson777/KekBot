@@ -16,7 +16,8 @@ public class AddGame extends Command {
 
     public AddGame() {
         name = "addgame";
-        category = CommandCategories.botAdmin;
+        category = new Category("Bot Admin");
+        commandPermission = CommandPermission.ADMIN;
     }
 
     @Override

@@ -1,6 +1,5 @@
 package com.godson.kekbot.command.commands.fun;
 
-import com.godson.kekbot.GSONUtils;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.responses.Action;
 import com.godson.kekbot.command.Command;
@@ -41,12 +40,12 @@ public class LotteryCommand extends Command {
                 event.getChannel().sendMessage(KekBot.lottery.listWinners()).queue();
                 break;
             case "draw":
-                if (event.getAuthor().equals(event.getJDA().getUserById(GSONUtils.getConfig().getBotOwner()))) {
+                if (event.isBotOwner()) {
                     KekBot.lottery.forceDraw(false);
                 }
                 break;
             case "forcejackpot":
-                if (event.getAuthor().equals(event.getJDA().getUserById(GSONUtils.getConfig().getBotOwner()))) {
+                if (event.isBotOwner()) {
                     KekBot.lottery.forceDraw(true);
                 }
                 break;

@@ -36,6 +36,7 @@ public class GameCommand extends Command {
                 "\nSnail Race (or \"sr\" for short.)" +
                 "\nHangman";
         exDescPos = ExtendedPosition.AFTER;
+        category = new Category("Fun");
     }
 
     private static String getGameStatus(Game game) {
@@ -143,7 +144,7 @@ public class GameCommand extends Command {
                                     KekBot.gamesManager.closeGame(channel);
                                     channel.sendMessage("**This game of " + game.getGameName() + " has been cancelled.**").queue();
                                 } else channel.sendMessage("Only player 1 or someone with the `Administrator` permission can cancel a game.").queue();
-                            } else channel.sendMessage("This game has already started. If you want to quit, you can use `" + KekBot.insertPrefix(channel.getGuild()) + "game quit`, however, there will be consequences.").queue();
+                            } else channel.sendMessage("This game has already started. If you want to quit, you can use `" + KekBot.getGuildPrefix(channel.getGuild()) + "game quit`, however, there will be consequences.").queue();
                         }
                     } else channel.sendMessage("There doesn't seem to be a game lobby in here...").queue();
                     break;
@@ -183,7 +184,7 @@ public class GameCommand extends Command {
                     break;
             }
         } else {
-            channel.sendMessage(KekBot.replacePrefix(event.getGuild(), "No args specified. Use `{p}help game` for help.")).queue();
+            channel.sendMessage("No args specified. Use `" + event.getPrefix() +  "{p}help game` for help.").queue();
         }
     }
 }

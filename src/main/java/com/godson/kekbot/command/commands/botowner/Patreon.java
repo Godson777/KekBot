@@ -9,7 +9,8 @@ public class Patreon extends Command {
 
     public Patreon() {
         name = "patreon";
-        category = CommandCategories.botOwner;
+        category = new Category("Bot Owner");
+        commandPermission = CommandPermission.OWNER;
     }
 
     @Override

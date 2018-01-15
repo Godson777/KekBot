@@ -56,7 +56,7 @@ public class Quote extends Command {
                                         channel.sendMessage("Successfully added quote! :thumbsup:").queue();
                                     });
                         }
-                    } else channel.sendMessage(KekBot.respond(event, Action.NOPERM_USER, "`Manage Messages`")).queue();
+                    } else channel.sendMessage(KekBot.respond(Action.NOPERM_USER, "`Manage Messages`")).queue();
                     break;
                 case "remove":
                     if (event.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
@@ -73,7 +73,7 @@ public class Quote extends Command {
                                 channel.sendMessage("\"" + event.getArgs()[1] + "\" is not a number!").queue();
                             }
                         } else channel.sendMessage("No quote specified.").queue();
-                    } else channel.sendMessage(KekBot.respond(event, Action.NOPERM_USER, "`Manage Messages`")).queue();
+                    } else channel.sendMessage(KekBot.respond(Action.NOPERM_USER, "`Manage Messages`")).queue();
                     break;
                 case "list":
                     int size = settings.getQuotes().getList().size();
@@ -108,7 +108,7 @@ public class Quote extends Command {
                             channel.sendMessage(settings.getQuotes().getQuote(toGet)).queue();
                         } else channel.sendMessage("\"Here, let me just get a quote that doesn't exist... Oh, wait...\" ~You").queue();
                     } catch (NumberFormatException e) {
-                        channel.sendMessage(KekBot.respond(event, Action.NOT_A_NUMBER, "`" + event.getArgs()[0]) + "`").queue();
+                        channel.sendMessage(KekBot.respond(Action.NOT_A_NUMBER, "`" + event.getArgs()[0]) + "`").queue();
                     }
 
             }

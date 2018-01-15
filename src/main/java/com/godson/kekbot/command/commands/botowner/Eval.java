@@ -12,7 +12,8 @@ public class Eval extends Command {
 
     public Eval() {
         name = "eval";
-        category = CommandCategories.botOwner;
+        category = new Category("Bot Owner");
+        commandPermission = CommandPermission.OWNER;
     }
 
     @Override

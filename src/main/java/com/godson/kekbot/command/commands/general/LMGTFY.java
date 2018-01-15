@@ -10,6 +10,7 @@ public class LMGTFY extends Command {
         aliases = new String[]{"lmg"};
         description = "Allows the user to perform a google search for an idiot.";
         usage.add("lmgtfy <query>");
+        category = new Category("General");
     }
 
     @Override

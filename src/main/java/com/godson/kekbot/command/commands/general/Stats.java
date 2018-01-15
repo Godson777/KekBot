@@ -1,17 +1,12 @@
 package com.godson.kekbot.command.commands.general;
 
-import com.darichey.discord.api.CommandRegistry;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.Utils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
-import com.godson.kekbot.menu.EmbedPaginator;
 import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDAInfo;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 
-import javax.rmi.CORBA.Util;
 import java.awt.*;
 import java.text.DecimalFormat;
 

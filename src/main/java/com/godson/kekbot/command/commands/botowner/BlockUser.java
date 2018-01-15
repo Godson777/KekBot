@@ -12,11 +12,12 @@ public class BlockUser extends Command {
 
     public BlockUser() {
         name = "blockuser";
-        category = CommandCategories.botOwner;
+        category = new Category("Bot Owner");
+        commandPermission = CommandPermission.OWNER;
     }
 
     @Override
-    public void onExecuted(CommandEvent event) throws Throwable {
+    public void onExecuted(CommandEvent event) {
         String args[] = event.getArgs();
         Config config = Config.getConfig();
         if (args.length > 0) {
@@ -35,7 +36,7 @@ public class BlockUser extends Command {
                             event.getChannel().sendMessage(user.getName() + " was added to the blacklist under type " + type + ".").queue();
                         }
                     } catch (NumberFormatException e) {
-                        event.getChannel().sendMessage(KekBot.respond(event, Action.NOT_A_NUMBER, "`" + args[1] + "`")).queue();
+                        event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, "`" + args[1] + "`")).queue();
                     }
                 } else event.getChannel().sendMessage("No block type specified.").queue();
             } else {

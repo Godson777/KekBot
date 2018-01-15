@@ -15,11 +15,12 @@ public class GetInvite extends Command {
     //This command is only used for messing with friends servers and joining servers where tickets are made, depending on the conditions of the ticket.
     public GetInvite() {
         name = "getinvite";
-        category = CommandCategories.botOwner;
+        category = new Category("Bot Owner");
+        commandPermission = CommandPermission.OWNER;
     }
 
     @Override
-    public void onExecuted(CommandEvent event) throws Throwable {
+    public void onExecuted(CommandEvent event) {
         if (event.getArgs().length > 0) {
             Guild guild = KekBot.jda.getGuildById(event.getArgs()[0]);
             if (guild != null) {

@@ -27,6 +27,7 @@ public class TicketCommand extends Command {
         usage.add("ticket view <ID>");
         usage.add("ticket reply <ID> <message>");
         commandState = CommandState.BOTH;
+        category = new Category("General");
     }
 
     @Override
@@ -122,6 +123,7 @@ public class TicketCommand extends Command {
                                 builder.addItems(eBuilder.build());
                             }
 
+                            builder.setUsers(event.getAuthor());
                             builder.build().display(event.getChannel());
                         }
                     } else event.getChannel().sendMessage("No ticket specified.").queue();

@@ -13,6 +13,7 @@ public class Changelog extends Command {
         usage.add("changelog");
         cooldownScope = CooldownScope.USER_GUILD;
         cooldown = 5;
+        category = new Category("General");
     }
 
     @Override

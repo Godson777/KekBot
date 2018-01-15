@@ -11,7 +11,8 @@ public class BotAdmin extends Command {
 
     public BotAdmin() {
         name = "botadmin";
-        category = CommandCategories.botOwner;
+        category = new Category("Bot Owner");
+        commandPermission = CommandPermission.OWNER;
     }
 
     @Override

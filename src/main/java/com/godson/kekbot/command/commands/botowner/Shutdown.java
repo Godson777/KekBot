@@ -10,7 +10,8 @@ public class Shutdown extends Command {
 
     public Shutdown() {
         name = "shutdown";
-        category = CommandCategories.botOwner;
+        category = new Category("Bot Owner");
+        commandPermission = CommandPermission.OWNER;
     }
 
     @Override
