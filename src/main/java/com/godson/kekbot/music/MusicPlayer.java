@@ -159,7 +159,7 @@ public class MusicPlayer extends ListenerAdapter {
 
                 @Override
                 public void noMatches() {
-                    event.getChannel().sendMessage("Hm, " + trackUrl + " doesn't appear to be a valid URL. Could you try again?").queue();
+                    event.getChannel().sendMessage("Hm, `" + trackUrl + "` doesn't appear to be a valid URL. Could you try again?").queue();
                 }
 
                 @Override
