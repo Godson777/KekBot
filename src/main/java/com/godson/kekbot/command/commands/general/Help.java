@@ -6,6 +6,8 @@ import net.dv8tion.jda.core.entities.ChannelType;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class Help extends Command {
@@ -96,12 +98,12 @@ public class Help extends Command {
                 "\n\n[Category](" + command.getCategory().getName() + ")" +
                 "\n\n[Description](" + command.getDescription() + ")" +
                 (command.getExtendedDescription() != null && command.getExDescriptionPosition().equals(ExtendedPosition.BEFORE) ?
-                        "\n" + command.getExtendedDescription().replaceAll("\\{p}", event.getPrefix()) : "") +
+                        "\n" + command.getExtendedDescription().replaceAll("\\{p}", Matcher.quoteReplacement(event.getPrefix())) : "") +
                 "\n\n#Usage ( Paramaters (<> Required, {} Optional) ):" +
                 "\n")};
         command.getUsage().forEach(s -> help[0] += event.getClient().getPrefix(event.getGuild().getId()) + s + "\n");
         help[0] += (command.getExtendedDescription() != null && command.getExDescriptionPosition().equals(ExtendedPosition.AFTER) ?
-                "\n\n" + command.getExtendedDescription().replaceAll("\\{p}", event.getPrefix()) :  "");
+                command.getExtendedDescription().replaceAll("\\{p}", Matcher.quoteReplacement(event.getPrefix())) :  "");
         help[0] += "```";
         return help[0];
     }
