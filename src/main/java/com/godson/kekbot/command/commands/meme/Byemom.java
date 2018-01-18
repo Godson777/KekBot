@@ -47,6 +47,7 @@ public class Byemom extends Command {
             image.drawString(search, 69, 701);
             image.dispose();
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            stream.flush();
             ImageIO.setUseCache(false);
             ImageIO.write(template, "png", stream);
             event.getChannel().sendFile(stream.toByteArray(), "byemom.png", null).queue();

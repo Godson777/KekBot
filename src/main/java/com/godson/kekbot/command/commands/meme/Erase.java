@@ -41,9 +41,11 @@ public class Erase extends Command {
             image.drawImage(ava, 368, 375, 277, 270, null);
             image.dispose();
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            stream.flush();
             ImageIO.setUseCache(false);
             ImageIO.write(template, "png", stream);
             event.getChannel().sendFile(stream.toByteArray(), "erase.png", null).queue();
+            stream.close();
         } catch (IOException e) {
             throwException(e, event, "Image generation problem.");
         }

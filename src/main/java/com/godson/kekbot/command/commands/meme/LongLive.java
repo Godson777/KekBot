@@ -45,9 +45,11 @@ public class LongLive extends Command {
             image.drawImage(target, 503, 558, 442, 442, null);
             image.dispose();
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            stream.flush();
             ImageIO.setUseCache(false);
             ImageIO.write(template, "png", stream);
             event.getChannel().sendFile(stream.toByteArray(), "theking.png", null).queue();
+            stream.close();
         } catch (IOException e) {
             throwException(e, event, "Image generation problem.");
         }

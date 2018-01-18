@@ -51,9 +51,11 @@ public class DELET extends Command {
             image.drawString(event.getMessage().getMentionedUsers().get(0).getName(), 100, 162);
             image.dispose();
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            stream.flush();
             ImageIO.setUseCache(false);
             ImageIO.write(bg, "png", stream);
             event.getChannel().sendFile(stream.toByteArray(), "delet.png", null).queue();
+            stream.close();
         } catch (IOException e) {
             throwException(e, event, "Image generation problem.");
         }
