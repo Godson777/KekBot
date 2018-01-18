@@ -5,3 +5,8 @@ logs/
 .idea/
 modules/
 src/test/
+tickets.json
+profiles/
+profiles copy/
+settings/
+config/
