@@ -1,10 +1,16 @@
 package com.godson.kekbot.music;
 
+import com.godson.kekbot.KekBot;
 import com.godson.kekbot.command.CommandEvent;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.User;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class GuildMusicManager {
     /**
@@ -21,6 +27,7 @@ public class GuildMusicManager {
     public final int status;
     public User host;
     public boolean queueing = false;
+    public boolean waiting = false;
 
     /**
      * Creates a player and a track scheduler.
@@ -61,5 +68,13 @@ public class GuildMusicManager {
 
     public boolean isMusic() {
         return status == 0;
+    }
+
+    public void stopWaiting() {
+        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+        executor.schedule(() -> {
+            waiting = false;
+            executor.shutdown();
+        }, 1, TimeUnit.NANOSECONDS);
     }
 }

@@ -18,10 +18,13 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import javafx.util.Pair;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.entities.VoiceChannel;
+import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.events.Event;
+import net.dv8tion.jda.core.events.channel.voice.VoiceChannelDeleteEvent;
+import net.dv8tion.jda.core.events.guild.GenericGuildEvent;
+import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
+import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
+import net.dv8tion.jda.core.events.guild.voice.*;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import net.dv8tion.jda.core.managers.AudioManager;
 
@@ -29,6 +32,7 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class MusicPlayer extends ListenerAdapter {
 
@@ -618,5 +622,251 @@ public class MusicPlayer extends ListenerAdapter {
             Guild guild = KekBot.jda.getGuildById(id);
             closeConnection(guild, "This music session was ended due to KekBot shutting down with the reason: `" + reason + "`");
         });
+    }
+
+    @Override
+    public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
+        if (!event.getGuild().getAudioManager().isConnected() || !isMusic(event.getGuild()) || !event.getChannelLeft().equals(event.getGuild().getAudioManager().getConnectedChannel())) return;
+        List<User> users = event.getChannelLeft().getMembers().stream().map(Member::getUser).filter(user -> !user.isBot()).collect(Collectors.toList());
+        GuildMusicManager musicManager = musicManagers.get(Long.parseLong(event.getGuild().getId()));
+        if (users.size() > 0) {
+            if (getHost(event.getGuild()).equals(event.getMember().getUser())) {
+                if (!musicManager.waiting) musicManager.channel.sendMessage("Waiting 10 seconds for host to return...").queue(m -> {
+                    musicManager.waiting = true;
+                    KekBot.waiter.waitForEvent(GenericGuildVoiceEvent.class, event1 -> {
+                                VoiceChannel channelJoined = null;
+                                Member member = event1.getMember();
+                                boolean botMoved = false;
+                                if (event1 instanceof GuildVoiceJoinEvent) {
+                                    channelJoined = ((GuildVoiceJoinEvent) event1).getChannelJoined();
+                                }
+                                if (event1 instanceof GuildVoiceMoveEvent){
+                                    if (event1.getMember().equals(event1.getGuild().getSelfMember())) {
+                                        botMoved = true;
+                                    }
+                                    channelJoined = ((GuildVoiceMoveEvent) event1).getChannelJoined();
+                                    if (((GuildVoiceMoveEvent) event1).getChannelLeft().equals(event.getChannelLeft()) && !event1.getMember().equals(event1.getGuild().getSelfMember())) return ((GuildVoiceMoveEvent) event1).getChannelLeft().getMembers().stream().map(Member::getUser).filter(user -> !user.isBot()).toArray().length == 0;
+                                }
+                                if (event1 instanceof GuildVoiceLeaveEvent) {
+                                    if (event1.getMember().equals(event.getGuild().getSelfMember())) return true;
+                                    if (((GuildVoiceLeaveEvent) event1).getChannelLeft().equals(event.getChannelLeft())) return ((GuildVoiceLeaveEvent) event1).getChannelLeft().getMembers().stream().map(Member::getUser).filter(user -> !user.isBot()).toArray().length == 0;
+                                }
+
+                                if (botMoved) return channelJoined.getMembers().size() > 0;
+                                else return member.equals(event.getMember()) && channelJoined.equals(event.getChannelLeft());
+                            }, success -> {
+                                musicManager.stopWaiting();
+                                if (success instanceof GuildVoiceLeaveEvent || (success instanceof GuildVoiceMoveEvent && ((GuildVoiceMoveEvent) success).getChannelLeft().equals(event.getChannelLeft()) && !success.getMember().equals(success.getGuild().getSelfMember()))) {
+                                    m.delete().queue();
+                                    if (success.getMember().equals(success.getGuild().getSelfMember())) {
+                                        closeConnection(success.getGuild());
+                                    }
+                                    musicManager.stopWaiting();
+                                    return;
+                                }
+
+                                if (!success.getVoiceState().getChannel().equals(event.getChannelLeft())) {
+                                    if (success.getVoiceState().getChannel().getMembers().contains(event.getMember()))
+                                        m.editMessage("Oh, I guess we're here in `" + success.getVoiceState().getChannel().getName() + "` now... And hey, the host is here too! Looks like we moved the party!").queue();
+                                    else {
+                                        List<User> potentialHosts = KekBot.jda.getGuildById(event.getGuild().getId()).getAudioManager().getConnectedChannel().getMembers().stream().map(Member::getUser).filter(user -> !user.isBot()).collect(Collectors.toList());
+                                        Random random = new Random();
+                                        int user = random.nextInt(potentialHosts.size());
+                                        User newHost = users.get(user);
+                                        changeHost(event.getGuild(), newHost);
+                                        m.editMessage("Oh, I guess we're here in `" + success.getVoiceState().getChannel().getName() + "` now... And I don't see the host anywhere... Looks like we're moving the party! " + newHost.getName() + " is now the host of this music session.").queue();
+                                    }
+                                } else m.delete().queue();
+                                musicManager.stopWaiting();
+                            },
+                            10, TimeUnit.SECONDS, () -> {
+                                List<User> potentialHosts = KekBot.jda.getGuildById(event.getGuild().getId()).getAudioManager().getConnectedChannel().getMembers().stream().map(Member::getUser).filter(user -> !user.isBot()).collect(Collectors.toList());
+                                Random random = new Random();
+                                int user = random.nextInt(potentialHosts.size());
+                                User newHost = users.get(user);
+                                changeHost(event.getGuild(), newHost);
+                                m.editMessage(newHost.getName() + " is now the host of this music session.").queue();
+                                musicManager.stopWaiting();
+                            });
+                });
+            }
+        } else {
+            if (!musicManager.waiting) musicManager.channel.sendMessage("Waiting 10 seconds for *someone* to return...").queue(m -> {
+                if (!musicManager.player.isPaused()) musicManager.player.setPaused(true);
+                musicManager.waiting = true;
+                KekBot.waiter.waitForEvent(GenericGuildVoiceEvent.class, event1 -> {
+
+                    VoiceChannel channelJoined = null;
+                    boolean botMoved = false;
+                    if (event1 instanceof GuildVoiceJoinEvent) {
+                        channelJoined = ((GuildVoiceJoinEvent) event1).getChannelJoined();
+                    }
+                    if (event1 instanceof GuildVoiceMoveEvent){
+                        if (event1.getMember().equals(event1.getGuild().getSelfMember())) {
+                            botMoved = true;
+                        }
+                        channelJoined = ((GuildVoiceMoveEvent) event1).getChannelJoined();
+                        if (((GuildVoiceMoveEvent) event1).getChannelLeft().equals(event.getChannelLeft()) && !event1.getMember().equals(event1.getGuild().getSelfMember())) return ((GuildVoiceMoveEvent) event1).getChannelLeft().getMembers().stream().map(Member::getUser).filter(user -> !user.isBot()).toArray().length == 0;
+                    }
+                    if (event1 instanceof GuildVoiceLeaveEvent) {
+                        if (event1.getMember().equals(event.getGuild().getSelfMember())) return true;
+                        if (((GuildVoiceLeaveEvent) event1).getChannelLeft().equals(event.getChannelLeft())) return ((GuildVoiceLeaveEvent) event1).getChannelLeft().getMembers().stream().map(Member::getUser).filter(user -> !user.isBot()).toArray().length == 0;
+                    }
+
+                    if (botMoved) return channelJoined.getMembers().size() > 0;
+                    else return channelJoined.equals(event.getChannelLeft());
+
+
+                        }, event1 -> {
+
+
+
+
+                    if (event1 instanceof GuildVoiceLeaveEvent) {
+                        m.delete().queue();
+                        closeConnection(event1.getGuild());
+                        musicManager.stopWaiting();
+                        return;
+                    }
+
+                    if (event1.getMember().equals(event1.getGuild().getSelfMember()) && event1 instanceof GuildVoiceMoveEvent) {
+                        if (event1.getVoiceState().getChannel().getMembers().contains(event.getMember()))
+                            m.editMessage("Oh, I guess we're here in `" + event1.getVoiceState().getChannel().getName() + "` now... And hey, the host is here too! Looks like we moved the party!").queue();
+                        else {
+                            List<User> potentialHosts = KekBot.jda.getGuildById(event.getGuild().getId()).getAudioManager().getConnectedChannel().getMembers().stream().map(Member::getUser).filter(user -> !user.isBot()).collect(Collectors.toList());
+                            Random random = new Random();
+                            int user = random.nextInt(potentialHosts.size());
+                            User newHost = users.get(user);
+                            changeHost(event.getGuild(), newHost);
+                            m.editMessage("Oh, I guess we're here in `" + event1.getVoiceState().getChannel().getName() + "` now... And I don't see the host anywhere... Looks like we're moving the party! " + newHost.getName() + " is now the host of this music session.").queue();
+                        }
+                        if (musicManager.player.isPaused()) musicManager.player.setPaused(false);
+                        musicManager.stopWaiting();
+                        return;
+                    }
+
+                    Member member = null;
+                    if (event1 instanceof GuildVoiceJoinEvent) member = event1.getMember();
+                    if (event1 instanceof GuildVoiceMoveEvent) member = event1.getMember();
+
+                    if (member.getUser().equals(getHost(event.getGuild()))) {
+                        m.editMessage("You're back! I knew you wouldn't leave me!").queue();
+                        if (musicManager.player.isPaused()) musicManager.player.setPaused(false);
+                        musicManager.stopWaiting();
+                        return;
+                    }
+                    m.editMessage("Whew! Someone joined! Alright then, " + member.getUser().getName() + " is the new host!").queue();
+                    if (musicManager.player.isPaused()) musicManager.player.setPaused(false);
+                    changeHost(event.getGuild(), member.getUser());
+                    musicManager.stopWaiting();
+                }, 10, TimeUnit.SECONDS, () -> {
+                    m.editMessage(KekBot.respond(Action.MUSIC_EMPTY_CHANNEL)).queue();
+                    musicManager.stopWaiting();
+                    closeConnection(event.getGuild());
+                });
+            });
+        }
+    }
+
+    @Override
+    public void onGuildVoiceMove(GuildVoiceMoveEvent event) {
+        if (!event.getMember().equals(event.getGuild().getSelfMember())) {
+            onGuildVoiceLeave(new GuildVoiceLeaveEvent(event.getJDA(), event.getResponseNumber(), event.getMember(), event.getChannelLeft()));
+            return;
+        }
+        GuildMusicManager musicManager = musicManagers.get(Long.parseLong(event.getGuild().getId()));
+        if (musicManager.waiting) return;
+
+
+        List<User> users = event.getChannelJoined().getMembers().stream().map(Member::getUser).filter(user -> !user.isBot()).collect(Collectors.toList());
+
+        if (users.size() > 0) {
+            Random random = new Random();
+            int user = random.nextInt(users.size());
+            User newHost = users.get(user);
+            changeHost(event.getGuild(), newHost);
+            announceToMusicSession(event.getGuild(), "Oh, I guess we're here in `" + event.getChannelJoined().getName() + "` now... And I don't see the host anywhere... Looks like we're moving the party! " + newHost.getName() + " is now the host of this music session.");
+        } else {
+            musicManager.channel.sendMessage("Waiting 10 seconds for *someone* to join...").queue(m -> {
+                if (!musicManager.player.isPaused()) musicManager.player.setPaused(true);
+                musicManager.waiting = true;
+                KekBot.waiter.waitForEvent(GenericGuildVoiceEvent.class, event1 -> {
+                    VoiceChannel channelJoined = null;
+                    boolean botMoved = false;
+                    if (event1 instanceof GuildVoiceJoinEvent) {
+                        channelJoined = ((GuildVoiceJoinEvent) event1).getChannelJoined();
+                    }
+                    if (event1 instanceof GuildVoiceMoveEvent) {
+                        if (event1.getMember().equals(event1.getGuild().getSelfMember())) {
+                            botMoved = true;
+                        }
+                        channelJoined = ((GuildVoiceMoveEvent) event1).getChannelJoined();
+                    }
+                    if (event1 instanceof GuildVoiceLeaveEvent) {
+                        if (event1.getMember().equals(event.getGuild().getSelfMember())) return true;
+                    }
+
+                    if (botMoved) return channelJoined.getMembers().size() > 0;
+                    else return channelJoined.equals(KekBot.jda.getGuildById(event1.getGuild().getId()).getAudioManager().getConnectedChannel());
+                }, event1 -> {
+                    if (event1 instanceof GuildVoiceLeaveEvent) {
+                        m.delete().queue();
+                        closeConnection(event1.getGuild());
+                        musicManager.stopWaiting();
+                        return;
+                    }
+
+                    if (event1.getMember().equals(event1.getGuild().getSelfMember()) && event1 instanceof GuildVoiceMoveEvent) {
+                        if (event1.getVoiceState().getChannel().getMembers().contains(event.getMember()))
+                            m.editMessage("Oh, I guess we're " + (((GuildVoiceMoveEvent) event1).getChannelJoined().equals(event.getChannelLeft()) ? "back" : "") + " here in `" + event1.getVoiceState().getChannel().getName() + "` now... And hey, the host is here too! Looks like we moved the party!").queue();
+                        else {
+                            Random random = new Random();
+                            int user = random.nextInt(users.size());
+                            User newHost = users.get(user);
+                            changeHost(event.getGuild(), newHost);
+                            m.editMessage("Oh, I guess we're " + (((GuildVoiceMoveEvent) event1).getChannelJoined().equals(event.getChannelLeft()) ? "back" : "") + " here in `" + event1.getVoiceState().getChannel().getName() + "` now... And I don't see the host anywhere... Looks like we're moving the party! " + newHost.getName() + " is now the host of this music session.").queue();
+                        }
+                        if (musicManager.player.isPaused()) musicManager.player.setPaused(false);
+                        musicManager.stopWaiting();
+                        return;
+                    }
+
+                    Member member = null;
+                    if (event1 instanceof GuildVoiceJoinEvent) member = event1.getMember();
+                    if (event1 instanceof GuildVoiceMoveEvent) member = event1.getMember();
+
+                    if (member.getUser().equals(getHost(event.getGuild()))) {
+                        m.editMessage("You're back! I knew you wouldn't leave me!").queue();
+                        if (musicManager.player.isPaused()) musicManager.player.setPaused(false);
+                        musicManager.stopWaiting();
+                        return;
+                    }
+                    if (!member.getUser().isBot()) m.editMessage("Whew! Someone joined! Alright then, " + member.getUser().getName() + " is the new host!").queue();
+                    if (musicManager.player.isPaused()) musicManager.player.setPaused(false);
+                    changeHost(event.getGuild(), member.getUser());
+                    musicManager.stopWaiting();
+                }, 60, TimeUnit.SECONDS, () -> {
+                    m.editMessage(KekBot.respond(Action.MUSIC_EMPTY_CHANNEL)).queue();
+                    musicManager.stopWaiting();
+                    closeConnection(event.getGuild());
+                });
+            });
+        }
+    }
+
+    @Override
+    public void onVoiceChannelDelete(VoiceChannelDeleteEvent event) {
+        if (containsConnection(event.getGuild()) && !event.getGuild().getAudioManager().isConnected()) {
+            if (musicManagers.get(Long.parseLong(event.getGuild().getId())).waiting) KekBot.waiter.onEvent(new GuildVoiceLeaveEvent(event.getJDA(), event.getResponseNumber(), event.getGuild().getSelfMember(), event.getChannel()));
+            else closeConnection(event.getGuild());
+        }
+    }
+
+    @Override
+    public void onGuildLeave(GuildLeaveEvent event) {
+        if (KekBot.player.containsConnection(event.getGuild())) {
+            event.getGuild().getAudioManager().closeAudioConnection();
+            killConnection(event.getGuild());
+        }
     }
 }
