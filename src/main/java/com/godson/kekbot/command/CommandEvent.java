@@ -87,6 +87,10 @@ public class CommandEvent {
         return event.getJDA();
     }
 
+    public Message getMessage() {
+        return event.getMessage();
+    }
+
     public String combineArgs() {
         return combineArgs(0, args.length);
     }

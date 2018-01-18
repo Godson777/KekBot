@@ -36,7 +36,12 @@ public class ShopCommand extends Command {
         usage.add("shop buy <category> <itemID>");
         usage.add("shop info <category> <itemID>");
         if (Config.getConfig().getDcoinToken() != null) usage.add("shop convert");
-        extendedDescription = "\nAvailable Categories:\nTokens\nBackgrounds\n\n#Notes:\nArrows signify other pages in a shop.\nCrossed out items require you to be a higher level. You can find out what level is required by using {p}shop info <category> <itemID>.";
+        extendedDescription = "\nAvailable Categories:" +
+                "\nTokens" +
+                "\nBackgrounds" +
+                "\n\n#Notes:" +
+                "\nArrows signify other pages in a shop." +
+                "\nCrossed out items require you to be a higher level. You can find out what level is required by using {p}shop info <category> <itemID>.";
         exDescPos = ExtendedPosition.AFTER;
         category = new Category("Fun");
     }

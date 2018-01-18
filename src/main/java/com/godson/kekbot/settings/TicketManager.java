@@ -21,7 +21,7 @@ public class TicketManager {
 
     public static void addTicket(Ticket ticket) {
         User user = KekBot.jda.getUserById(ticket.getAuthorID());
-        KekBot.jda.getUserById(Config.getConfig().getBotOwner()).openPrivateChannel().queue(ch -> ch.sendMessage("New ticket made by: **" + user.getName() + "** (ID: **" + user.getId() + "**)").queue());
+        KekBot.getCommandClient().ticketChannel.sendMessage("New ticket made by: **" + user.getName() + "** (ID: **" + user.getId() + "**)").queue();
         while (KekBot.r.table("Tickets").get(ticket.getID()).run(KekBot.conn) != null) {
             ticket.resetID();
         }
@@ -37,9 +37,9 @@ public class TicketManager {
     }
 
     public static boolean closeTicket(String ticketID) {
+        User user = KekBot.jda.getUserById(getTicket(ticketID).getAuthorID());
         if (KekBot.r.table("Tickets").get(ticketID).run(KekBot.conn) != null) {
             KekBot.r.table("Tickets").get(ticketID).delete().run(KekBot.conn);
-            User user = KekBot.jda.getUserById(getTicket(ticketID).getAuthorID());
             if (user != null) user.openPrivateChannel().queue(ch -> ch.sendMessage("Your ticket (" + ticketID + ") has been closed.").queue());
             return true;
         } return false;
@@ -47,8 +47,7 @@ public class TicketManager {
 
     public static void addAdminReply(Ticket ticket, String response, User replier) {
         String replierName = replier.getName() + "#" + replier.getDiscriminator();
-        KekBot.jda.getUserById(ticket.getAuthorID()).openPrivateChannel().queue(ch -> ch.sendMessage("You have received a reply for your ticket. (**" + ticket.getTitle() + "**)\n**" + replierName
-                + "**:\n\n" + response).queue());
+        KekBot.jda.getUserById(ticket.getAuthorID()).openPrivateChannel().queue(ch -> ch.sendMessage("You have received a reply for your ticket. (`" + ticket.getID() + "`) Use `$ticket view " + ticket.getID() + "` to view your ticket and its replies.").queue());
         ticket.setStatus(Ticket.TicketStatus.AWAITING_REPLY);
         ticket.addReply(replier, response, true);
         KekBot.r.table("Tickets").get(ticket.getID()).update(KekBot.r.hashMap("Replies", ticket.getReplies()).with("Status", ticket.getStatus().name())).run(KekBot.conn);
@@ -56,7 +55,7 @@ public class TicketManager {
 
     public static void addUserReply(Ticket ticket, String response, User replier) {
         String replierName = replier.getName() + "#" + replier.getDiscriminator();
-        KekBot.jda.getUserById(Config.getConfig().getBotOwner()).openPrivateChannel().queue(ch -> ch.sendMessage("You have received a reply for a ticket. (**" + ticket.getTitle() + "**)\n**" + replierName
+        KekBot.jda.getUserById(Config.getConfig().getBotOwner()).openPrivateChannel().queue(ch -> ch.sendMessage("You have received a reply for a ticket. (`" + ticket.getID() + "`)\n**" + replierName
                 + "**:\n\n" + response).queue());
 
         ticket.setStatus(Ticket.TicketStatus.RECEIVED_REPLY);

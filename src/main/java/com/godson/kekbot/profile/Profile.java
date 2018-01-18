@@ -208,6 +208,7 @@ public class Profile {
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         outputStream.flush();
+        ImageIO.setUseCache(false);
         ImageIO.write(base, "png", outputStream);
         byte[] image = outputStream.toByteArray();
         outputStream.close();

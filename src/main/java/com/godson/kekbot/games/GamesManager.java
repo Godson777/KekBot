@@ -45,7 +45,7 @@ public class GamesManager extends ListenerAdapter {
             activeGames.put(Long.valueOf(channel.getId()), game);
             channel.sendMessage(game.getGameName() + " lobby created! (If you don't know how to play, you can use `" + KekBot.getGuildPrefix(channel.getGuild()) + "game rules` to view the rules and instructions.)" +
                     (game.hasMinimum() ? " ***(Minimum " + game.getMinNumberOfPlayers() + " players to play. Maximum " + game.getMaxNumberOfPlayers() + " players.)***" : "") +
-                    (game.hasRoomForPlayers() ? " Players can join by using `{p}game join`." : "") +
+                    (game.hasRoomForPlayers() ? " Players can join by using `" + KekBot.getGuildPrefix(channel.getGuild()) + "game join`." : "") +
                     (game.hasRoomForPlayers() && game.hasAI() ? " Or, you can start the game early with `{p}game ready`, and play with an AI." : "") +
                     (game.hasAI() && !game.hasRoomForPlayers() ? " You can now start the game with `" + KekBot.getGuildPrefix(channel.getGuild()) + "game ready`" : "")).queue();
         } else {

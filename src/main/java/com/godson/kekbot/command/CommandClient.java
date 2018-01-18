@@ -7,13 +7,17 @@ import com.godson.kekbot.settings.Config;
 import com.godson.kekbot.settings.Settings;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.ChannelType;
+import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
+import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
+import java.io.File;
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -37,6 +41,9 @@ public class CommandClient extends ListenerAdapter {
     private final HashMap<String, List<String>> disabledMembers;
     //Key = Channel ID, Value = List of User IDs.
     private final HashMap<String, List<String>> activeQuestionnaires;
+
+    private TextChannel joinLogChannel;
+    public TextChannel ticketChannel;
 
     private final String joinSpeech = "Hi! I'm KekBot! Thanks for inviting me!" + "\n" +
             "Use $help to see a list of commands, and use $prefix to change my prefix!" + "\n" +
@@ -89,6 +96,16 @@ public class CommandClient extends ListenerAdapter {
         disabledMembers.get(guildID).add(userID);
     }
 
+    public void registerQuestionnaire(String channelID, String userID) {
+        if (!activeQuestionnaires.containsKey(channelID)) activeQuestionnaires.put(channelID, new ArrayList<>());
+        activeQuestionnaires.get(channelID).add(userID);
+    }
+
+    public void unregisterQuestionnaire(String channelID, String userID) {
+        if (!activeQuestionnaires.containsKey(channelID)) return;
+        if (activeQuestionnaires.get(channelID).contains(userID)) activeQuestionnaires.get(channelID).remove(userID);
+    }
+
     public void undisableMember(String guildID, String userID) {
         if (!disabledMembers.containsKey(guildID)) return;
         if (disabledMembers.get(guildID).contains(userID)) disabledMembers.get(guildID).remove(userID);
@@ -134,7 +151,7 @@ public class CommandClient extends ListenerAdapter {
     }
     
     public boolean isMemberDisabled(MessageReceivedEvent event) {
-        return event.isFromType(ChannelType.TEXT) && disabledMembers.containsKey(event.getGuild().getId()) && disabledMembers.get(event.getGuild().getId()).contains(event.getAuthor().getId());
+        return event.isFromType(ChannelType.TEXT) && (disabledMembers.containsKey(event.getGuild().getId()) ? disabledMembers.get(event.getGuild().getId()).contains(event.getAuthor().getId()) : activeQuestionnaires.containsKey(event.getChannel().getId()) && activeQuestionnaires.get(event.getChannel().getId()).contains(event.getAuthor().getId()));
     }
 
     String getBotOwner() {
@@ -146,7 +163,13 @@ public class CommandClient extends ListenerAdapter {
     }
 
     @Override
-    public void onReady(ReadyEvent event) {}
+    public void onReady(ReadyEvent event) {
+        if (event.getJDA().getShardInfo().getShardId() == KekBot.shards - 1) {
+            Config config = Config.getConfig();
+            joinLogChannel = KekBot.jda.getTextChannelById(config.getJoinLogChannel());
+            ticketChannel = KekBot.jda.getTextChannelById(config.getTicketChannel());
+        }
+    }
 
     public void onMessageReceived(MessageReceivedEvent event) {
         if(event.getAuthor().isBot())
@@ -191,8 +214,8 @@ public class CommandClient extends ListenerAdapter {
         if(event.getGuild().getSelfMember().getJoinDate().plusMinutes(10).isBefore(OffsetDateTime.now()))
             return;
 
-        if (!Config.getConfig().getBlockedUsers().containsKey(event.getGuild().getOwner().getUser().getId()) && Config.getConfig().getBlockedUsers().get(event.getGuild().getOwner().getUser().getId()) < 2) {
-            KekBot.jda.getUserById(Config.getConfig().getBotOwner()).openPrivateChannel().queue(ch -> ch.sendMessage("Joined server: \"" + event.getGuild().getName() + "\" (ID: " + event.getGuild().getId() + ")").queue());
+        if (!Config.getConfig().getBlockedUsers().containsKey(event.getGuild().getOwner().getUser().getId()) || (Config.getConfig().getBlockedUsers().containsKey(event.getGuild().getOwner().getUser().getId()) && Config.getConfig().getBlockedUsers().get(event.getGuild().getOwner().getUser().getId()) < 2)) {
+            joinLogChannel.sendMessage("Joined server: \"" + event.getGuild().getName() + "\" (ID: " + event.getGuild().getId() + ")").queue();
             Settings settings = new Settings(event.getGuild().getId());
             settings.save();
 
@@ -206,6 +229,17 @@ public class CommandClient extends ListenerAdapter {
             Utils.sendStats(event.getJDA());
         } else {
             event.getGuild().leave().queue();
+        }
+    }
+
+    @Override
+    public void onGuildLeave(GuildLeaveEvent event) {
+        //todo probably make it so it deletes table entries on rethinkdb too...
+        if (!Config.getConfig().getBlockedUsers().containsKey(event.getGuild().getOwner().getUser().getId())) {
+            joinLogChannel.sendMessage("Left/Kicked from server: \"" + event.getGuild().getName() + "\" (ID: " + event.getGuild().getId() + ")").queue();
+            //File folder = new File("settings/" + event.getGuild().getId());
+            //Utils.deleteDirectory(folder);
+            Utils.sendStats(event.getJDA());
         }
     }
 }

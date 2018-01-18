@@ -11,16 +11,37 @@ import java.util.Map;
 
 public class Config {
     private String token;
+    private String betaToken;
+    private String database;
+    private String dbUser;
+    private String dbPassword;
     private String dApiToken;
     private String dListBotsToken;
     private String dBotsListToken;
     private String carbonToken;
     private String dcoinToken;
     private String botOwner;
-    private List<String> botAdmins = new ArrayList<>();
     private int shards;
+    private String joinLogChannel;
+    private String ticketChannel;
+    private List<String> botAdmins = new ArrayList<>();
     private Map<String, Integer> blockedUsers = new HashMap<>();
     private List<String> patrons = new ArrayList<>();
+
+    public String getDatabase() {
+        if (database != null) return database;
+        else throw new NullPointerException("Database name not listed in config.json.");
+    }
+
+    public String getDbUser() {
+        if (dbUser != null) return dbUser;
+        else throw new NullPointerException("Database user not listed in config.json.");
+    }
+
+    public String getDbPassword() {
+        if (dbPassword != null) return dbPassword;
+        else throw new NullPointerException("Database password not listed in config.json.");
+    }
 
     public Config addBotAdmin(String ID) {
         botAdmins.add(ID);
@@ -68,6 +89,18 @@ public class Config {
 
     public String getToken() {
         return token;
+    }
+
+    public String getBetaToken() {
+        return betaToken;
+    }
+
+    public String getJoinLogChannel() {
+        return joinLogChannel;
+    }
+
+    public String getTicketChannel() {
+        return ticketChannel;
     }
 
     /**

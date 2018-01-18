@@ -49,7 +49,12 @@ public abstract class Command {
         }
 
         if (commandPermission == CommandPermission.OWNER && !(event.isBotOwner())) {
-            terminate(event, null);
+            terminate(event, "Unfortunately, only the bot owner can use this command.");
+            return;
+        }
+
+        if (commandPermission == CommandPermission.ADMIN && !(event.isBotAdmin())) {
+            terminate(event, "Unfortunately, only a bot admin can use this command.");
             return;
         }
 
@@ -66,23 +71,23 @@ public abstract class Command {
             for (Permission p : requiredBotPerms) {
                 if (p.isChannel()) {
                     if (p.name().startsWith("VOICE")) {
-                        VoiceChannel vc = event.getEvent().getMember().getVoiceState().getChannel();
+                        VoiceChannel vc = event.getMember().getVoiceState().getChannel();
                         if (vc == null) {
-                            terminate(event, KekBot.respond(event, Action.GET_IN_VOICE_CHANNEL));
+                            terminate(event, KekBot.respond(Action.GET_IN_VOICE_CHANNEL));
                             return;
-                        } else if (!PermissionUtil.checkPermission(vc, event.getGuild().getSelfMember(), p)) {
-                            terminate(event, KekBot.respond(event, Action.NOPERM_BOT, "`" + p.getName() + "` (Voice Channel Permission)"));
+                        } else if (!PermissionUtil.checkPermission(vc, event.getSelfMember(), p)) {
+                            terminate(event, KekBot.respond(Action.NOPERM_BOT, "`" + p.getName() + "` (Voice Channel Permission)"));
                             return;
                         }
                     } else {
-                        if (!PermissionUtil.checkPermission(event.getTextChannel(), event.getGuild().getSelfMember(), p)) {
-                            terminate(event, KekBot.respond(event, Action.NOPERM_BOT, "`" + p.getName() + "` (Channel Permission)"));
+                        if (!PermissionUtil.checkPermission(event.getTextChannel(), event.getSelfMember(), p)) {
+                            terminate(event, KekBot.respond(Action.NOPERM_BOT, "`" + p.getName() + "` (Channel Permission)"));
                             return;
                         }
                     }
                 } else {
-                    if (!PermissionUtil.checkPermission(event.getEvent().getTextChannel(), event.getEvent().getMember(), p)) {
-                        terminate(event,  KekBot.respond(event, Action.NOPERM_BOT, "`" + p.getName() + "`"));
+                    if (!PermissionUtil.checkPermission(event.getTextChannel(), event.getSelfMember(), p)) {
+                        terminate(event,  KekBot.respond(Action.NOPERM_BOT, "`" + p.getName() + "`"));
                         return;
                     }
                 }
@@ -92,17 +97,17 @@ public abstract class Command {
             {
                 if(p.isChannel())
                 {
-                    if(!PermissionUtil.checkPermission(event.getEvent().getTextChannel(), event.getEvent().getMember(), p))
+                    if(!PermissionUtil.checkPermission(event.getTextChannel(), event.getMember(), p))
                     {
-                        terminate(event, KekBot.respond(event, Action.NOPERM_USER, "`" + p.getName() + " (Channel Permission)`"));
+                        terminate(event, KekBot.respond(Action.NOPERM_USER, "`" + p.getName() + " (Channel Permission)`"));
                         return;
                     }
                 }
                 else
                 {
-                    if(!PermissionUtil.checkPermission(event.getEvent().getTextChannel(), event.getEvent().getMember(), p))
+                    if(!PermissionUtil.checkPermission(event.getTextChannel(), event.getMember(), p))
                     {
-                        terminate(event,  KekBot.respond(event, Action.NOPERM_BOT, "`" + p.getName() + "`"));
+                        terminate(event,  KekBot.respond(Action.NOPERM_USER, "`" + p.getName() + "`"));
                         return;
                     }
                 }
@@ -136,10 +141,10 @@ public abstract class Command {
     {
         switch (cooldownScope)
         {
-            case USER:         return cooldownScope.genKey(name, event.getEvent().getAuthor().getIdLong());
-            case USER_GUILD:   return event.getGuild() != null ? cooldownScope.genKey(name, event.getEvent().getAuthor().getIdLong(), event.getGuild().getIdLong()) :
-                    CooldownScope.USER_CHANNEL.genKey(name, event.getEvent().getAuthor().getIdLong(), event.getChannel().getIdLong());
-            case USER_CHANNEL: return cooldownScope.genKey(name, event.getEvent().getAuthor().getIdLong(), event.getChannel().getIdLong());
+            case USER:         return cooldownScope.genKey(name, event.getAuthor().getIdLong());
+            case USER_GUILD:   return event.getGuild() != null ? cooldownScope.genKey(name, event.getAuthor().getIdLong(), event.getGuild().getIdLong()) :
+                    CooldownScope.USER_CHANNEL.genKey(name, event.getAuthor().getIdLong(), event.getChannel().getIdLong());
+            case USER_CHANNEL: return cooldownScope.genKey(name, event.getAuthor().getIdLong(), event.getChannel().getIdLong());
             default:           return "";
         }
     }
@@ -185,7 +190,7 @@ public abstract class Command {
 
     private void terminate(CommandEvent event, String message) {
         if (message != null)
-            event.getEvent().getChannel().sendMessage(message).queue();
+            event.getChannel().sendMessage(message).queue();
     }
 
     protected void addUsage(String usage) {

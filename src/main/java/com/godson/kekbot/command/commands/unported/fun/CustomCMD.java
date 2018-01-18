@@ -30,7 +30,7 @@ public class CustomCMD {
             .withUsage("{p}customcmd")
             .userRequiredPermissions(Permission.ADMINISTRATOR)
             .onExecuted(context -> {
-                new Questionnaire(context)
+                /*new Questionnaire(context)
                         .addChoiceQuestion("Welcome to the custom commands wizard! Would you like to `add` or `remove` a command? Or would you like to `list` this server's commands? (You can also say `cancel` at any time to exit the wizard.)", "add", "remove", "list")
                         .execute(results -> {
                             TextChannel channel = context.getTextChannel();
@@ -263,11 +263,11 @@ public class CustomCMD {
                                         results.reExecuteWithoutMessage();
                                     }
                             }
-                        });
+                        });*/
             })
             .onFailure((context, reason) -> {
                 if (reason.equals(FailureReason.AUTHOR_MISSING_PERMISSIONS)) {
-                    context.getTextChannel().sendMessage(KekBot.respond(context, Action.NOPERM_USER, "`Administrator`")).queue();
+                    context.getTextChannel().sendMessage(KekBot.respond(Action.NOPERM_USER, "`Administrator`")).queue();
                 }
             });
 }

@@ -51,7 +51,7 @@ public class Lottery {
 
     public String printStats(User gambler, Guild guild) {
         return "Draw in: **" + (Utils.convertMillisToTime(nextExecutionTime - System.currentTimeMillis())) + "**" +
-                "\nYou can buy a ticket for **" + CustomEmote.printPrice(ticketPrice) + "** with `" + KekBot.insertPrefix(guild) + "lottery buy`." +
+                "\nYou can buy a ticket for **" + CustomEmote.printPrice(ticketPrice) + "** with `" + KekBot.getGuildPrefix(guild) + "lottery buy`." +
                 "\nThere is currently **" + CustomEmote.printPrice(pot) + "** in the pot." +
                 "\nYou have **" + getOwnedTickets(gambler) + (getOwnedTickets(gambler) != 1 ? " tickets" : " ticket") + " **.";
     }
