@@ -1,7 +1,7 @@
 package com.godson.kekbot;
 
-import com.godson.kekbot.Profile.BackgroundManager;
-import com.godson.kekbot.Settings.Config;
+import com.godson.kekbot.profile.BackgroundManager;
+import com.godson.kekbot.settings.Config;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.User;
@@ -22,6 +22,51 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class Utils {
+
+    private final static String[] EMOJI = new String[Character.MAX_VALUE+1];
+    //Prepares the character replacer.
+    static {
+        for(int i=Character.MIN_VALUE;i<=Character.MAX_VALUE;i++)
+            EMOJI[i] = Character.toString(Character.toLowerCase((char) i));
+        EMOJI['a'] =  "\uD83C\uDDE6 ";
+        EMOJI['b'] =  "\uD83C\uDDE7 ";
+        EMOJI['c'] = "\uD83C\uDDE8 ";
+        EMOJI['d'] = "\uD83C\uDDE9 ";
+        EMOJI['e'] = "\uD83C\uDDEA ";
+        EMOJI['f'] = "\uD83C\uDDEB ";
+        EMOJI['g'] = "\uD83C\uDDEC ";
+        EMOJI['h'] = "\uD83C\uDDED ";
+        EMOJI['i'] = "\uD83C\uDDEE ";
+        EMOJI['j'] = "\uD83C\uDDEF ";
+        EMOJI['k'] = "\uD83C\uDDF0 ";
+        EMOJI['l'] = "\uD83C\uDDF1 ";
+        EMOJI['m'] = "\uD83C\uDDF2 ";
+        EMOJI['n'] = "\uD83C\uDDF3 ";
+        EMOJI['o'] = "\uD83C\uDDF4 ";
+        EMOJI['p'] = "\uD83C\uDDF5 ";
+        EMOJI['q'] = "\uD83C\uDDF6 ";
+        EMOJI['r'] = "\uD83C\uDDF7 ";
+        EMOJI['s'] = "\uD83C\uDDF8 ";
+        EMOJI['t'] = "\uD83C\uDDF9 ";
+        EMOJI['u'] = "\uD83C\uDDFA ";
+        EMOJI['v'] = "\uD83C\uDDFB ";
+        EMOJI['w'] = "\uD83C\uDDFC ";
+        EMOJI['x'] = "\uD83C\uDDFD ";
+        EMOJI['y'] = "\uD83C\uDDFE ";
+        EMOJI['z'] = "\uD83C\uDDFF ";
+        EMOJI['0'] = "0⃣ ";
+        EMOJI['1'] = "1⃣ ";
+        EMOJI['2'] = "2⃣ ";
+        EMOJI['3'] = "3⃣ ";
+        EMOJI['4'] = "4⃣ ";
+        EMOJI['5'] = "5⃣ ";
+        EMOJI['6'] = "6⃣ ";
+        EMOJI['7'] = "7⃣ ";
+        EMOJI['8'] = "8⃣ ";
+        EMOJI['9'] = "9⃣ ";
+        EMOJI['!'] = "❗ ";
+        EMOJI['?'] = "❓ ";
+    }
 
     /**
      * Deletes an entire directory. Enough said.
@@ -45,67 +90,13 @@ public class Utils {
     }
 
     /**
-     * Searches for aa shard that a specific user can be found in. This is meant to be used in cross-shard compatible situations.
-     * @param user The user we're searching for.
-     * @return The instance of {@link JDA JDA} (or shard) where the user has been found.
-     */
-    public static JDA getShardUsersShard(User user) {
-        JDA jda = null;
-        for (JDA shard : KekBot.jdas) {
-            if (shard.getUsers().stream().anyMatch(user1 -> user1.equals(user))) {
-                jda = shard;
-                break;
-            }
-        }
-        if (jda != null) return jda;
-        else throw new NullPointerException("Couldn't find this user's shard!");
-    }
-
-    /**
-     * Attempts to find a {@link net.dv8tion.jda.core.entities.User user} within all shards.
-     * @param userId The user's ID we're searching for.
-     * @return The now found user object.
-     */
-    public static User findShardUser(String userId) {
-        Set<User> users = collectShardUsers();
-        if (users.stream().anyMatch(user -> user.getId().equals(userId))) {
-            return users.stream().filter(user -> user.getId().equals(userId)).findAny().get();
-        } else throw new NullPointerException();
-    }
-
-    /**
-     * Combines the list of {@link User users} in every shard into a single, merged list.<br>
-     * (Note, this WILL cause duplicates to appear if a user appears in more than one shard.
-     * The reason for this is due to the fact that attempting to filter through a large list, especially one with over 100k users, causes the bot to hang, the duration of this hang is unknown
-     * but during this hang time it <i>does</i> freeze the entire bot (if running on one shard, otherwise it freezes the shard this was ran in.)
-     * @return The merged {@link List list} object.
-     */
-    public static Set<User> collectShardUsers() {
-        Set<User> users = new HashSet<>();
-        for (int i = 0; i < KekBot.jdas.length; i++) {
-            users.addAll(KekBot.jdas[i].getUsers());
-        }
-        return users;
-    }
-
-    /**
-     * Combines the list of {@link Guild guilds} in every shard into a single, merged list.
-     * @return The merged {@link List list} object.
-     */
-    public static List<Guild> collectShardGuilds() {
-        List<Guild> guilds = new ArrayList<>();
-        for (int i = 0; i < KekBot.jdas.length; i++ ) guilds.addAll(KekBot.jdas[i].getGuilds());
-        return guilds;
-    }
-
-    /**
      * Sends stats to DiscordBots, DiscordBotsList, DiscordListBots, and Carbonitex. (If tokens for those sites are provided in the config file.)
      * Featuring slightly borrowed code from JDA-Utilites (jag pls don't hate me)
      * @param jda The instance of JDA (or shard) to send stats from.
      */
     public static void sendStats(JDA jda) {
         OkHttpClient client = ((JDAImpl) jda).getHttpClientBuilder().build();
-        Config config = GSONUtils.getConfig();
+        Config config = Config.getConfig();
         String carbonToken = config.getCarbonToken();
         String botsListToken = config.getdBotsListToken();
         String botsToken = config.getdApiToken();
@@ -183,7 +174,7 @@ public class Utils {
         }
 
         if (dListBotsToken != null) {
-            JSONObject body = new JSONObject().put("token", dListBotsToken).put("servers", collectShardGuilds());
+            JSONObject body = new JSONObject().put("token", dListBotsToken).put("servers", KekBot.jda.getGuilds());
 
             Request.Builder builder = new Request.Builder().post(RequestBody.create(Requester.MEDIA_TYPE_JSON, body.toString()))
                     .url("https://bots.discordlist.net/api")
@@ -314,7 +305,24 @@ public class Utils {
         return builder.toString();
     }
 
+    /**
+     * Prints a human friendly readable number, with commas.
+     * @param number Number to make human friendly.
+     * @return The human friendly version of the number inputted.
+     */
     public static String printReadableNumber(int number) {
         return NumberFormat.getNumberInstance(Locale.US).format(number);
+    }
+
+    /**
+     * Converts a boring piece of text into exciting emojis!
+     * @param word Boring piece of text.
+     * @return The exciting version of the text inputted.
+     */
+    public static String emojify(String word) {
+        StringBuilder sb = new StringBuilder(word.length());
+        for(int i = 0; i < word.length(); i++)
+            sb.append(EMOJI[word.toLowerCase().charAt(i)]);
+        return sb.toString();
     }
 }
