@@ -15,14 +15,10 @@ import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import javafx.util.Pair;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
-import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.channel.voice.VoiceChannelDeleteEvent;
-import net.dv8tion.jda.core.events.guild.GenericGuildEvent;
-import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.events.guild.voice.*;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
@@ -666,16 +662,7 @@ public class MusicPlayer extends ListenerAdapter {
                                 }
 
                                 if (!success.getVoiceState().getChannel().equals(event.getChannelLeft())) {
-                                    if (success.getVoiceState().getChannel().getMembers().contains(event.getMember()))
-                                        m.editMessage("Oh, I guess we're here in `" + success.getVoiceState().getChannel().getName() + "` now... And hey, the host is here too! Looks like we moved the party!").queue();
-                                    else {
-                                        List<User> potentialHosts = KekBot.jda.getGuildById(event.getGuild().getId()).getAudioManager().getConnectedChannel().getMembers().stream().map(Member::getUser).filter(user -> !user.isBot()).collect(Collectors.toList());
-                                        Random random = new Random();
-                                        int user = random.nextInt(potentialHosts.size());
-                                        User newHost = users.get(user);
-                                        changeHost(event.getGuild(), newHost);
-                                        m.editMessage("Oh, I guess we're here in `" + success.getVoiceState().getChannel().getName() + "` now... And I don't see the host anywhere... Looks like we're moving the party! " + newHost.getName() + " is now the host of this music session.").queue();
-                                    }
+                                    reactToWaitingMove(event, users, m, success);
                                 } else m.delete().queue();
                                 musicManager.stopWaiting();
                             },
@@ -720,26 +707,10 @@ public class MusicPlayer extends ListenerAdapter {
                         }, event1 -> {
 
 
-
-
-                    if (event1 instanceof GuildVoiceLeaveEvent) {
-                        m.delete().queue();
-                        closeConnection(event1.getGuild());
-                        musicManager.stopWaiting();
-                        return;
-                    }
+                    if (leftWaitingVoice(musicManager, m, event1)) return;
 
                     if (event1.getMember().equals(event1.getGuild().getSelfMember()) && event1 instanceof GuildVoiceMoveEvent) {
-                        if (event1.getVoiceState().getChannel().getMembers().contains(event.getMember()))
-                            m.editMessage("Oh, I guess we're here in `" + event1.getVoiceState().getChannel().getName() + "` now... And hey, the host is here too! Looks like we moved the party!").queue();
-                        else {
-                            List<User> potentialHosts = KekBot.jda.getGuildById(event.getGuild().getId()).getAudioManager().getConnectedChannel().getMembers().stream().map(Member::getUser).filter(user -> !user.isBot()).collect(Collectors.toList());
-                            Random random = new Random();
-                            int user = random.nextInt(potentialHosts.size());
-                            User newHost = users.get(user);
-                            changeHost(event.getGuild(), newHost);
-                            m.editMessage("Oh, I guess we're here in `" + event1.getVoiceState().getChannel().getName() + "` now... And I don't see the host anywhere... Looks like we're moving the party! " + newHost.getName() + " is now the host of this music session.").queue();
-                        }
+                        reactToWaitingMove(event, users, m, event1);
                         if (musicManager.player.isPaused()) musicManager.player.setPaused(false);
                         musicManager.stopWaiting();
                         return;
@@ -749,12 +720,7 @@ public class MusicPlayer extends ListenerAdapter {
                     if (event1 instanceof GuildVoiceJoinEvent) member = event1.getMember();
                     if (event1 instanceof GuildVoiceMoveEvent) member = event1.getMember();
 
-                    if (member.getUser().equals(getHost(event.getGuild()))) {
-                        m.editMessage("You're back! I knew you wouldn't leave me!").queue();
-                        if (musicManager.player.isPaused()) musicManager.player.setPaused(false);
-                        musicManager.stopWaiting();
-                        return;
-                    }
+                    if (isWaitingUserHost(musicManager, m, member, event.getGuild())) return;
                     m.editMessage("Whew! Someone joined! Alright then, " + member.getUser().getName() + " is the new host!").queue();
                     if (musicManager.player.isPaused()) musicManager.player.setPaused(false);
                     changeHost(event.getGuild(), member.getUser());
@@ -765,6 +731,39 @@ public class MusicPlayer extends ListenerAdapter {
                     closeConnection(event.getGuild());
                 });
             });
+        }
+    }
+
+    private boolean leftWaitingVoice(GuildMusicManager musicManager, Message m, GenericGuildVoiceEvent event1) {
+        if (event1 instanceof GuildVoiceLeaveEvent) {
+            m.delete().queue();
+            closeConnection(event1.getGuild());
+            musicManager.stopWaiting();
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isWaitingUserHost(GuildMusicManager musicManager, Message m, Member member, Guild guild) {
+        if (member.getUser().equals(getHost(guild))) {
+            m.editMessage("You're back! I knew you wouldn't leave me!").queue();
+            if (musicManager.player.isPaused()) musicManager.player.setPaused(false);
+            musicManager.stopWaiting();
+            return true;
+        }
+        return false;
+    }
+
+    private void reactToWaitingMove(GuildVoiceLeaveEvent event, List<User> users, Message m, GenericGuildVoiceEvent success) {
+        if (success.getVoiceState().getChannel().getMembers().contains(event.getMember()))
+            m.editMessage("Oh, I guess we're here in `" + success.getVoiceState().getChannel().getName() + "` now... And hey, the host is here too! Looks like we moved the party!").queue();
+        else {
+            List<User> potentialHosts = KekBot.jda.getGuildById(event.getGuild().getId()).getAudioManager().getConnectedChannel().getMembers().stream().map(Member::getUser).filter(user -> !user.isBot()).collect(Collectors.toList());
+            Random random = new Random();
+            int user = random.nextInt(potentialHosts.size());
+            User newHost = users.get(user);
+            changeHost(event.getGuild(), newHost);
+            m.editMessage("Oh, I guess we're here in `" + success.getVoiceState().getChannel().getName() + "` now... And I don't see the host anywhere... Looks like we're moving the party! " + newHost.getName() + " is now the host of this music session.").queue();
         }
     }
 
@@ -809,12 +808,7 @@ public class MusicPlayer extends ListenerAdapter {
                     if (botMoved) return channelJoined.getMembers().size() > 0;
                     else return channelJoined.equals(KekBot.jda.getGuildById(event1.getGuild().getId()).getAudioManager().getConnectedChannel());
                 }, event1 -> {
-                    if (event1 instanceof GuildVoiceLeaveEvent) {
-                        m.delete().queue();
-                        closeConnection(event1.getGuild());
-                        musicManager.stopWaiting();
-                        return;
-                    }
+                    if (leftWaitingVoice(musicManager, m, event1)) return;
 
                     if (event1.getMember().equals(event1.getGuild().getSelfMember()) && event1 instanceof GuildVoiceMoveEvent) {
                         if (event1.getVoiceState().getChannel().getMembers().contains(event.getMember()))
@@ -835,12 +829,7 @@ public class MusicPlayer extends ListenerAdapter {
                     if (event1 instanceof GuildVoiceJoinEvent) member = event1.getMember();
                     if (event1 instanceof GuildVoiceMoveEvent) member = event1.getMember();
 
-                    if (member.getUser().equals(getHost(event.getGuild()))) {
-                        m.editMessage("You're back! I knew you wouldn't leave me!").queue();
-                        if (musicManager.player.isPaused()) musicManager.player.setPaused(false);
-                        musicManager.stopWaiting();
-                        return;
-                    }
+                    if (isWaitingUserHost(musicManager, m, member, event.getGuild())) return;
                     if (!member.getUser().isBot()) m.editMessage("Whew! Someone joined! Alright then, " + member.getUser().getName() + " is the new host!").queue();
                     if (musicManager.player.isPaused()) musicManager.player.setPaused(false);
                     changeHost(event.getGuild(), member.getUser());
