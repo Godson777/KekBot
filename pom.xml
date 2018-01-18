@@ -46,7 +46,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>3.3.1_308</version>
+            <version>3.5.0_328</version>
         </dependency>
 
         <dependency>
@@ -80,9 +80,15 @@
         </dependency>
 
         <dependency>
+            <groupId>com.rethinkdb</groupId>
+            <artifactId>rethinkdb-driver</artifactId>
+            <version>2.3.3</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.jagrosh</groupId>
             <artifactId>JDA-Utilities</artifactId>
-            <version>1.7</version>
+            <version>1.9</version>
             <scope>compile</scope>
         </dependency>
 
