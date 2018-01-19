@@ -554,10 +554,10 @@ public class ProfileCommand extends Command {
                             } else event.getChannel().sendMessage("No arguments specified.").queue();
                     }
                 } else event.getChannel().sendMessage("No arguments specified.").queue();
-            } else if (event.getEvent().getMessage().getMentionedUsers().size() == 1) {
+            } else if (event.getMessage().getMentionedUsers().size() == 1) {
                 try {
                     event.getChannel().sendTyping().queue();
-                    User user = event.getEvent().getMessage().getMentionedUsers().get(0);
+                    User user = event.getMessage().getMentionedUsers().get(0);
                     Profile profile = Profile.getProfile(user);
                     event.getChannel().sendFile(profile.drawCard(), "profile.png", new MessageBuilder().append("Here is ").append(user.getName()).append("'s profile card:").build()).queue();
                 } catch (IOException e) {

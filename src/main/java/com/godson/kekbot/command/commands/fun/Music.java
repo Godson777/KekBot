@@ -138,8 +138,8 @@ public class Music extends Command {
                     }
 
                     if (event.getArgs().length > 0) {
-                        if (event.getEvent().getMessage().getMentionedUsers().size() > 0) {
-                            User newHost = event.getEvent().getMessage().getMentionedUsers().get(0);
+                        if (event.getMessage().getMentionedUsers().size() > 0) {
+                            User newHost = event.getMessage().getMentionedUsers().get(0);
                             KekBot.player.changeHost(event.getGuild(), newHost);
                             event.getChannel().sendMessage("Done, " + newHost.getName() + " is now the host.").queue();
                         } else event.getChannel().sendMessage("You have to mention the user you wanna make the host!").queue();

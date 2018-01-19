@@ -23,7 +23,7 @@ public class AddGame extends Command {
     @Override
     public void onExecuted(CommandEvent event) {
         Config config = Config.getConfig();
-        if (config.getBotAdmins().contains(event.getEvent().getMessage().getAuthor().getId()) || event.getEvent().getMessage().getAuthor().getId().equals(config.getBotOwner())) {
+        if (config.getBotAdmins().contains(event.getMessage().getAuthor().getId()) || event.getMessage().getAuthor().getId().equals(config.getBotOwner())) {
             TextChannel channel = event.getTextChannel();
             if (event.getArgs().length > 0) {
                 String game = event.combineArgs();

@@ -21,7 +21,7 @@ public class Patreon extends Command {
                     if (event.getArgs().length > 2) {
                         Config.getConfig().addPatron(event.combineArgs(1)).save();
                         event.getTextChannel().sendMessage("Successfully added patron.").queue();
-                    } else event.getEvent().getMessage().getChannel().sendMessage("No name specified.").queue();
+                    } else event.getMessage().getChannel().sendMessage("No name specified.").queue();
                     break;
                 case "remove":
                     if (event.getArgs().length > 2) {
@@ -31,7 +31,7 @@ public class Patreon extends Command {
                         } catch (IllegalArgumentException e) {
                             event.getTextChannel().sendMessage("Patron not found.").queue();
                         }
-                    } else event.getEvent().getMessage().getChannel().sendMessage("No name specified.").queue();
+                    } else event.getMessage().getChannel().sendMessage("No name specified.").queue();
             }
         } else event.getChannel().sendMessage("No arguments specified.").queue();
     }

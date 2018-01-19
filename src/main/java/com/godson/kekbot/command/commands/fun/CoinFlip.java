@@ -27,6 +27,6 @@ public class CoinFlip extends Command {
         } else {
             coin = "**TAILS!**";
         }
-        event.getChannel().sendMessage(event.getEvent().getMessage().getAuthor().getAsMention() + " Flipped the coin and it landed on... " + coin).queue();
+        event.getChannel().sendMessage(event.getMessage().getAuthor().getAsMention() + " Flipped the coin and it landed on... " + coin).queue();
     }
 }

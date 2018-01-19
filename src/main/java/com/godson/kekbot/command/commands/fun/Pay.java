@@ -21,7 +21,7 @@ public class Pay extends Command {
     public void onExecuted(CommandEvent event) {
         Profile payer = Profile.getProfile(event.getAuthor());
         if (event.getArgs().length > 0) {
-            if (event.getEvent().getMessage().getMentionedUsers().size() > 0) {
+            if (event.getMessage().getMentionedUsers().size() > 0) {
                 if (event.getArgs().length > 1) {
                     int toPay;
                     try {
@@ -31,7 +31,7 @@ public class Pay extends Command {
                         return;
                     }
                     if (payer.canSpend(toPay)) {
-                        User payee = event.getEvent().getMessage().getMentionedUsers().get(0);
+                        User payee = event.getMessage().getMentionedUsers().get(0);
                         if (payee.isBot()) {
                             event.getChannel().sendMessage("You can't pay a bot! They have no use for topkeks, anyway.").queue();
                             return;
