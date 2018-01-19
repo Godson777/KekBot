@@ -209,7 +209,7 @@ public class Utils {
     public static BufferedImage getUserAvatarImage(User user) {
         BufferedImage ava = null;
         try {
-            URL userAva = new URL(user.getAvatarUrl());
+            URL userAva = new URL(user.getAvatarUrl() + "?size=1024");
             URLConnection connection = userAva.openConnection();
             connection.setRequestProperty("User-Agent", "Mozilla/5.0");
             connection.connect();
