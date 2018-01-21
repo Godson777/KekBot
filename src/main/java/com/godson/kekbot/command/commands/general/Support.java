@@ -9,6 +9,7 @@ public class Support extends Command {
         name = "support";
         description = "Shows how you can support KekBot.";
         usage.add("support");
+        category = new Category("General");
         cooldown = 10;
         cooldownScope = CooldownScope.USER_GUILD;
     }
