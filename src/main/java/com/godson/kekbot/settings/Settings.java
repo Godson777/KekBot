@@ -41,6 +41,10 @@ public class Settings {
         this.guildID = guildID;
     }
 
+    public Settings(Guild guild) {
+        this.guildID = guild.getId();
+    }
+
     public Settings setPrefix(String prefix) {
         this.prefix = prefix;
         return this;
@@ -192,6 +196,13 @@ public class Settings {
             Gson gson = new Gson();
             return gson.fromJson((String) KekBot.r.table("Settings").get(guildID).toJson().run(KekBot.conn), Settings.class);
         } else return new Settings(guildID);
+    }
+
+    public static Settings getSettingsOrNull(String guildID) {
+        if (KekBot.r.table("Settings").get(guildID).run(KekBot.conn) != null) {
+            Gson gson = new Gson();
+            return gson.fromJson((String) KekBot.r.table("Settings").get(guildID).toJson().run(KekBot.conn), Settings.class);
+        } else return null;
     }
 
     public QuoteManager getQuotes() {
