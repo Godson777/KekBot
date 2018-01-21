@@ -1,7 +1,10 @@
 package com.godson.kekbot.command;
 
 import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.entities.impl.DataMessage;
+import net.dv8tion.jda.core.entities.impl.ReceivedMessage;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.apache.commons.lang3.StringUtils;
 
@@ -88,7 +91,10 @@ public class CommandEvent {
     }
 
     public Message getMessage() {
-        return event.getMessage();
+        return new ReceivedMessage(event.getMessage().getIdLong(), event.getChannel(), event.getMessage().getType(),
+                event.isWebhookMessage(), event.getMessage().mentionsEveryone(), event.getMessage().isTTS(), event.getMessage().isPinned(),
+                (event.getMessage().getContentRaw().startsWith(getGuild().getSelfMember().getAsMention()) ? event.getMessage().getContentRaw().substring(event.getGuild().getSelfMember().getAsMention().length()+1) : event.getMessage().getContentRaw()),
+                event.getMessage().getNonce(), event.getAuthor(), event.getMessage().getEditedTime(), event.getMessage().getReactions(), event.getMessage().getAttachments(), event.getMessage().getEmbeds());
     }
 
     public String combineArgs() {

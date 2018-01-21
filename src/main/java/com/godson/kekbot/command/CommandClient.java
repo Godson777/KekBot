@@ -6,6 +6,7 @@ import com.godson.kekbot.Utils;
 import com.godson.kekbot.settings.Config;
 import com.godson.kekbot.settings.Settings;
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.MessageChannel;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -169,6 +170,15 @@ public class CommandClient extends ListenerAdapter {
             joinLogChannel = KekBot.jda.getTextChannelById(config.getJoinLogChannel());
             ticketChannel = KekBot.jda.getTextChannelById(config.getTicketChannel());
         }
+
+        JDA jda = event.getJDA();
+        jda.getGuilds().forEach(guild -> {
+            Settings settings = Settings.getSettingsOrNull(guild.getId());
+            if (settings == null) {
+                settings = new Settings(guild);
+                settings.save();
+            }
+        });
     }
 
     public void onMessageReceived(MessageReceivedEvent event) {
