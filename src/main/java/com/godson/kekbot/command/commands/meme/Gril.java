@@ -1,5 +1,6 @@
 package com.godson.kekbot.command.commands.meme;
 
+import com.godson.kekbot.Utils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandCategories;
 import com.godson.kekbot.command.CommandEvent;
@@ -21,6 +22,6 @@ public class Gril extends Command {
     @Override
     public void onExecuted(CommandEvent event) {
         event.getChannel().sendTyping().queue();
-        event.getChannel().sendFile(new File("resources/memegen/topless_grill.png"), "topless_gril.png", null).queue();
+        event.getChannel().sendFile(Utils.getResource("memegen/topless_grill.png"), "topless_gril.png", null).queue();
     }
 }

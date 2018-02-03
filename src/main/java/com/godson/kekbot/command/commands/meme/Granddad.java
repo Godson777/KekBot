@@ -1,6 +1,7 @@
 package com.godson.kekbot.command.commands.meme;
 
 import com.godson.kekbot.KekBot;
+import com.godson.kekbot.Utils;
 import com.godson.kekbot.responses.Action;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandCategories;
@@ -22,8 +23,8 @@ public class Granddad extends Command {
 
     @Override
     public void onExecuted(CommandEvent event) {
-        if (new File("resources/sound/granddad").isDirectory()) {
-            File granddads[] = new File("resources/sound/granddad").listFiles();
+        if (Utils.getResource("sound/granddad").isDirectory()) {
+            File granddads[] = Utils.getResource("sound/granddad").listFiles();
             Random random = new Random();
             int index = random.nextInt(granddads.length);
             Optional<VoiceChannel> voiceChannel = event.getEvent().getGuild().getVoiceChannels().stream().filter(c -> c.getMembers().contains(event.getEvent().getMember())).findFirst();

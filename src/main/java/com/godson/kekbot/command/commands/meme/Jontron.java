@@ -1,6 +1,7 @@
 package com.godson.kekbot.command.commands.meme;
 
 import com.godson.kekbot.KekBot;
+import com.godson.kekbot.Utils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandCategories;
 import com.godson.kekbot.command.CommandEvent;
@@ -22,8 +23,8 @@ public class Jontron extends Command {
 
     @Override
     public void onExecuted(CommandEvent event) {
-        if (new File("resources/sound/jontron").isDirectory()) {
-            File jontrons[] = new File("resources/sound/jontron").listFiles();
+        if (Utils.getResource("sound/jontron").isDirectory()) {
+            File jontrons[] = Utils.getResource("sound/jontron").listFiles();
             Random random = new Random();
             int index = random.nextInt(jontrons.length);
             Optional<VoiceChannel> voiceChannel = event.getEvent().getGuild().getVoiceChannels().stream().filter(c -> c.getMembers().contains(event.getEvent().getMember())).findFirst();

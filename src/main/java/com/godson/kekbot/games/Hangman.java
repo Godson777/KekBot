@@ -1,5 +1,6 @@
 package com.godson.kekbot.games;
 
+import com.godson.kekbot.Utils;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -36,7 +37,7 @@ public class Hangman extends Game {
     public Hangman(TextChannel channel) {
         super(2, 10, false, channel, "Hangman", false);
         try {
-            words.addAll(FileUtils.readLines(new File("resources/games/hangman/words.txt"), "utf-8"));
+            words.addAll(FileUtils.readLines(Utils.getResource("resources/games/hangman/words.txt"), "utf-8"));
         } catch (IOException e) {
             //Nothing's gonna happen unless the file magically winds up deleted.
             e.printStackTrace();
@@ -72,9 +73,9 @@ public class Hangman extends Game {
     private byte[] drawBoard() {
         BufferedImage scene = new BufferedImage(800, 1000, BufferedImage.TYPE_INT_RGB);
         try {
-            BufferedImage letterBoard = ImageIO.read(new File("resources/games/hangman/board.png"));
+            BufferedImage letterBoard = ImageIO.read(Utils.getResource("games/hangman/board.png"));
             Graphics2D graphics = scene.createGraphics();
-            graphics.drawImage(ImageIO.read(new File("resources/games/hangman/stages/" + penalty + ".png")), 0, 0, null);
+            graphics.drawImage(ImageIO.read(Utils.getResource("games/hangman/stages/" + penalty + ".png")), 0, 0, null);
             graphics.drawImage(letterBoard, 0, 750, null);
             BufferedImage letterBoxes = drawBlanks();
             Rectangle2D r2D = new Rectangle(letterBoxes.getWidth(), letterBoxes.getHeight());
@@ -118,7 +119,7 @@ public class Hangman extends Game {
         int a;
         int b;
         try {
-            BufferedImage letterBox = ImageIO.read(new File("resources/games/hangman/letterbox.png")); //Blank letter file.
+            BufferedImage letterBox = ImageIO.read(Utils.getResource("games/hangman/letterbox.png")); //Blank letter file.
             Graphics2D graphics = scene.createGraphics();
             graphics.setBackground(new Color(0, true));
             graphics.clearRect(0, 0, scene.getWidth(), scene.getHeight());

@@ -1,5 +1,6 @@
 package com.godson.kekbot.command.commands.meme;
 
+import com.godson.kekbot.Utils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandCategories;
 import com.godson.kekbot.command.CommandEvent;
@@ -18,6 +19,6 @@ public class Poosy extends Command {
     @Override
     public void onExecuted(CommandEvent event) throws Throwable {
         event.getChannel().sendTyping().queue();
-        event.getChannel().sendFile(new File("resources/memegen/poosy.png"), "poosy.png", null).queue();
+        event.getChannel().sendFile(Utils.getResource("memegen/poosy.png"), "poosy.png", null).queue();
     }
 }

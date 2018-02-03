@@ -1,5 +1,7 @@
 package com.godson.kekbot.profile;
 
+import com.godson.kekbot.Utils;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -21,7 +23,7 @@ public enum Badge {
     }
 
     public BufferedImage drawBadge() throws IOException {
-        return ImageIO.read(new File("resources/profile/badge/" + file));
+        return ImageIO.read(Utils.getResource("profile/badge/" + file));
     }
 
     public String getName() {

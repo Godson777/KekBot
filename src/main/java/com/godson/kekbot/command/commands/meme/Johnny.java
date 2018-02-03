@@ -39,7 +39,7 @@ public class Johnny extends Command {
         BufferedImage target = Utils.getUserAvatarImage(user);
         BufferedImage ava = Utils.getUserAvatarImage(event.getAuthor());
         try {
-            BufferedImage template = ImageIO.read(new File("resources/memegen/johnny_template.png"));
+            BufferedImage template = ImageIO.read(Utils.getResource("memegen/johnny_template.png"));
             BufferedImage bg = new BufferedImage(template.getWidth(), template.getHeight(), template.getType());
             Graphics2D image = bg.createGraphics();
             image.drawImage(ava, 111, 218, 283, 282, null);

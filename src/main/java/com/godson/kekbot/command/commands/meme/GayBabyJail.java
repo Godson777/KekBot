@@ -64,7 +64,7 @@ public class GayBabyJail extends Command {
             BufferedImage template = new BufferedImage(640, 600, BufferedImage.TYPE_INT_ARGB);
             Graphics2D image = template.createGraphics();
             image.drawImage(target, 109, 169, 430, 430, null);
-            image.drawImage(ImageIO.read(new File("resources/memegen/gbj.png")), 0, 0, null);
+            image.drawImage(ImageIO.read(Utils.getResource("memegen/gbj.png")), 0, 0, null);
             image.dispose();
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             stream.flush();

@@ -1,6 +1,7 @@
 package com.godson.kekbot.command.commands.meme;
 
 import com.godson.kekbot.KekBot;
+import com.godson.kekbot.Utils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandCategories;
 import com.godson.kekbot.command.CommandEvent;
@@ -23,8 +24,8 @@ public class Gabe extends Command {
 
     @Override
     public void onExecuted(CommandEvent event) throws Throwable {
-        if (new File("resources/sound/gabe").isDirectory()) {
-            File gabes[] = new File("resources/sound/gabe").listFiles();
+        if (Utils.getResource("sound/gabe").isDirectory()) {
+            File gabes[] = Utils.getResource("sound/gabe").listFiles();
             Random random = new Random();
             int index = random.nextInt(gabes.length);
             Optional<VoiceChannel> voiceChannel = event.getGuild().getVoiceChannels().stream().filter(c -> c.getMembers().contains(event.getMember())).findFirst();

@@ -7,6 +7,7 @@ import com.godson.discoin4j.exceptions.UnauthorizedException;
 import com.godson.discoin4j.exceptions.UnknownErrorException;
 import com.godson.kekbot.GSONUtils;
 import com.godson.kekbot.KekBot;
+import com.godson.kekbot.Utils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.profile.Background;
@@ -251,11 +252,11 @@ public class ShopCommand extends Command {
     }
 
     private byte[] drawTokenShop(Profile profile, List<Token> tokens, boolean prev, boolean next, int offset) throws IOException {
-        BufferedImage shop3Shelf = ImageIO.read(new File("resources/shop/3shelf.png"));
-        BufferedImage prevImg = ImageIO.read(new File("resources/shop/prev.png"));
-        BufferedImage nextImg = ImageIO.read(new File(("resources/shop/next.png")));
-        BufferedImage topkek = ImageIO.read(new File("resources/shop/topkek.png"));
-        BufferedImage locked = ImageIO.read(new File("resources/shop/lockedToken.png"));
+        BufferedImage shop3Shelf = ImageIO.read(Utils.getResource("shop/3shelf.png"));
+        BufferedImage prevImg = ImageIO.read(Utils.getResource("shop/prev.png"));
+        BufferedImage nextImg = ImageIO.read(Utils.getResource("shop/next.png"));
+        BufferedImage topkek = ImageIO.read(Utils.getResource("shop/topkek.png"));
+        BufferedImage locked = ImageIO.read(Utils.getResource("shop/lockedToken.png"));
         Graphics2D graphics = shop3Shelf.createGraphics();
         if (prev) graphics.drawImage(prevImg, 247, 639, null);
         if (next) graphics.drawImage(nextImg, 339, 639, null);
@@ -279,11 +280,11 @@ public class ShopCommand extends Command {
     }
 
     private byte[] drawBackgroundShop(Profile profile, List<Background> backgrounds, boolean prev, boolean next, int offset) throws IOException {
-        BufferedImage shop3Shelf = ImageIO.read(new File("resources/shop/3shelf.png"));
-        BufferedImage prevImg = ImageIO.read(new File("resources/shop/prev.png"));
-        BufferedImage nextImg = ImageIO.read(new File(("resources/shop/next.png")));
-        BufferedImage topkek = ImageIO.read(new File("resources/shop/topkek.png"));
-        BufferedImage locked = ImageIO.read(new File("resources/shop/lockedBackground.png"));
+        BufferedImage shop3Shelf = ImageIO.read(Utils.getResource("shop/3shelf.png"));
+        BufferedImage prevImg = ImageIO.read(Utils.getResource("shop/prev.png"));
+        BufferedImage nextImg = ImageIO.read(Utils.getResource("shop/next.png"));
+        BufferedImage topkek = ImageIO.read(Utils.getResource("shop/topkek.png"));
+        BufferedImage locked = ImageIO.read(Utils.getResource("shop/lockedBackground.png"));
         Graphics2D graphics = shop3Shelf.createGraphics();
         if (prev) graphics.drawImage(prevImg, 247, 639, null);
         if (next) graphics.drawImage(nextImg, 339, 639, null);

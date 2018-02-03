@@ -1,5 +1,6 @@
 package com.godson.kekbot.command.commands.meme;
 
+import com.godson.kekbot.Utils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandCategories;
 import com.godson.kekbot.command.CommandEvent;
@@ -20,7 +21,7 @@ public class JustRight extends Command {
 
     @Override
     public void onExecuted(CommandEvent event) {
-        File justRights[] = new File("resources/justright").listFiles();
+        File justRights[] = Utils.getResource("justright").listFiles();
         Random random = new Random();
         int index = random.nextInt(justRights.length);
         event.getChannel().sendTyping().queue();
