@@ -6,7 +6,7 @@
 
     <groupId>com.godson</groupId>
     <artifactId>kekbot</artifactId>
-    <version>1.4.2</version>
+    <version>1.5-BETA2</version>
 
     <repositories>
         <repository>
@@ -78,6 +78,13 @@
             <artifactId>Discoin4J</artifactId>
             <version>v1.0.1</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.twitter4j</groupId>
+            <artifactId>twitter4j-core</artifactId>
+            <version>4.0.4</version>
+        </dependency>
+
 
         <dependency>
             <groupId>com.rethinkdb</groupId>
