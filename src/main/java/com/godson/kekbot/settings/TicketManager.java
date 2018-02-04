@@ -2,16 +2,22 @@ package com.godson.kekbot.settings;
 
 import com.godson.kekbot.GSONUtils;
 import com.godson.kekbot.KekBot;
+import com.godson.kekbot.Utils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.rethinkdb.model.MapObject;
 import com.rethinkdb.net.Cursor;
 import com.sedmelluq.discord.lavaplayer.remote.RemoteNode;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.User;
 import org.json.JSONObject;
 
+import java.awt.*;
 import java.lang.reflect.Type;
+import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class TicketManager {
@@ -46,8 +52,19 @@ public class TicketManager {
     }
 
     public static void addAdminReply(Ticket ticket, String response, User replier) {
-        String replierName = replier.getName() + "#" + replier.getDiscriminator();
-        KekBot.jda.getUserById(ticket.getAuthorID()).openPrivateChannel().queue(ch -> ch.sendMessage("You have received a reply for your ticket. (`" + ticket.getID() + "`) Use `$ticket view " + ticket.getID() + "` to view your ticket and its replies.").queue());
+        EmbedBuilder eBuilder = new EmbedBuilder();
+        String replyAuthor;
+        if (replier != null) replyAuthor = replier.getName() + "#" + replier.getDiscriminator() + "**";
+        else replyAuthor = "Author Not Found. Close this ticket if the ticket isn't concerning a bug.";
+
+        eBuilder.setColor(Color.BLUE);
+        eBuilder.setTitle("Reply:");
+        eBuilder.addField("Author:", replyAuthor, true);
+        eBuilder.addField("Contents:", response, false);
+        if (replier != null) eBuilder.setThumbnail(Utils.getUserAvatarURL(replier));
+        else eBuilder.setThumbnail("https://discordapp.com/assets/dd4dbc0016779df1378e7812eabaa04d.png");
+        eBuilder.setTimestamp(Instant.ofEpochMilli(System.currentTimeMillis()));
+        KekBot.jda.getUserById(ticket.getAuthorID()).openPrivateChannel().queue(ch -> ch.sendMessage("You have received a reply for your ticket. (`" + ticket.getID() + "`) Use `$ticket view " + ticket.getID() + "` to view your ticket and its replies.").embed(eBuilder.build()).queue());
         ticket.setStatus(Ticket.TicketStatus.AWAITING_REPLY);
         ticket.addReply(replier, response, true);
         KekBot.r.table("Tickets").get(ticket.getID()).update(KekBot.r.hashMap("Replies", ticket.getReplies()).with("Status", ticket.getStatus().name())).run(KekBot.conn);
