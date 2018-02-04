@@ -30,6 +30,7 @@ public class Kick extends Command {
     public void onExecuted(CommandEvent event) {
         if (event.getArgs().length < 1) {
             event.getChannel().sendMessage(KekBot.respond(Action.KICK_EMPTY)).queue();
+            return;
         }
 
 
@@ -41,15 +42,19 @@ public class Kick extends Command {
             } else if (event.getMessage().getMentionedUsers().get(0).equals(event.getMessage().getAuthor())) {
                 event.getChannel().sendMessage("You can't kick yourself, it just doesn't work that way.").queue();
             } else {
-                if (event.getGuild().getMember(event.getMessage().getMentionedUsers().get(0)).getRoles().stream().map(net.dv8tion.jda.core.entities.Role::getPositionRaw).max(Integer::compareTo).get() >= event.getMember().getRoles().stream().map(net.dv8tion.jda.core.entities.Role::getPositionRaw).max(Integer::compareTo).get()) {
-                    event.getChannel().sendMessage("You can't kick someone who's highest role is the same as or is higher than yours.").queue();
-                } else {
-                    try {
-                        event.getGuild().getController().kick(event.getGuild().getMember(event.getMessage().getMentionedUsers().get(0))).reason("Kicked by: " + event.getAuthor().getName() + "#" + event.getAuthor().getDiscriminator() + " (" + event.getAuthor().getId() + ")").queue();
-                        event.getChannel().sendMessage(KekBot.respond(Action.KICK_SUCCESS, event.getMessage().getMentionedUsers().get(0).getName())).queue();
-                    } catch (PermissionException e) {
-                        event.getChannel().sendMessage("`" + event.getMessage().getMentionedUsers().get(0).getName() + "`'s role is higher than mine. I am unable to kick them.").queue();
+                if (event.getMember().getRoles().size() > 0) {
+                    if (event.getGuild().getMember(event.getMessage().getMentionedUsers().get(0)).getRoles().size() > 0) {
+                        if (event.getGuild().getMember(event.getMessage().getMentionedUsers().get(0)).getRoles().stream().map(net.dv8tion.jda.core.entities.Role::getPositionRaw).max(Integer::compareTo).get() >= event.getMember().getRoles().stream().map(net.dv8tion.jda.core.entities.Role::getPositionRaw).max(Integer::compareTo).get()) {
+                            event.getChannel().sendMessage("You can't kick someone who's highest role is the same as or is higher than yours.").queue();
+                            return;
+                        }
                     }
+                }
+                try {
+                    event.getGuild().getController().kick(event.getGuild().getMember(event.getMessage().getMentionedUsers().get(0))).reason("Kicked by: " + event.getAuthor().getName() + "#" + event.getAuthor().getDiscriminator() + " (" + event.getAuthor().getId() + ")").queue();
+                    event.getChannel().sendMessage(KekBot.respond(Action.KICK_SUCCESS, "`" + event.getMessage().getMentionedUsers().get(0).getName() + "`")).queue();
+                } catch (PermissionException e) {
+                    event.getChannel().sendMessage("`" + event.getMessage().getMentionedUsers().get(0).getName() + "`'s role is higher than mine. I am unable to kick them.").queue();
                 }
             }
         } else {
