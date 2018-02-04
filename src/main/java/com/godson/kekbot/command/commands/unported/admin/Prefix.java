@@ -21,7 +21,7 @@ public class Prefix {
                         ? CommandRegistry.getForClient(context.getJDA()).getPrefixForGuild(server)
                         : CommandRegistry.getForClient(context.getJDA()).getPrefix());
                 TextChannel channel = context.getTextChannel();
-                Settings settings = GSONUtils.getLegacySettings(context.getGuild());
+                Settings settings = Settings.getSettings(context.getGuild());
                 if (server.getOwner().equals(server.getMember(context.getAuthor()))) {
                     if (args.length == 0) {
                         channel.sendMessage(context.getAuthor().getAsMention() + " :anger: You must supply the prefix you want me to use!").queue();
