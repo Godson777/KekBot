@@ -31,7 +31,7 @@ public class CommandClient extends ListenerAdapter {
     private final String botOwner;
     private final List<String> botAdmins;
 
-    private final String prefix = "$";
+    private String prefix = "$";
     private final HashMap<String, String> customPrefixes;
     private final ArrayList<Command> commands;
     private final HashMap<String, Integer> commandIndex;
@@ -46,10 +46,6 @@ public class CommandClient extends ListenerAdapter {
     private TextChannel joinLogChannel;
     public TextChannel ticketChannel;
 
-    private final String joinSpeech = "Hi! I'm KekBot! Thanks for inviting me!" + "\n" +
-            "Use $help to see a list of commands, and use $prefix to change my prefix!" + "\n" +
-            "If you ever need help, join my discord server: " + "https://discord.gg/3nbqavE";
-
     public CommandClient() {
         start = OffsetDateTime.now();
         commands = new ArrayList<>();
@@ -63,6 +59,10 @@ public class CommandClient extends ListenerAdapter {
         Config config = Config.getConfig();
         botOwner = config.getBotOwner();
         botAdmins = config.getBotAdmins();
+    }
+
+    public void setPrefix(String prefix) {
+        this.prefix = prefix;
     }
 
     public void addCommand(Command command) {
@@ -214,9 +214,13 @@ public class CommandClient extends ListenerAdapter {
                 if (command != null) {
                     CommandEvent cevent = new CommandEvent(event, args, this);
                     command.run(cevent);
+                    return;
                 }
             }
         }
+
+        //Non Command type stuff.
+        KekBot.chain.addDictionary(event.getMessage().getContentStripped());
     }
 
     @Override
@@ -231,6 +235,9 @@ public class CommandClient extends ListenerAdapter {
 
             for (TextChannel channel : event.getGuild().getTextChannels()) {
                 if (channel.canTalk()) {
+                    String joinSpeech = "Hi! I'm KekBot! Thanks for inviting me!" + "\n" +
+                            "Use " + prefix + "help to see a list of commands, and use " + prefix + "prefix to change my prefix!" + "\n" +
+                            "If you ever need help, join my discord server: " + "https://discord.gg/3nbqavE";
                     channel.sendMessage(joinSpeech).queue();
                     break;
                 }
