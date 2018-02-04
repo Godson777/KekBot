@@ -13,6 +13,7 @@ public class Config {
     private String token;
     private String betaToken;
     private String database;
+    private String betaDatabase;
     private String dbUser;
     private String dbPassword;
     private String dApiToken;
@@ -30,6 +31,11 @@ public class Config {
 
     public String getDatabase() {
         if (database != null) return database;
+        else throw new NullPointerException("Database name not listed in config.json.");
+    }
+
+    public String getBetaDatabase() {
+        if (betaDatabase != null) return betaDatabase;
         else throw new NullPointerException("Database name not listed in config.json.");
     }
 
