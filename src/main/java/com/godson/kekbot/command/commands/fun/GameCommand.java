@@ -184,7 +184,7 @@ public class GameCommand extends Command {
                     break;
             }
         } else {
-            channel.sendMessage("No args specified. Use `" + event.getPrefix() +  "{p}help game` for help.").queue();
+            channel.sendMessage("No args specified. Use `" + event.getPrefix() +  "help game` for help.").queue();
         }
     }
 }
