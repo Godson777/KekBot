@@ -67,6 +67,7 @@ public class Questionnaire {
 
     public Questionnaire withTimeout(long time, TimeUnit unit) {
         timeout = unit.toMillis(time);
+        timeoutUnit = unit;
         return this;
     }
 
