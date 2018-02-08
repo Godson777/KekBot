@@ -22,6 +22,7 @@ public class Purge extends Command {
         name = "purge";
         description = "Mass deletes X number of messages. Supply a keyphrase or a mention {or multiple mentions} to purge all messages within X number of messages.";
         usage.add("purge <number> {keyphrase or @mention(s)}");
+        aliases = new String[]{"prune", "clear"};
         category = new Category("Admin");
         requiredBotPerms = new Permission[]{Permission.MESSAGE_MANAGE};
         requiredUserPerms = new Permission[]{Permission.MESSAGE_MANAGE};
@@ -35,7 +36,7 @@ public class Purge extends Command {
         }
 
         try {
-            int purge = Integer.valueOf(event.getArgs()[0]);
+            int purge = Integer.parseInt(event.getArgs()[0]);
             if (purge <= 1) {
                 event.getTextChannel().sendMessage(KekBot.respond(Action.PURGE_TOOLOW)).queue();
             } else if (purge > 100) {
