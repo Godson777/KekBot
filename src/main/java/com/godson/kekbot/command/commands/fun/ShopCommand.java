@@ -194,12 +194,12 @@ public class ShopCommand extends Command {
                     String url = "https://discoin.sidetrip.xyz/rates";
                     String unauthorized = "An error has occurred. This likely is because the bot owner screwed up somewhere...\n\nTranaction Canceled.";
                     if (Config.getConfig().getDcoinToken() != null) {
-                        new Questionnaire(event)
+                        Questionnaire.newQuestionnaire(event)
                                 .addQuestion("Welcome to the Discoin Association's currency converter! You can convert all of your topkeks to currencies from other bots here!\n\nType the currency you want to convert to. (For the list of currencies, and their conversion rates, use the following link: " + url + ")\nYou can say `cancel` at any time to back out.", QuestionType.STRING)
                                 .execute(results -> {
                                     String to = results.getAnswer(0).toString();
                                     if (to.length() == 3) {
-                                        new Questionnaire(results)
+                                        Questionnaire.newQuestionnaire(results)
                                                 .addQuestion("How many topkeks do you want to convert?", QuestionType.INT)
                                                 .execute(results1 -> {
                                                     int amount = (int) results1.getAnswer(0);

@@ -23,7 +23,7 @@ public class CommandCategories {
                     event.getChannel().sendMessage(KekBot.respond(Action.MEME_NOT_APPLIED, "__**Living Meme**__")).queue();
                 else {
                     if (event.getEvent().getMember().hasPermission(Permission.MANAGE_ROLES)) {
-                        new Questionnaire(event).addYesNoQuestion(KekBot.respond(Action.MEME_NOT_APPLIED, "__**Living Meme**__") +
+                        Questionnaire.newQuestionnaire(event).addYesNoQuestion(KekBot.respond(Action.MEME_NOT_APPLIED, "__**Living Meme**__") +
                                 " Although, I do see it already added in this server. If you'd like, I could put it on myself. (Y/N)")
                                 .execute(results -> {
                                     if (results.getAnswer(0).equals(true)) {
@@ -44,7 +44,7 @@ public class CommandCategories {
             event.getChannel().sendMessage(KekBot.respond(Action.MEME_NOT_FOUND, "__**Living Meme**__")).queue();
         else {
             if (event.getEvent().getMember().hasPermission(Permission.MANAGE_ROLES)) {
-                new Questionnaire(event).addYesNoQuestion(KekBot.respond(Action.MEME_NOT_FOUND, "__**Living Meme**__") +
+                Questionnaire.newQuestionnaire(event).addYesNoQuestion(KekBot.respond(Action.MEME_NOT_FOUND, "__**Living Meme**__") +
                         " Although, I do have the perms to make it myself. If you'd like, I could create it and put it on myself. (Y/N)")
                         .execute(results -> {
                             if (results.getAnswer(0).equals(true)) {

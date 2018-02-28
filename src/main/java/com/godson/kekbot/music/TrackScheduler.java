@@ -10,6 +10,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import javafx.util.Pair;
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.*;
 
 import java.awt.*;
@@ -18,7 +19,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.*;
 
 public class TrackScheduler extends AudioEventAdapter {
     private final AudioPlayer player;
@@ -61,27 +61,76 @@ public class TrackScheduler extends AudioEventAdapter {
         }
     }
 
-    /**
-     * Start the next track, stopping the current one if it is playing.
-     */
-    public void nextTrack() {
-        // Start the next track, regardless of if something is already playing or not. In case queue was empty, we are
-        // giving null to startTrack, which is a valid argument and will simply stop the player.
+    private Pair<AudioTrack, User> getCurrentRepeatTrack() {
+        return repeatQueue.get(currentRepeatTrack);
+    }
+
+    public void skipTrack(boolean vote) {
+        nextTrack(!vote ? 1 : 2);
+    }
+
+    public void skipTracks(int toSkip) {
+        String message = "Skipped " + toSkip + " tracks.";
         if (repeat != 2) {
+            if (toSkip > queue.size()) return;
+
+            for (int i = 0; i < toSkip - 1; i++) {
+                queue.poll();
+            }
+            channel.sendMessage(getTrackMessage(message)).queue();
             Pair<AudioTrack, User> pair = queue.poll();
             AudioTrack track = pair.getKey();
             this.currentPlayer = pair.getValue();
             player.startTrack(track, false);
-            //channel.sendMessage("Now playing: `" + track.getInfo().title + "` Queued by: " + currentPlayer.getAsMention()).queue();
-            channel.sendMessage(embedTrack(track.getInfo(), currentPlayer)).queue();
         } else {
-            if (currentRepeatTrack < repeatQueue.size()-1) ++currentRepeatTrack;
-            else currentRepeatTrack = 0;
-            player.startTrack(repeatQueue.get(currentRepeatTrack).getKey().makeClone(), false);
-            //channel.sendMessage("Now playing: `" + repeatQueue.get(currentRepeatTrack).getKey().getInfo().title + "` Queued by: " + repeatQueue.get(currentRepeatTrack).getValue().getAsMention()).queue();
-            channel.sendMessage(embedTrack(repeatQueue.get(currentRepeatTrack).getKey().getInfo(), repeatQueue.get(currentRepeatTrack).getValue())).queue();
+            currentRepeatTrack = (currentRepeatTrack + toSkip) % repeatQueue.size();
+            channel.sendMessage(getTrackMessage(message)).queue();
+            player.startTrack(getCurrentRepeatTrack().getKey().makeClone(), false);
         }
-            clearVotes();
+    }
+
+    public void skipToTrack(int skipTo) {
+        String message = "Skipped to track #" + skipTo + ".";
+        if (repeat != 2) {
+            if (skipTo > queue.size()) return;
+
+            for (int i = 0; i < skipTo - 1; i++) queue.poll();
+
+            channel.sendMessage(getTrackMessage(message)).queue();
+            Pair<AudioTrack, User> pair = queue.poll();
+            AudioTrack track = pair.getKey();
+            this.currentPlayer = pair.getValue();
+            player.startTrack(track, false);
+        } else {
+            if (skipTo > repeatQueue.size()) return;
+
+            currentRepeatTrack = skipTo;
+            channel.sendMessage(getTrackMessage(message)).queue();
+            player.startTrack(getCurrentRepeatTrack().getKey().makeClone(), false);
+        }
+    }
+
+    public void nextTrack() {
+        nextTrack(0);
+    }
+
+    /**
+     * Start the next track, stopping the current one if it is playing.
+     */
+    private void nextTrack(int skip) {
+        if (repeat != 2) {
+            channel.sendMessage(getTrackMessage(skip)).queue();
+            Pair<AudioTrack, User> pair = queue.poll();
+            AudioTrack track = pair.getKey();
+            this.currentPlayer = pair.getValue();
+            player.startTrack(track, false);
+        } else {
+            channel.sendMessage(getTrackMessage(skip)).queue();
+            if (currentRepeatTrack < repeatQueue.size() - 1) ++currentRepeatTrack;
+            else currentRepeatTrack = 0;
+            player.startTrack(getCurrentRepeatTrack().getKey().makeClone(), false);
+        }
+        clearVotes();
     }
 
     private MessageEmbed embedTrack(AudioTrackInfo track, User queuer) {
@@ -127,12 +176,35 @@ public class TrackScheduler extends AudioEventAdapter {
         }
     }
 
+    private Message getTrackMessage(int skip) {
+        MessageBuilder builder = new MessageBuilder();
+        if (skip == 1) builder.append("Skipped to next track.");
+        if (skip == 2) builder.append("Due to popular vote, this track was skipped.");
+        if (repeat != 2) {
+            builder.setEmbed(embedTrack(queue.element().getKey().getInfo(), queue.element().getValue()));
+        } else {
+            builder.setEmbed(embedTrack(getCurrentRepeatTrack().getKey().getInfo(), getCurrentRepeatTrack().getValue()));
+        }
+        return builder.build();
+    }
+
+    private Message getTrackMessage(String note) {
+        MessageBuilder builder = new MessageBuilder();
+        builder.append(note);
+        if (repeat != 2) {
+            builder.setEmbed(embedTrack(queue.element().getKey().getInfo(), queue.element().getValue()));
+        } else {
+            builder.setEmbed(embedTrack(getCurrentRepeatTrack().getKey().getInfo(), getCurrentRepeatTrack().getValue()));
+        }
+        return builder.build();
+    }
+
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
         // Only start the next track if the end reason is suitable for it (FINISHED or LOAD_FAILED)
         if (endReason.mayStartNext) {
             if (repeat == 1) player.startTrack(track.makeClone(), false);
-            else if (queue.size() > 0 || repeat == 2) nextTrack();
+            else if (queue.size() > 0 || repeat == 2) nextTrack(0);
             else closeConnection();
         }
     }
@@ -148,6 +220,23 @@ public class TrackScheduler extends AudioEventAdapter {
         new Thread(() -> KekBot.player.closeConnection(guild)).start();
     }
 
+    public AudioTrackInfo removeTrack(int toRemove) {
+        AudioTrackInfo trackInfo = null;
+        if (queue.size() > 0) {
+            List<Pair<AudioTrack, User>> queue = new ArrayList<>();
+            this.queue.drainTo(queue);
+            trackInfo = queue.get(toRemove).getKey().getInfo();
+            queue.remove(toRemove);
+            this.queue.addAll(queue);
+        } else {
+            if (repeatQueue.size() > 0) {
+                trackInfo = repeatQueue.get(toRemove).getKey().getInfo();
+                repeatQueue.remove(toRemove);
+            }
+        }
+        return trackInfo;
+    }
+
     public BlockingQueue<Pair<AudioTrack, User>> getQueue() {
         return queue;
     }
@@ -161,7 +250,7 @@ public class TrackScheduler extends AudioEventAdapter {
         return repeatQueue;
     }
 
-    public int getCurrentRepeatTrack() {
+    public int getRepeat() {
         return currentRepeatTrack;
     }
 

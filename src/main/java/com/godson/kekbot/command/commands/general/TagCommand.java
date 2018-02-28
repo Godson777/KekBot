@@ -106,7 +106,7 @@ public class TagCommand extends Command {
     }
 
     private void addTagName(Settings settings, CommandEvent event) {
-        new Questionnaire(event)
+        Questionnaire.newQuestionnaire(event)
                 .addQuestion("Enter the name of your tag.", QuestionType.STRING)
                 .execute(results -> {
                     String name = results.getAnswer(0).toString();
@@ -127,7 +127,7 @@ public class TagCommand extends Command {
     }
 
     private void addTagContents(Settings settings, CommandEvent event, String name) {
-        new Questionnaire(event)
+        Questionnaire.newQuestionnaire(event)
                 .addQuestion("Enter the value of `" + name + "`.", QuestionType.STRING)
                 .execute(results -> addTag(settings, event, name, results.getAnswer(0).toString()));
     }
@@ -143,7 +143,7 @@ public class TagCommand extends Command {
     }
 
     private void removeTagName(Settings settings, CommandEvent event) {
-        new Questionnaire(event)
+        Questionnaire.newQuestionnaire(event)
                 .addQuestion("Enter the name of the tag you wish to remove.", QuestionType.STRING)
                 .execute(results -> removeTag(settings, event, results.getAnswer(0).toString()));
     }
@@ -160,7 +160,7 @@ public class TagCommand extends Command {
     }
 
     private void getTagInfoByName(Settings settings, CommandEvent event) {
-        new Questionnaire(event)
+        Questionnaire.newQuestionnaire(event)
                 .addQuestion("Enter the name of the tag you wish to get info on.", QuestionType.STRING)
                 .execute(results -> getTagInfo(settings, event, results.getAnswer(0).toString()));
     }
@@ -174,7 +174,7 @@ public class TagCommand extends Command {
     }
 
     private void editTagName(Settings settings, CommandEvent event) {
-        new Questionnaire(event)
+        Questionnaire.newQuestionnaire(event)
                 .addQuestion("Enter the name of the tag you wish to edit.", QuestionType.STRING)
                 .execute(results -> {
                     Optional<Tag> tag = settings.getTags().getTagByName(results.getAnswer(0).toString());
@@ -186,7 +186,7 @@ public class TagCommand extends Command {
     }
 
     private void editTagContents(Settings settings, CommandEvent event, String name) {
-        new Questionnaire(event)
+        Questionnaire.newQuestionnaire(event)
                 .addQuestion("Enter the new value of this tag.", QuestionType.STRING)
                 .execute(results -> editTag(settings, event, name, results.getAnswer(0).toString()));
     }

@@ -48,7 +48,7 @@ public class Quote extends Command {
                             settings.save();
                             channel.sendMessage("Successfully added quote! :thumbsup:").queue();
                         } else {
-                            new Questionnaire(event)
+                            Questionnaire.newQuestionnaire(event)
                                     .addQuestion("Enter your quote here:", QuestionType.STRING)
                                     .execute(results -> {
                                         settings.getQuotes().addQuote(results.getAnswer(0).toString());

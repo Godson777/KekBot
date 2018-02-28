@@ -107,11 +107,10 @@ public abstract class Game {
             Profile profile = Profile.getProfile(player);
             if (player.equals(winner)) {
                 //profile.wonGame();
-                profile.save();
             } else {
                 //profile.lostGame();
-                profile.save();
             }
+            profile.save();
         }
         KekBot.gamesManager.closeGame(channel);
     }

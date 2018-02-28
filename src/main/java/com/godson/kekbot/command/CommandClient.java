@@ -65,6 +65,15 @@ public class CommandClient extends ListenerAdapter {
         this.prefix = prefix;
     }
 
+    public void setCustomPrefix(String guildID, String prefix) {
+        if (customPrefixes.containsKey(guildID)) {
+            if (prefix.equals(this.prefix)) customPrefixes.remove(guildID);
+            else customPrefixes.replace(guildID, prefix);
+        } else {
+            customPrefixes.put(guildID, prefix);
+        }
+    }
+
     public void addCommand(Command command) {
         String name = command.getName();
         synchronized (commandIndex) {

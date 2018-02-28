@@ -18,10 +18,10 @@ public class AutoRole {
             .withUsage("{p}autorole <role | reset>")
             .userRequiredPermissions(Permission.MANAGE_ROLES)
             .onExecuted(context -> {
-                String rawSplit[] = context.getMessage().getRawContent().split(" ", 2);
+                String rawSplit[] = context.getMessage().getContentRaw().split(" ", 2);
                 TextChannel channel = context.getTextChannel();
                 Guild guild = context.getGuild();
-                Settings settings = GSONUtils.getLegacySettings(guild);
+                Settings settings = Settings.getSettings(guild);
                     if (rawSplit.length == 1) {
                         channel.sendMessage("Which role am I gonna automatically give newcomers? :neutral_face:").queue();
                     } else {
@@ -36,6 +36,6 @@ public class AutoRole {
             })
             .onFailure((context, reason) -> {
                 if (reason.equals(FailureReason.AUTHOR_MISSING_PERMISSIONS))
-                    context.getTextChannel().sendMessage(KekBot.respond(context, Action.NOPERM_USER, "`Manage Roles`")).queue();
+                    context.getTextChannel().sendMessage(KekBot.respond(Action.NOPERM_USER, "`Manage Roles`")).queue();
             });
 }

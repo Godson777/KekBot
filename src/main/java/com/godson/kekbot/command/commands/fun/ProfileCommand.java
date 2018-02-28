@@ -37,7 +37,7 @@ public class ProfileCommand extends Command {
                 event.getChannel().sendTyping().queue();
                 event.getChannel().sendFile(Profile.getProfile(event.getAuthor()).drawCard(), "profile.png", null).queue();
             } catch (IOException e) {
-                e.printStackTrace();
+                throwException(e, event, "Profile Image Generation Problem.");
             }
         } else if (event.getArgs().length >= 1) {
             if (event.getArgs()[0].equalsIgnoreCase("edit")) {
@@ -55,7 +55,7 @@ public class ProfileCommand extends Command {
                             if (event.getArgs().length >= 3) {
                                 setTitle(event, profile, event.combineArgs(2));
                             } else {
-                                new Questionnaire(event)
+                                Questionnaire.newQuestionnaire(event)
                                         .addQuestion("Type the title you would like to use below. Or type `cancel` to exit.", QuestionType.STRING)
                                         .execute(results -> setTitle(event, profile, results.getAnswer(0).toString()));
                             }
@@ -64,7 +64,7 @@ public class ProfileCommand extends Command {
                             if (event.getArgs().length >= 3) {
                                 setBio(event, profile, event.combineArgs(2));
                             } else {
-                                new Questionnaire(event)
+                                Questionnaire.newQuestionnaire(event)
                                         .addQuestion("Type the title you would like to use below. Or type `cancel` to exit.", QuestionType.STRING)
                                         .execute(results -> {
                                             if (ProfileUtils.testBio(results.getAnswer(0).toString())) {
@@ -561,7 +561,7 @@ public class ProfileCommand extends Command {
                     Profile profile = Profile.getProfile(user);
                     event.getChannel().sendFile(profile.drawCard(), "profile.png", new MessageBuilder().append("Here is ").append(user.getName()).append("'s profile card:").build()).queue();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    throwException(e, event, "Profile Image Generation Problem.");
                 }
             }
         }
@@ -569,7 +569,7 @@ public class ProfileCommand extends Command {
 
     private void setTitle(CommandEvent event, Profile profile, String title) {
         if (title.length() <= 20) {
-            new Questionnaire(event)
+            Questionnaire.newQuestionnaire(event)
                     .addYesNoQuestion("Are you sure you want to use the title: `" + title + "`?")
                     .execute(results -> {
                         if (results.getAnswerAsType(0, boolean.class)) {
@@ -587,7 +587,7 @@ public class ProfileCommand extends Command {
 
     private void setBio(CommandEvent event, Profile profile, String bio) {
         if (ProfileUtils.testBio(bio)) {
-            new Questionnaire(event)
+            Questionnaire.newQuestionnaire(event)
                     .addYesNoQuestion("For your bio, you wrote: `" + bio + "` Is this correct?")
                     .execute(results -> {
                         if (results.getAnswerAsType(0, boolean.class)) {

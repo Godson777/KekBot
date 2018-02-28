@@ -7,7 +7,6 @@ import com.godson.kekbot.Utils;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import com.rethinkdb.model.MapObject;
-import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
@@ -259,11 +258,11 @@ public class Profile {
         int rHeight = (int) Math.round(r2D.getHeight());
         int rX = (int) Math.round(r2D.getX());
         int rY = (int) Math.round(r2D.getY());
-        int a = (132 / 2) - (rWidth / 2) - rX;
-        int b = (29 / 2) - (rHeight / 2) - rY;
+        int a = (outline.getWidth() / 2) - (rWidth / 2) - rX;
+        int b = (outline.getHeight() / 2) - (rHeight / 2) - rY;
         //And finally, draw the text
         kxpBar.setColor(Color.black);
-        kxpBar.drawString(kxp,9 + a,7 + b);
+        kxpBar.drawString(kxp,/*9 +*/ a,/*7 +*/ b);
         kxpBar.dispose();
         return base;
     }

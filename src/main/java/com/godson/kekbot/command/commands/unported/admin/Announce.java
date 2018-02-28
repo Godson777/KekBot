@@ -21,8 +21,8 @@ public class Announce {
                 String prefix = CommandRegistry.getForClient(context.getJDA()).getPrefixForGuild(context.getGuild()) == null
                         ? CommandRegistry.getForClient(context.getJDA()).getPrefix()
                         : CommandRegistry.getForClient(context.getJDA()).getPrefixForGuild(context.getGuild());
-                String rawSplit[] = context.getMessage().getRawContent().split(" ", 4);
-                Settings settings = GSONUtils.getLegacySettings(context.getGuild());
+                String rawSplit[] = context.getMessage().getContentRaw().split(" ", 4);
+                Settings settings = Settings.getSettings(context.getGuild());
                 if (rawSplit.length == 1) {
                     channel.sendMessage("```md\n[Command](announce)" +
                             "\n\n[Category](Administration)" +
@@ -194,6 +194,6 @@ public class Announce {
                     }
                 }
             })
-            .onFailure((context, reason) -> context.getTextChannel().sendMessage(KekBot.respond(context, Action.NOPERM_USER, "`Administrator`")).queue()
+            .onFailure((context, reason) -> context.getTextChannel().sendMessage(KekBot.respond(Action.NOPERM_USER, "`Administrator`")).queue()
             );
 }

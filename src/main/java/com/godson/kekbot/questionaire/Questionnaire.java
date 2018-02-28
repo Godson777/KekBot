@@ -40,20 +40,32 @@ public class Questionnaire {
 
     private Consumer<Results> results = results -> {};
 
-    public Questionnaire(CommandEvent event) {
+    public static Questionnaire newQuestionnaire(CommandEvent event) {
+        return new Questionnaire(event);
+    }
+
+    public static Questionnaire newQuestionnaire(MessageReceivedEvent event) {
+        return new Questionnaire(event);
+    }
+
+    public static Questionnaire newQuestionnaire(Results results) {
+        return new Questionnaire(results);
+    }
+
+    private Questionnaire(CommandEvent event) {
         this.event = event;
         this.guild = event.getGuild();
         this.channel = event.getTextChannel();
         this.user = event.getAuthor();
     }
 
-    public Questionnaire(MessageReceivedEvent event) {
+    private Questionnaire(MessageReceivedEvent event) {
         this.guild = event.getGuild();
         this.channel = event.getTextChannel();
         this.user = event.getAuthor();
     }
 
-    public Questionnaire(Results results) {
+    private Questionnaire(Results results) {
         if (results.event != null) this.event = results.event;
         this.guild = results.getGuild();
         this.channel = results.getChannel();
