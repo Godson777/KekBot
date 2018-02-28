@@ -26,7 +26,10 @@ public class Music extends Command {
         usage.add("music queue playlist <name> - Plays a playlist you have saved.");
         usage.add("music vol <volume> - Sets the volume to the number you set.");
         usage.add("music skip - Skips a track. (Host Only)");
+        usage.add("music skip <to skip> - Skips X tracks. (Host Only)");
+        usage.add("music skipto <track #> - Skips to X track. (Host Only)");
         usage.add("music voteskip - Casts a vote to skip the track.");
+        usage.add("music remove <track #> - Removes a track from the queue. (Host Only)");
         usage.add("music song - Gets the current song info.");
         usage.add("music playlist - Lists all the tracks that are in the queue.");
         usage.add("music host - Makes someone else the \"Host\". (Host Only)");
@@ -78,6 +81,9 @@ public class Music extends Command {
                             KekBot.player.loadAndPlay(event, trackUrl);
                         }
                     }
+                    if (event.getArgs().length < 2 && event.getMessage().getAttachments().size() > 0) {
+                        KekBot.player.loadAndPlay(event, event.getMessage().getAttachments().get(0).getUrl());
+                    }
                     break;
                 case "vol":
                     if (!event.getGuild().getAudioManager().isConnected()) {
@@ -100,7 +106,47 @@ public class Music extends Command {
                         return;
                     }
 
-                    KekBot.player.skipTrack(event, false);
+                    if (event.getArgs().length > 1) {
+                        try {
+                            int toSkip = Integer.valueOf(event.getArgs()[1]);
+                            KekBot.player.skipTrack(event, toSkip);
+                        } catch (NumberFormatException e) {
+                            KekBot.player.skipTrack(event);
+                        }
+                        return;
+                    }
+
+                    KekBot.player.skipTrack(event);
+                    break;
+                case "skipto":
+                    if (!event.getGuild().getAudioManager().isConnected()) {
+                        event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING)).queue();
+                        return;
+                    }
+
+                    if (event.getArgs().length > 1) {
+                        try {
+                            int skipTo = Integer.valueOf(event.getArgs()[1]);
+                            KekBot.player.skipToTrack(event, skipTo);
+                        } catch (NumberFormatException e) {
+                            event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, "`" + event.getArgs()[1] + "`")).queue();
+                        }
+                    } else event.getChannel().sendMessage("No track specified.").queue();
+                    break;
+                case "remove":
+                    if (!event.getGuild().getAudioManager().isConnected()) {
+                        event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING)).queue();
+                        return;
+                    }
+
+                    if (event.getArgs().length > 1) {
+                        try {
+                            int toRemove = Integer.valueOf(event.getArgs()[1]) - 1;
+                            KekBot.player.removeTrack(event, toRemove);
+                        } catch (NumberFormatException e) {
+                            event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, "`" + event.getArgs()[1] + "`")).queue();
+                        }
+                    } else event.getChannel().sendMessage("No track specified.").queue();
                     break;
                 case "voteskip":
                     if (!event.getGuild().getAudioManager().isConnected()) {
@@ -108,7 +154,7 @@ public class Music extends Command {
                         return;
                     }
 
-                    KekBot.player.skipTrack(event, true);
+                    KekBot.player.voteSkip(event);
                     break;
                 case "song":
                     if (!event.getGuild().getAudioManager().isConnected()) {
