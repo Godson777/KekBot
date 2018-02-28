@@ -9,10 +9,7 @@ import javax.imageio.ImageIO;
 import javax.net.ssl.SSLHandshakeException;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.*;
 
 public class LuigiThumb extends Command {
@@ -64,7 +61,7 @@ public class LuigiThumb extends Command {
 
     private byte[] generate(BufferedImage base) throws IOException {
         Graphics2D graphics = base.createGraphics();
-        BufferedImage loogy = ImageIO.read(Utils.getResource("memegen/luigi_thumb.png"));
+        BufferedImage loogy = ImageIO.read(new File("resources/memegen/luigi_thumb.png"));
         graphics.drawImage(loogy, base.getWidth() - loogy.getWidth(), base.getHeight() - loogy.getHeight(), null);
         graphics.dispose();
         ByteArrayOutputStream stream = new ByteArrayOutputStream();

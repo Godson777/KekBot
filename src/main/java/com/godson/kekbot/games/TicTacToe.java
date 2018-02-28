@@ -47,7 +47,7 @@ public class TicTacToe extends Game {
     @Override
     public void startGame() {
         try {
-            tokens[0] = ImageIO.read(Utils.getResource("games/tictactoe/blank.png"));
+            tokens[0] = ImageIO.read(new File("resources/games/tictactoe/blank.png"));
             if (Profile.checkForProfile(players.get(0))) {
                 if (Profile.getProfile(players.get(0)).hasTokenEquipped()) {
                     tokens[1] = Profile.getProfile(players.get(0)).token.drawToken();
@@ -62,8 +62,8 @@ public class TicTacToe extends Game {
             } else {
                 tokens[2] = Token.GRAND_DAD.drawToken();
             }
-            if (tokens[1] == null) tokens[1] = ImageIO.read(Utils.getResource("games/tictactoe/X.png"));
-            if (tokens[2] == null) tokens[2] = ImageIO.read(Utils.getResource("games/tictactoe/O.png"));
+            if (tokens[1] == null) tokens[1] = ImageIO.read(new File("resources/games/tictactoe/X.png"));
+            if (tokens[2] == null) tokens[2] = ImageIO.read(new File("resources/games/tictactoe/O.png"));
             URL player1URL = new URL(players.get(0).getAvatarUrl());
             URLConnection connection = player1URL.openConnection();
             connection.setRequestProperty("User-Agent", "Mozilla/5.0");
@@ -122,7 +122,7 @@ public class TicTacToe extends Game {
     private void drawBoard() {
         try {
             channel.sendTyping().queue();
-            BufferedImage base = ImageIO.read(Utils.getResource("games/tictactoe/tictactoe.png"));
+            BufferedImage base = ImageIO.read(new File("resources/games/tictactoe/tictactoe.png"));
             Graphics2D board = base.createGraphics();
             board.drawImage(player1, 22, 22, 158, 158, null);
             board.drawImage(player2, 420, 22, 158, 158, null);

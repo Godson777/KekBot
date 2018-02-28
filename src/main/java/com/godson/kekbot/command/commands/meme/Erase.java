@@ -36,7 +36,7 @@ public class Erase extends Command {
         event.getChannel().sendTyping().queue();
         BufferedImage ava = Utils.getUserAvatarImage(event.getMessage().getMentionedUsers().get(0));
         try {
-            BufferedImage template = ImageIO.read(Utils.getResource("memegen/mistake_template.png"));
+            BufferedImage template = ImageIO.read(new File("resources/memegen/mistake_template.png"));
             Graphics2D image = template.createGraphics();
             image.drawImage(ava, 368, 375, 277, 270, null);
             image.dispose();

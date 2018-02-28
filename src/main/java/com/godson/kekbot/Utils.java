@@ -325,8 +325,4 @@ public class Utils {
             sb.append(EMOJI[word.toLowerCase().charAt(i)]);
         return sb.toString();
     }
-
-    public static File getResource(String file) {
-        return new File(Utils.class.getClassLoader().getResource(file).getFile());
-    }
 }

@@ -39,7 +39,7 @@ public class LongLive extends Command {
         BufferedImage target = Utils.getUserAvatarImage(user);
         BufferedImage ava = Utils.getUserAvatarImage(event.getAuthor());
         try {
-            BufferedImage template = ImageIO.read(Utils.getResource("memegen/longlivetheking_template.png"));
+            BufferedImage template = ImageIO.read(new File("resources/memegen/longlivetheking_template.png"));
             Graphics2D image = template.createGraphics();
             image.drawImage(ava, 1026, 42, 479, 479, null);
             image.drawImage(target, 503, 558, 442, 442, null);

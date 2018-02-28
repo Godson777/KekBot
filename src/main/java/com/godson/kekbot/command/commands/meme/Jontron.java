@@ -23,8 +23,8 @@ public class Jontron extends Command {
 
     @Override
     public void onExecuted(CommandEvent event) {
-        if (Utils.getResource("sound/jontron").isDirectory()) {
-            File jontrons[] = Utils.getResource("sound/jontron").listFiles();
+        if (new File("resources/sound/jontron").isDirectory()) {
+            File jontrons[] = new File("resources/sound/jontron").listFiles();
             Random random = new Random();
             int index = random.nextInt(jontrons.length);
             Optional<VoiceChannel> voiceChannel = event.getEvent().getGuild().getVoiceChannels().stream().filter(c -> c.getMembers().contains(event.getEvent().getMember())).findFirst();

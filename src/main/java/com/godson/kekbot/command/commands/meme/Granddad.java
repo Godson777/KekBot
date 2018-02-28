@@ -23,8 +23,8 @@ public class Granddad extends Command {
 
     @Override
     public void onExecuted(CommandEvent event) {
-        if (Utils.getResource("sound/granddad").isDirectory()) {
-            File granddads[] = Utils.getResource("sound/granddad").listFiles();
+        if (new File("resources/granddad").isDirectory()) {
+            File granddads[] = new File("resources/granddad").listFiles();
             Random random = new Random();
             int index = random.nextInt(granddads.length);
             Optional<VoiceChannel> voiceChannel = event.getEvent().getGuild().getVoiceChannels().stream().filter(c -> c.getMembers().contains(event.getEvent().getMember())).findFirst();

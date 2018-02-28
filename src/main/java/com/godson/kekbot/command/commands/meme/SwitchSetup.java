@@ -12,6 +12,7 @@ import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.*;
@@ -64,7 +65,7 @@ public class SwitchSetup extends Command {
     }
 
     private byte[] generate(BufferedImage image) throws IOException {
-        BufferedImage base = ImageIO.read(Utils.getResource("memegen/switch_setup.png"));
+        BufferedImage base = ImageIO.read(new File("resources//memegen/switch_setup.png"));
         BufferedImage blank = new BufferedImage(base.getWidth(), base.getHeight(), base.getType());
         Graphics2D graphics = blank.createGraphics();
 

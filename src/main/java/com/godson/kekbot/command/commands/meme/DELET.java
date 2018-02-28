@@ -40,7 +40,7 @@ public class DELET extends Command {
         Member member = event.getGuild().getMemberById(event.getMessage().getMentionedUsers().get(0).getId());
         BufferedImage target = Utils.getUserAvatarImage(member.getUser());
         try {
-            BufferedImage template = ImageIO.read(Utils.getResource("memegen/DELET_template.png"));
+            BufferedImage template = ImageIO.read(new File("resources/memegen/DELET_template.png"));
             BufferedImage bg = new BufferedImage(template.getWidth(), template.getHeight(), template.getType());
             Graphics2D image = bg.createGraphics();
             image.drawImage(target, 40, 147, 40, 40, null);

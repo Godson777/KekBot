@@ -23,7 +23,7 @@ public enum Badge {
     }
 
     public BufferedImage drawBadge() throws IOException {
-        return ImageIO.read(Utils.getResource("profile/badge/" + file));
+        return ImageIO.read(new File("resources/profile/badge/" + file));
     }
 
     public String getName() {

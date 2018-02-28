@@ -151,10 +151,10 @@ public class Profile {
      * @throws IOException If for some reason, the files are missing, this exception is thrown.
      */
     public byte[] drawCard() throws IOException {
-        BufferedImage cardTemplate = ImageIO.read(Utils.getResource("profile/template.png"));
+        BufferedImage cardTemplate = ImageIO.read(new File("resources/profile/template.png"));
         BufferedImage background = (currentBackgroundID == null ? drawDefaultBackground() : KekBot.backgroundManager.get(currentBackgroundID).drawBackground());
         BufferedImage base = new BufferedImage(cardTemplate.getWidth(), cardTemplate.getHeight(), cardTemplate.getType());
-        BufferedImage topkek = ImageIO.read(Utils.getResource("profile/topkek.png"));
+        BufferedImage topkek = ImageIO.read(new File("resources/profile/topkek.png"));
         BufferedImage kxpBar = drawKXP();
         BufferedImage ava = Utils.getUserAvatarImage(KekBot.jda.getUserById(String.valueOf(userID)));
         Graphics2D card = base.createGraphics();
@@ -242,7 +242,7 @@ public class Profile {
      * @throws IOException If for some reason, the files are missing, this exception is thrown.
      */
     private BufferedImage drawKXP() throws IOException {
-        BufferedImage outline = ImageIO.read(Utils.getResource("profile/bar.png"));
+        BufferedImage outline = ImageIO.read(new File("resources/profile/bar.png"));
         BufferedImage base = new BufferedImage(outline.getWidth(), outline.getHeight(), outline.getType());
         Graphics2D kxpBar = base.createGraphics();
         kxpBar.setColor(Color.GREEN);

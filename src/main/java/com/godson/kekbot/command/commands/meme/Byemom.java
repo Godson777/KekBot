@@ -32,7 +32,7 @@ public class Byemom extends Command {
         event.getChannel().sendTyping().queue();
         BufferedImage ava = Utils.getUserAvatarImage(event.getAuthor());
         try {
-            BufferedImage template = ImageIO.read(Utils.getResource("memegen/byemom_template.png"));
+            BufferedImage template = ImageIO.read(new File("resources/memegen/byemom_template.png"));
             Graphics2D image = template.createGraphics();
             image.drawImage(ava, 523, 12, 80, 80, null);
             image.drawImage(ava, 73, 338, 128, 128, null);
