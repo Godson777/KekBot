@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 
 public class GamesManager extends ListenerAdapter {
     private Map<Long, Game> activeGames = new HashMap<>();
-    private Map<Game, BetManager> bets = new HashMap<>();
     private GameRegistry gameRegistry = new GameRegistry();
 
     public Game getGame(TextChannel channel) {
