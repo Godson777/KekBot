@@ -6,6 +6,7 @@ import com.godson.kekbot.profile.Profile;
 import com.godson.kekbot.responses.Action;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
+import javafx.scene.control.DatePicker;
 import net.dv8tion.jda.core.entities.User;
 
 public class Pay extends Command {
@@ -23,9 +24,9 @@ public class Pay extends Command {
         if (event.getArgs().length > 0) {
             if (event.getMessage().getMentionedUsers().size() > 0) {
                 if (event.getArgs().length > 1) {
-                    int toPay;
+                    double toPay;
                     try {
-                        toPay = Integer.valueOf(event.getArgs()[1]);
+                        toPay = Double.valueOf(event.getArgs()[1]);
                     } catch (NumberFormatException e) {
                         event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, "`" + event.getArgs()[1] + "`")).queue();
                         return;
