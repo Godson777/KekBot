@@ -6,7 +6,6 @@ import java.util.*;
 
 public class GameRegistry {
     private Map<String, Integer> registeredGames = new HashMap<>();
-    private Map<String, Class<Game>> blah = new HashMap<>();
 
     /**
      * Ghetto way of getting game objects.
