@@ -1,7 +1,7 @@
 <<<<<<< HEAD
 target/
 out/
-logs/
+log/
 .idea/
 modules/
 src/test/
@@ -9,3 +9,4 @@ tickets.json
 profiles/
 profiles copy/
 config/
+/twitter4j.properties
