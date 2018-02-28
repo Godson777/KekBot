@@ -675,10 +675,14 @@ public class MusicPlayer extends ListenerAdapter {
     }
 
     public void shutdown(String reason) {
-        musicManagers.forEach((id, manager) -> {
-            Guild guild = KekBot.jda.getGuildById(id);
+        Iterator<Map.Entry<Long, GuildMusicManager>> itr = musicManagers.entrySet().iterator();
+
+        while(itr.hasNext())
+        {
+            Map.Entry<Long, GuildMusicManager> entry = itr.next();
+            Guild guild = KekBot.jda.getGuildById(entry.getKey());
             closeConnection(guild, "This music session was ended due to KekBot shutting down with the reason: `" + reason + "`");
-        });
+        }
     }
 
     @Override

@@ -1,6 +1,8 @@
 package com.godson.kekbot.games;
 
 import com.godson.kekbot.KekBot;
+import com.godson.kekbot.music.GuildMusicManager;
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.channel.text.TextChannelDeleteEvent;
@@ -82,10 +84,14 @@ public class GamesManager extends ListenerAdapter {
     }
 
     public void shutdown(String reason) {
-        activeGames.forEach((id, game) -> {
-            game.getBets().declareTie();
-            game.channel.sendMessage("This game was ended due to KekBot shutting down with the reason: `" + reason + "` (Don't worry, any bets made were all returned.)").queue();
-        });
+        Iterator<Map.Entry<Long, Game>> itr = activeGames.entrySet().iterator();
+
+        while(itr.hasNext())
+        {
+            Map.Entry<Long, Game> entry = itr.next();
+            entry.getValue().getBets().declareTie();
+            entry.getValue().channel.sendMessage("This game was ended due to KekBot shutting down with the reason: `" + reason + "` (Don't worry, any bets made were all returned.)").queue();
+        }
     }
 
     @Override
