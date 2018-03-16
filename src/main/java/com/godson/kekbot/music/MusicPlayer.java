@@ -321,7 +321,7 @@ public class MusicPlayer extends ListenerAdapter {
                     return;
                 }
 
-                if (toRemove < 1) {
+                if (toRemove < 0) {
                     event.getChannel().sendMessage("You cannot use a number less than 1.").queue();
                     return;
                 }
