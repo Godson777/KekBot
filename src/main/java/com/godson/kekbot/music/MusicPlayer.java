@@ -774,9 +774,7 @@ public class MusicPlayer extends ListenerAdapter {
                     if (botMoved) return channelJoined.getMembers().size() > 0;
                     else return channelJoined.equals(event.getChannelLeft());
 
-
-                        }, event1 -> {
-
+                    }, event1 -> {
 
                     if (leftWaitingVoice(musicManager, m, event1)) return;
 
