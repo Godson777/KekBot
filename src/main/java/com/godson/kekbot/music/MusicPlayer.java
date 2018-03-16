@@ -386,6 +386,12 @@ public class MusicPlayer extends ListenerAdapter {
                     } else {
                         musicManager.scheduler.skipTracks(toSkip);
                     }
+
+                    if (skipTo) {
+                        musicManager.scheduler.skipToTrack(toSkip);
+                    } else {
+                        musicManager.scheduler.skipTracks(toSkip);
+                    }
                 }
             } else {
                 event.getChannel().sendMessage("Only the host and users with the `Administrator` permission can skip tracks.").queue();

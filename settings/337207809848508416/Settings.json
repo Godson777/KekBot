@@ -1,9 +1,0 @@
-{
-  "guildName": "Pi\u0027s Personal Meme Server",
-  "announceSettings": {
-    "welcome": false,
-    "farewell": false,
-    "broadcasts": true,
-    "broadcastChannelID": "4357435"
-  }
-}

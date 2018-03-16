@@ -2,7 +2,6 @@ package com.godson.kekbot;
 
 import com.godson.kekbot.profile.BackgroundManager;
 import com.godson.kekbot.settings.Config;
-import com.google.gson.internal.Primitives;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.User;
@@ -15,7 +14,6 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -326,18 +324,5 @@ public class Utils {
         for(int i = 0; i < word.length(); i++)
             sb.append(EMOJI[word.toLowerCase().charAt(i)]);
         return sb.toString();
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T> T[] increaseArraySize(T original[], int newLength) {
-
-        //Assuming original[0] isn't null.
-        T[] t = (T[]) Array.newInstance(original[0].getClass(), newLength);
-
-        for (int i = 0; i < original.length; i++){
-            t[i] = original[i];
-        }
-
-        return t;
     }
 }
