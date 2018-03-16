@@ -386,12 +386,6 @@ public class MusicPlayer extends ListenerAdapter {
                     } else {
                         musicManager.scheduler.skipTracks(toSkip);
                     }
-
-                    if (skipTo) {
-                        musicManager.scheduler.skipToTrack(toSkip);
-                    } else {
-                        musicManager.scheduler.skipTracks(toSkip);
-                    }
                 }
             } else {
                 event.getChannel().sendMessage("Only the host and users with the `Administrator` permission can skip tracks.").queue();
@@ -774,7 +768,9 @@ public class MusicPlayer extends ListenerAdapter {
                     if (botMoved) return channelJoined.getMembers().size() > 0;
                     else return channelJoined.equals(event.getChannelLeft());
 
-                    }, event1 -> {
+
+                        }, event1 -> {
+
 
                     if (leftWaitingVoice(musicManager, m, event1)) return;
 
