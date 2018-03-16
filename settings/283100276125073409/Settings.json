@@ -1,0 +1,9 @@
+{
+  "guildName": "Hypixel Shenanigans",
+  "announceSettings": {
+    "welcome": false,
+    "farewell": false,
+    "broadcasts": true,
+    "broadcastChannelID": "305975852020006914"
+  }
+}

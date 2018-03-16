@@ -1,0 +1,39 @@
+2018-02-28 06:50:59.423 [main] DEBUG c.s.d.l.tools.io.TrustManagerBuilder - Certificate list /certificates/extended.txt not present in classpath.
+2018-02-28 06:50:59.638 [main] DEBUG twitter4j.HttpClientImpl - Request: 
+2018-02-28 06:50:59.638 [main] DEBUG twitter4j.HttpClientImpl - POST https://api.twitter.com/1.1/statuses/update.json
+2018-02-28 06:50:59.639 [main] DEBUG twitter4j.auth.OAuthAuthorization - OAuth base string: POST&https%3A%2F%2Fapi.twitter.com%2F1.1%2Fstatuses%2Fupdate.json&include_entities%3Dtrue%26oauth_consumer_key%3DILaoOtStn8hqzmHonqAcS6D0o%26oauth_nonce%3D-327590929%26oauth_signature_method%3DHMAC-SHA1%26oauth_timestamp%3D1519818659%26oauth_token%3D958176875108593664-fB97iwODaX7z5ES4946wboF8ycyDTwQ%26oauth_version%3D1.0%26status%3DKekBot%2520has%2520started%2520up.%2520Please%2520wait%2520an%2520hour%2520before%2520expecting%2520more%2520high%2520quality%25E2%2584%25A2%2520tweets.
+2018-02-28 06:50:59.722 [main] DEBUG twitter4j.auth.OAuthAuthorization - OAuth signature: kpXmQNReqI0kyD8+lbXYBxNcGU8=
+2018-02-28 06:50:59.723 [main] DEBUG twitter4j.HttpClientImpl - Authorization: *************************************************************************************************************************************************************************************************************************************************************************************
+2018-02-28 06:50:59.723 [main] DEBUG twitter4j.HttpClientImpl - X-Twitter-Client-Version: 4.0.4
+2018-02-28 06:50:59.723 [main] DEBUG twitter4j.HttpClientImpl - X-Twitter-Client-URL: http://twitter4j.org/en/twitter4j-4.0.4.xml
+2018-02-28 06:50:59.723 [main] DEBUG twitter4j.HttpClientImpl - X-Twitter-Client: Twitter4J
+2018-02-28 06:50:59.723 [main] DEBUG twitter4j.HttpClientImpl - User-Agent: twitter4j http://twitter4j.org/ /4.0.4
+2018-02-28 06:50:59.723 [main] DEBUG twitter4j.HttpClientImpl - Accept-Encoding: gzip
+2018-02-28 06:50:59.723 [main] DEBUG twitter4j.HttpClientImpl - Post Params: status=KekBot%20has%20started%20up.%20Please%20wait%20an%20hour%20before%20expecting%20more%20high%20quality%E2%84%A2%20tweets.&include_entities=true
+2018-02-28 06:51:00.234 [main] DEBUG twitter4j.HttpClientImpl - Response: 
+2018-02-28 06:51:00.235 [main] DEBUG twitter4j.HttpClientImpl - date: Wed, 28 Feb 2018 11:51:00 GMT
+2018-02-28 06:51:00.235 [main] DEBUG twitter4j.HttpClientImpl - HTTP/1.1 200 OK
+2018-02-28 06:51:00.235 [main] DEBUG twitter4j.HttpClientImpl - server: tsa_c
+2018-02-28 06:51:00.235 [main] DEBUG twitter4j.HttpClientImpl - content-length: 962
+2018-02-28 06:51:00.235 [main] DEBUG twitter4j.HttpClientImpl - x-tsa-request-body-time: 1
+2018-02-28 06:51:00.235 [main] DEBUG twitter4j.HttpClientImpl - expires: Tue, 31 Mar 1981 05:00:00 GMT
+2018-02-28 06:51:00.235 [main] DEBUG twitter4j.HttpClientImpl - x-response-time: 159
+2018-02-28 06:51:00.235 [main] DEBUG twitter4j.HttpClientImpl - x-frame-options: SAMEORIGIN
+2018-02-28 06:51:00.235 [main] DEBUG twitter4j.HttpClientImpl - content-encoding: gzip
+2018-02-28 06:51:00.236 [main] DEBUG twitter4j.HttpClientImpl - x-transaction: 00d5e516008b15f0
+2018-02-28 06:51:00.236 [main] DEBUG twitter4j.HttpClientImpl - strict-transport-security: max-age=631138519
+2018-02-28 06:51:00.236 [main] DEBUG twitter4j.HttpClientImpl - pragma: no-cache
+2018-02-28 06:51:00.236 [main] DEBUG twitter4j.HttpClientImpl - set-cookie: guest_id=v1%3A151981866057984762; Expires=Fri, 28 Feb 2020 11:51:00 UTC; Path=/; Domain=.twitter.com
+2018-02-28 06:51:00.236 [main] DEBUG twitter4j.HttpClientImpl - set-cookie: lang=en; Path=/
+2018-02-28 06:51:00.236 [main] DEBUG twitter4j.HttpClientImpl - set-cookie: personalization_id="v1_Fea6Gx4A4xMzLS3Imhtc2A=="; Expires=Fri, 28 Feb 2020 11:51:00 UTC; Path=/; Domain=.twitter.com
+2018-02-28 06:51:00.236 [main] DEBUG twitter4j.HttpClientImpl - last-modified: Wed, 28 Feb 2018 11:51:00 GMT
+2018-02-28 06:51:00.236 [main] DEBUG twitter4j.HttpClientImpl - x-xss-protection: 1; mode=block; report=https://twitter.com/i/xss_report
+2018-02-28 06:51:00.236 [main] DEBUG twitter4j.HttpClientImpl - x-content-type-options: nosniff
+2018-02-28 06:51:00.236 [main] DEBUG twitter4j.HttpClientImpl - content-disposition: attachment; filename=json.json
+2018-02-28 06:51:00.237 [main] DEBUG twitter4j.HttpClientImpl - x-connection-hash: 9b442e7cda973a0b0c47a8fb9f13ceb5
+2018-02-28 06:51:00.237 [main] DEBUG twitter4j.HttpClientImpl - x-access-level: read-write
+2018-02-28 06:51:00.237 [main] DEBUG twitter4j.HttpClientImpl - x-twitter-response-tags: BouncerCompliant
+2018-02-28 06:51:00.237 [main] DEBUG twitter4j.HttpClientImpl - content-type: application/json;charset=utf-8
+2018-02-28 06:51:00.237 [main] DEBUG twitter4j.HttpClientImpl - cache-control: no-cache, no-store, must-revalidate, pre-check=0, post-check=0
+2018-02-28 06:51:00.237 [main] DEBUG twitter4j.HttpClientImpl - status: 200 OK
+2018-02-28 06:51:00.244 [main] DEBUG twitter4j.HttpResponseImpl - {"in_reply_to_status_id_str":null,"in_reply_to_status_id":null,"coordinates":null,"created_at":"Wed Feb 28 11:51:00 +0000 2018","truncated":false,"in_reply_to_user_id_str":null,"source":"<a href=\"https://twitter.com/K3kB0t\" rel=\"nofollow\">KekBot<\/a>","retweet_count":0,"retweeted":false,"geo":null,"in_reply_to_screen_name":null,"is_quote_status":false,"entities":{"urls":[],"hashtags":[],"user_mentions":[],"symbols":[]},"id_str":"968815797849198592","in_reply_to_user_id":null,"favorite_count":0,"id":968815797849198592,"text":"KekBot has started up. Please wait an hour before expecting more high quality™ tweets.","place":null,"contributors":null,"lang":"en","user":{"utc_offset":-18000,"friends_count":2,"profile_image_url_https":"https://pbs.twimg.com/profile_images/958178116630794240/K2enyigz_normal.jpg","listed_count":0,"profile_background_image_url":"http://abs.twimg.com/images/themes/theme1/bg.png","default_profile_image":false,"favourites_count":4,"description":"ALMOST all tweets from this account are made from a Markov Chain, based off of messages received on Discord.\n\nThe other tweets are of unknown origin.","created_at":"Tue Jan 30 03:15:43 +0000 2018","is_translator":false,"profile_background_image_url_https":"https://abs.twimg.com/images/themes/theme1/bg.png","protected":false,"screen_name":"K3kB0t","id_str":"958176875108593664","profile_link_color":"91D2FA","is_translation_enabled":false,"translator_type":"none","id":958176875108593664,"geo_enabled":false,"profile_background_color":"000000","lang":"en","has_extended_profile":true,"profile_sidebar_border_color":"000000","profile_text_color":"000000","verified":false,"profile_image_url":"http://pbs.twimg.com/profile_images/958178116630794240/K2enyigz_normal.jpg","time_zone":"Eastern Time (US & Canada)","url":null,"contributors_enabled":false,"profile_background_tile":false,"entities":{"description":{"urls":[]}},"statuses_count":20,"follow_request_sent":false,"followers_count":13,"profile_use_background_image":false,"default_profile":false,"following":false,"name":"KekBot","location":"Discord, The Internet","profile_sidebar_fill_color":"000000","notifications":false},"favorited":false}

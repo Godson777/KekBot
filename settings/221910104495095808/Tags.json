@@ -1,0 +1,35 @@
+{
+  "tags": [
+    {
+      "name": "primenumbers",
+      "contents": "https://upload.wikimedia.org/wikipedia/commons/b/b9/Sieve_of_Eratosthenes_animation.gif",
+      "creatorID": "99405418077364224",
+      "timeCreated": "N/A"
+    },
+    {
+      "name": "fuckthis",
+      "contents": "https://www.youtube.com/watch?v\u003d5FjWe31S_0g",
+      "creatorID": "180480715010342912",
+      "timeCreated": "N/A"
+    },
+    {
+      "name": "markdown",
+      "contents": "```md\n# blue\n[with links](as such)\n[link reference][1]\n\n[1]: something\n\n* bullet point\n\nhello world\n\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\n\n1.\n2.\n\n\u003e grey\n\u003cxml_stuff inline\u003dsomething\u003e\n\"quotes\"\n(bracket)\n[alone]\n[2]: anything goes here\n[234]: more\n[abc]: nope\n[bracket with colon]: anything\n\nalone\n\ntitle? two equal signs\nmore\n\u003d\u003d```",
+      "creatorID": "99405418077364224",
+      "timeCreated": "N/A"
+    },
+    {
+      "name": "test",
+      "contents": "wew",
+      "creatorID": "99405418077364224",
+      "timeCreated": "Friday, September 30, 09:38PM (EST)",
+      "timeLastEdited": "Saturday, November 05, 11:32PM (EST)"
+    },
+    {
+      "name": "doodleoodlecake",
+      "contents": "https://puu.sh/sLsZ1.png",
+      "creatorID": "99405418077364224",
+      "timeCreated": "Sunday, December 11, 02:04AM (EST)"
+    }
+  ]
+}

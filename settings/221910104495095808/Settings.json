@@ -1,0 +1,15 @@
+{
+  "guildName": "KekBot\u0027s Chamber",
+  "prefix": "$",
+  "autoRoleID": "227255316314587137",
+  "announceSettings": {
+    "welcome": false,
+    "farewell": false,
+    "broadcasts": true,
+    "welcomeChannelID": "244321105366614018",
+    "welcomeMessage": "Welcome, {mention}, to KekBot\u0027s chamber!",
+    "farewellChannelID": "244321105366614018",
+    "farewellMessage": "Rest in Spaghetti, {name}.",
+    "broadcastChannelID": "259094325525348353"
+  }
+}

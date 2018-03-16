@@ -140,4 +140,9 @@ public class Listener extends ListenerAdapter {
             }
         }
     }
+
+    public void shutdown() {
+        timer.cancel();
+        timer.purge();
+    }
 }
