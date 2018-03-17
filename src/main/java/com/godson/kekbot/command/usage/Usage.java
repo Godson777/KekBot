@@ -8,21 +8,18 @@ import com.godson.kekbot.command.usage.Usage.UsageSignature;
 
 public class Usage extends ArrayList<UsageSignature> {
 
-    protected final static String OPEN = "[(<";
-    protected final static String CLOSE = "])>";
-    protected final static String SPACE = " \n";
+    protected static final String OPEN = "[(<";
+    protected static final String CLOSE = "])>";
+    protected static final String SPACE = " \n";
 
     public Usage() {}
-    public Usage(String usageString, String usageDelim) {
-        this.add(usageString, usageDelim);
-    }
 
-    public Usage add(String usageString, String usageDelim) {
+    public Usage add(String usageString, String usageDelim) throws ParseException {
         super.add(new UsageSignature(usageString, usageDelim));
         return this;
     }
 
-    public static Tag[] parseUsage(String usageString) {
+    public static Tag[] parseUsage(String usageString) throws ParseException {
         final ParserData usage = new ParserData();
         final char[] usageChars = usageString.toCharArray();
 
@@ -68,7 +65,7 @@ public class Usage extends ArrayList<UsageSignature> {
         return usage.tags.toArray(new Tag[usage.tags.size()]);
     }
 
-    protected class ParserData {
+    protected static class ParserData {
         public List<Tag> tags = new ArrayList<>();
         public int opened = 0;
         public String current = "";
@@ -108,19 +105,30 @@ public class Usage extends ArrayList<UsageSignature> {
         usage.current = "";
     }
 
-    public class UsageSignature {
+    private static void tagSpace(ParserData usage, char c) throws ParseException {
+        if (c == '\n') throw new ParseException(usage.at + ": there can't be a line break in the usage string", usage.charIndex);
+        if (usage.opened != 0) throw new ParseException(usage.at + ": spaces aren't allowed inside a tag", usage.charIndex);
+        if (usage.current.length() > 0) throw new ParseException(usage.fromTo + ": there can't be a literal outside a tag.", usage.from);
+    }
+
+    public static class UsageSignature {
         public String deliminatedUsage = "";
         public String usageString;
         public String usageDelim;
         public Tag[] parsedUsage;
 
-        public UsageSignature(String usageString, String usageDelim) {
+        public UsageSignature(String usageString, String usageDelim) throws ParseException {
             if (!usageString.isEmpty()) {
                 deliminatedUsage = " " + String.join(usageDelim, usageString.split(" "));
             }
             this.usageString = usageString;
             this.usageDelim = usageDelim;
             parsedUsage = Usage.parseUsage(this.usageString);
+        }
+
+        @Override
+        public String toString() {
+            return this.deliminatedUsage;
         }
     }
 }
