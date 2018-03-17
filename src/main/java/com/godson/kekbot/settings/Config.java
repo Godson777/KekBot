@@ -25,6 +25,7 @@ public class Config {
     private int shards;
     private String joinLogChannel;
     private String ticketChannel;
+    private String twitterChannel;
     private List<String> botAdmins = new ArrayList<>();
     private Map<String, Integer> blockedUsers = new HashMap<>();
     private List<String> patrons = new ArrayList<>();
@@ -107,6 +108,10 @@ public class Config {
 
     public String getTicketChannel() {
         return ticketChannel;
+    }
+
+    public String getTwitterChannel() {
+        return twitterChannel;
     }
 
     /**

@@ -10,6 +10,9 @@ import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 
 import java.io.UnsupportedEncodingException;
+import java.sql.Time;
+import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -18,11 +21,12 @@ public class TwitterManager {
 
     private final MarkovChain chain;
     private final ScheduledExecutorService tweeter = new ScheduledThreadPoolExecutor(2);
+    private OffsetDateTime lastTweet;
 
     public TwitterManager(MarkovChain chain) {
         this.chain = chain;
         tweeter.scheduleAtFixedRate(this::tweet, 60, 30, TimeUnit.MINUTES);
-        tweet("KekBot has started up. Please wait an hour before expecting more high quality™ tweets.");
+        tweet("KekBot has started up. Please wait an hour before expecting more high quality™ tweets.\n\n" + Instant.now().toString());
     }
 
     private void tweet() {

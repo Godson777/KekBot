@@ -34,7 +34,9 @@ public class MarkovChain {
     }
 
     public void addDictionary(String string) {
-        string = removeBlacklistedWords(string.toLowerCase().trim());
+        string = removeBlacklistedWords(string.toLowerCase().trim())
+                .replaceAll("((?:https://)|(?:http://)|(?:www\\.))?([a-zA-Z0-9\\-.]+\\.[a-zA-Z]{2,3}(?:\\??)[a-zA-Z0-9\\-._?,'/\\\\+&%$#=~]+)", "")
+                .replaceAll(":[a-zA-Z0-9_\\-~]+:", "");
         for (final String sentence : splitSentences(string)) {
             String lastWord = null, lastLastWord = null;
             for (final String word : addDots(splitWords(sentence))) {

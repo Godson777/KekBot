@@ -18,7 +18,7 @@ public class Shutdown extends Command {
     public void onExecuted(CommandEvent event) {
         event.getMessage().getChannel().sendMessage("Well, looks like this is it for me! Hope you all had a gay old time!").queue();
 
-        String reason = "No Description Provided.";
+        String reason = "No Reason Provided.";
         if (event.getArgs().length > 0) reason = event.combineArgs();
 
 

@@ -187,6 +187,8 @@ public class CommandClient extends ListenerAdapter {
                 settings = new Settings(guild);
                 settings.save();
             }
+
+            if (settings.getPrefix() != null) setCustomPrefix(guild.getId(), settings.getPrefix());
         });
     }
 

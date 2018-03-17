@@ -43,6 +43,7 @@ public class UDCommand extends Command {
                 pBuilder.setEventWaiter(KekBot.waiter);
                 pBuilder.setUsers(event.getAuthor());
                 pBuilder.build().display(event.getChannel());
+                pBuilder.setFinalAction(m -> m.clearReactions().queue());
             } else {
                 event.getChannel().sendMessage("No definitions found.").queue();
             }
