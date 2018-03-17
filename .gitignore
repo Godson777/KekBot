@@ -2,6 +2,8 @@ target/
 out/
 log/
 .idea/
+.vscode/
+.settings/
 modules/
 src/test/
 tickets.json
