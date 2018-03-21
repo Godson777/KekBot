@@ -16,12 +16,16 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Array;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
+import java.util.regex.Pattern;
 
 public class Utils {
 
@@ -68,6 +72,19 @@ public class Utils {
         EMOJI['9'] = "9⃣ ";
         EMOJI['!'] = "❗ ";
         EMOJI['?'] = "❓ ";
+    }
+
+    public static final Map<Integer, Integer> regexBitmaskFlags;
+    static {
+        Map<Integer, Integer> map = new HashMap<>(7);
+        map.put((int) 'i', Pattern.CASE_INSENSITIVE);
+        map.put((int) 'd', Pattern.UNIX_LINES);
+        map.put((int) 'm', Pattern.MULTILINE);
+        map.put((int) 's', Pattern.DOTALL);
+        map.put((int) 'u', Pattern.UNICODE_CASE);
+        map.put((int) 'x', Pattern.COMMENTS);
+        map.put((int) 'U', Pattern.UNICODE_CHARACTER_CLASS);
+        regexBitmaskFlags = Collections.unmodifiableMap(map);
     }
 
     /**
@@ -340,4 +357,23 @@ public class Utils {
 
         return t;
     }
+
+    public static int resolvePatternFlags(String flagStr) {
+        return flagStr.codePoints().reduce(0, (flags, flagChar) -> flags | regexBitmaskFlags.get(flagChar));
+    }
+
+    // This was a stupid idea, why did I do this
+    // public static Object callStaticClassMethod(Class<?> T, String methodName, Object ...args) throws Throwable {
+    //     final Object[] classes = new Object[args.length];
+    //     for (int i = 0; i < args.length; i++) {
+    //         classes[i] = args[i].getClass();
+    //     }
+    //     try {
+    //         return ((Method) T.getClass().getMethod("getMethod", String.class, Class.class).invoke(methodName, classes)).invoke(null, args);
+    //     } catch (NoSuchMethodException | IllegalAccessException e) {
+    //         return e; // I genuinely don't know what to do with these...
+    //     } catch (InvocationTargetException e) {
+    //         throw e.getTargetException();
+    //     }
+    // }
 }

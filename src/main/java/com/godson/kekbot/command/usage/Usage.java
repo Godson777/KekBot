@@ -4,9 +4,14 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.godson.kekbot.command.usage.Usage.UsageSignature;
+import com.godson.kekbot.command.usage.Usage.UsageOverload;
 
-public class Usage extends ArrayList<UsageSignature> {
+/**
+ * Converts usage strings into objects to compare against later
+ * 
+ * The usage system is based on Klasa's. https://github.com/dirigeants/klasa
+ */
+public class Usage extends ArrayList<UsageOverload> {
 
     protected static final String OPEN = "[(<";
     protected static final String CLOSE = "])>";
@@ -15,7 +20,7 @@ public class Usage extends ArrayList<UsageSignature> {
     public Usage() {}
 
     public Usage add(String usageString, String usageDelim) throws ParseException {
-        super.add(new UsageSignature(usageString, usageDelim));
+        super.add(new UsageOverload(usageString, usageDelim));
         return this;
     }
 
@@ -111,13 +116,28 @@ public class Usage extends ArrayList<UsageSignature> {
         if (usage.current.length() > 0) throw new ParseException(usage.fromTo + ": there can't be a literal outside a tag.", usage.from);
     }
 
-    public static class UsageSignature {
+    /**
+     * Represents each overload in this usage
+     */
+    public static class UsageOverload {
+        /**
+         * The usage string, re-deliminated with the usageDelim
+         */
         public String deliminatedUsage = "";
+        /**
+         * The original usage string, passed from the command constructor
+         */
         public String usageString;
+        /**
+         * The delimiter used between parameters
+         */
         public String usageDelim;
+        /**
+         * The actual parsed usage objects, one for each tag
+         */
         public Tag[] parsedUsage;
 
-        public UsageSignature(String usageString, String usageDelim) throws ParseException {
+        public UsageOverload(String usageString, String usageDelim) throws ParseException {
             if (!usageString.isEmpty()) {
                 deliminatedUsage = " " + String.join(usageDelim, usageString.split(" "));
             }
