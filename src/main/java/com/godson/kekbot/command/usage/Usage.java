@@ -2,9 +2,11 @@ package com.godson.kekbot.command.usage;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.godson.kekbot.ThrowableString;
+import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.usage.Usage.UsageOverload;
 
 /**
@@ -19,23 +21,82 @@ public class Usage extends ArrayList<UsageOverload> {
     protected static final String CLOSE = "])>";
     protected static final String SPACE = " \n";
 
-    public Usage() {}
+    public final Command command;
 
+    public Usage(Command command) {
+        this.command = command;
+    }
+
+    /**
+     * Add a new usage overload
+     */
+    public Usage add(String usageString) throws ParseException, ThrowableString {
+        super.add(new UsageOverload(usageString, ""));
+        return this;
+    }
+    /**
+     * Add a new usage overload, with parameter delimiter
+     */
     public Usage add(String usageString, String usageDelim) throws ParseException, ThrowableString {
         super.add(new UsageOverload(usageString, usageDelim));
         return this;
     }
 
     /**
+     * Get all names and aliases for the command
+     */
+    public String[] getNames() {
+        final String[] aliases = this.command.getAliases();
+        final String[] names = new String[aliases.length];
+        names[0] = this.command.getName();
+        for (int i = 0; i < aliases.length; i++) {
+            names[i + 1] = aliases[i];
+        }
+        return names;
+    }
+
+    /**
+     * Get a string of all names and aliases for the command
+     */
+    public String getNamesString() {
+        final String[] names = this.getNames();
+        return names.length == 1 ? names[0] : "《" + String.join("|", names) + "》";
+    }
+
+    /**
+     * Get the command names plus the usage string, deliminated
+     */
+    public String getSignature(int index) {
+        return this.getNamesString() + this.get(index).deliminatedUsage;
+    }
+
+    /**
+     * For all overloads, get the command names plus the usage string, deliminated
+     */
+    public String[] getAllSignatures() {
+        final String namesStr = getNamesString();
+        final String[] signatures = new String[size()];
+        for (int i = 0; i < size(); i++) signatures[i] = namesStr + get(i).deliminatedUsage;
+        return signatures;
+    }
+
+    /**
+     * Creates a full usage string[] including prefix and commands/aliases for documentation/help purposes
+     */
+    public String[] getFullUsages(String prefix) {
+        final String prefixedNames = prefix + getNamesString();
+        final String[] signatures = new String[size()];
+        for (int i = 0; i < size(); i++) signatures[i] = prefixedNames + get(i).deliminatedUsage;
+        return signatures;
+    }
+
+    /**
      * Represents each overload in this usage
      */
     public static class UsageOverload {
+
         /**
-         * The usage string, re-deliminated with the usageDelim
-         */
-        public String deliminatedUsage = "";
-        /**
-         * The original usage string, passed from the command constructor
+         * The original usage string, passed from usage.add, passed from the command constructor
          */
         public String usageString;
         /**
@@ -43,16 +104,18 @@ public class Usage extends ArrayList<UsageOverload> {
          */
         public String usageDelim;
         /**
+         * The usage string, re-deliminated with the usageDelim
+         */
+        public String deliminatedUsage = "";
+        /**
          * The actual parsed usage objects, one for each tag
          */
         public Tag[] parsedUsage;
 
         public UsageOverload(String usageString, String usageDelim) throws ParseException, ThrowableString {
-            if (!usageString.isEmpty()) {
-                deliminatedUsage = " " + String.join(usageDelim, usageString.split(" "));
-            }
             this.usageString = usageString;
             this.usageDelim = usageDelim;
+            if (!usageString.isEmpty()) deliminatedUsage = " " + String.join(usageDelim, usageString.split(" "));
             parsedUsage = parseUsage(this.usageString);
         }
 
