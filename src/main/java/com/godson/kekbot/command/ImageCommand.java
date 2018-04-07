@@ -1,5 +1,7 @@
 package com.godson.kekbot.command;
 
+import net.dv8tion.jda.core.entities.Message;
+
 import javax.imageio.ImageIO;
 import javax.net.ssl.SSLHandshakeException;
 import java.awt.image.BufferedImage;
@@ -44,7 +46,26 @@ public abstract class ImageCommand extends Command {
                 } catch (IOException e) {
                     throwException(e, event, "Image Generation Problem");
                 }
-            } else event.getChannel().sendMessage("No image provided.").queue();
+            } else {
+                event.getChannel().getHistory().retrievePast(50).queue(messages -> {
+                    for (Message message : messages) {
+                        if (message.getAttachments().size() < 1) {
+                            continue;
+                        }
+
+                        if (message.getAttachments().get(0).isImage()) {
+                            try {
+                                event.getChannel().sendTyping().queue();
+                                event.getChannel().sendFile(generate(ImageIO.read(message.getAttachments().get(0).getInputStream())), filename + ".png", null).queue();
+                                return;
+                            } catch (IOException e) {
+                                throwException(e, event, "Image Generation Problem");
+                            }
+                        }
+                    }
+                    event.getChannel().sendMessage("No image provided.").queue();
+                });
+            }
         }
     }
 
