@@ -119,7 +119,7 @@ public class GameCommand extends Command {
                                 profile.spendTopKeks(ThreadLocalRandom.current().nextInt(1, 15));
                                 profile.takeKXP(ThreadLocalRandom.current().nextInt(5, 20));
                                 profile.save();
-                                KekBot.gamesManager.closeGame(channel);
+                                KekBot.gamesManager.killGame(channel);
                                 channel.sendMessage("This game has ended abruptly due to a player (" + event.getAuthor().getAsMention() + ") having quit the game.").queue();
                             } else channel.sendMessage("You're not even in this game. Are you sure you're not trying to quit something else?").queue();
                         } else {

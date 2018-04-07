@@ -3,6 +3,7 @@ package com.godson.kekbot.command.commands.fun;
 import com.godson.kekbot.CustomEmote;
 import com.godson.kekbot.GSONUtils;
 import com.godson.kekbot.KekBot;
+import com.godson.kekbot.menu.PagedSelectionMenu;
 import com.godson.kekbot.profile.*;
 import com.godson.kekbot.questionaire.QuestionType;
 import com.godson.kekbot.questionaire.Questionnaire;
@@ -11,13 +12,17 @@ import com.godson.kekbot.Utils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.settings.Config;
+import com.jagrosh.jdautilities.menu.Paginator;
 import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.requests.RestAction;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ProfileCommand extends Command {
 
@@ -46,7 +51,7 @@ public class ProfileCommand extends Command {
                     event.getChannel().sendMessage("Here are the available values you can edit:\n" +
                             "\n**Title:** " + profile.getSubtitle() +
                             "\n**Bio:** " + (profile.getBio() != null ? profile.getBio() : "No Bio Set.") +
-                            "\n**Tokens:** " + (profile.getTokens().size() > 0 ? profile.getTokens().size() + " " + (profile.getTokens().size() > 1 ? "Tokens" : "Token")  : "¯\\_(ツ)_/¯") +
+                            "\n**Tokens:** " + (profile.getTokens().size() > 0 ? profile.getTokens().size() + " " + (profile.getTokens().size() > 1 ? "Tokens" : "Token") : "¯\\_(ツ)_/¯") +
                             "\n**Backgrounds:** " + (profile.getBackgrounds().size() > 0 ? profile.getBackgrounds().size() + " " + (profile.getBackgrounds().size() > 1 ? "Backgrounds" : "Background") : "¯\\_(ツ)_/¯") +
                             "\n**Playlists:** " + "Use " + event.getClient().getPrefix(event.getGuild().getId()) + "myplaylist to view your playlists.").queue();
                 } else {
@@ -79,157 +84,81 @@ public class ProfileCommand extends Command {
                         case "token":
                         case "tokens":
                             List<Token> tokens = profile.getTokens();
-                            if (event.getArgs().length < 3) {
-                                event.getChannel().sendMessage("**Number of Tokens: ** " + tokens.size() +
-                                        //"\n**Token Display: **" + KekBot.replacePrefix(event.getGuild(), "Use `{p}profile edit token display` to enter the token display editor.") +
-                                        "\n**Equipped Token: **" + (profile.hasTokenEquipped() ? profile.getToken().getName() : "¯\\_(ツ)_/¯") +
-                                        "\n**Available Options:** List, Equip").queue();
-                            } else {
-                                switch (event.getArgs()[2]) {
-                                    case "list":
-                                        if (tokens.size() > 0) {
-                                            List<String> tokensList = new ArrayList<>();
-                                            for (int i = 0; i < tokens.size(); i++) {
-                                                Token token = tokens.get(i);
-                                                tokensList.add((i + 1) + ". " + token.getName());
-                                            }
-                                            int pageNumber;
-                                            int maxItems = 10;
-                                            if (event.getArgs().length < 4) pageNumber = 0;
-                                            else {
-                                                try {
-                                                    pageNumber = Integer.valueOf(event.getArgs()[3]) - 1;
-                                                } catch (NumberFormatException e) {
-                                                    event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, "`" + event.getArgs()[3] + "`")).queue();
-                                                    break;
-                                                }
-                                            }
-                                            try {
-                                                if ((pageNumber * maxItems) > tokensList.size() || (pageNumber * maxItems) < 0) {
-                                                    event.getChannel().sendMessage("That page doesn't exist!").queue();
-                                                } else {
-                                                    event.getChannel().sendMessage(StringUtils.join(tokensList.subList((pageNumber * maxItems), ((pageNumber + 1) * maxItems)), "\n") +
-                                                            (tokensList.size() > maxItems ? "\n\nPage " + (pageNumber + 1) + "/" + (tokensList.size() / maxItems + 1) +
-                                                                    (pageNumber == 0 ? "\n\nDo " + event.getClient().getPrefix(event.getGuild().getId()) + "profile edit tokens list <number> to view that page." : "") : "")).queue();
-                                                }
-                                            } catch (IndexOutOfBoundsException e) {
-                                                event.getChannel().sendMessage(StringUtils.join(tokensList.subList((pageNumber * maxItems), tokensList.size()), "\n") +
-                                                        (tokensList.size() > maxItems ? "\n\nPage " + (pageNumber + 1) + "/" + (tokensList.size() / maxItems + 1) : "")).queue();
-                                            }
-                                        } else {
-                                            event.getChannel().sendMessage("You have no tokens to list!").queue();
-                                        }
-                                        break;
-                                    case "equip":
-                                        if (event.getArgs().length < 4) {
-                                            event.getChannel().sendMessage("You haven't specified the token you wanted to equip.").queue();
-                                        } else {
-                                            if (tokens.size() > 0) {
-                                                try {
-                                                    Token token = tokens.get(Integer.valueOf(event.getArgs()[3]) - 1);
-                                                    profile.equipToken(token);
-                                                    profile.save();
-                                                    event.getChannel().sendMessage("Equipped " + token.getName() + ".").queue();
-                                                } catch (NumberFormatException e) {
-                                                    event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, "`" + event.getArgs()[3] + "`")).queue();
-                                                    break;
-                                                } catch (IndexOutOfBoundsException e) {
-                                                    event.getChannel().sendMessage("Invalid token ID.").queue();
-                                                }
-                                            } else {
-                                                event.getChannel().sendMessage("You have no tokens to equip!").queue();
-                                            }
-                                        }
-                                        break;
-                                }
+
+                            if (tokens.size() < 1) {
+                                event.getChannel().sendMessage("You don't have any tokens! Try getting some from the `" + event.getPrefix() + "shop`!").queue();
+                                return;
                             }
+
+                            PagedSelectionMenu.Builder tokenView = new PagedSelectionMenu.Builder();
+
+                            tokenView.setEventWaiter(KekBot.waiter);
+                            tokenView.addChoices(tokens.stream().map(token -> token.getName() + (profile.getToken() == token ? " **(Equipped)**" : "")).collect(Collectors.toList()).toArray(new String[tokens.size()]));
+                            tokenView.setItemsPerPage(5);
+                            tokenView.setFinalAction(message -> message.clearReactions().queue());
+                            tokenView.setSelectionAction((m, i) -> {
+                                m.clearReactions().queue();
+                                Token token = tokens.get(i - 1);
+
+                                if (profile.getToken() == token) {
+                                    event.getChannel().sendMessage("You already have this token equipped!").queue();
+                                    return;
+                                }
+
+                                profile.equipToken(token);
+                                profile.save();
+                                event.getChannel().sendMessage("You have equipped `" + token.getName() + "`.").queue();
+                            });
+                            tokenView.build().display(event.getChannel());
                             break;
                         case "background":
                         case "backgrounds":
-                            List<String> backgroundIDs = profile.getBackgrounds();
-                            List<Background> backgrounds = new ArrayList<>();
-                            for (String backgroundID : backgroundIDs) {
-                                if (KekBot.backgroundManager.doesBackgroundExist(backgroundID)) {
-                                    backgrounds.add(KekBot.backgroundManager.get(backgroundID));
-                                } else profile.removeBackgroundByID(backgroundID);
+                            List<Background> backgrounds = profile.getBackgrounds().stream().map(KekBot.backgroundManager::get).collect(Collectors.toList());
+
+                            if (backgrounds.size() < 1) {
+                                event.getChannel().sendMessage("You don't have any backgrounds! Try getting some from the `" + event.getPrefix() + "shop`!").queue();
+                                return;
                             }
-                            if (event.getArgs().length < 3) {
-                                event.getChannel().sendMessage("**Number of Backgrounds: ** " + backgrounds.size() +
-                                        "\n**Current Background: **" + (profile.hasBackgroundEquipped() ? profile.getCurrentBackground().getName() : "¯\\_(ツ)_/¯") +
-                                        "\n**Available Options:** List, Set").queue();
-                            } else {
-                                switch (event.getArgs()[2]) {
-                                    case "list":
-                                        if (backgrounds.size() > 0) {
-                                            List<String> backgroundsList = new ArrayList<>();
-                                            for (int i = 0; i < backgrounds.size(); i++) {
-                                                Background background = backgrounds.get(i);
-                                                backgroundsList.add((i + 1) + ". " + background.getName());
-                                            }
-                                            int pageNumber;
-                                            int maxItems = 10;
-                                            if (event.getArgs().length < 4) pageNumber = 0;
-                                            else {
-                                                try {
-                                                    pageNumber = Integer.valueOf(event.getArgs()[3]) - 1;
-                                                } catch (NumberFormatException e) {
-                                                    event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, "`" + event.getArgs()[3] + "`")).queue();
-                                                    break;
-                                                }
-                                            }
-                                            try {
-                                                if ((pageNumber * maxItems) > backgroundsList.size() || (pageNumber * maxItems) < 0) {
-                                                    event.getChannel().sendMessage("That page doesn't exist!").queue();
-                                                } else {
-                                                    event.getChannel().sendMessage(StringUtils.join(backgroundsList.subList((pageNumber * maxItems), ((pageNumber + 1) * maxItems)), "\n") +
-                                                            (backgroundsList.size() > maxItems ? "\n\nPage " + (pageNumber + 1) + "/" + (backgroundsList.size() / maxItems + 1) +
-                                                                    (pageNumber == 0 ? "\n\nDo " + event.getClient().getPrefix(event.getGuild().getId()) + "profile edit backgrounds list <number> to view that page." : "") : "")).queue();
-                                                }
-                                            } catch (IndexOutOfBoundsException e) {
-                                                event.getChannel().sendMessage(StringUtils.join(backgroundsList.subList((pageNumber * maxItems), backgroundsList.size()), "\n") +
-                                                        (backgroundsList.size() > maxItems ? "\n\nPage " + (pageNumber + 1) + "/" + (backgroundsList.size() / maxItems + 1) : "")).queue();
-                                            }
-                                        } else {
-                                            event.getChannel().sendMessage("You have no backgrounds to list!").queue();
-                                        }
-                                        break;
-                                    case "set":
-                                        if (event.getArgs().length < 4) {
-                                            event.getChannel().sendMessage("You haven't specified the background you wanted to set as your current.").queue();
-                                        } else {
-                                            if (backgrounds.size() > 0) {
-                                                try {
-                                                    Background background = backgrounds.get(Integer.valueOf(event.getArgs()[3]) - 1);
-                                                    profile.setCurrentBackground(background);
-                                                    profile.save();
-                                                    event.getChannel().sendMessage("Set " + background.getName() + " as your current background.").queue();
-                                                } catch (NumberFormatException e) {
-                                                    event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, "`" + event.getArgs()[3] + "`")).queue();
-                                                    break;
-                                                } catch (IndexOutOfBoundsException e) {
-                                                    event.getChannel().sendMessage("Invalid background ID.").queue();
-                                                }
-                                            } else {
-                                                event.getChannel().sendMessage("You have no backgrounds to equip!").queue();
-                                            }
-                                        }
-                                        break;
+
+                            PagedSelectionMenu.Builder backgroundView = new PagedSelectionMenu.Builder();
+
+                            backgroundView.setEventWaiter(KekBot.waiter);
+                            backgroundView.addChoices(backgrounds.stream().map(background -> background.getName() + (profile.getCurrentBackground() == background ? " **(Equipped)**" : "")).collect(Collectors.toList()).toArray(new String[backgrounds.size()]));
+                            backgroundView.setItemsPerPage(5);
+                            backgroundView.setFinalAction(message -> message.clearReactions().queue());
+                            backgroundView.setSelectionAction((m, i) -> {
+                                m.clearReactions().queue();
+                                Background background = backgrounds.get(i - 1);
+
+                                if (profile.getCurrentBackground() == background) {
+                                    event.getChannel().sendMessage("You already have this background set!").queue();
+                                    return;
                                 }
-                            }
+
+                                profile.setCurrentBackground(background);
+                                profile.save();
+                                event.getChannel().sendMessage("You have set the `" + background.getName() + "` as your current background.").queue();
+                            });
+                            backgroundView.build().display(event.getChannel());
                             break;
                     }
                 }
             } else if (event.getArgs()[0].equalsIgnoreCase("admin") && event.isBotOwner()) {
                 if (event.getArgs().length >= 2) {
+                    RestAction<Message> errorMessage = event.getChannel().sendMessage("User with that ID not found, or the ID specified is invalid.");
                     switch (event.getArgs()[1]) {
                         case "view":
                             if (event.getArgs().length >= 3) {
                                 try {
                                     event.getChannel().sendTyping().queue();
                                     User user = KekBot.jda.getUserById(event.getArgs()[2]);
+
+                                    if (user == null) {
+                                        errorMessage.queue();
+                                        return;
+                                    }
+
                                     event.getChannel().sendFile(Profile.getProfile(user).drawCard(), "profile.png", new MessageBuilder().append("Here is " + user.getName() + "#" + user.getDiscriminator() + "'s profile card.").build()).queue();
-                                } catch (NullPointerException e) {
-                                    event.getChannel().sendMessage("User with that ID not found, or the ID specified is invalid.").queue();
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -243,15 +172,17 @@ public class ProfileCommand extends Command {
                                             try {
                                                 int toGive = Integer.valueOf(event.getArgs()[3]);
                                                 if (event.getArgs().length >= 5) {
-                                                    try {
-                                                        User user = KekBot.jda.getUserById(event.getArgs()[4]);
-                                                        Profile profile = Profile.getProfile(user);
-                                                        profile.addTopKeks(toGive);
-                                                        profile.save();
-                                                        event.getChannel().sendMessage("Gave " + user.getName() + "#" + user.getDiscriminator() + " " + CustomEmote.printPrice(toGive) + ".").queue();
-                                                    } catch (NullPointerException e) {
-                                                        event.getChannel().sendMessage("User with that ID not found, or the ID specified is invalid.").queue();
+                                                    User user = KekBot.jda.getUserById(event.getArgs()[4]);
+
+                                                    if (user == null) {
+                                                        errorMessage.queue();
+                                                        return;
                                                     }
+
+                                                    Profile profile = Profile.getProfile(user);
+                                                    profile.addTopKeks(toGive);
+                                                    profile.save();
+                                                    event.getChannel().sendMessage("Gave " + user.getName() + "#" + user.getDiscriminator() + " " + CustomEmote.printPrice(toGive) + ".").queue();
                                                 }
                                             } catch (NumberFormatException e) {
                                                 event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getArgs()[3])).queue();
@@ -264,15 +195,18 @@ public class ProfileCommand extends Command {
                                             try {
                                                 int toGive = Integer.valueOf(event.getArgs()[3]);
                                                 if (event.getArgs().length >= 5) {
-                                                    try {
-                                                        User user = KekBot.jda.getUserById(event.getArgs()[4]);
-                                                        Profile profile = Profile.getProfile(user);
-                                                        profile.addKXP(toGive);
-                                                        profile.save();
-                                                        event.getChannel().sendMessage("Gave " + user.getName() + "#" + user.getDiscriminator() + toGive + " KXP.").queue();
-                                                    } catch (NullPointerException e) {
-                                                        event.getChannel().sendMessage("User with that ID not found, or the ID specified is invalid.").queue();
+                                                    User user = KekBot.jda.getUserById(event.getArgs()[4]);
+
+                                                    if (user == null) {
+                                                        errorMessage.queue();
+                                                        return;
                                                     }
+
+                                                    Profile profile = Profile.getProfile(user);
+                                                    profile.addKXP(toGive);
+                                                    profile.save();
+                                                    event.getChannel().sendMessage("Gave " + user.getName() + "#" + user.getDiscriminator() + toGive + " KXP.").queue();
+
                                                 }
                                             } catch (NumberFormatException e) {
                                                 event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getArgs()[3])).queue();
@@ -284,18 +218,20 @@ public class ProfileCommand extends Command {
                                             try {
                                                 Background background = KekBot.backgroundManager.get(event.getArgs()[3]);
                                                 if (event.getArgs().length >= 5) {
-                                                    try {
-                                                        User user = KekBot.jda.getUserById(event.getArgs()[4]);
-                                                        Profile profile = Profile.getProfile(user);
-                                                        if (profile.hasBackground(background)) {
-                                                            event.getChannel().sendMessage(user.getName() + "#" + user.getDiscriminator() + " already owns this background.").queue();
-                                                        } else {
-                                                            profile.addBackground(background);
-                                                            profile.save();
-                                                            event.getChannel().sendMessage("Gave " + user.getName() + "#" + user.getDiscriminator() + " the `" + background.getName() + "` background.").queue();
-                                                        }
-                                                    } catch (NullPointerException e) {
-                                                        event.getChannel().sendMessage("User with that ID not found, or the ID specified is invalid.").queue();
+                                                    User user = KekBot.jda.getUserById(event.getArgs()[4]);
+
+                                                    if (user == null) {
+                                                        errorMessage.queue();
+                                                        return;
+                                                    }
+
+                                                    Profile profile = Profile.getProfile(user);
+                                                    if (profile.hasBackground(background)) {
+                                                        event.getChannel().sendMessage(user.getName() + "#" + user.getDiscriminator() + " already owns this background.").queue();
+                                                    } else {
+                                                        profile.addBackground(background);
+                                                        profile.save();
+                                                        event.getChannel().sendMessage("Gave " + user.getName() + "#" + user.getDiscriminator() + " the `" + background.getName() + "` background.").queue();
                                                     }
                                                 }
                                             } catch (NullPointerException e) {
@@ -308,18 +244,20 @@ public class ProfileCommand extends Command {
                                             try {
                                                 Token token = Token.valueOf(event.getArgs()[3]);
                                                 if (event.getArgs().length >= 5) {
-                                                    try {
-                                                        User user = KekBot.jda.getUserById(event.getArgs()[4]);
-                                                        Profile profile = Profile.getProfile(user);
-                                                        if (profile.hasToken(token)) {
-                                                            event.getChannel().sendMessage(user.getName() + "#" + user.getDiscriminator() + " already owns this token.").queue();
-                                                        } else {
-                                                            profile.addToken(token);
-                                                            profile.save();
-                                                            event.getChannel().sendMessage("Gave " + user.getName() + "#" + user.getDiscriminator() + " the `" + token.getName() + "` token.").queue();
-                                                        }
-                                                    } catch (NullPointerException e) {
-                                                        event.getChannel().sendMessage("User with that ID not found, or the ID specified is invalid.").queue();
+                                                    User user = KekBot.jda.getUserById(event.getArgs()[4]);
+
+                                                    if (user == null) {
+                                                        errorMessage.queue();
+                                                        return;
+                                                    }
+
+                                                    Profile profile = Profile.getProfile(user);
+                                                    if (profile.hasToken(token)) {
+                                                        event.getChannel().sendMessage(user.getName() + "#" + user.getDiscriminator() + " already owns this token.").queue();
+                                                    } else {
+                                                        profile.addToken(token);
+                                                        profile.save();
+                                                        event.getChannel().sendMessage("Gave " + user.getName() + "#" + user.getDiscriminator() + " the `" + token.getName() + "` token.").queue();
                                                     }
                                                 }
                                             } catch (IllegalArgumentException e) {
@@ -338,16 +276,18 @@ public class ProfileCommand extends Command {
                                             try {
                                                 double toTake = Integer.valueOf(event.getArgs()[3]);
                                                 if (event.getArgs().length >= 5) {
-                                                    try {
-                                                        User user = KekBot.jda.getUserById(event.getArgs()[4]);
-                                                        Profile profile = Profile.getProfile(user);
-                                                        if (toTake > profile.getTopkeks()) toTake = profile.getTopkeks();
-                                                        profile.spendTopKeks(toTake);
-                                                        profile.save();
-                                                        event.getChannel().sendMessage("Took away " + CustomEmote.printPrice(toTake) + " from " + user.getName() + "#" + user.getDiscriminator() + ".").queue();
-                                                    } catch (NullPointerException e) {
-                                                        event.getChannel().sendMessage("User with that ID not found, or the ID specified is invalid.").queue();
+                                                    User user = KekBot.jda.getUserById(event.getArgs()[4]);
+
+                                                    if (user == null) {
+                                                        errorMessage.queue();
+                                                        return;
                                                     }
+
+                                                    Profile profile = Profile.getProfile(user);
+                                                    if (toTake > profile.getTopkeks()) toTake = profile.getTopkeks();
+                                                    profile.spendTopKeks(toTake);
+                                                    profile.save();
+                                                    event.getChannel().sendMessage("Took away " + CustomEmote.printPrice(toTake) + " from " + user.getName() + "#" + user.getDiscriminator() + ".").queue();
                                                 }
                                             } catch (NumberFormatException e) {
                                                 event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getArgs()[3])).queue();
@@ -360,15 +300,17 @@ public class ProfileCommand extends Command {
                                             try {
                                                 int toTake = Integer.valueOf(event.getArgs()[3]);
                                                 if (event.getArgs().length >= 5) {
-                                                    try {
-                                                        User user = KekBot.jda.getUserById(event.getArgs()[4]);
-                                                        Profile profile = Profile.getProfile(user);
-                                                        profile.takeKXP(toTake);
-                                                        profile.save();
-                                                        event.getChannel().sendMessage("Took away " + toTake + " KXP from " + user.getName() + "#" + user.getDiscriminator() + ".").queue();
-                                                    } catch (NullPointerException e) {
-                                                        event.getChannel().sendMessage("User with that ID not found, or the ID specified is invalid.").queue();
+                                                    User user = KekBot.jda.getUserById(event.getArgs()[4]);
+
+                                                    if (user == null) {
+                                                        errorMessage.queue();
+                                                        return;
                                                     }
+
+                                                    Profile profile = Profile.getProfile(user);
+                                                    profile.takeKXP(toTake);
+                                                    profile.save();
+                                                    event.getChannel().sendMessage("Took away " + toTake + " KXP from " + user.getName() + "#" + user.getDiscriminator() + ".").queue();
                                                 }
                                             } catch (NumberFormatException e) {
                                                 event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getArgs()[3])).queue();
@@ -380,19 +322,22 @@ public class ProfileCommand extends Command {
                                             try {
                                                 Background background = KekBot.backgroundManager.get(event.getArgs()[3]);
                                                 if (event.getArgs().length >= 5) {
-                                                    try {
-                                                        User user = KekBot.jda.getUserById(event.getArgs()[4]);
-                                                        Profile profile = Profile.getProfile(user);
-                                                        if (profile.hasBackground(background)) {
-                                                            if (profile.getCurrentBackground().equals(background)) profile.setCurrentBackground(null);
-                                                            profile.removeBackgroundByID(background.getID());
-                                                            profile.save();
-                                                            event.getChannel().sendMessage("Took the `" + background.getName() + "` background away from " + user.getName() + "#" + user.getDiscriminator() + ".").queue();
-                                                        } else {
-                                                            event.getChannel().sendMessage(user.getName() + "#" + user.getDiscriminator() + " doesn't own this background.").queue();
-                                                        }
-                                                    } catch (NullPointerException e) {
-                                                        event.getChannel().sendMessage("User with that ID not found, or the ID specified is invalid.").queue();
+                                                    User user = KekBot.jda.getUserById(event.getArgs()[4]);
+
+                                                    if (user == null) {
+                                                        errorMessage.queue();
+                                                        return;
+                                                    }
+
+                                                    Profile profile = Profile.getProfile(user);
+                                                    if (profile.hasBackground(background)) {
+                                                        if (profile.getCurrentBackground().equals(background))
+                                                            profile.setCurrentBackground(null);
+                                                        profile.removeBackgroundByID(background.getID());
+                                                        profile.save();
+                                                        event.getChannel().sendMessage("Took the `" + background.getName() + "` background away from " + user.getName() + "#" + user.getDiscriminator() + ".").queue();
+                                                    } else {
+                                                        event.getChannel().sendMessage(user.getName() + "#" + user.getDiscriminator() + " doesn't own this background.").queue();
                                                     }
                                                 }
                                             } catch (NullPointerException e) {
@@ -405,19 +350,21 @@ public class ProfileCommand extends Command {
                                             try {
                                                 Token token = Token.valueOf(event.getArgs()[3]);
                                                 if (event.getArgs().length >= 5) {
-                                                    try {
-                                                        User user = KekBot.jda.getUserById(event.getArgs()[4]);
-                                                        Profile profile = Profile.getProfile(user);
-                                                        if (profile.hasToken(token)) {
-                                                            if (profile.getToken().equals(token)) profile.unequipToken();
-                                                            profile.removeToken(token);
-                                                            profile.save();
-                                                            event.getChannel().sendMessage("Took the `" + token.getName() + "` token from " + user.getName() + "#" + user.getDiscriminator() + ".").queue();
-                                                        } else {
-                                                            event.getChannel().sendMessage(user.getName() + "#" + user.getDiscriminator() + " doesn't own this token.").queue();
-                                                        }
-                                                    } catch (NullPointerException e) {
-                                                        event.getChannel().sendMessage("User with that ID not found, or the ID specified is invalid.").queue();
+                                                    User user = KekBot.jda.getUserById(event.getArgs()[4]);
+
+                                                    if (user == null) {
+                                                        errorMessage.queue();
+                                                        return;
+                                                    }
+
+                                                    Profile profile = Profile.getProfile(user);
+                                                    if (profile.hasToken(token)) {
+                                                        if (profile.getToken().equals(token)) profile.unequipToken();
+                                                        profile.removeToken(token);
+                                                        profile.save();
+                                                        event.getChannel().sendMessage("Took the `" + token.getName() + "` token from " + user.getName() + "#" + user.getDiscriminator() + ".").queue();
+                                                    } else {
+                                                        event.getChannel().sendMessage(user.getName() + "#" + user.getDiscriminator() + " doesn't own this token.").queue();
                                                     }
                                                 }
                                             } catch (IllegalArgumentException e) {
@@ -436,15 +383,17 @@ public class ProfileCommand extends Command {
                                             try {
                                                 int toSet = Integer.valueOf(event.getArgs()[3]);
                                                 if (event.getArgs().length >= 5) {
-                                                    try {
-                                                        User user = KekBot.jda.getUserById(event.getArgs()[4]);
-                                                        Profile profile = Profile.getProfile(user);
-                                                        profile.setTopKeks(toSet);
-                                                        profile.save();
-                                                        event.getChannel().sendMessage("Set " + user.getName() + "#" + user.getDiscriminator() + "'s " + CustomEmote.printTopKek() + "to " + + toSet + ".").queue();
-                                                    } catch (NullPointerException e) {
-                                                        event.getChannel().sendMessage("User with that ID not found, or the ID specified is invalid.").queue();
+                                                    User user = KekBot.jda.getUserById(event.getArgs()[4]);
+
+                                                    if (user == null) {
+                                                        errorMessage.queue();
+                                                        return;
                                                     }
+
+                                                    Profile profile = Profile.getProfile(user);
+                                                    profile.setTopKeks(toSet);
+                                                    profile.save();
+                                                    event.getChannel().sendMessage("Set " + user.getName() + "#" + user.getDiscriminator() + "'s " + CustomEmote.printTopKek() + "to " + +toSet + ".").queue();
                                                 }
                                             } catch (NumberFormatException e) {
                                                 event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getArgs()[3])).queue();
@@ -457,15 +406,17 @@ public class ProfileCommand extends Command {
                                             try {
                                                 int toSet = Integer.valueOf(event.getArgs()[3]);
                                                 if (event.getArgs().length >= 5) {
-                                                    try {
-                                                        User user = KekBot.jda.getUserById(event.getArgs()[4]);
-                                                        Profile profile = Profile.getProfile(user);
-                                                        profile.setKXP(toSet);
-                                                        profile.save();
-                                                        event.getChannel().sendMessage("Set " + user.getName() + "#" + user.getDiscriminator() + "'s KXP to " + + toSet + ".").queue();
-                                                    } catch (NullPointerException e) {
-                                                        event.getChannel().sendMessage("User with that ID not found, or the ID specified is invalid.").queue();
+                                                    User user = KekBot.jda.getUserById(event.getArgs()[4]);
+
+                                                    if (user == null) {
+                                                        errorMessage.queue();
+                                                        return;
                                                     }
+
+                                                    Profile profile = Profile.getProfile(user);
+                                                    profile.setKXP(toSet);
+                                                    profile.save();
+                                                    event.getChannel().sendMessage("Set " + user.getName() + "#" + user.getDiscriminator() + "'s KXP to " + +toSet + ".").queue();
                                                 }
                                             } catch (NumberFormatException e) {
                                                 event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getArgs()[3])).queue();
@@ -479,20 +430,23 @@ public class ProfileCommand extends Command {
                                                 if (event.getArgs()[3].equalsIgnoreCase("none")) background = null;
                                                 else background = KekBot.backgroundManager.get(event.getArgs()[3]);
                                                 if (event.getArgs().length >= 5) {
-                                                    try {
-                                                        User user = KekBot.jda.getUserById(event.getArgs()[4]);
-                                                        Profile profile = Profile.getProfile(user);
-                                                        if (background == null || profile.hasBackground(background)) {
-                                                            profile.setCurrentBackground(background);
-                                                            profile.save();
-                                                            if (background != null) event.getChannel().sendMessage("Set " + user.getName() + "#" + user.getDiscriminator() + "'s background to `" + background.getName() + "`").queue();
-                                                            else event.getChannel().sendMessage("Reset " + user.getName() + "#" + user.getDiscriminator() + "'s background.").queue();
-                                                        } else {
-                                                            event.getChannel().sendMessage(user.getName() + "#" + user.getDiscriminator() + " doesn't own this background.").queue();
-                                                        }
-                                                    } catch (NullPointerException e) {
-                                                        e.printStackTrace();
-                                                        event.getChannel().sendMessage("User with that ID not found, or the ID specified is invalid.").queue();
+                                                    User user = KekBot.jda.getUserById(event.getArgs()[4]);
+
+                                                    if (user == null) {
+                                                        errorMessage.queue();
+                                                        return;
+                                                    }
+
+                                                    Profile profile = Profile.getProfile(user);
+                                                    if (background == null || profile.hasBackground(background)) {
+                                                        profile.setCurrentBackground(background);
+                                                        profile.save();
+                                                        if (background != null)
+                                                            event.getChannel().sendMessage("Set " + user.getName() + "#" + user.getDiscriminator() + "'s background to `" + background.getName() + "`").queue();
+                                                        else
+                                                            event.getChannel().sendMessage("Reset " + user.getName() + "#" + user.getDiscriminator() + "'s background.").queue();
+                                                    } else {
+                                                        event.getChannel().sendMessage(user.getName() + "#" + user.getDiscriminator() + " doesn't own this background.").queue();
                                                     }
                                                 }
                                             } catch (NullPointerException e) {
@@ -507,19 +461,23 @@ public class ProfileCommand extends Command {
                                                 if (event.getArgs()[3].equalsIgnoreCase("none")) token = null;
                                                 else token = Token.valueOf(event.getArgs()[3]);
                                                 if (event.getArgs().length >= 5) {
-                                                    try {
-                                                        User user = KekBot.jda.getUserById(event.getArgs()[4]);
-                                                        Profile profile = Profile.getProfile(user);
-                                                        if (profile.hasToken(token) || token == null) {
-                                                            profile.equipToken(token);
-                                                            profile.save();
-                                                            if (token != null) event.getChannel().sendMessage("Set " + user.getName() + "#" + user.getDiscriminator() + "'s token to `" + token.getName() + "`.").queue();
-                                                            else event.getChannel().sendMessage("Reset " + user.getName() + "#" + user.getDiscriminator() + "'s token.").queue();
-                                                        } else {
-                                                            event.getChannel().sendMessage(user.getName() + "#" + user.getDiscriminator() + " doesn't own this token.").queue();
-                                                        }
-                                                    } catch (NullPointerException e) {
-                                                        event.getChannel().sendMessage("User with that ID not found, or the ID specified is invalid.").queue();
+                                                    User user = KekBot.jda.getUserById(event.getArgs()[4]);
+
+                                                    if (user == null) {
+                                                        errorMessage.queue();
+                                                        return;
+                                                    }
+
+                                                    Profile profile = Profile.getProfile(user);
+                                                    if (profile.hasToken(token) || token == null) {
+                                                        profile.equipToken(token);
+                                                        profile.save();
+                                                        if (token != null)
+                                                            event.getChannel().sendMessage("Set " + user.getName() + "#" + user.getDiscriminator() + "'s token to `" + token.getName() + "`.").queue();
+                                                        else
+                                                            event.getChannel().sendMessage("Reset " + user.getName() + "#" + user.getDiscriminator() + "'s token.").queue();
+                                                    } else {
+                                                        event.getChannel().sendMessage(user.getName() + "#" + user.getDiscriminator() + " doesn't own this token.").queue();
                                                     }
                                                 }
                                             } catch (IllegalArgumentException e) {
@@ -534,16 +492,20 @@ public class ProfileCommand extends Command {
                                                 if (event.getArgs()[3].equalsIgnoreCase("none")) badge = null;
                                                 else badge = Badge.valueOf(event.getArgs()[3]);
                                                 if (event.getArgs().length >= 5) {
-                                                    try {
-                                                        User user = KekBot.jda.getUserById(event.getArgs()[4]);
-                                                        Profile profile = Profile.getProfile(user);
-                                                        profile.setBadge(badge);
-                                                        profile.save();
-                                                        if (badge != null) event.getChannel().sendMessage("Set " + user.getName() + "#" + user.getDiscriminator() + "'s badge to `" + badge.getName() + "`.").queue();
-                                                        else event.getChannel().sendMessage("Reset " + user.getName() + "#" + user.getDiscriminator() + "'s badge.").queue();
-                                                    } catch (NullPointerException e) {
-                                                        event.getChannel().sendMessage("User with that ID not found, or the ID specified is invalid.").queue();
+                                                    User user = KekBot.jda.getUserById(event.getArgs()[4]);
+
+                                                    if (user == null) {
+                                                        errorMessage.queue();
+                                                        return;
                                                     }
+
+                                                    Profile profile = Profile.getProfile(user);
+                                                    profile.setBadge(badge);
+                                                    profile.save();
+                                                    if (badge != null)
+                                                        event.getChannel().sendMessage("Set " + user.getName() + "#" + user.getDiscriminator() + "'s badge to `" + badge.getName() + "`.").queue();
+                                                    else
+                                                        event.getChannel().sendMessage("Reset " + user.getName() + "#" + user.getDiscriminator() + "'s badge.").queue();
                                                 }
                                             } catch (IllegalArgumentException e) {
                                                 event.getChannel().sendMessage("No badge exists with that ID.").queue();
@@ -586,20 +548,26 @@ public class ProfileCommand extends Command {
     }
 
     private void setBio(CommandEvent event, Profile profile, String bio) {
-        if (ProfileUtils.testBio(bio)) {
-            Questionnaire.newQuestionnaire(event)
-                    .addYesNoQuestion("For your bio, you wrote: `" + bio + "` Is this correct?")
-                    .execute(results -> {
-                        if (results.getAnswerAsType(0, boolean.class)) {
-                            profile.setBio(bio);
-                            profile.save();
-                            event.getChannel().sendMessage("Bio set!").queue();
-                        } else {
-                            event.getChannel().sendMessage("Cancelled.").queue();
-                        }
-                    });
-        } else {
+        if (!ProfileUtils.testBio(bio)) {
             event.getChannel().sendMessage("That bio is too long, and will not fit in your profile card. Please try something shorter.").queue();
+            return;
         }
+
+        if (bio.contains("\n")) {
+            event.getChannel().sendMessage("You cannot use new lines in your bio. Please try something else.").queue();
+            return;
+        }
+
+        Questionnaire.newQuestionnaire(event)
+                .addYesNoQuestion("For your bio, you wrote: `" + bio + "` Is this correct?")
+                .execute(results -> {
+                    if (results.getAnswerAsType(0, boolean.class)) {
+                        profile.setBio(bio);
+                        profile.save();
+                        event.getChannel().sendMessage("Bio set!").queue();
+                    } else {
+                        event.getChannel().sendMessage("Cancelled.").queue();
+                    }
+                });
     }
 }
