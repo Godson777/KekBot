@@ -27,6 +27,8 @@ public class Ticket {
     private List<TicketReply> replies = new ArrayList<>();
     @SerializedName("Time Created")
     private long timeCreated;
+    @SerializedName("Attachment")
+    private String attachment;
 
     public Ticket() {
         id = generateID();
@@ -113,6 +115,14 @@ public class Ticket {
 
     public List<TicketReply> getReplies() {
         return replies;
+    }
+
+    public void setAttachment(String attachment) {
+        this.attachment = attachment;
+    }
+
+    public String getAttachment() {
+        return attachment;
     }
 
     public enum TicketStatus {

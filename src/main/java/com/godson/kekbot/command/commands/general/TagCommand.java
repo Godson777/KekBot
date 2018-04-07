@@ -7,7 +7,7 @@ import com.godson.kekbot.questionaire.QuestionType;
 import com.godson.kekbot.questionaire.Questionnaire;
 import com.godson.kekbot.settings.Settings;
 import com.godson.kekbot.settings.Tag;
-import com.jagrosh.jdautilities.menu.pagination.PaginatorBuilder;
+import com.jagrosh.jdautilities.menu.Paginator;
 import net.dv8tion.jda.core.Permission;
 
 import java.text.SimpleDateFormat;
@@ -69,7 +69,7 @@ public class TagCommand extends Command {
                     else {
                         List<Tag> tags = settings.getTags().getList();
                         List<String> names = tags.stream().map(tag -> tag.getName() + " - Creator: " + (event.getGuild().getMemberById(tag.getCreatorID()) == null ? "Not in Server" : event.getGuild().getMemberById(tag.getCreatorID()).getUser().getName())).collect(Collectors.toList());
-                        PaginatorBuilder builder = new PaginatorBuilder();
+                        Paginator.Builder builder = new Paginator.Builder();
                         builder.setText("The tags for " + event.getGuild().getName() + " are:");
                         builder.addItems(names.toArray(new String[names.size()]));
                         builder.addUsers(event.getAuthor());

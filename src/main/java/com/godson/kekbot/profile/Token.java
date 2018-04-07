@@ -59,7 +59,7 @@ public enum Token {
         return name;
     }
 
-    public int getPrice() {
+    public Integer getPrice() {
         return price;
     }
 

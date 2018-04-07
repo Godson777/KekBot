@@ -22,7 +22,6 @@ import java.util.List;
 
 public class TicketManager {
 
-    private static Type type = new TypeToken<List<Ticket>>(){}.getType();
     private static Gson gson = new Gson();
 
     public static void addTicket(Ticket ticket) {

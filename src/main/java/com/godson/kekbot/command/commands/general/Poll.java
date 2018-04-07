@@ -134,6 +134,7 @@ public class Poll extends Command {
                 PollObject poll = manager.getGuildsPoll(event.getGuild());
                 try {
                     poll.castVote(Integer.valueOf(event.getArgs()[0]) - 1, event.getAuthor());
+                    event.getMessage().addReaction("\\u2705").queue();
                 } catch (NumberFormatException e) {
                     event.getChannel().sendMessage("`" + event.getArgs()[0] + "` is not a valid number!").queue();
                 } catch (IllegalArgumentException e) {

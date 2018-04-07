@@ -16,6 +16,8 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,9 +26,9 @@ public class Profile {
     @SerializedName("User ID")
     private long userID;
     @SerializedName("Token")
-    public Token token;
+    private Token token;
     @SerializedName("Tokens")
-    private List<Token> tokens = new ArrayList<Token>();
+    private List<Token> tokens = new ArrayList<>();
     @SerializedName("Backgrounds")
     private List<String> backgrounds = new ArrayList<String>();
     @SerializedName("Current Background ID")
@@ -48,6 +50,8 @@ public class Profile {
     private String bio;
     @SerializedName("Playlists")
     private List<Playlist> playlists = new ArrayList<>();
+    @SerializedName("Next Daily")
+    private long daily;
 
     /**
      * Default constructor.
@@ -57,6 +61,11 @@ public class Profile {
     private Profile(long userID) {
         this.userID = userID;
     }
+
+    /**
+     * Test constructor.
+     */
+    public Profile() {}
 
     /**
      * Equips a token to the user's profile.
@@ -202,7 +211,7 @@ public class Profile {
 
         //Draw Tokens
         for (int i = 0; i < (tokens.size() < 6 ? tokens.size() : 6); i++) {
-            card.drawImage(tokens.get(i).drawToken(), (265 + (120 * (i))), 295, 100, 100, null);
+            card.drawImage(getTokens().get(i).drawToken(), (265 + (120 * (i))), 295, 100, 100, null);
         }
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -595,6 +604,14 @@ public class Profile {
         return level;
     }
 
+    public Instant getDaily() {
+        return Instant.ofEpochSecond(daily);
+    }
+
+    public void setDaily(OffsetDateTime time) {
+        daily = time.toInstant().getEpochSecond();
+    }
+
     /**
      * A static method used to grab a profile object based on a user object.
      * Alias for {@link Profile#getProfile(long)}.
@@ -621,8 +638,8 @@ public class Profile {
      */
     public void save() {
         MapObject object = KekBot.r.hashMap("User ID", userID)
-                .with("Token", token)
-                .with("Tokens", tokens)
+                .with("Token", token != null ? token.toString() : null)
+                .with("Tokens", tokens.stream().map(Enum::toString).collect(Collectors.toList()))
                 .with("Backgrounds", backgrounds)
                 .with("Current Background ID", currentBackgroundID)
                 .with("Badge", badge)
@@ -632,7 +649,8 @@ public class Profile {
                 .with("Level", level)
                 .with("Subtitle", subtitle)
                 .with("Bio", bio)
-                .with("Playlists", playlists);
+                .with("Playlists", playlists)
+                .with("Next Daily", daily);
         if (KekBot.r.table("Profiles").get(userID).run(KekBot.conn) == null) {
             KekBot.r.table("Profiles").insert(object).run(KekBot.conn);
         } else {
