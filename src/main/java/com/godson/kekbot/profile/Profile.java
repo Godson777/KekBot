@@ -10,6 +10,8 @@ import com.rethinkdb.model.MapObject;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import org.apache.commons.lang3.SystemUtils;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
@@ -271,7 +273,7 @@ public class Profile {
         int b = (outline.getHeight() / 2) - (rHeight / 2) - rY;
         //And finally, draw the text
         kxpBar.setColor(Color.black);
-        kxpBar.drawString(kxp,/*9 +*/ a,/*7 +*/ b);
+        kxpBar.drawString(kxp, a, b + (SystemUtils.IS_OS_LINUX ? 4 : 0));
         kxpBar.dispose();
         return base;
     }

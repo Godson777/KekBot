@@ -90,6 +90,7 @@ public class TicketCommand extends Command {
                             eBuilder.addField("Author", ticketAuthor, true);
                             eBuilder.addField("Server:", ticketGuild, true);
                             eBuilder.addField("Contents:", ticketContents, false);
+                            if (ticket.getAttachment() != null) eBuilder.addField("Attachment:", ticket.getAttachment(), false);
                             eBuilder.setTimestamp(Instant.ofEpochMilli(ticket.getTimeCreated()));
                             switch (ticket.getStatus()) {
                                 case OPEN: eBuilder.setColor(Color.GREEN);

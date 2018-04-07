@@ -7,6 +7,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.SystemUtils;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -138,7 +139,7 @@ public class Hangman extends Game {
                         rY = (int) Math.round(r2D.getY());
                         a = (letterBox.getWidth() / 2) - (rWidth / 2) - rX;
                         b = (letterBox.getHeight() / 2) - (rHeight / 2) - rY;
-                        graphics.drawString(letter, a + (55 * x), b + 2 + (55 * y));
+                        graphics.drawString(letter, a + (55 * x), b + 2 + (55 * y) + (SystemUtils.IS_OS_LINUX ? 4 : 0));
                     }
                     i++;
                     x++;

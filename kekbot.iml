@@ -12,9 +12,9 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Maven: com.sedmelluq:lavaplayer:1.2.51" level="project" />
+    <orderEntry type="library" name="Maven: com.sedmelluq:lavaplayer:1.2.62" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: com.sedmelluq:lavaplayer-common:1.0.6" level="project" />
-    <orderEntry type="library" scope="RUNTIME" name="Maven: com.sedmelluq:lavaplayer-natives:1.2.50" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Maven: com.sedmelluq:lavaplayer-natives:1.2.55" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.25" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpclient:4.5.5" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpcore:4.4.9" level="project" />
@@ -43,7 +43,6 @@
     <orderEntry type="library" name="Maven: com.googlecode.json-simple:json-simple:1.1.1" level="project" />
     <orderEntry type="library" name="Maven: junit:junit:4.10" level="project" />
     <orderEntry type="library" name="Maven: org.hamcrest:hamcrest-core:1.1" level="project" />
-    <orderEntry type="library" name="Maven: com.jagrosh:jda-utilities:2.1" level="project" />
     <orderEntry type="library" name="Maven: com.jagrosh:jda-utilities-command:2.1" level="project" />
     <orderEntry type="library" name="Maven: com.jagrosh:jda-utilities-commons:2.1" level="project" />
     <orderEntry type="library" name="Maven: com.jagrosh:jda-utilities-doc:2.1" level="project" />

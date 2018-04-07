@@ -19,11 +19,6 @@
             <url>http://jcenter.bintray.com</url>
         </repository>
         <repository>
-            <id>sedmelluq</id>
-            <name>sedmelluq</name>
-            <url>http://maven.sedmelluq.com/</url>
-        </repository>
-        <repository>
             <id>oss.sonatype.org</id>
             <name>Sonatype Snapshot Repository</name>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
@@ -40,7 +35,7 @@
         <dependency>
             <groupId>com.sedmelluq</groupId>
             <artifactId>lavaplayer</artifactId>
-            <version>1.2.51</version>
+            <version>1.2.62</version>
         </dependency>
 
         <dependency>
@@ -97,6 +92,7 @@
             <artifactId>jda-utilities</artifactId>
             <version>2.1</version>
             <scope>compile</scope>
+            <type>pom</type>
         </dependency>
 
         <dependency>
