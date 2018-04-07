@@ -50,13 +50,13 @@ public class TicTacToe extends Game {
             tokens[0] = ImageIO.read(new File("resources/games/tictactoe/blank.png"));
             if (Profile.checkForProfile(players.get(0))) {
                 if (Profile.getProfile(players.get(0)).hasTokenEquipped()) {
-                    tokens[1] = Profile.getProfile(players.get(0)).token.drawToken();
+                    tokens[1] = Profile.getProfile(players.get(0)).getToken().drawToken();
                 }
             }
             if (players.size() == 2) {
                 if (Profile.checkForProfile(players.get(1))) {
                     if (Profile.getProfile(players.get(1)).hasTokenEquipped()) {
-                        tokens[2] = Profile.getProfile(players.get(1)).token.drawToken();
+                        tokens[2] = Profile.getProfile(players.get(1)).getToken().drawToken();
                     }
                 }
             } else {

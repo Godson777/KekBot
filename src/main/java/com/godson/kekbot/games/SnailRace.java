@@ -1,7 +1,9 @@
 package com.godson.kekbot.games;
 
 import com.godson.kekbot.CustomEmote;
+import com.godson.kekbot.KekBot;
 import com.godson.kekbot.Utils;
+import com.godson.kekbot.profile.Profile;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
@@ -32,12 +34,6 @@ public class SnailRace extends Game {
         snails = new int[players.size()];
         move = new int[snails.length];
         prepareMessage();
-    }
-
-
-    @Override
-    public void acceptInputFromMessage(Message message) {
-        //No input will ever be needed, so the method is simply here to get Java to stop yelling at me.
     }
 
     @Override
@@ -133,6 +129,25 @@ public class SnailRace extends Game {
         if (players.size() == 3 && finished == 2) endGame(false);
         if (players.size() > 3 && finished == 3) endGame(false);
         if (finished == players.size()) endGame(true);
+    }
+
+    @Override
+    public void endTie(int topkeks, int KXP) {
+        StringBuilder builder = new StringBuilder();
+        if (topkeks > 0 && KXP > 0) {
+            for (User player : players) {
+                Profile profile = Profile.getProfile(player);
+                profile.tieGame(topkeks, KXP);
+                builder.append(stateEarnings(player, topkeks, KXP)).append("\n");
+                profile.save();
+            }
+            channel.sendMessage(builder.toString()).queue();
+        }
+        if (betsEnabled) bets.declareTie();
+        KekBot.gamesManager.closeGame(channel);
+        timer.cancel();
+        finished = true;
+        race.editMessage(drawRace()).queue();
     }
 
     private void endGame(boolean tie) {
