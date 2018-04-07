@@ -34,6 +34,6 @@ public class Daily extends Command {
         int reward = random.nextInt(20);
         profile.addTopKeks(reward);
         profile.save();
-        event.getChannel().sendMessage("You're collected " + CustomEmote.printPrice(reward) + " today! Come back tomorrow for more!").queue();
+        event.getChannel().sendMessage("You've collected " + CustomEmote.printPrice(reward) + " today! Come back tomorrow for more!").queue();
     }
 }
