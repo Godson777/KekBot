@@ -13,9 +13,6 @@ public class CustomEmote {
     private final static String[] DANCES = {"<a:duane:403114999578361856>", "<a:pbjtime:404578308009885702>", "<a:BowserDance:404580609113980929>"};
     private final static String TOPKEK = "<:topkek:317825573441503243>";
     private final static String[] TROPHIES = {"<:GoldTrophy:363572128592822272>", "<:SilverTrophy:363572121928204299>", "<:BronzeTrophy:363572119101112320>"};
-    public final static String BLANK = "<:blank:370481940702167040>";
-    public final static String RIGHTHAND = "<:RightHand:370799950155743242>";
-    public final static String LEFTHAND = "<:LeftHand:370799950029651978>";
     private static Random random = new Random();
 
     public static String think() {
