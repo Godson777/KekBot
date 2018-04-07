@@ -16,6 +16,8 @@ import java.io.UnsupportedEncodingException;
 import java.sql.Time;
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -25,10 +27,10 @@ public class TwitterManager {
 
     private final MarkovChain chain;
     private final ScheduledExecutorService tweeter = new ScheduledThreadPoolExecutor(2);
-    private OffsetDateTime lastTweet;
+    private Instant lastTweet;
     private boolean firstTweet = false;
     private final Twitter twitter = TwitterFactory.getSingleton();
-    private final List<Pair<OffsetDateTime, StatusUpdate>> statuses = new ArrayList<>();
+    private final List<Pair<Instant, StatusUpdate>> statuses = new ArrayList<>();
 
     private final int initialDelay = 60;
     private final int subsequentDelay = 30;
@@ -37,8 +39,8 @@ public class TwitterManager {
         this.chain = chain;
         tweeter.schedule(() -> {
             tweeter.scheduleAtFixedRate(() -> {
-                OffsetDateTime now = OffsetDateTime.now();
-                Optional<Pair<OffsetDateTime, StatusUpdate>> status = statuses.stream().filter(s -> now.isAfter(s.getLeft())).findFirst();
+                Instant now = Instant.now();
+                Optional<Pair<Instant, StatusUpdate>> status = statuses.stream().filter(s -> now.isAfter(s.getLeft())).findFirst();
                 if (status.isPresent()) {
                     tweet(status.get().getRight());
                     statuses.remove(status.get());
@@ -48,7 +50,7 @@ public class TwitterManager {
             }, 0, subsequentDelay, TimeUnit.MINUTES);
             firstTweet = true;
         }, initialDelay, TimeUnit.MINUTES);
-        lastTweet = OffsetDateTime.now();
+        lastTweet = Instant.now();
         tweet("KekBot has started up. Please wait an hour before expecting more high quality™ tweets.\n\n" + Instant.now().toString());
     }
 
@@ -56,7 +58,7 @@ public class TwitterManager {
         String status = chain.generateSentence(1);
         try {
             twitter.updateStatus(status);
-            lastTweet = OffsetDateTime.now();
+            lastTweet = Instant.now();
         } catch (TwitterException e) {
             String endl = System.getProperty("line.separator");
 
@@ -86,7 +88,7 @@ public class TwitterManager {
     private void tweet(String message) {
         try {
             twitter.updateStatus(message);
-            lastTweet = OffsetDateTime.now();
+            lastTweet = Instant.now();
         } catch (TwitterException e) {
             String endl = System.getProperty("line.separator");
 
@@ -110,7 +112,7 @@ public class TwitterManager {
     private void tweet(StatusUpdate update) {
         try {
             twitter.updateStatus(update);
-            lastTweet = OffsetDateTime.now();
+            lastTweet = Instant.now();
         } catch (TwitterException e) {
             String endl = System.getProperty("line.separator");
 
@@ -131,14 +133,14 @@ public class TwitterManager {
         }
     }
 
-    public OffsetDateTime calculateOverride(int toSkip) {
-        OffsetDateTime estimate = lastTweet;
+    public Instant calculateOverride(int toSkip) {
+        Instant estimate = lastTweet;
         for (int i = 0; i < toSkip; i++) {
             if (i == 0 && !firstTweet) {
-                estimate = estimate.plusMinutes(initialDelay);
+                estimate = estimate.plus(initialDelay, ChronoUnit.MINUTES);
                 continue;
             }
-            estimate = estimate.plusMinutes(subsequentDelay);
+            estimate = estimate.plus(subsequentDelay, ChronoUnit.MINUTES);
         }
         return estimate;
     }
@@ -149,9 +151,13 @@ public class TwitterManager {
      * @param status The status we'll be tweeting.
      * @throws IllegalArgumentException In the event that a status already exists for this time slot.
      */
-    public void overrideTweet(OffsetDateTime time, StatusUpdate status) {
+    public void overrideTweet(Instant time, StatusUpdate status) {
         if (statuses.stream().noneMatch(s -> s.getLeft().equals(time))) statuses.add(Pair.of(time, status));
         else throw new IllegalArgumentException("no");
+    }
+
+    public boolean isOverriden(Instant time) {
+        return statuses.stream().anyMatch(p -> p.getLeft().equals(time));
     }
 
     public void shutdown(String reason) {

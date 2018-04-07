@@ -11,10 +11,7 @@ import twitter4j.StatusUpdate;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.TimeZone;
 
@@ -55,15 +52,24 @@ public class Tweet extends Command {
         }
 
         //Calculates an estimate of when the tweet will be sent,
-        OffsetDateTime estimate = KekBot.twitterManager.calculateOverride(toSkip);
+        Instant estimate = KekBot.twitterManager.calculateOverride(toSkip);
+
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE, MMM dd, 'at' hh:mma").withZone(ZoneId.systemDefault());
 
+        String time = estimate.atOffset(event.getMessage().getCreationTime().getOffset()).format(formatter);
+
+        if (KekBot.twitterManager.isOverriden(estimate.minusSeconds(10))) {
+            event.getChannel().sendMessage("There is already a tweet scheduled for this time. (" + time + ")").queue();
+            return;
+        }
+
         Questionnaire.newQuestionnaire(event)
-                .addYesNoQuestion("The estimated time of this tweet being posted is: `" + estimate.format(formatter) + "`. Is this okay?")
+                .addYesNoQuestion("The estimated time of this tweet being posted is: `" + time + "`. Is this okay?")
                 .execute(results -> {
                     if (results.getAnswerAsType(0, boolean.class)) {
                         KekBot.twitterManager.overrideTweet(estimate.minusSeconds(10), status);
-                    }
+                        event.getMessage().addReaction("✅").queue();
+                    } else event.getMessage().addReaction("❌").queue();
                 });
     }
 }
