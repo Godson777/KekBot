@@ -5,11 +5,11 @@ import com.godson.discoin4j.exceptions.DiscoinErrorException;
 import com.godson.discoin4j.exceptions.RejectedException;
 import com.godson.discoin4j.exceptions.UnauthorizedException;
 import com.godson.discoin4j.exceptions.UnknownErrorException;
-import com.godson.kekbot.GSONUtils;
+import com.godson.kekbot.CustomEmote;
 import com.godson.kekbot.KekBot;
-import com.godson.kekbot.Utils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
+import com.godson.kekbot.menu.ShopMenu;
 import com.godson.kekbot.profile.Background;
 import com.godson.kekbot.profile.Profile;
 import com.godson.kekbot.profile.Token;
@@ -17,6 +17,9 @@ import com.godson.kekbot.questionaire.QuestionType;
 import com.godson.kekbot.questionaire.Questionnaire;
 import com.godson.kekbot.responses.Action;
 import com.godson.kekbot.settings.Config;
+import com.jagrosh.jdautilities.menu.ButtonMenu;
+import com.jagrosh.jdautilities.menu.OrderedMenu;
+import com.jagrosh.jdautilities.menu.SelectionDialog;
 import net.dv8tion.jda.core.MessageBuilder;
 
 import javax.imageio.ImageIO;
@@ -48,149 +51,169 @@ public class ShopCommand extends Command {
     }
 
     @Override
-    public void onExecuted(CommandEvent event) {
-        String missingArgs = "Missing arguments, check `" + event.getPrefix() + "help shop` to get more info.";
-        if (event.getArgs().length == 0) {
-            event.getChannel().sendMessage(missingArgs).queue();
-        } else {
-            switch (event.getArgs()[0].toLowerCase()) {
-                case "token":
-                case "tokens":
-                    List<Token> tokenShop = KekBot.tokenShop.getInventory();
-                    int tokenShopPage;
-                    if (event.getArgs().length < 2) tokenShopPage = 0;
-                    else {
-                        try {
-                            tokenShopPage = Integer.valueOf(event.getArgs()[1]) - 1;
-                        } catch (NumberFormatException e) {
-                            event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, "`" + event.getArgs()[1] + "`")).queue();
-                            break;
-                        }
-                    }
+    public void onExecuted(CommandEvent event) throws Exception {
+        OrderedMenu.Builder builder = new OrderedMenu.Builder();
+        builder.addChoices("Tokens","Backgrounds");
+        if (Config.getConfig().getDcoinToken() != null) builder.addChoices("Convert Topkeks");
+        builder.setDescription("Welcome to KekBot's shop! We have all kinds of different things you can shop for in here! What are you interested in?\n");
+
+        //Make sure there's a cancel button.
+        builder.useCancelButton(true);
+
+        //Make sure only the user calling the command can mess with this menu.
+        builder.addUsers(event.getAuthor());
+
+        builder.setEventWaiter(KekBot.waiter);
+
+        //Don't allow text input.
+        builder.allowTextInput(false);
+
+        //Handler for all the selections.
+        builder.setSelection((m, sel) -> {
+            switch (sel) {
+                case 1:
+                    //Token Shop
+                    ShopMenu.Builder tokenShop = new ShopMenu.Builder();
+
+                    tokenShop.setEventWaiter(KekBot.waiter);
+
+                    //Make sure only the user calling the command can mess with this menu.
+                    tokenShop.setUsers(event.getAuthor());
+
+                    //Draw the shops images for this menu.
                     try {
-                        if ((tokenShopPage * 9) >= tokenShop.size() || (tokenShopPage * 9) < 0) {
-                            event.getChannel().sendMessage("That page doesn't exist!").queue();
-                        } else {
-                            event.getChannel().sendTyping().queue();
-                            event.getChannel().sendFile(drawTokenShop(Profile.getProfile(event.getAuthor()), tokenShop.subList(tokenShopPage * 9, ((tokenShopPage + 1) * 9 <= tokenShop.size() ? (tokenShopPage + 1) * 9 : tokenShop.size())), tokenShopPage > 0, (tokenShopPage + 1) * 9 < tokenShop.size(), tokenShopPage), "tokenshop.png", null).queue();
-                        }
+                        tokenShop.addImages(KekBot.tokenShop.draw(Profile.getProfile(event.getAuthor())));
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        throwException(e, event, "Shop Generation Error.");
                     }
-                    break;
-                case "background":
-                case "backgrounds":
-                    List<Background> backgroundShop = KekBot.backgroundShop.getInventory();
-                    int backgroundShopPage;
-                    if (event.getArgs().length < 2) backgroundShopPage = 0;
-                    else {
+
+                    //Number of items in the shop.
+                    tokenShop.setNumberOfItems(KekBot.tokenShop.getInventory().size());
+
+                    //Handler for shop items.
+                    tokenShop.setSelectionAction((msg, selection) -> {
+                        //Item we selected from the shop.
+                        Token selectedToken = KekBot.tokenShop.getInventory().get(selection - 1);
+
+                        //User's profile.
+                        Profile profile = Profile.getProfile(event.getAuthor());
+
+                        //Item's info.
+                        String info = "***Name:*** " + selectedToken.getName() +
+                                "\n***Requires Level " + selectedToken.getRequiredLevel() + ".***" +
+                                "\n***Your Level: " + profile.getLevel() + "***" +
+                                "\n***Price:*** " + CustomEmote.printPrice(selectedToken.getPrice()) + "***" +
+                                "\n***Description:*** " + selectedToken.getDescription() +
+                                "\n***Preview:***";
+
+                        event.getChannel().sendTyping().queue();
                         try {
-                            backgroundShopPage = Integer.valueOf(event.getArgs()[1]) - 1;
-                        } catch (NumberFormatException e) {
-                            event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, "`" + event.getArgs()[1] + "`")).queue();
-                            break;
+                            //Send the image first.
+                            event.getChannel().sendFile(selectedToken.drawTokenImage(), "preview.png").queue(message -> {
+                                //Set up the menu to purchase the item.
+                                ButtonMenu.Builder tokenView = new ButtonMenu.Builder();
+
+                                tokenView.setEventWaiter(KekBot.waiter);
+                                tokenView.setText(info);
+
+                                //Make sure only the user calling the command can mess with this menu.
+                                tokenView.setUsers(event.getAuthor());
+
+                                //If the user's level matches the required level, allow them to buy it.
+                                if (profile.getLevel() == selectedToken.getRequiredLevel()) tokenView.addChoice("✅");
+
+                                tokenView.addChoice("❌");
+
+                                //Handler for choosing yes/no.
+                                tokenView.setAction(emote -> {
+                                    if (emote.getName().equals("✅")) {
+                                        event.getChannel().sendMessage(KekBot.tokenShop.buy(KekBot.tokenShop.getInventory().get(selection - 1), event.getAuthor())).queue();
+                                    }
+                                    message.delete().queue();
+                                });
+                                tokenView.build().display(message);
+                            });
+                        } catch (IOException e) {
+                            throwException(e, event);
                         }
-                    }
+                    });
+                    //Number of items in this shop.
+                    tokenShop.setItemsPerPage(KekBot.tokenShop.getItemsPerPage());
+
+                    //And finally, display the shop.
+                    tokenShop.build().display(event.getChannel());
+                    break;
+                case 2:
+                    //Background Shop
+                    ShopMenu.Builder backgroundShop = new ShopMenu.Builder();
+                    backgroundShop.setEventWaiter(KekBot.waiter);
+
+                    //Make sure only the user calling the command can mess with this menu.
+                    backgroundShop.setUsers(event.getAuthor());
+
+                    //Draw the shops images for this menu.
                     try {
-                        if ((backgroundShopPage * 6) >= backgroundShop.size() || (backgroundShopPage * 6) < 0) {
-                            event.getChannel().sendMessage("That page doesn't exist!").queue();
-                        } else {
-                            event.getChannel().sendTyping().queue();
-                            event.getChannel().sendFile(drawBackgroundShop(Profile.getProfile(event.getAuthor()), backgroundShop.subList(backgroundShopPage * 6, ((backgroundShopPage + 1) * 6 <= backgroundShop.size() ? (backgroundShopPage + 1) * 6 : backgroundShop.size())), backgroundShopPage > 0, (backgroundShopPage + 1) * 6 < backgroundShop.size(), backgroundShopPage), "backgroundshop.png", null).queue();
-                        }
+                        backgroundShop.addImages(KekBot.backgroundShop.draw(Profile.getProfile(event.getAuthor())));
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        throwException(e, event, "Shop Generation Error.");
                     }
-                    break;
-                case "buy":
-                    if (event.getArgs().length < 2)
-                        event.getChannel().sendMessage(missingArgs).queue();
-                    else {
-                        switch (event.getArgs()[1]) {
-                            case "token":
-                            case "tokens":
-                                if (event.getArgs().length < 3)
-                                    event.getChannel().sendMessage(missingArgs).queue();
-                                else {
-                                    try {
-                                        event.getChannel().sendMessage(KekBot.tokenShop.buy(KekBot.tokenShop.getInventory().get(Integer.valueOf(event.getArgs()[2]) - 1), event.getAuthor())).queue();
-                                    } catch (NumberFormatException e) {
-                                        event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, "`" + event.getArgs()[2] + "`")).queue();
+
+                    //Number of items in the shop.
+                    backgroundShop.setNumberOfItems(KekBot.backgroundShop.getInventory().size());
+
+                    //Handler for shop items.
+                    backgroundShop.setSelectionAction((msg, selection) -> {
+                        //Item we selected from the shop.
+                        Background selectedBackground = KekBot.backgroundShop.getInventory().get(selection - 1);
+
+                        //User's profile.
+                        Profile profile = Profile.getProfile(event.getAuthor());
+
+                        //Item's info.
+                        String info = "***Name:*** " + selectedBackground.getName() +
+                                "\n***Requires Level " + selectedBackground.getRequiredLevel() + ".***" +
+                                "\n***Your Level: " + profile.getLevel() + "***" +
+                                "\n***Price:*** " + CustomEmote.printPrice(selectedBackground.getPrice()) + "***" +
+                                "\n***Description:*** " + selectedBackground.getDescription() +
+                                "\n***Preview:***";
+
+                        event.getChannel().sendTyping().queue();
+                        try {
+                            //Send the image first.
+                            event.getChannel().sendFile(selectedBackground.drawBackgroundImage(), "preview.png").queue(message -> {
+                                //Set up the menu to purchase the item.
+                                ButtonMenu.Builder backgroundView = new ButtonMenu.Builder();
+
+                                backgroundView.setEventWaiter(KekBot.waiter);
+                                backgroundView.setText(info);
+
+                                //Make sure only the user calling the command can mess with this menu.
+                                backgroundView.setUsers(event.getAuthor());
+
+                                //If the user's level matches the required level, allow them to buy it.
+                                if (profile.getLevel() == selectedBackground.getRequiredLevel()) backgroundView.addChoice("✅");
+
+                                backgroundView.addChoice("❌");
+
+                                //Handler for choosing yes/no.
+                                backgroundView.setAction(emote -> {
+                                    if (emote.getName().equals("✅")) {
+                                        event.getChannel().sendMessage(KekBot.backgroundShop.buy(KekBot.backgroundShop.getInventory().get(selection - 1), event.getAuthor())).queue();
                                     }
-                                }
-                                break;
-                            case "background":
-                            case "backgrounds":
-                                if (event.getArgs().length < 3)
-                                    event.getChannel().sendMessage(missingArgs).queue();
-                                else {
-                                    try {
-                                        event.getChannel().sendMessage(KekBot.backgroundShop.buy(KekBot.backgroundShop.getInventory().get(Integer.valueOf(event.getArgs()[2]) - 1), event.getAuthor())).queue();
-                                    } catch (NumberFormatException e) {
-                                        event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, "`" + event.getArgs()[2] + "`")).queue();
-                                    }
-                                }
-                                break;
-                            default:
-                                event.getChannel().sendMessage(missingArgs).queue();
+                                    message.delete().queue();
+                                });
+                                backgroundView.build().display(message);
+                            });
+                        } catch (IOException e) {
+                            throwException(e, event);
                         }
-                    }
+                    });
+                    backgroundShop.setItemsPerPage(KekBot.backgroundShop.getItemsPerPage());
+
+                    //And finally, display the shop.
+                    backgroundShop.build().display(event.getChannel());
                     break;
-                case "info":
-                    if (event.getArgs().length < 2)
-                        event.getChannel().sendMessage(missingArgs).queue();
-                    else {
-                        switch (event.getArgs()[1].toLowerCase()) {
-                            case "token":
-                            case "tokens":
-                                if (event.getArgs().length < 3)
-                                    event.getChannel().sendMessage(missingArgs).queue();
-                                else {
-                                    try {
-                                        Token selectedToken = KekBot.tokenShop.getInventory().get(Integer.valueOf(event.getArgs()[2]) - 1);
-                                        String tokenInfo = "***Name:*** " + selectedToken.getName() +
-                                                "\n***Requires Level " + selectedToken.getRequiredLevel() + ".***" +
-                                                "\n***Description:*** " + selectedToken.getDescription() +
-                                                "\n***Preview:***";
-                                        event.getChannel().sendTyping().queue();
-                                        event.getChannel().sendFile(selectedToken.drawTokenImage(), "preview.png", new MessageBuilder().append(tokenInfo).build()).queue();
-                                    } catch (NumberFormatException e) {
-                                        event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, "`" + event.getArgs()[2] + "`")).queue();
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    } catch (IndexOutOfBoundsException e) {
-                                        event.getChannel().sendMessage("There is no item in this shop with that ID.").queue();
-                                    }
-                                }
-                                break;
-                            case "background":
-                            case "backgrounds":
-                                if (event.getArgs().length < 3)
-                                    event.getChannel().sendMessage(missingArgs).queue();
-                                else {
-                                    try {
-                                        Background selectedBackground = KekBot.backgroundShop.getInventory().get(Integer.valueOf(event.getArgs()[2]) - 1);
-                                        String backgroundInfo = "***Name:*** " + selectedBackground.getName() +
-                                                "\n***Requires Level " + selectedBackground.getRequiredLevel() + ".***" +
-                                                "\n***Description:*** " + selectedBackground.getDescription() +
-                                                "\n***Preview:***";
-                                        event.getChannel().sendTyping().queue();
-                                        event.getChannel().sendFile(selectedBackground.drawBackgroundImage(), "preview.png", new MessageBuilder().append(backgroundInfo).build()).queue();
-                                    } catch (NumberFormatException e) {
-                                        event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, "`" + event.getArgs()[2] + "`")).queue();
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    } catch (IndexOutOfBoundsException e) {
-                                        event.getChannel().sendMessage("There is no item in this shop with that ID.").queue();
-                                    }
-                                }
-                                break;
-                            default:
-                                event.getChannel().sendMessage(missingArgs).queue();
-                        }
-                    }
-                    break;
-                case "convert":
+                case 3:
                     String url = "https://discoin.sidetrip.xyz/rates";
                     String unauthorized = "An error has occurred. This likely is because the bot owner screwed up somewhere...\n\nTranaction Canceled.";
                     if (Config.getConfig().getDcoinToken() != null) {
@@ -248,62 +271,7 @@ public class ShopCommand extends Command {
                     }
                     break;
             }
-        }
-    }
-
-    private byte[] drawTokenShop(Profile profile, List<Token> tokens, boolean prev, boolean next, int offset) throws IOException {
-        BufferedImage shop3Shelf = ImageIO.read(new File("resources/shop/3shelf.png"));
-        BufferedImage prevImg = ImageIO.read(new File("resources/shop/prev.png"));
-        BufferedImage nextImg = ImageIO.read(new File("resources/shop/next.png"));
-        BufferedImage topkek = ImageIO.read(new File("resources/shop/topkek.png"));
-        BufferedImage locked = ImageIO.read(new File("resources/shop/lockedToken.png"));
-        Graphics2D graphics = shop3Shelf.createGraphics();
-        if (prev) graphics.drawImage(prevImg, 247, 639, null);
-        if (next) graphics.drawImage(nextImg, 339, 639, null);
-        graphics.setColor(Color.white);
-        graphics.setFont(new Font("Calibri", Font.BOLD, 16));
-        for (int y = 0; y < Math.ceil((double) tokens.size() / 3d); y++) {
-            for (int x = 0; x < (tokens.size() / (y + 1) < 3 ? tokens.size() - (y * 3) : 3); x++) {
-                graphics.drawImage(tokens.get(x + (y * 3)).drawToken(), 70 + (125 * x), 226 + (130 * y), 80, 80, null);
-                if (tokens.get(x + (y * 3)).getRequiredLevel() > profile.getLevel()) graphics.drawImage(locked, 70 + (125 * x), 226 + (130 * y),null);
-                graphics.drawImage(topkek, 40 + (125 * x), 196 + (130 * y), null);
-                graphics.drawString(String.valueOf(tokens.get(x + (y * 3)).getPrice()), 85 + (125 * x),215 + (130 * y));
-                graphics.drawString(String.valueOf(((x + (y * 3)) + 1) + (offset * 9)), 53 + (125 * x), 257 + (130 * y));
-            }
-        }
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        ImageIO.write(shop3Shelf, "png", outputStream);
-        byte[] image = outputStream.toByteArray();
-        outputStream.flush();
-        outputStream.close();
-        return image;
-    }
-
-    private byte[] drawBackgroundShop(Profile profile, List<Background> backgrounds, boolean prev, boolean next, int offset) throws IOException {
-        BufferedImage shop3Shelf = ImageIO.read(new File("resources/shop/3shelf.png"));
-        BufferedImage prevImg = ImageIO.read(new File("resources/shop/prev.png"));
-        BufferedImage nextImg = ImageIO.read(new File("resources/shop/next.png"));
-        BufferedImage topkek = ImageIO.read(new File("resources/shop/topkek.png"));
-        BufferedImage locked = ImageIO.read(new File("resources/shop/lockedBackground.png"));
-        Graphics2D graphics = shop3Shelf.createGraphics();
-        if (prev) graphics.drawImage(prevImg, 247, 639, null);
-        if (next) graphics.drawImage(nextImg, 339, 639, null);
-        graphics.setColor(Color.white);
-        graphics.setFont(new Font("Calibri", Font.BOLD, 16));
-        for (int y = 0; y < Math.ceil((double) backgrounds.size() / 2d); y++) {
-            for (int x = 0; x < (backgrounds.size() / (y + 1) < 2 ? backgrounds.size() - (y * 2) : 2); x++) {
-                graphics.drawImage(backgrounds.get(x + (y * 2)).drawBackground(), 75 + (166 * x), 205 + (130 * y), 156, 94, null);
-                if (backgrounds.get(x + (y * 2)).getRequiredLevel() > profile.getLevel()) graphics.drawImage(locked, 75 + (166 * x), 205 + (130 * y),null);
-                graphics.drawImage(topkek, 4 + (393 * x), 199 + (130 * y), null);
-                graphics.drawString(String.valueOf(backgrounds.get(x + (y * 2)).getPrice()), 40 + (393 * x),220 + (130 * y));
-                graphics.drawString(String.valueOf(((x + (y * 2)) + 1) + (offset * 6) ), 32 + (393 * x), 252 + (130 * y));
-            }
-        }
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        ImageIO.write(shop3Shelf, "png", outputStream);
-        byte[] image = outputStream.toByteArray();
-        outputStream.flush();
-        outputStream.close();
-        return image;
+        });
+        builder.build().display(event.getChannel());
     }
 }
