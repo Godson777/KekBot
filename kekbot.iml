@@ -43,7 +43,12 @@
     <orderEntry type="library" name="Maven: com.googlecode.json-simple:json-simple:1.1.1" level="project" />
     <orderEntry type="library" name="Maven: junit:junit:4.10" level="project" />
     <orderEntry type="library" name="Maven: org.hamcrest:hamcrest-core:1.1" level="project" />
-    <orderEntry type="library" name="Maven: com.jagrosh:JDA-Utilities:1.9" level="project" />
+    <orderEntry type="library" name="Maven: com.jagrosh:jda-utilities:2.1" level="project" />
+    <orderEntry type="library" name="Maven: com.jagrosh:jda-utilities-command:2.1" level="project" />
+    <orderEntry type="library" name="Maven: com.jagrosh:jda-utilities-commons:2.1" level="project" />
+    <orderEntry type="library" name="Maven: com.jagrosh:jda-utilities-doc:2.1" level="project" />
+    <orderEntry type="library" name="Maven: com.jagrosh:jda-utilities-examples:2.1" level="project" />
+    <orderEntry type="library" name="Maven: com.jagrosh:jda-utilities-menu:2.1" level="project" />
     <orderEntry type="library" name="Maven: com.github.twitch4j:twitch4j:v0.10.1" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: io.ratpack:ratpack-core:1.4.6" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: io.netty:netty-codec-http:4.1.6.Final" level="project" />
