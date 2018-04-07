@@ -1,8 +1,7 @@
 package com.godson.kekbot.menu;
 
+import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.menu.Menu;
-import com.jagrosh.jdautilities.menu.MenuBuilder;
-import com.jagrosh.jdautilities.waiter.EventWaiter;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.*;
@@ -126,7 +125,7 @@ public class EmbedPaginator extends Menu {
         return mbuilder.build();
     }
 
-    public static class Builder extends MenuBuilder<Builder, EmbedPaginator> {
+    public static class Builder extends Menu.Builder<Builder, EmbedPaginator> {
 
         private Color color;
         private Consumer<Message> finalAction = m -> m.delete().queue();

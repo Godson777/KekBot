@@ -7,7 +7,7 @@ import com.godson.kekbot.responses.Action;
 import com.godson.kekbot.settings.Settings;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
-import com.jagrosh.jdautilities.menu.pagination.PaginatorBuilder;
+import com.jagrosh.jdautilities.menu.Paginator;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.MessageChannel;
@@ -79,7 +79,7 @@ public class Quote extends Command {
                     int size = settings.getQuotes().getList().size();
 
                     if (size != 0) {
-                        PaginatorBuilder builder = new PaginatorBuilder();
+                        Paginator.Builder builder = new Paginator.Builder();
                         for (int i = 0; i < size; i++) {
                             String quote = settings.getQuotes().getList().get(i);
                             builder.addItems(quote.length() > 200 ? quote.substring(0, 200) + "..." : quote);

@@ -4,7 +4,7 @@ import com.godson.kekbot.KekBot;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.responses.Action;
-import com.jagrosh.jdautilities.menu.pagination.PaginatorBuilder;
+import com.jagrosh.jdautilities.menu.Paginator;
 import net.dv8tion.jda.core.entities.TextChannel;
 import org.apache.commons.lang3.StringUtils;
 
@@ -85,7 +85,7 @@ public class Responses extends Command {
                     }
                     try {
                         List<String> responses = KekBot.getResponses(Action.valueOf(args[1]));
-                        PaginatorBuilder builder = new PaginatorBuilder()
+                        Paginator.Builder builder = new Paginator.Builder()
                                 .setEventWaiter(KekBot.waiter)
                                 .addItems(responses.toArray(new String[responses.size()]))
                                 .useNumberedItems(true)
