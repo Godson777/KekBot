@@ -55,51 +55,45 @@ public class Role extends Command {
                         event.getChannel().sendMessage("The user(s) you want to assign this role to __**must**__ be in the form of a mention!").queue();
                     } else if (event.getMessage().getMentionedUsers().size() == 1) {
                         Member member = event.getGuild().getMember(event.getMessage().getMentionedUsers().get(0));
-                        if (!member.getRoles().contains(event.getGuild().getRolesByName(args[0], true).get(0))) {
-                            if (member.getRoles().stream().map(net.dv8tion.jda.core.entities.Role::getPositionRaw).max(Integer::compareTo).get() >= event.getMember().getRoles().stream().map(net.dv8tion.jda.core.entities.Role::getPositionRaw).max(Integer::compareTo).get()) {
-                                event.getChannel().sendMessage("You can't edit someone's roles when their highest role is the same as or is higher than yours.").queue();
-                            } else {
-                                try {
-                                    event.getGuild().getController().addRolesToMember(member, event.getGuild().getRolesByName(args[0], true).get(0)).reason("Role Given by: " + event.getAuthor().getName() + "#" + event.getAuthor().getDiscriminator() + " (" + event.getAuthor().getId() + ")").queue();
+                        net.dv8tion.jda.core.entities.Role role = event.getGuild().getRolesByName(args[0], true).get(0);
+                        if (!member.getRoles().contains(role)) {
+                            if (Utils.checkHierarchy(role, event.getMember())) {
+                                if (Utils.checkHierarchy(role, event.getSelfMember())) {
+                                    event.getGuild().getController().addRolesToMember(member, role).reason("Role Given by: " + event.getAuthor().getName() + "#" + event.getAuthor().getDiscriminator() + " (" + event.getAuthor().getId() + ")").queue();
                                     event.getChannel().sendMessage(KekBot.respond(Action.ROLE_ADDED, event.getMessage().getMentionedUsers().get(0).getName() + "#" + event.getMessage().getMentionedUsers().get(0).getDiscriminator())).queue();
-                                } catch (PermissionException e) {
-                                    event.getChannel().sendMessage("That role is higher than mine! I cannot assign it to any users!").queue();
-                                }
-                            }
-                        } else {
-                            event.getChannel().sendMessage("This user already has the role you specified!").queue();
-                        }
-
+                                } else event.getChannel().sendMessage("That role is higher than mine! I cannot assign it to any users!").queue();
+                            } else event.getChannel().sendMessage("That role is higher than yours, you cannot add it to this person.").queue();
+                        } else event.getChannel().sendMessage("This user already has the role you specified!").queue();
                     } else {
                         List<User> users = event.getMessage().getMentionedUsers();
                         GuildController controller = event.getGuild().getController();
                         net.dv8tion.jda.core.entities.Role role = event.getGuild().getRolesByName(args[0], true).get(0);
                         List<String> success = new ArrayList<String>();
                         List<String> exist = new ArrayList<String>();
-                        boolean failed = false;
                         for (User user : users) {
                             Member member = event.getGuild().getMember(user);
-                            if (member.getRoles().contains(role)) {
-                                try {
-                                    controller.addRolesToMember(member, role).reason("Mass Role Given by: " + event.getAuthor().getName() + "#" + event.getAuthor().getDiscriminator() + " (" + event.getAuthor().getId() + ")").queue();
-                                    success.add(user.getName() + "#" + user.getDiscriminator());
-                                } catch (PermissionException e) {
-                                    failed = true;
+                            if (!member.getRoles().contains(role)) {
+                                if (Utils.checkHierarchy(role, event.getMember())) {
+                                    if (Utils.checkHierarchy(role, event.getGuild().getSelfMember())) {
+                                        controller.addRolesToMember(member, role).reason("Mass Role Given by: " + event.getAuthor().getName() + "#" + event.getAuthor().getDiscriminator() + " (" + event.getAuthor().getId() + ")").queue();
+                                        success.add(user.getName() + "#" + user.getDiscriminator());
+                                    } else {
+                                        event.getChannel().sendMessage("That role is higher than mine! I cannot assign it to any users!").queue();
+                                        break;
+                                    }
+                                } else {
+                                    event.getChannel().sendMessage("That role is higher than yours, you cannot add it to anyone.").queue();
                                     break;
                                 }
                             } else {
                                 exist.add(user.getName() + "#" + user.getDiscriminator());
                             }
                         }
-                        if (failed) {
-                            event.getChannel().sendMessage("That role is higher than mine! I cannot assign it to any users!").queue();
+                        if (success.size() != 0) {
+                            event.getChannel().sendMessage(KekBot.respond(Action.ROLE_ADDED, StringUtils.join(success, ", ")) +
+                                    (exist.size() != 0 ? "\nHowever, " + exist.size() + (exist.size() == 1 ? "user" : "users") + ": `" + StringUtils.join(exist, ", ") + "` already have this role. So they were ignored." : "")).queue();
                         } else {
-                            if (success.size() != 0) {
-                                event.getChannel().sendMessage(KekBot.respond(Action.ROLE_ADDED, StringUtils.join(success, ", ")) +
-                                        (exist.size() != 0 ? "\nHowever, " + exist.size() + (exist.size() == 1 ? "user" : "users") + ": `" + StringUtils.join(exist, ", ") + "` already have this role. So they were ignored." : "")).queue();
-                            } else {
-                                event.getChannel().sendMessage("All users you specified already have this role!").queue();
-                            }
+                            event.getChannel().sendMessage("All users you specified already have this role!").queue();
                         }
                     }
                     break;
@@ -125,50 +119,46 @@ public class Role extends Command {
                         event.getChannel().sendMessage("The user(s) you want to remove this role from __**must**__ be in the form of a mention!").queue();
                     } else if (event.getMessage().getMentionedUsers().size() == 1) {
                         Member member = event.getGuild().getMember(event.getMessage().getMentionedUsers().get(0));
-                        if (member.getRoles().contains(event.getGuild().getRolesByName(args[0], true).get(0))) {
-                            if (member.getRoles().stream().map(net.dv8tion.jda.core.entities.Role::getPositionRaw).max(Integer::compareTo).get() >= event.getMember().getRoles().stream().map(net.dv8tion.jda.core.entities.Role::getPositionRaw).max(Integer::compareTo).get()) {
-                                event.getChannel().sendMessage("You can't edit someone's roles when their highest role is the same as or is higher than yours.").queue();
-                            } else {
-                                try {
+                        net.dv8tion.jda.core.entities.Role role = event.getGuild().getRolesByName(args[0], true).get(0);
+                        if (member.getRoles().contains(role)) {
+                            if (Utils.checkHierarchy(role, event.getMember())) {
+                                if (Utils.checkHierarchy(role, event.getSelfMember())) {
                                     event.getGuild().getController().removeRolesFromMember(member, event.getGuild().getRolesByName(args[0], true).get(0)).reason("Role Removed by: " + event.getAuthor().getName() + "#" + event.getAuthor().getDiscriminator() + " (" + event.getAuthor().getId() + ")").queue();
                                     event.getChannel().sendMessage(KekBot.respond(Action.ROLE_TAKEN, member.getUser().getName() + "#" + member.getUser().getDiscriminator())).queue();
-                                } catch (PermissionException e) {
-                                    event.getChannel().sendMessage("That role is higher than mine! I cannot remove it from any users!").queue();
-                                }
-                            }
-                        } else {
-                            event.getChannel().sendMessage("This user doesn't have the role you specified!").queue();
-                        }
+                                } else event.getChannel().sendMessage("That role is higher than mine! I cannot assign it to any users!").queue();
+                            } else event.getChannel().sendMessage("That role is higher than yours, you cannot take it from this person.").queue();
+                        } else event.getChannel().sendMessage("This user doesn't have the role you specified!").queue();
                     } else {
                         List<User> users = event.getMessage().getMentionedUsers();
                         GuildController controller = event.getGuild().getController();
                         net.dv8tion.jda.core.entities.Role role = event.getGuild().getRolesByName(args[0], true).get(0);
                         List<String> success = new ArrayList<String>();
                         List<String> exist = new ArrayList<String>();
-                        boolean failed = false;
                         for (User user : users) {
                             Member member = event.getGuild().getMember(user);
                             if (member.getRoles().contains(role)) {
-                                try {
-                                    controller.removeRolesFromMember(member, role).reason("Mass Role Removed by: " + event.getAuthor().getName() + "#" + event.getAuthor().getDiscriminator() + " (" + event.getAuthor().getId() + ")").queue();
-                                    success.add(user.getName() + "#" + user.getDiscriminator());
-                                } catch (PermissionException e) {
-                                    failed = true;
+                                if (Utils.checkHierarchy(role, event.getMember())) {
+                                    if (Utils.checkHierarchy(role, event.getGuild().getSelfMember())) {
+                                        controller.removeRolesFromMember(member, role).reason("Mass Role Removed by: " + event.getAuthor().getName() + "#" + event.getAuthor().getDiscriminator() + " (" + event.getAuthor().getId() + ")").queue();
+                                        success.add(user.getName() + "#" + user.getDiscriminator());
+                                    } else {
+                                        event.getChannel().sendMessage("That role is higher than mine! I cannot remove it from any users!").queue();
+                                        break;
+                                    }
+                                } else {
+                                    event.getChannel().sendMessage("That role is higher than yours, you cannot take it from anyone.").queue();
                                     break;
                                 }
                             } else {
                                 exist.add(user.getName() + "#" + user.getDiscriminator());
                             }
                         }
-                        if (failed) {
-                            event.getChannel().sendMessage("That role is higher than mine! I cannot remove it from any users!").queue();
+
+                        if (success.size() != 0) {
+                            event.getChannel().sendMessage(KekBot.respond(Action.ROLE_TAKEN, StringUtils.join(success, ", ")) +
+                                    (exist.size() != 0 ? "\nHowever, " + exist.size() + (exist.size() == 1 ? "user" : "users") + ": `" + StringUtils.join(exist, ", ") + "` don't have this role. So they were ignored." : "")).queue();
                         } else {
-                            if (success.size() != 0) {
-                                event.getChannel().sendMessage(KekBot.respond(Action.ROLE_TAKEN, StringUtils.join(success, ", ")) +
-                                        (exist.size() != 0 ? "\nHowever, " + exist.size() + (exist.size() == 1 ? "user" : "users") + ": `" + StringUtils.join(exist, ", ") + "` don't have this role. So they were ignored." : "")).queue();
-                            } else {
-                                event.getChannel().sendMessage("All users you specified don't have this role!").queue();
-                            }
+                            event.getChannel().sendMessage("All users you specified don't have this role!").queue();
                         }
                     }
                     break;

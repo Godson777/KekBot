@@ -1,6 +1,7 @@
 package com.godson.kekbot.command.commands.admin;
 
 import com.godson.kekbot.KekBot;
+import com.godson.kekbot.Utils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.responses.Action;
@@ -41,14 +42,11 @@ public class Ban extends Command {
             } else if (event.getMessage().getMentionedUsers().get(0).equals(event.getMessage().getAuthor())) {
                 event.getChannel().sendMessage("Why would you want to ban yourself? That seems kinda useless to me...").queue();
             } else {
-                if (event.getMember().getRoles().size() > 0) {
-                    if (event.getGuild().getMember(event.getMessage().getMentionedUsers().get(0)).getRoles().size() > 0) {
-                        if (event.getGuild().getMember(event.getMessage().getMentionedUsers().get(0)).getRoles().stream().map(net.dv8tion.jda.core.entities.Role::getPositionRaw).max(Integer::compareTo).get() >= event.getMember().getRoles().stream().map(net.dv8tion.jda.core.entities.Role::getPositionRaw).max(Integer::compareTo).get()) {
-                            event.getChannel().sendMessage("You can't ban someone who's highest role is the same as or is higher than yours.").queue();
-                            return;
-                        }
-                    }
+                if (Utils.checkHierarchy(event.getGuild().getMember(event.getMessage().getMentionedUsers().get(0)), event.getMember())) {
+                    event.getChannel().sendMessage("You can't ban someone who's highest role is the same as or is higher than yours.").queue();
+                    return;
                 }
+
                 try {
                     event.getGuild().getController().ban(event.getMessage().getMentionedUsers().get(0), 0).reason("Banned by: " + event.getAuthor().getName() + "#" + event.getAuthor().getDiscriminator() + " (" + event.getAuthor().getId() + ")").queue();
                     event.getChannel().sendMessage(KekBot.respond(Action.BAN_SUCCESS, "`" + event.getMessage().getMentionedUsers().get(0).getName() + "`")).queue();
