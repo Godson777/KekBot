@@ -64,12 +64,6 @@
 
         <dependency>
             <groupId>com.github.Godson777</groupId>
-            <artifactId>Commands4J</artifactId>
-            <version>32d3f53</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.Godson777</groupId>
             <artifactId>Discoin4J</artifactId>
             <version>v1.0.1</version>
         </dependency>

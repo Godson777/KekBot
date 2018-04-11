@@ -36,7 +36,6 @@
     <orderEntry type="library" name="Maven: commons-io:commons-io:2.5" level="project" />
     <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.8.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.commons:commons-lang3:3.7" level="project" />
-    <orderEntry type="library" name="Maven: com.github.Godson777:Commands4J:32d3f53" level="project" />
     <orderEntry type="library" name="Maven: com.github.Godson777:Discoin4J:v1.0.1" level="project" />
     <orderEntry type="library" name="Maven: org.twitter4j:twitter4j-core:4.0.4" level="project" />
     <orderEntry type="library" name="Maven: com.rethinkdb:rethinkdb-driver:2.3.3" level="project" />

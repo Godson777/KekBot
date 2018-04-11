@@ -1,6 +1,5 @@
 package com.godson.kekbot.questionaire;
 
-import com.darichey.discord.api.CommandContext;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.command.CommandEvent;
 import com.google.gson.internal.Primitives;
