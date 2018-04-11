@@ -51,21 +51,21 @@ public class Role extends Command {
                         return;
                     }
 
-                    if (event.getMessage().getMentionedUsers().size() == 0) {
+                    if (event.getMentionedUsers().size() == 0) {
                         event.getChannel().sendMessage("The user(s) you want to assign this role to __**must**__ be in the form of a mention!").queue();
-                    } else if (event.getMessage().getMentionedUsers().size() == 1) {
-                        Member member = event.getGuild().getMember(event.getMessage().getMentionedUsers().get(0));
+                    } else if (event.getMentionedUsers().size() == 1) {
+                        Member member = event.getGuild().getMember(event.getMentionedUsers().get(0));
                         net.dv8tion.jda.core.entities.Role role = event.getGuild().getRolesByName(args[0], true).get(0);
                         if (!member.getRoles().contains(role)) {
                             if (Utils.checkHierarchy(role, event.getMember())) {
                                 if (Utils.checkHierarchy(role, event.getSelfMember())) {
                                     event.getGuild().getController().addRolesToMember(member, role).reason("Role Given by: " + event.getAuthor().getName() + "#" + event.getAuthor().getDiscriminator() + " (" + event.getAuthor().getId() + ")").queue();
-                                    event.getChannel().sendMessage(KekBot.respond(Action.ROLE_ADDED, event.getMessage().getMentionedUsers().get(0).getName() + "#" + event.getMessage().getMentionedUsers().get(0).getDiscriminator())).queue();
+                                    event.getChannel().sendMessage(KekBot.respond(Action.ROLE_ADDED, event.getMentionedUsers().get(0).getName() + "#" + event.getMentionedUsers().get(0).getDiscriminator())).queue();
                                 } else event.getChannel().sendMessage("That role is higher than mine! I cannot assign it to any users!").queue();
                             } else event.getChannel().sendMessage("That role is higher than yours, you cannot add it to this person.").queue();
                         } else event.getChannel().sendMessage("This user already has the role you specified!").queue();
                     } else {
-                        List<User> users = event.getMessage().getMentionedUsers();
+                        List<User> users = event.getMentionedUsers();
                         GuildController controller = event.getGuild().getController();
                         net.dv8tion.jda.core.entities.Role role = event.getGuild().getRolesByName(args[0], true).get(0);
                         List<String> success = new ArrayList<String>();
@@ -115,10 +115,10 @@ public class Role extends Command {
                         return;
                     }
 
-                    if (event.getMessage().getMentionedUsers().size() == 0) {
+                    if (event.getMentionedUsers().size() == 0) {
                         event.getChannel().sendMessage("The user(s) you want to remove this role from __**must**__ be in the form of a mention!").queue();
-                    } else if (event.getMessage().getMentionedUsers().size() == 1) {
-                        Member member = event.getGuild().getMember(event.getMessage().getMentionedUsers().get(0));
+                    } else if (event.getMentionedUsers().size() == 1) {
+                        Member member = event.getGuild().getMember(event.getMentionedUsers().get(0));
                         net.dv8tion.jda.core.entities.Role role = event.getGuild().getRolesByName(args[0], true).get(0);
                         if (member.getRoles().contains(role)) {
                             if (Utils.checkHierarchy(role, event.getMember())) {
@@ -129,7 +129,7 @@ public class Role extends Command {
                             } else event.getChannel().sendMessage("That role is higher than yours, you cannot take it from this person.").queue();
                         } else event.getChannel().sendMessage("This user doesn't have the role you specified!").queue();
                     } else {
-                        List<User> users = event.getMessage().getMentionedUsers();
+                        List<User> users = event.getMentionedUsers();
                         GuildController controller = event.getGuild().getController();
                         net.dv8tion.jda.core.entities.Role role = event.getGuild().getRolesByName(args[0], true).get(0);
                         List<String> success = new ArrayList<String>();

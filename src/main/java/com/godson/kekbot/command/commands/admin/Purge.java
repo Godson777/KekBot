@@ -49,7 +49,7 @@ public class Purge extends Command {
                             if (msgs.size() > 0) {
                                 if (event.getArgs().length >= 2) {
                                     String keyphrase = event.combineArgs(1);
-                                    if (event.getMessage().getMentionedUsers().size() == 0) {
+                                    if (event.getMentionedUsers().size() == 0) {
                                         List<Message> keywordPurge = msgs.stream().filter(mes -> mes.getContentRaw().toLowerCase().contains(keyphrase.toLowerCase())).collect(Collectors.toList());
                                         if (keywordPurge.size() > 1)
                                             event.getTextChannel().deleteMessages(keywordPurge).queue();
@@ -61,19 +61,19 @@ public class Purge extends Command {
                                             msg.editMessage(KekBot.respond(Action.KEYPHRASE_PURGE_FAIL)).queue();
                                     } else {
                                         List<String> mentions = new ArrayList<String>();
-                                        event.getMessage().getMentionedUsers().forEach(user -> mentions.add(user.getAsMention()));
+                                        event.getMentionedUsers().forEach(user -> mentions.add(user.getAsMention()));
                                         Pattern p = Pattern.compile("([A-Z])+", Pattern.CASE_INSENSITIVE);
                                         Matcher m = p.matcher(keyphrase);
                                         if (mentions.stream().anyMatch(mentions::contains) && m.find()) {
                                             msg.editMessage("Sorry, but you can't type key-phrases and mentions while attempting to purge.").queue();
                                         } else {
-                                            List<Message> mentionPurge = msgs.stream().filter(mes -> event.getMessage().getMentionedUsers().stream().anyMatch(mes.getAuthor()::equals)).collect(Collectors.toList());
+                                            List<Message> mentionPurge = msgs.stream().filter(mes -> event.getMentionedUsers().stream().anyMatch(mes.getAuthor()::equals)).collect(Collectors.toList());
                                             if (mentionPurge.size() > 1)
                                                 event.getTextChannel().deleteMessages(mentionPurge).queue();
                                             else if (mentionPurge.size() == 1)
                                                 mentionPurge.get(0).delete().queue();
                                             if (mentionPurge.size() >= 1)
-                                                msg.editMessage(KekBot.respond(Action.MENTION_PURGE_SUCCESS, "`" + mentionPurge.size() + "`", "`" + StringUtils.join(event.getMessage().getMentionedUsers().stream().map(user -> user.getName() + "#" + user.getDiscriminator()).collect(Collectors.toList()), ", ") + "`")).queue();
+                                                msg.editMessage(KekBot.respond(Action.MENTION_PURGE_SUCCESS, "`" + mentionPurge.size() + "`", "`" + StringUtils.join(event.getMentionedUsers().stream().map(user -> user.getName() + "#" + user.getDiscriminator()).collect(Collectors.toList()), ", ") + "`")).queue();
                                             else
                                                 msg.editMessage(KekBot.respond(Action.MENTION_PURGE_FAIL)).queue();
                                         }
