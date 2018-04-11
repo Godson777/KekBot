@@ -170,7 +170,7 @@ public class ProfileCommand extends Command {
                                     case "topkeks":
                                         if (event.getArgs().length >= 4) {
                                             try {
-                                                int toGive = Integer.valueOf(event.getArgs()[3]);
+                                                double toGive = Double.valueOf(event.getArgs()[3]);
                                                 if (event.getArgs().length >= 5) {
                                                     User user = KekBot.jda.getUserById(event.getArgs()[4]);
 
@@ -274,7 +274,7 @@ public class ProfileCommand extends Command {
                                     case "topkeks":
                                         if (event.getArgs().length >= 4) {
                                             try {
-                                                double toTake = Integer.valueOf(event.getArgs()[3]);
+                                                double toTake = Double.valueOf(event.getArgs()[3]);
                                                 if (event.getArgs().length >= 5) {
                                                     User user = KekBot.jda.getUserById(event.getArgs()[4]);
 
@@ -381,7 +381,7 @@ public class ProfileCommand extends Command {
                                     case "topkeks":
                                         if (event.getArgs().length >= 4) {
                                             try {
-                                                int toSet = Integer.valueOf(event.getArgs()[3]);
+                                                double toSet = Double.valueOf(event.getArgs()[3]);
                                                 if (event.getArgs().length >= 5) {
                                                     User user = KekBot.jda.getUserById(event.getArgs()[4]);
 
@@ -516,10 +516,10 @@ public class ProfileCommand extends Command {
                             } else event.getChannel().sendMessage("No arguments specified.").queue();
                     }
                 } else event.getChannel().sendMessage("No arguments specified.").queue();
-            } else if (event.getMessage().getMentionedUsers().size() == 1) {
+            } else if (event.getMentionedUsers().size() == 1) {
                 try {
                     event.getChannel().sendTyping().queue();
-                    User user = event.getMessage().getMentionedUsers().get(0);
+                    User user = event.getMentionedUsers().get(0);
                     Profile profile = Profile.getProfile(user);
                     event.getChannel().sendFile(profile.drawCard(), "profile.png", new MessageBuilder().append("Here is ").append(user.getName()).append("'s profile card:").build()).queue();
                 } catch (IOException e) {

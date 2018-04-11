@@ -165,7 +165,7 @@ public class GameCommand extends Command {
                                 } else channel.sendMessage("You haven't specified how much you want to bet!").queue();
                             } else {
                                 if (event.getArgs().length >= 2) {
-                                    if (event.getMessage().getMentionedUsers().size() > 0) {
+                                    if (event.getMentionedUsers().size() > 0) {
                                         if (event.getArgs().length >= 3) {
                                             double bet;
                                             try {
@@ -174,7 +174,7 @@ public class GameCommand extends Command {
                                                 channel.sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getArgs()[2])).queue();
                                                 return;
                                             }
-                                            channel.sendMessage(game.getBets().addSpectatorBet(event.getAuthor(), game.getPlayerNumber(event.getMessage().getMentionedUsers().get(0)), bet)).queue();
+                                            channel.sendMessage(game.getBets().addSpectatorBet(event.getAuthor(), game.getPlayerNumber(event.getMentionedUsers().get(0)), bet)).queue();
                                         } else channel.sendMessage("You haven't specified how much you want to bet!").queue();
                                     } else channel.sendMessage("The user you want to bet on must be in the form of a mention!").queue();
                                 }

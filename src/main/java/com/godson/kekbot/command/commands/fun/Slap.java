@@ -19,7 +19,7 @@ public class Slap extends Command {
 
     @Override
     public void onExecuted(CommandEvent event) {
-        if (event.getMessage().getMentionedUsers().size() < 1) {
+        if (event.getMentionedUsers().size() < 1) {
             event.getChannel().sendMessage("You didn't target any users!").queue();
             return;
         }
@@ -31,7 +31,7 @@ public class Slap extends Command {
         event.getChannel().sendTyping().queue();
         EmbedBuilder builder = new EmbedBuilder();
         MessageBuilder mBuilder = new MessageBuilder();
-        builder.setTitle(event.getMessage().getMentionedUsers().get(0).getName() + " was slapped by " + event.getAuthor().getName() + ".");
+        builder.setTitle(event.getMentionedUsers().get(0).getName() + " was slapped by " + event.getAuthor().getName() + ".");
         builder.setImage("attachment://" + slaps[index].getName());
         mBuilder.setEmbed(builder.build());
         event.getChannel().sendFile(slaps[index], slaps[index].getName(), mBuilder.build()).queue();
