@@ -32,8 +32,10 @@ public class Daily extends Command {
 
         profile.setDaily(event.getMessage().getCreationTime().plusDays(1));
         int reward = random.nextInt(20);
-        profile.addTopKeks(reward);
+        if (reward != 0) profile.addTopKeks(reward);
+        else profile.addKXP(10);
         profile.save();
-        event.getChannel().sendMessage("You've collected " + CustomEmote.printPrice(reward) + " today! Come back tomorrow for more!").queue();
+        event.getChannel().sendMessage("You've collected " + CustomEmote.printPrice(reward) + " today! Come back tomorrow for more!" +
+                (reward == 0 ? "\n\nDon't worry, I won't let you go empty handed. Here, take 10 KXP for your profile." : "" )).queue();
     }
 }

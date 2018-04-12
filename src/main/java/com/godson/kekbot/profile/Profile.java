@@ -55,6 +55,8 @@ public class Profile {
     @SerializedName("Next Daily")
     private long daily;
 
+    private volatile User user;
+
     /**
      * Default constructor.
      * This is only ever used if a user doesn't already have a profile saved in a file.
@@ -167,7 +169,7 @@ public class Profile {
         BufferedImage base = new BufferedImage(cardTemplate.getWidth(), cardTemplate.getHeight(), cardTemplate.getType());
         BufferedImage topkek = ImageIO.read(new File("resources/profile/topkek.png"));
         BufferedImage kxpBar = drawKXP();
-        BufferedImage ava = Utils.getUserAvatarImage(KekBot.jda.getUserById(String.valueOf(userID)));
+        BufferedImage ava = Utils.getUserAvatarImage(user);
         Graphics2D card = base.createGraphics();
         //Draw background
         card.drawImage(background, 0, 0, background.getWidth(), background.getHeight(), null);
@@ -178,7 +180,7 @@ public class Profile {
         //Draw Text
         card.setFont(ProfileUtils.topBarTitle);
         card.setColor(Color.BLACK);
-        card.drawString(KekBot.jda.getUserById(String.valueOf(userID)).getName(), 249, 45);
+        card.drawString(user.getName(), 249, 45);
         card.setFont(ProfileUtils.topBarSubtitle);
         card.drawString(subtitle, 249, 75);
         card.drawString("Bio:", 249, 145);
@@ -375,7 +377,6 @@ public class Profile {
      * Levels up the user, alerts them via DM, and adjusts appropriate values based on their new state.
      */
     private void levelUp() {
-        User user = KekBot.jda.getUserById(String.valueOf(userID));
         maxKXP = (int) Math.round(maxKXP * 1.10);
         level++;
         user.openPrivateChannel().queue(ch -> ch.sendMessage("Congrats, you've successfully levelled up to level " + level + "!").queue());
@@ -438,7 +439,7 @@ public class Profile {
         Profile payee = Profile.getProfile(user);
         payee.addTopKeks(topkeks);
         payee.save();
-        user.openPrivateChannel().queue(c -> c.sendMessage("Woohoo! You just got paid " + CustomEmote.printPrice(topkeks) + " by `" + KekBot.jda.getUserById(userID).getName() + "`.").queue());
+        user.openPrivateChannel().queue(c -> c.sendMessage("Woohoo! You just got paid " + CustomEmote.printPrice(topkeks) + " by `" + this.user.getName() + "`.").queue());
     }
 
     /**
@@ -616,23 +617,16 @@ public class Profile {
 
     /**
      * A static method used to grab a profile object based on a user object.
-     * Alias for {@link Profile#getProfile(long)}.
      * @param user The user.
      * @return The user's profile.
      */
     public static Profile getProfile(User user) {
-        return getProfile(user.getIdLong());
-    }
-
-    /**
-     * A static method used to grab a profile object based on a user object.
-     * @param userID The user's ID.
-     * @return The user's profile.
-     */
-    public static Profile getProfile(long userID) {
         Gson gson = new Gson();
-        if (KekBot.r.table("Profiles").get(userID).run(KekBot.conn) != null) return gson.fromJson((String) KekBot.r.table("Profiles").get(userID).toJson().run(KekBot.conn), Profile.class);
-        else return new Profile(userID);
+        Profile profile;
+        if (KekBot.r.table("Profiles").get(user.getIdLong()).run(KekBot.conn) != null) profile = gson.fromJson((String) KekBot.r.table("Profiles").get(user.getIdLong()).toJson().run(KekBot.conn), Profile.class);
+        else profile = new Profile(user.getIdLong());
+        profile.user = user;
+        return profile;
     }
 
     /**

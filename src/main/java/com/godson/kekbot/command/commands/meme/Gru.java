@@ -90,6 +90,7 @@ public class Gru extends Command {
     private byte[] generate(BufferedImage image, boolean hyper, boolean egg) throws IOException {
         BufferedImage base = ImageIO.read(new File("resources/memegen/grusmasterplan" + (egg ? "egg" : "") + (hyper ? "hyper" : "") + ".png"));
         Graphics2D graphics = base.createGraphics();
+        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         double widthRatio = 270d / image.getWidth();
         double heightRatio = 360d / image.getHeight();
