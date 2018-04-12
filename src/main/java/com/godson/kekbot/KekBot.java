@@ -42,7 +42,7 @@ public class KekBot {
     //Seting configs, and resources.
     public static int shards = Config.getConfig().getShards();
     public static ShardManager jda;
-    public static final String version = "1.5-BETA2";
+    public static final String version = "1.5";
     public static final long startTime = System.currentTimeMillis();
     public static BufferedImage genericAvatar;
     private static final Map<Action, List<String>> responses = new HashMap<>();
@@ -182,6 +182,8 @@ public class KekBot {
             client.addCommand(new SwitchSetup());
             client.addCommand(new Gru());
             client.addCommand(new Lean());
+            client.addCommand(new Doubt());
+            client.addCommand(new Kaede());
 
 
 
