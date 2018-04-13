@@ -124,7 +124,7 @@ public abstract class Game {
             if (player.equals(winner)) {
                 if (!betsEnabled) {
                     profile.wonGame(topkeks, KXP);
-                    if (!(topkeks == 0 && KXP == 0)) builder.append(stateEarnings(winner, topkeks, KXP)).append("\n");
+                    if (topkeks > 0 && KXP > 0) builder.append(stateEarnings(winner, topkeks, KXP)).append("\n");
                 } else {
                     double betEarnings = bets.declareWinners(this, winnerIDs);
                     profile.wonGame(topkeks + betEarnings, KXP);

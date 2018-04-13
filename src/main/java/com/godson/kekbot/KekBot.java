@@ -72,7 +72,7 @@ public class KekBot {
     public static final Lottery lottery = new Lottery();
     public static Discoin4J discoin;
     public static DiscoinManager discoinManager;
-    public static final TwitterManager twitterManager = new TwitterManager(chain);
+    public static TwitterManager twitterManager = new TwitterManager(chain);
 
     static {
 
@@ -102,6 +102,7 @@ public class KekBot {
         if (beta) {
             shards = 1;
             client.setPrefix("$$");
+            twitterManager = null;
         }
         else {
             if (shards == 0) {
@@ -296,7 +297,7 @@ public class KekBot {
         KekBot.gamesManager.shutdown(reason);
         lottery.forceDraw(false);
         listener.shutdown();
-        twitterManager.shutdown(reason);
+        if (twitterManager != null) twitterManager.shutdown(reason);
     }
 
 }
