@@ -49,6 +49,12 @@ public class BackgroundManager {
                 "Stare at the night sky with this background!"));
         backgrounds.add(new Background("GOLDEN_LIGHT", "Golden Light", "GOLDEN_LIGHT.png", 10, 1000,
                 "Show off your gold pride with this background. It's so shiny, we're only letting the best of the best get their hands on this. For a not-so-cheap price, anyway..."));
+        backgrounds.add(new Background("KIRBY", "Kirby", "KIRBY.png", 1, 300,
+                "1, 2, Ooooooatmeal..."));
+        backgrounds.add(new Background("CHALLENGER_APPROACH", "Challenger Approaching!", "CHALLENGE_APPROACH.png", 2, 500,
+                "This is a leaked image for the next Smash Bros game! Now usable as a background! (Note: Not actually a leaked image.)"));
+        backgrounds.add(new Background("DDLC", "Doki Doki Literature Club", "DDLC.png", 1, 400,
+                "Now you can show off your weeb status with this background!"));
 
         if (!getExclusiveBackgrounds().isEmpty()) {
             backgrounds.addAll(getExclusiveBackgrounds());
