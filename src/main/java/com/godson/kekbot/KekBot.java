@@ -188,7 +188,7 @@ public class KekBot {
 
 
 
-            client.addCommand(new TestCommand());
+            //client.addCommand(new TestCommand());
             client.addCommand(new MarkovTest(chain));
 
 
