@@ -1,6 +1,7 @@
 package com.godson.kekbot.command.commands;
 
 
+import com.godson.kekbot.CustomEmote;
 import com.godson.kekbot.GSONUtils;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.Utils;
@@ -23,6 +24,7 @@ import javax.imageio.stream.ImageOutputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.Inet4Address;
 
 public class TestCommand extends Command {
 
@@ -34,51 +36,5 @@ public class TestCommand extends Command {
 
     @Override
     public void onExecuted(CommandEvent event) {
-
-        /**
-         * Ports all settings to rethinkdb.
-         */
-        /*
-        try {
-            for (Guild guild : KekBot.jda.getGuilds()) {
-                Settings settings = GSONUtils.getLegacySettings(guild);
-                settings.toggleBroadcasts(false);
-                TagManager tagManager = GSONUtils.getLegacyTagManager(guild);
-                QuoteManager quoteManager = GSONUtils.getLegacyQuotes(guild);
-                return;
-            }
-        } catch (Exception e) {
-            event.getChannel().sendMessage(e.getLocalizedMessage()).queue();
-            e.printStackTrace();
-        }
-        event.getChannel().sendMessage("Successfully ported all server specific settings, quotes, and tags to rethinkdb.").queue();
-
-        Gson gson = new Gson();
-        try {
-            for (File file : new File("profiles").listFiles()) {
-                FileReader reader = new FileReader(file);
-                Profile profile = gson.fromJson(reader, Profile.class);
-                reader.close();
-                profile.save();
-                return;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
-
-        //Settings settings = GSONUtils.getSettings(event.getGuild());
-        /*KekBot.r.db("KekBot").table("Settings").insert(KekBot.r.hashMap("Guild ID", event.getGuild().getId())
-                .with("Prefix", settings.getPrefix())
-                .with("AutoRole ID", settings.getAutoRoleID())
-                .with("Announce Settings", settings.announceSettings)
-                .with("Tags", GSONUtils.getTagManager(event.getGuild()))
-                .with("Quotes", GSONUtils.getQuotes(event.getGuild()).getQuotes())).run(KekBot.conn);*/
-        //Settings settings = Settings.getSettings(event.getGuild());
-        //settings.save();
-
-
-        //Edit an existing array of strings
-        //List<String> responses = KekBot.r.table("Responses").get("PURGE_SUCCESS").getField("Responses").run(KekBot.conn);
-        //KekBot.r.db("KekBot").table("Responses").update(KekBot.r.hashMap("Action", "PURGE_SUCCESS").with("Responses", responses)).run(KekBot.conn);
     }
 }

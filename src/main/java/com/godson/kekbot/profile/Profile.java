@@ -638,7 +638,7 @@ public class Profile {
                 .with("Tokens", tokens.stream().map(Enum::toString).collect(Collectors.toList()))
                 .with("Backgrounds", backgrounds)
                 .with("Current Background ID", currentBackgroundID)
-                .with("Badge", badge)
+                .with("Badge", badge != null ? badge.toString() : null)
                 .with("Topkeks", topkeks)
                 .with("KXP", KXP)
                 .with("Max KXP", maxKXP)
@@ -650,7 +650,7 @@ public class Profile {
         if (KekBot.r.table("Profiles").get(userID).run(KekBot.conn) == null) {
             KekBot.r.table("Profiles").insert(object).run(KekBot.conn);
         } else {
-            KekBot.r.table("Profiles").update(object).run(KekBot.conn);
+            KekBot.r.table("Profiles").get(userID).update(object).run(KekBot.conn);
         }
     }
 }

@@ -1,7 +1,5 @@
 package com.godson.kekbot.settings;
 
-import com.godson.kekbot.exceptions.ChannelNotFoundException;
-import com.godson.kekbot.exceptions.MessageNotFoundException;
 import com.godson.kekbot.KekBot;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
@@ -91,23 +89,8 @@ public class Settings {
         return announceSettings.welcomeChannelID;
     }
 
-    @Deprecated
-    public boolean welcomeChannelIsSet() {
-        return announceSettings.welcomeChannelID != null;
-    }
-
-    @Deprecated
-    public boolean welcomeMessageIsSet() {
-        return announceSettings.welcomeMessage != null;
-    }
-
     public String getFarewellMessage() {
         return announceSettings.farewellMessage;
-    }
-
-    @Deprecated
-    public boolean farewellMessageIsSet() {
-        return announceSettings.farewellMessage != null;
     }
 
     /**
@@ -126,7 +109,7 @@ public class Settings {
         if (KekBot.r.table("Settings").get(guildID).run(KekBot.conn) == null) {
             KekBot.r.table("Settings").insert(settings).run(KekBot.conn);
         } else {
-            KekBot.r.table("Settings").update(settings).run(KekBot.conn);
+            KekBot.r.table("Settings").get(guildID).update(settings).run(KekBot.conn);
         }
     }
 
