@@ -56,6 +56,8 @@ public class Help extends Command {
         List<Category> categories = event.getClient().getCommands().stream().map(Command::getCategory).distinct().sorted(Comparator.comparing(Category::getName)).filter(Objects::nonNull).collect(Collectors.toList());
         categories.forEach(c -> {
             if (c.getName().equalsIgnoreCase("bot owner") && !event.isBotOwner()) return;
+            if (c.getName().equalsIgnoreCase("bot admin") && !event.isBotAdmin()) return;
+            if (c.getName().equalsIgnoreCase("test")) return;
             if (c.getName().equals("unassigned")) return;
             help.add("#" + c.getName());
             event.getClient().getCommands().stream()
