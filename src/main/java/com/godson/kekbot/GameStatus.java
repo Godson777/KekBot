@@ -18,8 +18,8 @@ public class GameStatus extends TimerTask {
             Random random = new Random();
             List<String> games = FileUtils.readLines(new File("games.txt"), "utf-8");
             int index = random.nextInt(games.size());
-            KekBot.jdas[0].getPresence().setGame(Game.of(games.get(index)));
-            System.out.println("Playing: " + KekBot.jdas[0].getPresence().getGame().getName());
+            KekBot.jda.getShards().forEach(jda -> jda.getPresence().setGame(Game.playing(games.get(index))));
+            System.out.println("Playing: " + games.get(index));
         } catch (Exception e) {
             e.printStackTrace();
         }
