@@ -350,6 +350,7 @@ public class Profile {
         this.KXP += KXP;
         if (this.KXP >= maxKXP) {
             this.KXP -= maxKXP;
+            levelUp();
         }
     }
 
