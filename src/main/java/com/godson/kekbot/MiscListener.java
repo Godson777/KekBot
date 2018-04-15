@@ -73,7 +73,7 @@ public class MiscListener extends ListenerAdapter {
         //Load settings into a variable.
         Settings settings = Settings.getSettings(event.getGuild());
 
-        String welcomeChannel = settings.getWelcomeChannel();
+        String welcomeChannel = settings.getAnnounceSettings().getWelcomeChannelID();
         TextChannel errorChannel = Utils.findAvailableTextChannel(event.getGuild());
 
         //Check if the server has auto role
@@ -107,16 +107,16 @@ public class MiscListener extends ListenerAdapter {
         }
 
         //Check if the welcome channel/message are set.
-        if (welcomeChannel != null && settings.getWelcomeMessage() != null) {
+        if (welcomeChannel != null && settings.getAnnounceSettings().getWelcomeMessage() != null) {
             //Check if the welcome channel still exists.
             if (event.getGuild().getTextChannelById(welcomeChannel) != null) {
                 //We can now welcome the user into our server.
-                event.getGuild().getTextChannelById(welcomeChannel).sendMessage(settings.getWelcomeMessage()
+                event.getGuild().getTextChannelById(welcomeChannel).sendMessage(settings.getAnnounceSettings().getWelcomeMessage()
                         .replace("{mention}", event.getMember().getAsMention())
                         .replace("{name}", event.getMember().getEffectiveName())).queue();
             } else {
                 //The channel doesn't exist, so we'll disable welcome messages.
-                settings.setWelcomeChannel(null);
+                settings.getAnnounceSettings().setWelcomeChannel(null);
                 settings.save();
                 if (errorChannel != null) errorChannel.sendMessage("Unable to find previously specified welcome channel, you'll have to set the channel again with the `settings` command.").queue();
             }
@@ -131,19 +131,19 @@ public class MiscListener extends ListenerAdapter {
         Settings settings = Settings.getSettings(event.getGuild());
 
         TextChannel errorChannel = Utils.findAvailableTextChannel(event.getGuild());
-        String welcomeChannel = settings.getWelcomeChannel();
+        String welcomeChannel = settings.getAnnounceSettings().getWelcomeChannelID();
 
         //Check if the farewell channel/message are set.
-        if (welcomeChannel != null && settings.getFarewellMessage() != null) {
+        if (welcomeChannel != null && settings.getAnnounceSettings().getFarewellMessage() != null) {
             //Check if the welcome channel still exists.
             if (event.getGuild().getTextChannelById(welcomeChannel) != null) {
                 //We can now say goodbye to the user as they leave.
-                event.getGuild().getTextChannelById(welcomeChannel).sendMessage(settings.getFarewellMessage()
+                event.getGuild().getTextChannelById(welcomeChannel).sendMessage(settings.getAnnounceSettings().getFarewellMessage()
                         .replace("{mention}", event.getMember().getAsMention())
                         .replace("{name}", event.getMember().getEffectiveName())).queue();
             } else {
                 //The channel doesn't exist, so we'll disable farewell messages.
-                settings.setWelcomeChannel(null);
+                settings.getAnnounceSettings().setWelcomeChannel(null);
                 settings.save();
                 if (errorChannel != null) errorChannel.sendMessage("Unable to find previously specified welcome channel, you'll have to set the channel again with the `settings` command.").queue();
             }

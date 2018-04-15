@@ -34,6 +34,37 @@ public class Settings {
         private String welcomeChannelID;
         private String welcomeMessage;
         private String farewellMessage;
+
+        public AnnounceSettings setWelcomeChannel(TextChannel channel) {
+            try {
+                welcomeChannelID = channel.getId();
+            } catch (NullPointerException e) {
+                welcomeChannelID = null;
+            }
+            return this;
+        }
+
+        public AnnounceSettings setWelcomeMessage(String welcomeMessage) {
+            this.welcomeMessage = welcomeMessage;
+            return this;
+        }
+
+        public AnnounceSettings setFarewellMessage(String farewellMessage) {
+            this.farewellMessage = farewellMessage;
+            return this;
+        }
+
+        public String getFarewellMessage() {
+            return farewellMessage;
+        }
+
+        public String getWelcomeChannelID() {
+            return welcomeChannelID;
+        }
+
+        public String getWelcomeMessage() {
+            return welcomeMessage;
+        }
     }
 
     public Settings(String guildID) {
@@ -54,23 +85,8 @@ public class Settings {
         return this;
     }
 
-    public Settings setWelcomeChannel(TextChannel channel) {
-        try {
-            announceSettings.welcomeChannelID = channel.getId();
-        } catch (NullPointerException e) {
-            announceSettings.welcomeChannelID = null;
-        }
-        return this;
-    }
-
-    public Settings setWelcomeMessage(String welcomeMessage) {
-        announceSettings.welcomeMessage = welcomeMessage;
-        return this;
-    }
-
-    public Settings setFarewellMessage(String farewellMessage) {
-        announceSettings.farewellMessage = farewellMessage;
-        return this;
+    public AnnounceSettings getAnnounceSettings() {
+        return announceSettings;
     }
 
     public String getPrefix() {
@@ -79,18 +95,6 @@ public class Settings {
 
     public String getAutoRoleID() {
         return autoRoleID;
-    }
-
-    public String getWelcomeMessage() {
-        return announceSettings.welcomeMessage;
-    }
-
-    public String getWelcomeChannel() {
-        return announceSettings.welcomeChannelID;
-    }
-
-    public String getFarewellMessage() {
-        return announceSettings.farewellMessage;
     }
 
     /**

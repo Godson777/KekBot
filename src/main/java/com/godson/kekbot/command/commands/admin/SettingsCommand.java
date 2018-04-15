@@ -106,7 +106,8 @@ public class SettingsCommand extends Command {
                 "Mention the channel (`#channel`) you'd like welcome/farewell messages to be sent to (or say `reset` to stop sending welcome/farewell messages to a previously selected channel):",
                 (event, settings, channel) -> {
                     if (channel.equalsIgnoreCase("reset")) {
-                        settings.setWelcomeChannel(null).save();
+                        settings.getAnnounceSettings().setWelcomeChannel(null);
+                        settings.save();
                         event.getChannel().sendMessage("Successfully reset the welcome channel, welcome/farewell messages will no longer be sent.").queue();
                         return;
                     }
@@ -124,31 +125,35 @@ public class SettingsCommand extends Command {
                         return;
                     }
 
-                    settings.setWelcomeChannel(wChannel).save();
+                    settings.getAnnounceSettings().setWelcomeChannel(wChannel);
+                    settings.save();
                     event.getChannel().sendMessage("Successfully set " + wChannel.getAsMention() + " as the welcome/farewell channel.").queue();
                 }));
         settings.put("welcomemessage", new Setting("Sets the welcome message.",
                 "Type the message you want me to use to welcome newcomers. *{mention} gets replaced with `@Example User`, while {name} gets replaced with `Example User`* (or say `reset` to stop sending welcome messages):",
                 (event, settings, message) -> {
                     if (message.equalsIgnoreCase("reset")) {
-                        settings.setWelcomeMessage(null).save();
+                        settings.getAnnounceSettings().setWelcomeMessage(null);
+                        settings.save();
                         event.getChannel().sendMessage("Successfully reset the welcome message, welcome messages will no longer be sent.").queue();
                         return;
                     }
 
-                    settings.setWelcomeMessage(message).save();
+                    settings.getAnnounceSettings().setWelcomeMessage(message);
                     event.getChannel().sendMessage("Message saved.").queue();
                 }));
         settings.put("farewellmessage", new Setting("Sets the farewell message.",
                 "Type the message you want me to use to say goodbye. *{mention} gets replaced with `@Example User`, while {name} gets replaced with `Example User`* (or say `reset` to stop sending farewell messages):",
                 (event, settings, message) -> {
                     if (message.equalsIgnoreCase("reset")) {
-                        settings.setFarewellMessage(null).save();
+                        settings.getAnnounceSettings().setFarewellMessage(null);
+                        settings.save();
                         event.getChannel().sendMessage("Successfully reset the farewell message, farewell messages will no longer be sent.").queue();
                         return;
                     }
 
-                    settings.setFarewellMessage(message).save();
+                    settings.getAnnounceSettings().setFarewellMessage(message);
+                    settings.save();
                     event.getChannel().sendMessage("Message saved.").queue();
                 }));
         settings.put("antiad", new Setting("Whether or not KekBot should delete discord invites posted by users. (Users with `Manage Messages` permisison bypass this.)",
@@ -185,10 +190,13 @@ public class SettingsCommand extends Command {
                 TextChannel welcomeChannel = null;
                 if (settings.getAutoRoleID() != null) autoRole = event.getGuild().getRoleById(settings.getAutoRoleID());
                 if (autoRole == null && settings.getAutoRoleID() != null) settings.setAutoRoleID(null).save();
-                if (settings.getWelcomeChannel() != null) welcomeChannel = event.getGuild().getTextChannelById(settings.getWelcomeChannel());
-                if (welcomeChannel == null && settings.getWelcomeChannel() != null) settings.setWelcomeChannel(null).save();
-                String welcomeMessage = settings.getWelcomeMessage();
-                String farewellMessage = settings.getFarewellMessage();
+                if (settings.getAnnounceSettings().getWelcomeChannelID() != null) welcomeChannel = event.getGuild().getTextChannelById(settings.getAnnounceSettings().getWelcomeChannelID());
+                if (welcomeChannel == null && settings.getAnnounceSettings().getWelcomeChannelID() != null) {
+                    settings.getAnnounceSettings().setWelcomeChannel(null);
+                    settings.save();
+                }
+                String welcomeMessage = settings.getAnnounceSettings().getWelcomeMessage();
+                String farewellMessage = settings.getAnnounceSettings().getFarewellMessage();
                 event.getChannel().sendMessage("`prefix` - " + event.getPrefix() + "\n" +
                         "`autorole` - " + (autoRole == null ? "No role set." : autoRole.getName()) + "\n" +
                         "`welcomechannel` - " + (welcomeChannel == null ? "No channel set." : welcomeChannel.getAsMention()) + "\n" +
