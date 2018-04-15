@@ -140,6 +140,7 @@ public class SettingsCommand extends Command {
                     }
 
                     settings.getAnnounceSettings().setWelcomeMessage(message);
+                    settings.save();
                     event.getChannel().sendMessage("Message saved.").queue();
                 }));
         settings.put("farewellmessage", new Setting("Sets the farewell message.",
@@ -201,8 +202,8 @@ public class SettingsCommand extends Command {
                         "`autorole` - " + (autoRole == null ? "No role set." : autoRole.getName()) + "\n" +
                         "`welcomechannel` - " + (welcomeChannel == null ? "No channel set." : welcomeChannel.getAsMention()) + "\n" +
                         "`welcomemessage` - " + (welcomeMessage == null ? "No message set." : "`" + welcomeMessage + "`") + "\n" +
-                        "`farewellmessage` - " + (farewellMessage == null ? "No message set." : "`" + farewellMessage + "`" +
-                        "`antiad` - " + (settings.isAntiAdEnabled() ? "On" : "Off"))).queue();
+                        "`farewellmessage` - " + (farewellMessage == null ? "No message set." : "`" + farewellMessage + "`") + "\n" +
+                        "`antiad` - " + (settings.isAntiAdEnabled() ? "On" : "Off")).queue();
                 return;
             }
             editSetting(event, event.getArgs()[0], Optional.empty());
