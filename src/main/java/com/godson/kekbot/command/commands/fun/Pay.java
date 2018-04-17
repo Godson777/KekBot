@@ -42,6 +42,12 @@ public class Pay extends Command {
                             event.getChannel().sendMessage("You can't pay a bot! They have no use for topkeks, anyway.").queue();
                             return;
                         }
+
+                        if (toPay < 0) {
+                            event.getChannel().sendMessage("Cannot pay a user with a negative number.").queue();
+                            return;
+                        }
+
                         payer.payUser(toPay, payee);
                         event.getChannel().sendMessage("You have successfully paid " + payee.getName() + "#" + payee.getDiscriminator() + " " + CustomEmote.printPrice(toPay) + ".").queue();
                     } else {
