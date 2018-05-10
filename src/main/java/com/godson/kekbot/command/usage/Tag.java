@@ -15,7 +15,7 @@ public class Tag {
     /**
      * Matches usage tags
      */
-    private static final Pattern pattern = Pattern.compile("^([^:]+)(?::([^{}/]+))?(?:{([^,]+)?(?:,(.+))?})?(?:\\/(.+)\\/(\\w+)?)?$", Pattern.CASE_INSENSITIVE);
+    private static final Pattern pattern = Pattern.compile("^([^:]+)(?::([^{}/]+))?(?:\\{([^,]+)?(?:,(.+))?})?(?:\\/(.+)\\/(\\w+)?)?$", Pattern.CASE_INSENSITIVE);
 
     public static enum Required {
         OPTIONAL, SEMI_REQUIRED, REQUIRED

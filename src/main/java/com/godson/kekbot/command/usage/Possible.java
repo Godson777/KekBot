@@ -49,20 +49,20 @@ public abstract class Possible {
     protected Possible(String[] parts) throws ThrowableString {
         assert parts.length == 6;
 
-        name = parts[1];
+        name = parts[0];
         assert name != null;
 
-        type = parts[2] == null ? "literal" : parts[2].toLowerCase();
+        type = parts[1] == null ? "literal" : parts[1].toLowerCase();
         assert type != null;
 
         if (!minMaxTypes.contains(type)) {
-            if (parts[3] != null) throw new ThrowableString("Type " + type + " cannot have a minimum value");
-            if (parts[4] != null) throw new ThrowableString("Type " + type + " cannot have a maximum value");
+            if (parts[2] != null) throw new ThrowableString("Type " + type + " cannot have a minimum value");
+            if (parts[3] != null) throw new ThrowableString("Type " + type + " cannot have a maximum value");
         }
 
         if (!regexTypes.contains(type)) {
-            if (parts[5] != null) throw new ThrowableString("Type " + type + " is not a regex type, yet a regular expression was provided");
-            if (parts[6] != null) throw new ThrowableString("Type " + type + " is not a regex type, yet regular expression flags were provided");
+            if (parts[4] != null) throw new ThrowableString("Type " + type + " is not a regex type, yet a regular expression was provided");
+            if (parts[5] != null) throw new ThrowableString("Type " + type + " is not a regex type, yet regular expression flags were provided");
         }
     }
 
@@ -73,7 +73,7 @@ public abstract class Possible {
         assert regexResult.groupCount() == 6;
 
         final String[] parts = new String[6];
-        for (int i = 1; i <= 6; i++) parts[i] = regexResult.group(i);
+        for (int i = 0; i < 6; i++) parts[i] = regexResult.group(i);
 
         final String typeOrNull = parts[2];
         if (minMaxTypes.contains(typeOrNull)) {

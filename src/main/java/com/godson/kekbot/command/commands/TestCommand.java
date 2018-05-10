@@ -1,10 +1,8 @@
 package com.godson.kekbot.command.commands;
 
 
-import com.godson.kekbot.CustomEmote;
-import com.godson.kekbot.GSONUtils;
-import com.godson.kekbot.KekBot;
-import com.godson.kekbot.Utils;
+import com.godson.kekbot.*;
+import com.godson.kekbot.command.usage.Usage;
 import com.godson.kekbot.profile.Profile;
 import com.godson.kekbot.responses.Action;
 import com.godson.kekbot.responses.Responder;
@@ -25,16 +23,25 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.Inet4Address;
+import java.text.ParseException;
 
 public class TestCommand extends Command {
+
+    Usage test = new Usage(this);
 
     public TestCommand() {
         name = "test";
         description = "test";
         category = new Category("Test");
+        try {
+            test.add("<member>");
+        } catch (ParseException | ThrowableString e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void onExecuted(CommandEvent event) {
+
     }
 }
