@@ -49,6 +49,7 @@ public class PollManager {
             pollTriggers.get(guild).cancel();
             pollTriggers.get(guild).run();
             pollTriggers.remove(guild);
+            polls.remove(guild);
         }
     }
 
@@ -56,6 +57,7 @@ public class PollManager {
         if (guildHasPoll(guild)) {
             pollTriggers.get(guild).cancel();
             pollTriggers.remove(guild);
+            polls.remove(guild);
         }
     }
 

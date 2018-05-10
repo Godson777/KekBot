@@ -23,7 +23,7 @@ import com.godson.kekbot.command.CommandClient;
 import com.godson.kekbot.command.commands.TestCommand;
 import com.godson.kekbot.command.commands.fun.*;
 import com.godson.kekbot.command.commands.general.*;
-import com.jagrosh.jdautilities.waiter.EventWaiter;
+import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.rethinkdb.RethinkDB;
 import com.rethinkdb.net.Connection;
 import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder;
@@ -42,7 +42,7 @@ public class KekBot {
     //Seting configs, and resources.
     public static int shards = Config.getConfig().getShards();
     public static ShardManager jda;
-    public static final String version = "1.5-BETA2";
+    public static final String version = "1.5";
     public static final long startTime = System.currentTimeMillis();
     public static BufferedImage genericAvatar;
     private static final Map<Action, List<String>> responses = new HashMap<>();
@@ -50,7 +50,7 @@ public class KekBot {
     public static Connection conn;
     private static final Random random = new Random();
     private static final CommandClient client = new CommandClient();
-    private static final Listener listener = new Listener();
+    private static final MiscListener listener = new MiscListener();
     public static final MarkovChain chain = new MarkovChain();
 
 
@@ -58,13 +58,21 @@ public class KekBot {
     public static final EventWaiter waiter = new EventWaiter();
     public static final MusicPlayer player = new MusicPlayer();
     public static final GamesManager gamesManager = new GamesManager();
-    public static final TokenShop tokenShop = new TokenShop();
     public static BackgroundManager backgroundManager = new BackgroundManager();
-    public static final BackgroundShop backgroundShop = new BackgroundShop();
+    public static TokenShop tokenShop;
+    public static BackgroundShop backgroundShop;
+    static {
+        try {
+            tokenShop = new TokenShop();
+            backgroundShop = new BackgroundShop();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     public static final Lottery lottery = new Lottery();
     public static Discoin4J discoin;
     public static DiscoinManager discoinManager;
-    //private static final TwitterManager twitterManager = new TwitterManager(chain);
+    public static TwitterManager twitterManager = new TwitterManager(chain);
 
     static {
 
@@ -94,6 +102,7 @@ public class KekBot {
         if (beta) {
             shards = 1;
             client.setPrefix("$$");
+            twitterManager = null;
         }
         else {
             if (shards == 0) {
@@ -113,6 +122,8 @@ public class KekBot {
             client.addCommand(new Purge());
             client.addCommand(new Kick());
             client.addCommand(new Ban());
+            client.addCommand(new SettingsCommand());
+            client.addCommand(new GetRole());
 
             //Fun Commands
             client.addCommand(new Avatar());
@@ -134,6 +145,10 @@ public class KekBot {
             client.addCommand(new ShopCommand());
             client.addCommand(new Music());
             client.addCommand(new Pay());
+            client.addCommand(new Daily());
+            client.addCommand(new Slap());
+            client.addCommand(new Hug());
+            client.addCommand(new Kiss());
 
             //General Commands
             client.addCommand(new Help());
@@ -167,10 +182,13 @@ public class KekBot {
             client.addCommand(new LuigiThumb());
             client.addCommand(new SwitchSetup());
             client.addCommand(new Gru());
+            client.addCommand(new Lean());
+            client.addCommand(new Doubt());
+            client.addCommand(new Kaede());
 
 
 
-            client.addCommand(new TestCommand());
+            //client.addCommand(new TestCommand());
             client.addCommand(new MarkovTest(chain));
 
 
@@ -182,7 +200,7 @@ public class KekBot {
             client.addCommand(new Patreon());
             client.addCommand(new GetInvite());
             client.addCommand(new Eval());
-            client.addCommand(new SettingsCommand());
+            client.addCommand(new Tweet());
 
 
 
@@ -277,8 +295,9 @@ public class KekBot {
         jda.removeEventListener(client);
         KekBot.player.shutdown(reason);
         KekBot.gamesManager.shutdown(reason);
+        lottery.forceDraw(false);
         listener.shutdown();
-        //twitterManager.shutdown(reason);
+        if (twitterManager != null) twitterManager.shutdown(reason);
     }
 
 }

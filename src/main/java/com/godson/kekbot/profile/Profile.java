@@ -10,12 +10,16 @@ import com.rethinkdb.model.MapObject;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import org.apache.commons.lang3.SystemUtils;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,9 +28,9 @@ public class Profile {
     @SerializedName("User ID")
     private long userID;
     @SerializedName("Token")
-    public Token token;
+    private Token token;
     @SerializedName("Tokens")
-    private List<Token> tokens = new ArrayList<Token>();
+    private List<Token> tokens = new ArrayList<>();
     @SerializedName("Backgrounds")
     private List<String> backgrounds = new ArrayList<String>();
     @SerializedName("Current Background ID")
@@ -48,6 +52,10 @@ public class Profile {
     private String bio;
     @SerializedName("Playlists")
     private List<Playlist> playlists = new ArrayList<>();
+    @SerializedName("Next Daily")
+    private long daily;
+
+    private volatile User user;
 
     /**
      * Default constructor.
@@ -57,6 +65,11 @@ public class Profile {
     private Profile(long userID) {
         this.userID = userID;
     }
+
+    /**
+     * Test constructor.
+     */
+    public Profile() {}
 
     /**
      * Equips a token to the user's profile.
@@ -156,7 +169,7 @@ public class Profile {
         BufferedImage base = new BufferedImage(cardTemplate.getWidth(), cardTemplate.getHeight(), cardTemplate.getType());
         BufferedImage topkek = ImageIO.read(new File("resources/profile/topkek.png"));
         BufferedImage kxpBar = drawKXP();
-        BufferedImage ava = Utils.getUserAvatarImage(KekBot.jda.getUserById(String.valueOf(userID)));
+        BufferedImage ava = Utils.getUserAvatarImage(user);
         Graphics2D card = base.createGraphics();
         //Draw background
         card.drawImage(background, 0, 0, background.getWidth(), background.getHeight(), null);
@@ -167,7 +180,7 @@ public class Profile {
         //Draw Text
         card.setFont(ProfileUtils.topBarTitle);
         card.setColor(Color.BLACK);
-        card.drawString(KekBot.jda.getUserById(String.valueOf(userID)).getName(), 249, 45);
+        card.drawString(user.getName(), 249, 45);
         card.setFont(ProfileUtils.topBarSubtitle);
         card.drawString(subtitle, 249, 75);
         card.drawString("Bio:", 249, 145);
@@ -202,7 +215,7 @@ public class Profile {
 
         //Draw Tokens
         for (int i = 0; i < (tokens.size() < 6 ? tokens.size() : 6); i++) {
-            card.drawImage(tokens.get(i).drawToken(), (265 + (120 * (i))), 295, 100, 100, null);
+            card.drawImage(getTokens().get(i).drawToken(), (265 + (120 * (i))), 295, 100, 100, null);
         }
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -262,7 +275,7 @@ public class Profile {
         int b = (outline.getHeight() / 2) - (rHeight / 2) - rY;
         //And finally, draw the text
         kxpBar.setColor(Color.black);
-        kxpBar.drawString(kxp,/*9 +*/ a,/*7 +*/ b);
+        kxpBar.drawString(kxp, a, b + (SystemUtils.IS_OS_LINUX ? 4 : 0));
         kxpBar.dispose();
         return base;
     }
@@ -337,6 +350,7 @@ public class Profile {
         this.KXP += KXP;
         if (this.KXP >= maxKXP) {
             this.KXP -= maxKXP;
+            levelUp();
         }
     }
 
@@ -364,7 +378,6 @@ public class Profile {
      * Levels up the user, alerts them via DM, and adjusts appropriate values based on their new state.
      */
     private void levelUp() {
-        User user = KekBot.jda.getUserById(String.valueOf(userID));
         maxKXP = (int) Math.round(maxKXP * 1.10);
         level++;
         user.openPrivateChannel().queue(ch -> ch.sendMessage("Congrats, you've successfully levelled up to level " + level + "!").queue());
@@ -427,7 +440,7 @@ public class Profile {
         Profile payee = Profile.getProfile(user);
         payee.addTopKeks(topkeks);
         payee.save();
-        user.openPrivateChannel().queue(c -> c.sendMessage("Woohoo! You just got paid " + CustomEmote.printPrice(topkeks) + " by `" + KekBot.jda.getUserById(userID).getName() + "`.").queue());
+        user.openPrivateChannel().queue(c -> c.sendMessage("Woohoo! You just got paid " + CustomEmote.printPrice(topkeks) + " by `" + this.user.getName() + "`.").queue());
     }
 
     /**
@@ -595,25 +608,26 @@ public class Profile {
         return level;
     }
 
-    /**
-     * A static method used to grab a profile object based on a user object.
-     * Alias for {@link Profile#getProfile(long)}.
-     * @param user The user.
-     * @return The user's profile.
-     */
-    public static Profile getProfile(User user) {
-        return getProfile(user.getIdLong());
+    public Instant getDaily() {
+        return Instant.ofEpochSecond(daily);
+    }
+
+    public void setDaily(OffsetDateTime time) {
+        daily = time.toInstant().getEpochSecond();
     }
 
     /**
      * A static method used to grab a profile object based on a user object.
-     * @param userID The user's ID.
+     * @param user The user.
      * @return The user's profile.
      */
-    public static Profile getProfile(long userID) {
+    public static Profile getProfile(User user) {
         Gson gson = new Gson();
-        if (KekBot.r.table("Profiles").get(userID).run(KekBot.conn) != null) return gson.fromJson((String) KekBot.r.table("Profiles").get(userID).toJson().run(KekBot.conn), Profile.class);
-        else return new Profile(userID);
+        Profile profile;
+        if (KekBot.r.table("Profiles").get(user.getIdLong()).run(KekBot.conn) != null) profile = gson.fromJson((String) KekBot.r.table("Profiles").get(user.getIdLong()).toJson().run(KekBot.conn), Profile.class);
+        else profile = new Profile(user.getIdLong());
+        profile.user = user;
+        return profile;
     }
 
     /**
@@ -621,22 +635,23 @@ public class Profile {
      */
     public void save() {
         MapObject object = KekBot.r.hashMap("User ID", userID)
-                .with("Token", token)
-                .with("Tokens", tokens)
+                .with("Token", token != null ? token.toString() : null)
+                .with("Tokens", tokens.stream().map(Enum::toString).collect(Collectors.toList()))
                 .with("Backgrounds", backgrounds)
                 .with("Current Background ID", currentBackgroundID)
-                .with("Badge", badge)
+                .with("Badge", badge != null ? badge.toString() : null)
                 .with("Topkeks", topkeks)
                 .with("KXP", KXP)
                 .with("Max KXP", maxKXP)
                 .with("Level", level)
                 .with("Subtitle", subtitle)
                 .with("Bio", bio)
-                .with("Playlists", playlists);
+                .with("Playlists", playlists)
+                .with("Next Daily", daily);
         if (KekBot.r.table("Profiles").get(userID).run(KekBot.conn) == null) {
             KekBot.r.table("Profiles").insert(object).run(KekBot.conn);
         } else {
-            KekBot.r.table("Profiles").update(object).run(KekBot.conn);
+            KekBot.r.table("Profiles").get(userID).update(object).run(KekBot.conn);
         }
     }
 }

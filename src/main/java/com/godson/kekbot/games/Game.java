@@ -19,12 +19,12 @@ public abstract class Game {
     private boolean hasAI;
     private boolean isReady = false;
     private boolean reachedMinimum = false;
-    private boolean betsEnabled;
+    protected boolean betsEnabled;
     public List<User> players = new ArrayList<>();
     private List<Integer> winnerIDs = new ArrayList<>();
     private Map<User, Integer> playerNumber = new HashMap<>();
     public TextChannel channel;
-    private BetManager bets;
+    protected BetManager bets;
 
     public Game(int minNumberOfPlayers, int maxNumberOfPlayers, boolean hasAI, TextChannel channel, String gameName, boolean betsEnabled) {
         this.minNumberOfPlayers = minNumberOfPlayers;
@@ -66,7 +66,9 @@ public abstract class Game {
 
     public abstract void startGame();
 
-    public abstract void acceptInputFromMessage(Message message);
+    public void acceptInputFromMessage(Message message) {
+        //This is left intentionally blank, and is only used if a game requires input.
+    }
 
     public abstract String getRules();
 
@@ -122,7 +124,7 @@ public abstract class Game {
             if (player.equals(winner)) {
                 if (!betsEnabled) {
                     profile.wonGame(topkeks, KXP);
-                    if (!(topkeks == 0 && KXP == 0)) builder.append(stateEarnings(winner, topkeks, KXP)).append("\n");
+                    if (topkeks > 0 && KXP > 0) builder.append(stateEarnings(winner, topkeks, KXP)).append("\n");
                 } else {
                     double betEarnings = bets.declareWinners(this, winnerIDs);
                     profile.wonGame(topkeks + betEarnings, KXP);
@@ -179,20 +181,26 @@ public abstract class Game {
         KekBot.gamesManager.closeGame(channel);
     }
 
+    public void endTie() {
+        endTie(0, 0);
+    }
+
     public void endTie(int topkeks, int KXP) {
         StringBuilder builder = new StringBuilder();
-        for (User player : players) {
-            Profile profile = Profile.getProfile(player);
-            profile.tieGame(topkeks, KXP);
-            builder.append(stateEarnings(player, topkeks, KXP)).append("\n");
-            profile.save();
+        if (topkeks > 0 && KXP > 0) {
+            for (User player : players) {
+                Profile profile = Profile.getProfile(player);
+                profile.tieGame(topkeks, KXP);
+                builder.append(stateEarnings(player, topkeks, KXP)).append("\n");
+                profile.save();
+            }
+            channel.sendMessage(builder.toString()).queue();
         }
-        channel.sendMessage(builder.toString()).queue();
         if (betsEnabled) bets.declareTie();
         KekBot.gamesManager.closeGame(channel);
     }
 
-    private String stateEarnings(User user, double topkeks, int KXP) {
+    protected String stateEarnings(User user, double topkeks, int KXP) {
         return user.getAsMention() + ", you've earned " +
                 (topkeks > 0 ? CustomEmote.printPrice(topkeks) : "") +
                 (topkeks > 0 && KXP > 0 ? ", and " : "") +

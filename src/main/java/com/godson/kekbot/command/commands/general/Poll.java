@@ -78,7 +78,7 @@ public class Poll extends Command {
                                 for (int i = 0; i < poll.getOptions().length; i++) {
                                     builder.append(i + 1).append(". ").append("**").append(poll.getOptions()[i]).append("**").append("\n");
                                 }
-                                event.getChannel().sendMessage(event.getAuthor().getAsMention() + " has just started a poll! Cast your vote by using " + event.getClient().getPrefix(event.getGuild().getId()) + "vote <number>!\n\n" +
+                                event.getChannel().sendMessage(event.getAuthor().getName() + " has just started a poll! Cast your vote by using " + event.getClient().getPrefix(event.getGuild().getId()) + "vote <number>!\n\n" +
                                         "__**" + poll.getTitle() + "**__\n\n" + builder.toString()).queue();
                             } else {
                                 event.getChannel().sendMessage("You have to supply at least more than one option!").queue();
@@ -134,6 +134,7 @@ public class Poll extends Command {
                 PollObject poll = manager.getGuildsPoll(event.getGuild());
                 try {
                     poll.castVote(Integer.valueOf(event.getArgs()[0]) - 1, event.getAuthor());
+                    event.getMessage().addReaction("\\u2705").queue();
                 } catch (NumberFormatException e) {
                     event.getChannel().sendMessage("`" + event.getArgs()[0] + "` is not a valid number!").queue();
                 } catch (IllegalArgumentException e) {

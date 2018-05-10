@@ -1,14 +1,14 @@
 package com.godson.kekbot.settings;
 
-import com.godson.kekbot.exceptions.ChannelNotFoundException;
-import com.godson.kekbot.exceptions.MessageNotFoundException;
 import com.godson.kekbot.KekBot;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import com.rethinkdb.model.MapObject;
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Settings {
@@ -20,21 +20,51 @@ public class Settings {
     @SerializedName("AutoRole ID")
     private String autoRoleID;
     @SerializedName("Announce Settings")
-    public AnnounceSettings announceSettings = new AnnounceSettings();
+    private AnnounceSettings announceSettings = new AnnounceSettings();
     @SerializedName("Tags")
-    public TagManager tags = new TagManager();
+    private TagManager tags = new TagManager();
     @SerializedName("Quotes")
-    public QuoteManager quotes = new QuoteManager();
+    private QuoteManager quotes = new QuoteManager();
+    @SerializedName("Free Roles")
+    private List<String> freeRoles = new ArrayList<>();
+    @SerializedName("Anti-Ad")
+    private boolean antiAd = false;
 
     public class AnnounceSettings {
-        private boolean welcome = false;
-        private boolean farewell = false;
-        private boolean broadcasts = false;
         private String welcomeChannelID;
         private String welcomeMessage;
-        private String farewellChannelID;
         private String farewellMessage;
-        private String broadcastChannelID;
+
+        public AnnounceSettings setWelcomeChannel(TextChannel channel) {
+            try {
+                welcomeChannelID = channel.getId();
+            } catch (NullPointerException e) {
+                welcomeChannelID = null;
+            }
+            return this;
+        }
+
+        public AnnounceSettings setWelcomeMessage(String welcomeMessage) {
+            this.welcomeMessage = welcomeMessage;
+            return this;
+        }
+
+        public AnnounceSettings setFarewellMessage(String farewellMessage) {
+            this.farewellMessage = farewellMessage;
+            return this;
+        }
+
+        public String getFarewellMessage() {
+            return farewellMessage;
+        }
+
+        public String getWelcomeChannelID() {
+            return welcomeChannelID;
+        }
+
+        public String getWelcomeMessage() {
+            return welcomeMessage;
+        }
     }
 
     public Settings(String guildID) {
@@ -55,56 +85,8 @@ public class Settings {
         return this;
     }
 
-    public Settings toggleWelcome(boolean status) {
-        announceSettings.welcome = status;
-        return this;
-    }
-
-    public Settings setWelcomeChannel(TextChannel channel) {
-        try {
-            announceSettings.welcomeChannelID = channel.getId();
-        } catch (NullPointerException e) {
-            announceSettings.welcomeChannelID = null;
-        }
-        return this;
-    }
-
-    public Settings setWelcomeMessage(String welcomeMessage) {
-        announceSettings.welcomeMessage = welcomeMessage;
-        return this;
-    }
-
-    public Settings toggleFarewell(boolean status) {
-        announceSettings.farewell = status;
-        return this;
-    }
-
-    public Settings setFarewellChannel(TextChannel channel) {
-        try {
-            announceSettings.farewellChannelID = channel.getId();
-        } catch (NullPointerException e) {
-            announceSettings.farewellChannelID = null;
-        }
-        return this;
-    }
-
-    public Settings setFarewellMessage(String farewellMessage) {
-        announceSettings.farewellMessage = farewellMessage;
-        return this;
-    }
-
-    public Settings toggleBroadcasts(boolean status) {
-        announceSettings.broadcasts = status;
-        return this;
-    }
-
-    public Settings setBroadcastChannel(TextChannel channel) {
-        try {
-            announceSettings.broadcastChannelID = channel.getId();
-        } catch (NullPointerException e) {
-            announceSettings.broadcastChannelID = null;
-        }
-        return this;
+    public AnnounceSettings getAnnounceSettings() {
+        return announceSettings;
     }
 
     public String getPrefix() {
@@ -115,82 +97,41 @@ public class Settings {
         return autoRoleID;
     }
 
-    public boolean welcomeEnabled() {
-        return announceSettings.welcome;
-    }
-
-    public boolean farewellEnabled() {
-        return announceSettings.farewell;
-    }
-
-    public boolean broadcastsEnabled() {
-        return announceSettings.broadcasts;
-    }
-
-    public String getWelcomeMessage() {
-        if (welcomeMessageIsSet()) return announceSettings.welcomeMessage;
-        else throw new MessageNotFoundException("Welcome message could not be found!");
-    }
-
-    public TextChannel getWelcomeChannel(Guild guild) {
-        if (welcomeChannelIsSet()) return guild.getTextChannelById(announceSettings.welcomeChannelID);
-        else throw new ChannelNotFoundException("Welcome channel could not be found!");
-    }
-
-    public boolean welcomeChannelIsSet() {
-        return announceSettings.welcomeChannelID != null;
-    }
-
-    public boolean welcomeMessageIsSet() {
-        return announceSettings.welcomeMessage != null;
-    }
-
-    public String getFarewellMessage() {
-        if (farewellChannelIsSet()) return announceSettings.farewellMessage;
-        else throw new MessageNotFoundException("Farewell message could not be found!");
-    }
-
-    public TextChannel getFarewellChannel(Guild guild) {
-        if (farewellChannelIsSet()) return guild.getTextChannelById(announceSettings.farewellChannelID);
-        else throw new ChannelNotFoundException("Farewell channel could not be found!");
-    }
-
-    public boolean farewellChannelIsSet() {
-        return announceSettings.farewellChannelID != null;
-    }
-
-    public boolean farewellMessageIsSet() {
-        return announceSettings.farewellMessage != null;
-    }
-
-    public TextChannel getBroadcastChannel(Guild guild) {
-        if (broadcastChannelIsSet()) return guild.getTextChannelById(announceSettings.broadcastChannelID);
-        else throw new ChannelNotFoundException("Broadcasts channel could not be found!");
-    }
-
-    public boolean broadcastChannelIsSet() {
-        return announceSettings.broadcastChannelID != null;
-    }
-
+    /**
+     * Saves all the settings into rethinkdb, allowing for later reading/writing.
+     */
     public void save() {
         MapObject settings = KekBot.r.hashMap("Guild ID", guildID)
                 .with("Prefix", prefix)
                 .with("AutoRole ID", autoRoleID)
                 .with("Announce Settings", announceSettings)
                 .with("Tags", tags)
-                .with("Quotes", quotes);
+                .with("Quotes", quotes)
+                .with("Free Roles", (freeRoles == null ? new ArrayList<Role>() : freeRoles))
+                .with("Anti-Ad", antiAd);
 
         if (KekBot.r.table("Settings").get(guildID).run(KekBot.conn) == null) {
             KekBot.r.table("Settings").insert(settings).run(KekBot.conn);
         } else {
-            KekBot.r.table("Settings").update(settings).run(KekBot.conn);
+            KekBot.r.table("Settings").get(guildID).update(settings).run(KekBot.conn);
         }
     }
 
+    /**
+     * Gets a settings object based on a guild.
+     * @param guild The guild we're getting settings for.
+     * @return a {@link Settings} object containing data related to the guild.
+     * @see Settings#getSettings(String)
+     */
     public static Settings getSettings(Guild guild) {
         return getSettings(guild.getId());
     }
 
+    /**
+     * Gets a settings object based on a guild's ID.
+     * @param guildID The guild's ID we're using to get get settings for.
+     * @return a {@link Settings} object containing data related to the guild.
+     */
     public static Settings getSettings(String guildID) {
         if (KekBot.r.table("Settings").get(guildID).run(KekBot.conn) != null) {
             Gson gson = new Gson();
@@ -198,6 +139,11 @@ public class Settings {
         } else return new Settings(guildID);
     }
 
+    /**
+     * Gets a settings object based on a guild, may return null if no settings exist.
+     * @param guildID The guild's ID we're using to get get settings for.
+     * @return a {@link Settings} object containing data related to the guild, or null if no settings exist.
+     */
     public static Settings getSettingsOrNull(String guildID) {
         if (KekBot.r.table("Settings").get(guildID).run(KekBot.conn) != null) {
             Gson gson = new Gson();
@@ -205,11 +151,35 @@ public class Settings {
         } else return null;
     }
 
+
     public QuoteManager getQuotes() {
         return quotes;
     }
 
     public TagManager getTags() {
         return tags;
+    }
+
+    public List<String> getFreeRoles() {
+        return freeRoles;
+    }
+
+    public Settings addFreeRole(String roleID) {
+        if (!freeRoles.contains(roleID)) freeRoles.add(roleID);
+        return this;
+    }
+
+    public Settings removeFreeRole(String roleID) {
+        if (freeRoles.contains(roleID)) freeRoles.remove(roleID);
+        return this;
+    }
+
+    public Settings setAntiAd(boolean antiAd) {
+        this.antiAd = antiAd;
+        return this;
+    }
+
+    public boolean isAntiAdEnabled() {
+        return antiAd;
     }
 }

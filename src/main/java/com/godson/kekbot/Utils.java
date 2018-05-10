@@ -4,8 +4,7 @@ import com.godson.kekbot.profile.BackgroundManager;
 import com.godson.kekbot.settings.Config;
 import com.google.gson.internal.Primitives;
 import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.entities.impl.JDAImpl;
 import net.dv8tion.jda.core.requests.Requester;
 import okhttp3.*;
@@ -322,6 +321,49 @@ public class Utils {
             if (i != arguments.length-1) builder.append(" ");
         }
         return builder.toString();
+    }
+
+    /**
+     * Compares two members and checks if a user based action is able to be done.
+     * @param target The target of the check.
+     * @param author The author that's performing the action.
+     * @return The {@link boolean} result that confirms whether or not the action can be done.
+     */
+    public static boolean checkHierarchy(Member target, Member author) {
+        if (author.getRoles().size() > 0) {
+            return target.getRoles().size() < 1 || target.getRoles().size() >= 1 && target.getRoles().stream().map(Role::getPositionRaw).max(Integer::compareTo).get() >= author.getRoles().stream().map(Role::getPositionRaw).max(Integer::compareTo).get();
+        } else {
+            return target.getRoles().size() <= 0;
+        }
+    }
+
+    /**
+     * Compares a role and a member, and checks if the role is higher than any of the roles the user has.
+     * @param target The target role.
+     * @param author The author performing the action.
+     * @return The {@link boolean} result.
+     */
+    public static boolean checkHierarchy(Role target, Member author) {
+        return author.getRoles().size() >= 1 && author.getRoles().stream().map(Role::getPositionRaw).max(Integer::compareTo).get() > target.getPositionRaw();
+    }
+
+    public static TextChannel resolveChannelMention(Guild guild, String mention) {
+        if (!mention.matches("<#\\d+>")) throw new IllegalArgumentException("This doesn't look like a proper channel mention.");
+        else {
+            return guild.getTextChannelById(mention.replaceAll("[^\\d]", ""));
+        }
+    }
+
+    /**
+     * Attempts to find an available {@link TextChannel} to send a specific message in.
+     * @param guild The guild to search channels in.
+     * @return The {@link TextChannel channel} we're allowed to speak in. (Or null, if no channel can be found.)
+     */
+    public static TextChannel findAvailableTextChannel(Guild guild) {
+        for (TextChannel channel : guild.getTextChannels()) {
+            if (channel.canTalk()) return channel;
+        }
+        return null;
     }
 
     /**

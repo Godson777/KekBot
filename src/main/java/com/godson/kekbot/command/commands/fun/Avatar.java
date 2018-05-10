@@ -25,7 +25,7 @@ public class Avatar extends Command {
     public void onExecuted(CommandEvent event) {
         if (event.getArgs().length > 0) {
             if (isMention(event.combineArgs())) {
-                event.getChannel().sendMessage(event.getMessage().getMentionedUsers().get(0).getAvatarUrl() + size).queue();
+                event.getChannel().sendMessage(event.getMentionedUsers().get(0).getAvatarUrl() + size).queue();
             } else {
                 List<Member> search = event.getGuild().getMembersByName(event.combineArgs(), true);
                 if (search.size() == 0) search = event.getGuild().getMembersByNickname(event.combineArgs(), true);

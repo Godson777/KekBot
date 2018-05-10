@@ -63,7 +63,13 @@ public class GamesManager extends ListenerAdapter {
 
     public void closeGame(TextChannel channel) {
         if (activeGames.containsKey(Long.valueOf(channel.getId()))) {
-                activeGames.remove(Long.valueOf(channel.getId()));
+            activeGames.remove(Long.valueOf(channel.getId()));
+        }
+    }
+
+    public void killGame(TextChannel channel) {
+        if (activeGames.containsKey(channel.getIdLong())) {
+            activeGames.get(channel.getIdLong()).endTie();
         }
     }
 

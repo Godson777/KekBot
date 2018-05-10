@@ -28,13 +28,13 @@ public class Erase extends Command {
             return;
         }
 
-        if (!isMention(event.combineArgs()) || event.getMessage().getMentionedUsers().size() < 1) {
+        if (!isMention(event.combineArgs()) || event.getMentionedUsers().size() < 1) {
             event.getChannel().sendMessage("The user you wanna erase must be mentioned.").queue();
             return;
         }
 
         event.getChannel().sendTyping().queue();
-        BufferedImage ava = Utils.getUserAvatarImage(event.getMessage().getMentionedUsers().get(0));
+        BufferedImage ava = Utils.getUserAvatarImage(event.getMentionedUsers().get(0));
         try {
             BufferedImage template = ImageIO.read(new File("resources/memegen/mistake_template.png"));
             Graphics2D image = template.createGraphics();

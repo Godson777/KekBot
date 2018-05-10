@@ -30,14 +30,14 @@ public class DELET extends Command {
             return;
         }
 
-        if (!isMention(event.combineArgs()) || event.getMessage().getMentionedUsers().size() < 1) {
+        if (!isMention(event.combineArgs()) || event.getMentionedUsers().size() < 1) {
             event.getChannel().sendMessage("The user you want to DELET must be in the form of a mention!").queue();
             return;
         }
 
 
         event.getChannel().sendTyping().queue();
-        Member member = event.getGuild().getMemberById(event.getMessage().getMentionedUsers().get(0).getId());
+        Member member = event.getGuild().getMemberById(event.getMentionedUsers().get(0).getId());
         BufferedImage target = Utils.getUserAvatarImage(member.getUser());
         try {
             BufferedImage template = ImageIO.read(new File("resources/memegen/DELET_template.png"));
@@ -48,7 +48,7 @@ public class DELET extends Command {
             Font font = new Font("Whitney", Font.BOLD, 12);
             image.setColor(member.getColor());
             image.setFont(font);
-            image.drawString(event.getMessage().getMentionedUsers().get(0).getName(), 100, 162);
+            image.drawString(event.getMentionedUsers().get(0).getName(), 100, 162);
             image.dispose();
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             stream.flush();

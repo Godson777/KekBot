@@ -1,8 +1,5 @@
 package com.godson.kekbot.settings;
 
-import com.darichey.discord.api.Command;
-import com.darichey.discord.api.CommandContext;
-import com.darichey.discord.api.CommandRegistry;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.dv8tion.jda.core.JDA;
@@ -49,7 +46,7 @@ public class CustomCommand {
         return value;
     }
 
-    public void register(JDA jda, Guild guild) {
+    /*public void register(JDA jda, Guild guild) {
         CommandRegistry registry = CommandRegistry.getForClient(jda);
         switch (type) {
             case 0:
@@ -125,6 +122,6 @@ public class CustomCommand {
 
     public void remove(CommandContext context) {
         remove(context.getJDA(), context.getGuild());
-    }
+    }*/
 }
 

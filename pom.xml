@@ -19,11 +19,6 @@
             <url>http://jcenter.bintray.com</url>
         </repository>
         <repository>
-            <id>sedmelluq</id>
-            <name>sedmelluq</name>
-            <url>http://maven.sedmelluq.com/</url>
-        </repository>
-        <repository>
             <id>oss.sonatype.org</id>
             <name>Sonatype Snapshot Repository</name>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
@@ -40,13 +35,13 @@
         <dependency>
             <groupId>com.sedmelluq</groupId>
             <artifactId>lavaplayer</artifactId>
-            <version>1.2.51</version>
+            <version>1.2.62</version>
         </dependency>
 
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>3.5.0_328</version>
+            <version>3.6.0_355</version>
         </dependency>
 
         <dependency>
@@ -65,12 +60,6 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>LATEST</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.Godson777</groupId>
-            <artifactId>Commands4J</artifactId>
-            <version>32d3f53</version>
         </dependency>
 
         <dependency>
@@ -94,9 +83,10 @@
 
         <dependency>
             <groupId>com.jagrosh</groupId>
-            <artifactId>JDA-Utilities</artifactId>
-            <version>1.9</version>
+            <artifactId>jda-utilities</artifactId>
+            <version>2.1</version>
             <scope>compile</scope>
+            <type>pom</type>
         </dependency>
 
         <dependency>

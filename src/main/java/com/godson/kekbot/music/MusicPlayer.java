@@ -1,6 +1,5 @@
 package com.godson.kekbot.music;
 
-import com.darichey.discord.api.CommandContext;
 import com.godson.kekbot.CustomEmote;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.profile.Profile;
@@ -8,7 +7,7 @@ import com.godson.kekbot.questionaire.Questionnaire;
 import com.godson.kekbot.responses.Action;
 import com.godson.kekbot.Utils;
 import com.godson.kekbot.command.CommandEvent;
-import com.jagrosh.jdautilities.menu.pagination.PaginatorBuilder;
+import com.jagrosh.jdautilities.menu.Paginator;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
@@ -509,7 +508,7 @@ public class MusicPlayer extends ListenerAdapter {
                                     (tracks.size() > 15 ? "\n\nPage " + (page + 1) + "/" + (tracks.size() / 15 + 1) : "");
                         }
                         channel.sendMessage(playlist + "\n**Total Length: " + (musicManager.scheduler.repeat == 1 ? "∞ Infinity." : Utils.convertMillisToTime(totalLength)) + "**").queue();*/
-                        PaginatorBuilder pb = new PaginatorBuilder();
+                        Paginator.Builder pb = new Paginator.Builder();
                         pb.addItems(tracks.toArray(new String[tracks.size()]));
                         pb.setText("**Total Length: " + (musicManager.scheduler.repeat == 1 ? "∞ Infinity." : Utils.convertMillisToTime(totalLength)) + "**");
                         pb.setEventWaiter(KekBot.waiter);
@@ -523,7 +522,7 @@ public class MusicPlayer extends ListenerAdapter {
                     } else event.getChannel().sendMessage("There is nothing in the playlist!").queue();
                 } else {
                     List<String> tracks = new ArrayList<>();
-                    List<Pair<AudioTrack, User>> queue = new ArrayList<>(musicManager.scheduler.getQueue());
+                    List<Pair<AudioTrack, User>> queue = musicManager.scheduler.getRepeatQueue();
                     for (int i = 0; i < queue.size(); i++) {
                         AudioTrack track = queue.get(i).getKey();
                         User user = queue.get(i).getValue();
@@ -541,7 +540,7 @@ public class MusicPlayer extends ListenerAdapter {
                                 (tracks.size() > 15 ? "\n\nPage " + (page + 1) + "/" + (tracks.size() / 15 + 1) : "");
                     }
                     */
-                    PaginatorBuilder pb = new PaginatorBuilder();
+                    Paginator.Builder pb = new Paginator.Builder();
                     pb.addItems(tracks.toArray(new String[tracks.size()]));
                     pb.setText("\n**Total Length: " + "∞ Infinity.**");
                     pb.setEventWaiter(KekBot.waiter);
@@ -675,14 +674,8 @@ public class MusicPlayer extends ListenerAdapter {
     }
 
     public void shutdown(String reason) {
-        Iterator<Map.Entry<Long, GuildMusicManager>> itr = musicManagers.entrySet().iterator();
-
-        while(itr.hasNext())
-        {
-            Map.Entry<Long, GuildMusicManager> entry = itr.next();
-            Guild guild = KekBot.jda.getGuildById(entry.getKey());
-            closeConnection(guild, "This music session was ended due to KekBot shutting down with the reason: `" + reason + "`");
-        }
+        Set<Long> sessions = new HashSet<>(musicManagers.keySet());
+        sessions.forEach(id -> closeConnection(KekBot.jda.getGuildById(id), "This music session was ended due to KekBot shutting down with the reason: `" + reason + "`"));
     }
 
     @Override

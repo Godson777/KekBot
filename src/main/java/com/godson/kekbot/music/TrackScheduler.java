@@ -125,10 +125,10 @@ public class TrackScheduler extends AudioEventAdapter {
             this.currentPlayer = pair.getValue();
             player.startTrack(track, false);
         } else {
-            channel.sendMessage(getTrackMessage(skip)).queue();
             if (currentRepeatTrack < repeatQueue.size() - 1) ++currentRepeatTrack;
             else currentRepeatTrack = 0;
             player.startTrack(getCurrentRepeatTrack().getKey().makeClone(), false);
+            channel.sendMessage(getTrackMessage(skip)).queue();
         }
         clearVotes();
     }
@@ -204,7 +204,7 @@ public class TrackScheduler extends AudioEventAdapter {
         // Only start the next track if the end reason is suitable for it (FINISHED or LOAD_FAILED)
         if (endReason.mayStartNext) {
             if (repeat == 1) player.startTrack(track.makeClone(), false);
-            else if (queue.size() > 0 || repeat == 2) nextTrack(0);
+            else if (queue.size() > 0 || repeat == 2) nextTrack();
             else closeConnection();
         }
     }

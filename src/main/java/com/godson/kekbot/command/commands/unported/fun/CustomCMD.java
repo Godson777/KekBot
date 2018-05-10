@@ -1,8 +1,5 @@
 package com.godson.kekbot.command.commands.unported.fun;
 
-import com.darichey.discord.api.Command;
-import com.darichey.discord.api.CommandCategory;
-import com.darichey.discord.api.FailureReason;
 import com.godson.kekbot.GSONUtils;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.responses.Action;
@@ -23,14 +20,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CustomCMD {
-    public static Command customCMD = new Command("customcmd")
+    /*public static Command customCMD = new Command("customcmd")
             .withCategory(CommandCategory.FUN)
             .withAliases("ccmd")
             .withDescription("Brings the user to the Custom Command Wizard.")
             .withUsage("{p}customcmd")
             .userRequiredPermissions(Permission.ADMINISTRATOR)
             .onExecuted(context -> {
-                /*new Questionnaire(context)
+                new Questionnaire(context)
                         .addChoiceQuestion("Welcome to the custom commands wizard! Would you like to `add` or `remove` a command? Or would you like to `list` this server's commands? (You can also say `cancel` at any time to exit the wizard.)", "add", "remove", "list")
                         .execute(results -> {
                             TextChannel channel = context.getTextChannel();
@@ -263,11 +260,11 @@ public class CustomCMD {
                                         results.reExecuteWithoutMessage();
                                     }
                             }
-                        });*/
+                        });
             })
             .onFailure((context, reason) -> {
                 if (reason.equals(FailureReason.AUTHOR_MISSING_PERMISSIONS)) {
                     context.getTextChannel().sendMessage(KekBot.respond(Action.NOPERM_USER, "`Administrator`")).queue();
                 }
-            });
+            });*/
 }

@@ -6,7 +6,7 @@ import com.godson.kekbot.Utils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.settings.Config;
-import com.jagrosh.jdautilities.menu.pagination.PaginatorBuilder;
+import com.jagrosh.jdautilities.menu.Paginator;
 
 public class Credits extends Command {
 
@@ -33,7 +33,7 @@ public class Credits extends Command {
                 "\nEveryone in the Discord4J and JDA servers for helping me with my stupid problems and putting up with me." +
                 "\nTo view KekBot's patreon supporters, call `" + event.getPrefix() + "credits patreon`." + "```").queue();
         else if (event.getArgs()[0].equalsIgnoreCase("patreon")) {
-                PaginatorBuilder builder = new PaginatorBuilder();
+                Paginator.Builder builder = new Paginator.Builder();
                 Config config = Config.getConfig();
                 builder.addItems(config.getPatrons().toArray(new String[config.getPatrons().size()]));
                 builder.showPageNumbers(true);

@@ -7,7 +7,7 @@ import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.menu.EmbedPaginator;
 import com.godson.kekbot.settings.Ticket;
 import com.godson.kekbot.settings.TicketManager;
-import com.jagrosh.jdautilities.menu.pagination.PaginatorBuilder;
+import com.jagrosh.jdautilities.menu.Paginator;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.*;
 import org.apache.commons.lang3.StringUtils;
@@ -40,7 +40,7 @@ public class TicketCommand extends Command {
 
                     List<Ticket> tickets = TicketManager.getTickets();
                     if (tickets.size() > 0) {
-                        PaginatorBuilder builder = new PaginatorBuilder();
+                        Paginator.Builder builder = new Paginator.Builder();
                         List<String> list = TicketManager.getTickets().stream().map(ticket -> ticket.getID() + " - " + "\"" + (ticket.getTitle().length() >= 24 ? ticket.getTitle().substring(0, 25) + "..." : ticket.getTitle()) + "\"" + StringUtils.repeat(" ", 30-(ticket.getTitle().length() >= 20 ? 28 : ticket.getTitle().length())) + "**" + ticket.getStatus().getName() + "**").collect(Collectors.toList());
                         builder.addItems(list.toArray(new String[list.size()]));
                         builder.setEventWaiter(KekBot.waiter);
@@ -90,6 +90,7 @@ public class TicketCommand extends Command {
                             eBuilder.addField("Author", ticketAuthor, true);
                             eBuilder.addField("Server:", ticketGuild, true);
                             eBuilder.addField("Contents:", ticketContents, false);
+                            if (ticket.getAttachment() != null) eBuilder.addField("Attachment:", ticket.getAttachment(), false);
                             eBuilder.setTimestamp(Instant.ofEpochMilli(ticket.getTimeCreated()));
                             switch (ticket.getStatus()) {
                                 case OPEN: eBuilder.setColor(Color.GREEN);
@@ -179,6 +180,7 @@ public class TicketCommand extends Command {
                     } else {
                         ticketInfo[1] = Utils.removeWhitespaceEdges(ticketInfo[1]);
                         Ticket ticket = new Ticket().setTitle(ticketInfo[0]).setContents(ticketInfo[1]).setAuthor(event.getAuthor()).setGuild(event.getGuild()).setStatus(Ticket.TicketStatus.OPEN);
+                        if (event.getMessage().getAttachments().size() > 0) ticket.setAttachment(event.getMessage().getAttachments().get(0).getUrl());
                         TicketManager.addTicket(ticket);
                         event.getChannel().sendMessage(event.getAuthor().getAsMention() + " Your ticket has been submitted, thanks! (Ticket ID: `" + ticket.getID() + "`)").queue();
                     }

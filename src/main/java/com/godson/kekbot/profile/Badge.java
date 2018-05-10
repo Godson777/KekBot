@@ -12,7 +12,8 @@ public enum Badge {
     PATREON1("PATREON_BRONZE", "PATREON1.png"),
     PATREON2("PATREON_SILVER", "PATREON2.png"),
     PATREON3("PATREON_GOLD", "PATREON3.png"),
-    CHAMBERSTAFF("CHAMBER_STAFF", "CHAMBERSTAFF.png");
+    CHAMBERSTAFF("CHAMBER_STAFF", "CHAMBERSTAFF.png"),
+    BETATESTER("BETA_TESTER", "BETATESTER.png");
 
     private String name;
     private String file;

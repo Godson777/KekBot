@@ -119,7 +119,7 @@ public class GameCommand extends Command {
                                 profile.spendTopKeks(ThreadLocalRandom.current().nextInt(1, 15));
                                 profile.takeKXP(ThreadLocalRandom.current().nextInt(5, 20));
                                 profile.save();
-                                KekBot.gamesManager.closeGame(channel);
+                                KekBot.gamesManager.killGame(channel);
                                 channel.sendMessage("This game has ended abruptly due to a player (" + event.getAuthor().getAsMention() + ") having quit the game.").queue();
                             } else channel.sendMessage("You're not even in this game. Are you sure you're not trying to quit something else?").queue();
                         } else {
@@ -165,7 +165,7 @@ public class GameCommand extends Command {
                                 } else channel.sendMessage("You haven't specified how much you want to bet!").queue();
                             } else {
                                 if (event.getArgs().length >= 2) {
-                                    if (event.getMessage().getMentionedUsers().size() > 0) {
+                                    if (event.getMentionedUsers().size() > 0) {
                                         if (event.getArgs().length >= 3) {
                                             double bet;
                                             try {
@@ -174,7 +174,7 @@ public class GameCommand extends Command {
                                                 channel.sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getArgs()[2])).queue();
                                                 return;
                                             }
-                                            channel.sendMessage(game.getBets().addSpectatorBet(event.getAuthor(), game.getPlayerNumber(event.getMessage().getMentionedUsers().get(0)), bet)).queue();
+                                            channel.sendMessage(game.getBets().addSpectatorBet(event.getAuthor(), game.getPlayerNumber(event.getMentionedUsers().get(0)), bet)).queue();
                                         } else channel.sendMessage("You haven't specified how much you want to bet!").queue();
                                     } else channel.sendMessage("The user you want to bet on must be in the form of a mention!").queue();
                                 }

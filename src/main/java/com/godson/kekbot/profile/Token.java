@@ -24,7 +24,10 @@ public enum Token {
     MARIO_COIN_8BIT("Coin (8-Bit Mario)", "mario_coin_8bit.png", 3, 450, "It's a coin from the \"Super Mario\" world alright, except it kinda just... turned 8-Bit. I know, right? Weird. I don't think it'll have much use for us here."),
     GOLDEN_MUSHROOM("Golden Mushroom", "golden_mushroom.png", 10, 1000, "It's a golden mushroom! These things are from \"New Super Mario Bros. 2\", and since they're hard to come by, we're only letting the best of the best get their hands on these...for a price."),
     STAR_COIN("Star Coin", "star_coin.png", 5, 500, "It's a star coin. These are usually hidden all over \"New Super Mario Bros\" games. Because they're hard to find, we only allow super stars get their hands on these."),
-    STARMAN("Starman", "starman.png", 5, 500, "It's a starman. The use for these things vary from powerups to collectables withn the \"Super Mario\" universe. Looks like we found a use for it here, too...");
+    STARMAN("Starman", "starman.png", 5, 500, "It's a starman. The use for these things vary from powerups to collectables withn the \"Super Mario\" universe. Looks like we found a use for it here, too..."),
+    BUP("BUP", "BUP.png", 1, 250, "BUP."),
+    WOODMAN("mm2wood", "WOODMAN.png", 3, 300, "nice."),
+    TJYOSHI("TJ \"Henry\" Yoshi", "TJYOSHI.png", 1, 350, "An A press is an A press, you can't say it's only half...");
 
     private String name;
     private String file;
@@ -59,7 +62,7 @@ public enum Token {
         return name;
     }
 
-    public int getPrice() {
+    public Integer getPrice() {
         return price;
     }
 

@@ -1,10 +1,9 @@
 package com.godson.kekbot.questionaire;
 
-import com.darichey.discord.api.CommandContext;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.command.CommandEvent;
 import com.google.gson.internal.Primitives;
-import com.jagrosh.jdautilities.waiter.EventWaiter;
+import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -27,6 +26,7 @@ public class Questionnaire {
     private boolean customErrorMessageEnabled = false;
     private boolean includeCancel = true;
     private String customErrorMessage;
+    private boolean useRawInput = false;
 
     //Guild Info:
     private final Guild guild;
@@ -94,6 +94,11 @@ public class Questionnaire {
         return this;
     }
 
+    public Questionnaire useRawInput() {
+        useRawInput = true;
+        return this;
+    }
+
     public Questionnaire addQuestion(String message, QuestionType type) {
         //Allows addition of other "Types" that require more params.
         if (type.equals(QuestionType.CHOICE_STRING)) {
@@ -138,7 +143,7 @@ public class Questionnaire {
         Question question = questions.get(i);
         if (!skipQuestionMessage) channel.sendMessage(question.getMessage() + (includeCancel ? " (Or say `cancel` to exit.)" : "")).queue();
         waiter.waitForEvent(GuildMessageReceivedEvent.class, e -> e.getAuthor().equals(user) && e.getChannel().equals(channel), e -> {
-            String message = e.getMessage().getContentDisplay();
+            String message = (useRawInput ? e.getMessage().getContentRaw() : e.getMessage().getContentDisplay());
             RestAction<Message> errorMessage = e.getChannel().sendMessage((!customErrorMessageEnabled ? "I'm sorry, I didn't quite catch that, let's try that again..." : customErrorMessage));
             if (message.equalsIgnoreCase("cancel")) {
                 e.getChannel().sendMessage("Cancelled.").queue();

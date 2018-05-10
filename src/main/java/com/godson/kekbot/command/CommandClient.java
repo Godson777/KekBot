@@ -205,9 +205,9 @@ public class CommandClient extends ListenerAdapter {
         if (event.isFromType(ChannelType.PRIVATE)) {
             parts = Arrays.copyOf(rawContent.split("\\s+", 2), 2);
         }
-        if (parts == null && customPrefixes.containsKey(event.getGuild().getId()) && rawContent.toLowerCase().startsWith(customPrefixes.get(event.getGuild().getId())))
+        if (parts == null && customPrefixes.containsKey(event.getGuild().getId()) && rawContent.startsWith(customPrefixes.get(event.getGuild().getId())))
             parts = Arrays.copyOf(rawContent.substring(customPrefixes.get(event.getGuild().getId()).length()).trim().split("\\s+", 2), 2);
-        if (parts == null && !customPrefixes.containsKey(event.getGuild().getId())&& rawContent.toLowerCase().startsWith(prefix))
+        if (parts == null && !customPrefixes.containsKey(event.getGuild().getId())&& rawContent.startsWith(prefix))
             parts = Arrays.copyOf(rawContent.substring(prefix.length()).trim().split("\\s+", 2), 2);
 
         if (parts != null && !isUserDisabled(event.getAuthor().getId()) && !isMemberDisabled(event)) {

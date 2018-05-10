@@ -32,17 +32,29 @@ public abstract class TextImageCommand extends Command {
                     connection.connect();
                     BufferedImage check = ImageIO.read(connection.getInputStream());
                     if (check == null) {
-                        event.getChannel().sendFile(generate(event.combineArgs()), filename + ".png", null).queue();
+                        try {
+                            event.getChannel().sendFile(generate(event.combineArgs()), filename + ".png", null).queue();
+                        } catch (IllegalArgumentException e) {
+                            event.getChannel().sendMessage("The text you've entered is too long for this command, try something else.").queue();
+                        }
                         return;
                     }
 
                     event.getChannel().sendFile(generate(check), filename + ".png", null).queue();
                 } catch (MalformedURLException | UnknownHostException | IllegalArgumentException | FileNotFoundException e) {
-                    event.getChannel().sendFile(generate(event.combineArgs()), filename + ".png", null).queue();
+                    try {
+                        event.getChannel().sendFile(generate(event.combineArgs()), filename + ".png", null).queue();
+                    } catch (IllegalArgumentException e1) {
+                        event.getChannel().sendMessage("The text you've entered is too long for this command, try something else.").queue();
+                    }
                 } catch (SSLHandshakeException | SocketException e) {
                     event.getChannel().sendMessage("Unable to connect to URL.").queue();
                 } catch (IOException e) {
-                    event.getChannel().sendFile(generate(event.combineArgs()), filename + ".png", null).queue();
+                    try {
+                        event.getChannel().sendFile(generate(event.combineArgs()), filename + ".png", null).queue();
+                    } catch (IllegalArgumentException e1) {
+                        event.getChannel().sendMessage("The text you've entered is too long for this command, try something else.").queue();
+                    }
                 }
             } else event.getChannel().sendMessage("No image or text provided.").queue();
         }

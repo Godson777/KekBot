@@ -29,13 +29,13 @@ public class LongLive extends Command {
             return;
         }
 
-        if (!isMention(event.combineArgs()) || event.getMessage().getMentionedUsers().size() < 1) {
+        if (!isMention(event.combineArgs()) || event.getMentionedUsers().size() < 1) {
             event.getChannel().sendMessage("The user you want to target must be in the form of a mention!").queue();
             return;
         }
 
         event.getChannel().sendTyping().queue();
-        User user = event.getMessage().getMentionedUsers().get(0);
+        User user = event.getMentionedUsers().get(0);
         BufferedImage target = Utils.getUserAvatarImage(user);
         BufferedImage ava = Utils.getUserAvatarImage(event.getAuthor());
         try {

@@ -20,12 +20,12 @@ public class Balance extends Command {
     @Override
     public void onExecuted(CommandEvent event) {
         if (event.getArgs().length > 0) {
-            if (event.getMessage().getMentionedUsers().size() != 1) {
-                event.getChannel().sendMessage((event.getMessage().getMentionedUsers().size() > 1 ? "Too many" : "No") + "users specified.").queue();
+            if (event.getMentionedUsers().size() != 1) {
+                event.getChannel().sendMessage((event.getMentionedUsers().size() > 1 ? "Too many" : "No") + "users specified.").queue();
                 return;
             }
-            Profile profile = Profile.getProfile(event.getMessage().getMentionedUsers().get(0));
-            event.getChannel().sendMessage(event.getMessage().getMentionedUsers().get(0).getName() + " has " + CustomEmote.printPrice(profile.getTopkeks())).queue();
+            Profile profile = Profile.getProfile(event.getMentionedUsers().get(0));
+            event.getChannel().sendMessage(event.getMentionedUsers().get(0).getName() + " has " + CustomEmote.printPrice(profile.getTopkeks())).queue();
             return;
         }
 
