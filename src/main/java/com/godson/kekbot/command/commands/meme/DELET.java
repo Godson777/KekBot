@@ -1,9 +1,12 @@
 package com.godson.kekbot.command.commands.meme;
 
+import com.godson.kekbot.KekBot;
 import com.godson.kekbot.Utils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandCategories;
 import com.godson.kekbot.command.CommandEvent;
+import me.duncte123.weebJava.types.NSFWType;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 
 import javax.imageio.ImageIO;
@@ -27,6 +30,15 @@ public class DELET extends Command {
     public void onExecuted(CommandEvent event) throws Throwable {
         if (event.getArgs().length < 1) {
             event.getChannel().sendMessage("Who are you going to DELET?").queue();
+            return;
+        }
+
+        if (!isMention(event.combineArgs()) && event.combineArgs().equals("this")) {
+            event.getChannel().sendTyping().queue();
+            EmbedBuilder builder = new EmbedBuilder();
+            builder.setImage(KekBot.weebApi.getRandomImage("delet_this", event.getTextChannel().isNSFW() ? NSFWType.TRUE : NSFWType.FALSE).getUrl());
+            builder.setFooter("Powered by Weeb.sh!", null);
+            event.getChannel().sendMessage(builder.build()).queue();
             return;
         }
 
