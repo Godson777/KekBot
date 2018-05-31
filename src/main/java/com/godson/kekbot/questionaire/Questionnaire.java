@@ -8,6 +8,7 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.events.Event;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.requests.RestAction;
@@ -15,6 +16,7 @@ import net.dv8tion.jda.core.requests.RestAction;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public class Questionnaire {
     private final List<Question> questions = new ArrayList<>();
@@ -32,11 +34,14 @@ public class Questionnaire {
     private final Guild guild;
     private final TextChannel channel;
     private final User user;
-    private CommandEvent event;
 
     //Timeout Stuff:
     private long timeout = 1;
     private TimeUnit timeoutUnit = TimeUnit.MINUTES;
+
+    //Interruption Stuff:
+    private Predicate<Event> interruptionCondition;
+    private Consumer<Event> interruptionAction;
 
     private Consumer<Results> results = results -> {};
 
@@ -52,8 +57,11 @@ public class Questionnaire {
         return new Questionnaire(results);
     }
 
+    public static Questionnaire newQuestionnaire(Guild guild, TextChannel channel, User user) {
+        return new Questionnaire(guild, channel, user);
+    }
+
     private Questionnaire(CommandEvent event) {
-        this.event = event;
         this.guild = event.getGuild();
         this.channel = event.getTextChannel();
         this.user = event.getAuthor();
@@ -65,8 +73,13 @@ public class Questionnaire {
         this.user = event.getAuthor();
     }
 
+    private Questionnaire(Guild guild, TextChannel channel, User user) {
+        this.guild = guild;
+        this.channel = channel;
+        this.user = user;
+    }
+
     private Questionnaire(Results results) {
-        if (results.event != null) this.event = results.event;
         this.guild = results.getGuild();
         this.channel = results.getChannel();
         this.user = results.getUser();
@@ -133,8 +146,14 @@ public class Questionnaire {
         return this;
     }
 
+    public Questionnaire withInterruption(Predicate<Event> interruptionCondition, Consumer<Event> interruptionAction) {
+        this.interruptionCondition = interruptionCondition;
+        this.interruptionAction = interruptionAction;
+        return this;
+    }
+
     public void execute(Consumer<Results> results) {
-        if (event != null) event.getClient().registerQuestionnaire(channel.getId(), user.getId());
+        KekBot.getCommandClient().registerQuestionnaire(channel.getId(), user.getId());
         this.results = results;
         execute(0);
     }
@@ -142,61 +161,72 @@ public class Questionnaire {
     private void execute(int i) {
         Question question = questions.get(i);
         if (!skipQuestionMessage) channel.sendMessage(question.getMessage() + (includeCancel ? " (Or say `cancel` to exit.)" : "")).queue();
-        waiter.waitForEvent(GuildMessageReceivedEvent.class, e -> e.getAuthor().equals(user) && e.getChannel().equals(channel), e -> {
-            String message = (useRawInput ? e.getMessage().getContentRaw() : e.getMessage().getContentDisplay());
-            RestAction<Message> errorMessage = e.getChannel().sendMessage((!customErrorMessageEnabled ? "I'm sorry, I didn't quite catch that, let's try that again..." : customErrorMessage));
-            if (message.equalsIgnoreCase("cancel")) {
-                e.getChannel().sendMessage("Cancelled.").queue();
-                event.getClient().unregisterQuestionnaire(channel.getId(), user.getId());
-            } else {
-                switch (question.getType()) {
-                    case STRING:
-                        answers.add(message);
-                        break;
-                    case INT:
-                        try {
-                            answers.add(Integer.valueOf(message));
-                        } catch (NumberFormatException e1) {
-                            if (skipOnRepeat) skipQuestionMessage = true;
-                            errorMessage.queue();
-                            execute(i);
-                            return;
-                        }
-                        break;
-                    case CHOICE_STRING:
-                        Optional<String> choice = choices.get(question).stream().filter(c -> c.equalsIgnoreCase(e.getMessage().getContentDisplay())).findFirst();
-                        if (!choice.isPresent()) {
-                            if (skipOnRepeat) skipQuestionMessage = true;
-                            errorMessage.queue();
-                            execute(i);
-                            return;
-                        } else {
-                            answers.add(choice.get());
-                        }
-                        break;
-                    case YES_NO_STRING:
-                        Optional<String> yesNoChoice = choices.get(question).stream().filter(c -> c.equalsIgnoreCase(e.getMessage().getContentDisplay())).findFirst();
-                        if (!yesNoChoice.isPresent()) {
-                            if (skipOnRepeat) skipQuestionMessage = true;
-                            errorMessage.queue();
-                            execute(i);
-                            return;
-                        } else {
-                            if (yesNoChoice.get().equalsIgnoreCase("y") || yesNoChoice.get().equalsIgnoreCase("yes"))
-                                answers.add(true);
-                            else answers.add(false);
-                        }
-                }
-                if (i + 1 != questions.size()) {
-                    if (skipOnRepeat && skipQuestionMessage) skipQuestionMessage = false;
-                    execute(i + 1);
+        //here comes some crazy shit
+        waiter.waitForEvent(Event.class, e -> {
+            if (e instanceof GuildMessageReceivedEvent)
+                return ((GuildMessageReceivedEvent) e).getAuthor().equals(user) && ((GuildMessageReceivedEvent) e).getChannel().equals(channel);
+            else
+                return interruptionCondition != null && interruptionCondition.test(e);
+        }, e -> {
+            if (e instanceof GuildMessageReceivedEvent) {
+                String message = (useRawInput ? ((GuildMessageReceivedEvent) e).getMessage().getContentRaw() : ((GuildMessageReceivedEvent) e).getMessage().getContentDisplay());
+                RestAction<Message> errorMessage = ((GuildMessageReceivedEvent) e).getChannel().sendMessage((!customErrorMessageEnabled ? "I'm sorry, I didn't quite catch that, let's try that again..." : customErrorMessage));
+                if (message.equalsIgnoreCase("cancel")) {
+                    ((GuildMessageReceivedEvent) e).getChannel().sendMessage("Cancelled.").queue();
+                    KekBot.getCommandClient().unregisterQuestionnaire(channel.getId(), user.getId());
                 } else {
-                    event.getClient().unregisterQuestionnaire(channel.getId(), user.getId());
-                    finish();
+                    switch (question.getType()) {
+                        case STRING:
+                            answers.add(message);
+                            break;
+                        case INT:
+                            try {
+                                answers.add(Integer.valueOf(message));
+                            } catch (NumberFormatException e1) {
+                                if (skipOnRepeat) skipQuestionMessage = true;
+                                errorMessage.queue();
+                                execute(i);
+                                return;
+                            }
+                            break;
+                        case CHOICE_STRING:
+                            Optional<String> choice = choices.get(question).stream().filter(c -> c.equalsIgnoreCase(((GuildMessageReceivedEvent) e).getMessage().getContentDisplay())).findFirst();
+                            if (!choice.isPresent()) {
+                                if (skipOnRepeat) skipQuestionMessage = true;
+                                errorMessage.queue();
+                                execute(i);
+                                return;
+                            } else {
+                                answers.add(choice.get());
+                            }
+                            break;
+                        case YES_NO_STRING:
+                            Optional<String> yesNoChoice = choices.get(question).stream().filter(c -> c.equalsIgnoreCase(((GuildMessageReceivedEvent) e).getMessage().getContentDisplay())).findFirst();
+                            if (!yesNoChoice.isPresent()) {
+                                if (skipOnRepeat) skipQuestionMessage = true;
+                                errorMessage.queue();
+                                execute(i);
+                                return;
+                            } else {
+                                if (yesNoChoice.get().equalsIgnoreCase("y") || yesNoChoice.get().equalsIgnoreCase("yes"))
+                                    answers.add(true);
+                                else answers.add(false);
+                            }
+                    }
+                    if (i + 1 != questions.size()) {
+                        if (skipOnRepeat && skipQuestionMessage) skipQuestionMessage = false;
+                        execute(i + 1);
+                    } else {
+                        KekBot.getCommandClient().unregisterQuestionnaire(channel.getId(), user.getId());
+                        finish();
+                    }
                 }
+            } else {
+                KekBot.getCommandClient().unregisterQuestionnaire(channel.getId(), user.getId());
+                interruptionAction.accept(e);
             }
         }, timeout, timeoutUnit, () -> {
-            event.getClient().unregisterQuestionnaire(channel.getId(), user.getId());
+            KekBot.getCommandClient().unregisterQuestionnaire(channel.getId(), user.getId());
             channel.sendMessage("You took too long. Canceled.").queue();
         });
     }
@@ -220,7 +250,6 @@ public class Questionnaire {
             this.guild = questionnaire.guild;
             this.channel = questionnaire.channel;
             this.user = questionnaire.user;
-            if (questionnaire.event != null) this.event = questionnaire.event;
         }
 
         public Object getAnswer(int i) {

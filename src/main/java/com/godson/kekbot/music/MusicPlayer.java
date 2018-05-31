@@ -450,7 +450,7 @@ public class MusicPlayer extends ListenerAdapter {
         if (!audioManager.isConnected() && !audioManager.isAttemptingToConnect()) {
             Optional<VoiceChannel> voiceChannel = event.getGuild().getVoiceChannels().stream().filter(c -> c.getMembers().contains(event.getEvent().getMember())).findFirst();
             if (!voiceChannel.isPresent()) {
-                event.getTextChannel().sendMessage(KekBot.respond(Action.GET_IN_VOICE_CHANNEL)).queue();
+                event.getTextChannel().sendMessage(KekBot.respond(Action.GET_IN_VOICE_CHANNEL, event.getLocale())).queue();
             } else {
                 audioManager.openAudioConnection(voiceChannel.get());
                 announceStart(event, voiceChannel.get());
@@ -636,7 +636,7 @@ public class MusicPlayer extends ListenerAdapter {
             @Override
             public void playlistLoaded(AudioPlaylist audioPlaylist) {
             Questionnaire.newQuestionnaire(results)
-                        .addChoiceQuestion("Are you sure you want to add all " + audioPlaylist.getTracks().size() + " tracks to your playlist?", "Yes", "No", "Y", "N")
+                        .addYesNoQuestion("Are you sure you want to add all " + audioPlaylist.getTracks().size() + " tracks to your playlist?")
                         .withoutRepeats()
                         .execute(results1 -> {
                             if (results1.getAnswerAsType(0, boolean.class)) {
@@ -784,7 +784,7 @@ public class MusicPlayer extends ListenerAdapter {
                     changeHost(event.getGuild(), member.getUser());
                     musicManager.stopWaiting();
                 }, 10, TimeUnit.SECONDS, () -> {
-                    m.editMessage(KekBot.respond(Action.MUSIC_EMPTY_CHANNEL)).queue();
+                    m.editMessage(KekBot.respond(Action.MUSIC_EMPTY_CHANNEL, KekBot.getGuildLocale(event.getGuild()))).queue();
                     musicManager.stopWaiting();
                     closeConnection(event.getGuild());
                 });
@@ -864,7 +864,10 @@ public class MusicPlayer extends ListenerAdapter {
                     }
 
                     if (botMoved) return channelJoined.getMembers().size() > 0;
-                    else return channelJoined.equals(KekBot.jda.getGuildById(event1.getGuild().getId()).getAudioManager().getConnectedChannel());
+                    else {
+                        if (channelJoined == null) return false;
+                        else return channelJoined.equals(KekBot.jda.getGuildById(event1.getGuild().getId()).getAudioManager().getConnectedChannel());
+                    }
                 }, event1 -> {
                     if (leftWaitingVoice(musicManager, m, event1)) return;
 
@@ -893,7 +896,7 @@ public class MusicPlayer extends ListenerAdapter {
                     changeHost(event.getGuild(), member.getUser());
                     musicManager.stopWaiting();
                 }, 60, TimeUnit.SECONDS, () -> {
-                    m.editMessage(KekBot.respond(Action.MUSIC_EMPTY_CHANNEL)).queue();
+                    m.editMessage(KekBot.respond(Action.MUSIC_EMPTY_CHANNEL, KekBot.getGuildLocale(event.getGuild()))).queue();
                     musicManager.stopWaiting();
                     closeConnection(event.getGuild());
                 });

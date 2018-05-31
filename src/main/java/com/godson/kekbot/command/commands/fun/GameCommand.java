@@ -60,7 +60,7 @@ public class GameCommand extends Command {
             switch (event.getArgs()[0].toLowerCase()) {
                 case "create":
                     if (event.getArgs().length >= 2) {
-                        String game = Utils.combineArguments(Arrays.copyOfRange(event.getArgs(), 1, event.getArgs().length));
+                        String game = event.combineArgs(1, event.getArgs().length);
                         KekBot.gamesManager.addGame(channel, game.toLowerCase(), event.getAuthor());
                     }
                     break;

@@ -2,6 +2,7 @@ package com.godson.kekbot.command.commands.fun;
 
 import com.godson.kekbot.CustomEmote;
 import com.godson.kekbot.KekBot;
+import com.godson.kekbot.LocaleUtils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.music.Playlist;
@@ -44,12 +45,12 @@ public class Music extends Command {
     @Override
     public void onExecuted(CommandEvent event) {
         if (!event.getMember().getVoiceState().inVoiceChannel()) {
-            event.getChannel().sendMessage(KekBot.respond(Action.GET_IN_VOICE_CHANNEL)).queue();
+            event.getChannel().sendMessage(KekBot.respond(Action.GET_IN_VOICE_CHANNEL, event.getLocale())).queue();
             return;
         }
 
         if (event.getGuild().getAudioManager().isConnected() && !event.getGuild().getAudioManager().getConnectedChannel().equals(event.getMember().getVoiceState().getChannel())) {
-                event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_IN_CHANNEL, "`" + event.getGuild().getAudioManager().getConnectedChannel().getName() + "`")).queue();
+                event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_IN_CHANNEL, event.getLocale(), "`" + event.getGuild().getAudioManager().getConnectedChannel().getName() + "`")).queue();
                 return;
         }
 
@@ -87,7 +88,7 @@ public class Music extends Command {
                     break;
                 case "vol":
                     if (!event.getGuild().getAudioManager().isConnected()) {
-                        event.getTextChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING)).queue();
+                        event.getTextChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING, event.getLocale())).queue();
                         return;
                     }
 
@@ -96,13 +97,13 @@ public class Music extends Command {
                             int volume = Integer.valueOf(event.getArgs()[1]);
                             KekBot.player.setVolume(event, volume);
                         } catch (NumberFormatException e) {
-                            event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getArgs()[1])).queue();
+                            event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getLocale(), event.getArgs()[1])).queue();
                         }
                     } else event.getChannel().sendMessage("You haven't even specified the volume you want to set it to!").queue();
                     break;
                 case "skip":
                     if (!event.getGuild().getAudioManager().isConnected()) {
-                        event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING)).queue();
+                        event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING, event.getLocale())).queue();
                         return;
                     }
 
@@ -120,7 +121,7 @@ public class Music extends Command {
                     break;
                 case "skipto":
                     if (!event.getGuild().getAudioManager().isConnected()) {
-                        event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING)).queue();
+                        event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING, event.getLocale())).queue();
                         return;
                     }
 
@@ -129,13 +130,13 @@ public class Music extends Command {
                             int skipTo = Integer.valueOf(event.getArgs()[1]);
                             KekBot.player.skipToTrack(event, skipTo);
                         } catch (NumberFormatException e) {
-                            event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, "`" + event.getArgs()[1] + "`")).queue();
+                            event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getLocale(), "`" + event.getArgs()[1] + "`")).queue();
                         }
                     } else event.getChannel().sendMessage("No track specified.").queue();
                     break;
                 case "remove":
                     if (!event.getGuild().getAudioManager().isConnected()) {
-                        event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING)).queue();
+                        event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING, event.getLocale())).queue();
                         return;
                     }
 
@@ -144,13 +145,13 @@ public class Music extends Command {
                             int toRemove = Integer.valueOf(event.getArgs()[1]) - 1;
                             KekBot.player.removeTrack(event, toRemove);
                         } catch (NumberFormatException e) {
-                            event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, "`" + event.getArgs()[1] + "`")).queue();
+                            event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getLocale(), "`" + event.getArgs()[1] + "`")).queue();
                         }
                     } else event.getChannel().sendMessage("No track specified.").queue();
                     break;
                 case "voteskip":
                     if (!event.getGuild().getAudioManager().isConnected()) {
-                        event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING)).queue();
+                        event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING, event.getLocale())).queue();
                         return;
                     }
 
@@ -158,7 +159,7 @@ public class Music extends Command {
                     break;
                 case "song":
                     if (!event.getGuild().getAudioManager().isConnected()) {
-                        event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING)).queue();
+                        event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING, event.getLocale())).queue();
                         return;
                     }
 
@@ -166,7 +167,7 @@ public class Music extends Command {
                     break;
                 case "playlist":
                     if (!event.getGuild().getAudioManager().isConnected()) {
-                        event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING)).queue();
+                        event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING, event.getLocale())).queue();
                         return;
                     }
 
@@ -174,7 +175,7 @@ public class Music extends Command {
                     break;
                 case "host":
                     if (!event.getGuild().getAudioManager().isConnected()) {
-                        event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING)).queue();
+                        event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING, event.getLocale())).queue();
                         return;
                     }
 
@@ -193,7 +194,7 @@ public class Music extends Command {
                     break;
                 case "stop":
                     if (!event.getGuild().getAudioManager().isConnected()) {
-                        event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING)).queue();
+                        event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING, event.getLocale())).queue();
                         return;
                     }
 
@@ -201,7 +202,7 @@ public class Music extends Command {
                     break;
                 case "pause":
                     if (!event.getGuild().getAudioManager().isConnected()) {
-                        event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING)).queue();
+                        event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING, event.getLocale())).queue();
                         return;
                     }
 
@@ -209,7 +210,7 @@ public class Music extends Command {
                     break;
                 case "repeat":
                     if (!event.getGuild().getAudioManager().isConnected()) {
-                        event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING)).queue();
+                        event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING, event.getLocale())).queue();
                         return;
                     }
 
@@ -217,13 +218,13 @@ public class Music extends Command {
                     break;
                 case "shuffle":
                     if (!event.getGuild().getAudioManager().isConnected()) {
-                        event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING)).queue();
+                        event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING, event.getLocale())).queue();
                         return;
                     }
 
                     KekBot.player.shuffle(event);
                     break;
             }
-        } else event.getChannel().sendMessage("No arguments provided. Check " + event.getPrefix() + "help " + name + " for more help.").queue();
+        } else event.getChannel().sendMessage(LocaleUtils.getString("command.noargs", event.getLocale(), "`" + event.getPrefix() + "help " + name + "`")).queue();
     }
 }

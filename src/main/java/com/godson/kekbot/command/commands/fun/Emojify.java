@@ -21,7 +21,11 @@ public class Emojify extends Command {
     @Override
     public void onExecuted(CommandEvent event) {
         if (event.getArgs().length > 0) {
-            event.getChannel().sendMessage(Utils.emojify(event.combineArgs().replaceAll("[^\\w\\d\\s!\\?]", ""))).queue();
-        } else event.getChannel().sendMessage("No message specified! :cry:").queue();
+            String message = Utils.emojify(event.combineArgs().replaceAll("[^\\w\\d\\s!\\?]", ""));
+            if (message.length() > 2000) {
+                event.getChannel().sendMessage(event.getString("command.fun.emojify.toolong")).queue();
+            }
+            event.getChannel().sendMessage(message).queue();
+        } else event.getChannel().sendMessage(event.getString("command.fun.emojify.noargs")).queue();
     }
 }

@@ -1,7 +1,6 @@
 package com.godson.kekbot.command.commands.general;
 
 import com.godson.kekbot.objects.PollManager;
-import com.godson.kekbot.objects.PollObject;
 import com.godson.kekbot.Utils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandClient;
@@ -73,7 +72,7 @@ public class Poll extends Command {
                             }
                             String options[] = list.toArray(EMPTY_STRING_ARRAY);
                             if (options.length != 1) {
-                                PollObject poll = manager.createPoll(event, time, Utils.removeWhitespaceEdges(combinedArgs.substring(0, combinedArgs.indexOf("|"))), options);
+                                PollManager.Poll poll = manager.createPoll(event, time, Utils.removeWhitespaceEdges(combinedArgs.substring(0, combinedArgs.indexOf("|"))), options);
                                 StringBuilder builder = new StringBuilder();
                                 for (int i = 0; i < poll.getOptions().length; i++) {
                                     builder.append(i + 1).append(". ").append("**").append(poll.getOptions()[i]).append("**").append("\n");
@@ -89,7 +88,7 @@ public class Poll extends Command {
             } else event.getChannel().sendMessage("No poll title specified!").queue();
         } else {
             if (event.getArgs().length == 0) {
-                PollObject poll = manager.getGuildsPoll(event.getGuild());
+                PollManager.Poll poll = manager.getGuildsPoll(event.getGuild());
                 StringBuilder builder = new StringBuilder();
                 for (int i = 0; i < poll.getOptions().length; i++) {
                     builder.append(i+1).append(".").append("**").append(poll.getOptions()[i]).append("**").append("\n");
@@ -131,10 +130,10 @@ public class Poll extends Command {
         public void onExecuted(CommandEvent event) {
             if (manager.guildHasPoll(event.getGuild())) {
                 if (event.getArgs().length == 0) return;
-                PollObject poll = manager.getGuildsPoll(event.getGuild());
+                PollManager.Poll poll = manager.getGuildsPoll(event.getGuild());
                 try {
                     poll.castVote(Integer.valueOf(event.getArgs()[0]) - 1, event.getAuthor());
-                    event.getMessage().addReaction("\\u2705").queue();
+                    event.getMessage().addReaction("\u2705").queue();
                 } catch (NumberFormatException e) {
                     event.getChannel().sendMessage("`" + event.getArgs()[0] + "` is not a valid number!").queue();
                 } catch (IllegalArgumentException e) {

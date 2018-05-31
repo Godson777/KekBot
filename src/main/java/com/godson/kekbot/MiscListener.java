@@ -1,36 +1,24 @@
 package com.godson.kekbot;
 
-import com.godson.kekbot.exceptions.ChannelNotFoundException;
-import com.godson.kekbot.exceptions.MessageNotFoundException;
-import com.godson.kekbot.responses.Action;
 import com.godson.kekbot.settings.Settings;
-import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.ReadyEvent;
-import net.dv8tion.jda.core.events.channel.voice.VoiceChannelDeleteEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
-import net.dv8tion.jda.core.events.guild.update.GenericGuildUpdateEvent;
-import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent;
-import net.dv8tion.jda.core.events.guild.voice.GuildVoiceMoveEvent;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.core.exceptions.PermissionException;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
-import javax.rmi.CORBA.Util;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
-import static java.lang.System.out;
 
 public class MiscListener extends ListenerAdapter {
 
-    SimpleDateFormat ft2 = new SimpleDateFormat("[HH:mm:ss]: ");
-    Timer timer;
+    private Timer timer;
+    public GameStatus gameStatus = new GameStatus();
 
     @Override
     public void onReady(ReadyEvent event) {
@@ -38,7 +26,7 @@ public class MiscListener extends ListenerAdapter {
             //Set timer to change "game" every 10 minutes.
             if (timer == null) {
                 timer = new Timer();
-                timer.schedule(new GameStatus(), 0, TimeUnit.MINUTES.toMillis(10));
+                timer.schedule(gameStatus, 0, TimeUnit.MINUTES.toMillis(10));
             }
             //Announce Ready
             System.out.println("KekBot is ready to roll!");
@@ -50,20 +38,29 @@ public class MiscListener extends ListenerAdapter {
 
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
+        advertiseCheck(event.getMessage(), event.getGuild(), event.getMember(), event.getChannel());
+    }
+
+    private void advertiseCheck(Message message, Guild guild, Member member, TextChannel channel) {
         //First we're gonna check if there's at least one invite on here.
-        if (event.getMessage().getInvites().size() > 0) {
+        if (message.getInvites().size() > 0) {
             //Then, we're gonna check if anti-ad is enabled.
-            if (Settings.getSettings(event.getGuild()).isAntiAdEnabled()) {
+            if (Settings.getSettings(guild).isAntiAdEnabled()) {
                 //Check if user doesn't have permission to manage messages.
-                if (!event.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
+                if (!member.hasPermission(Permission.MESSAGE_MANAGE)) {
                     //Now, check for permission to manage messages.
-                    if (event.getGuild().getSelfMember().hasPermission(Permission.MESSAGE_MANAGE)) {
-                        event.getMessage().delete().queue();
+                    if (guild.getSelfMember().hasPermission(Permission.MESSAGE_MANAGE)) {
+                        message.delete().queue();
                     }
-                    event.getChannel().sendMessage(event.getMessage().getAuthor().getAsMention() + ", no advertising!").queue();
+                    channel.sendMessage(LocaleUtils.getString("antiad.caught", "en_l33t", message.getAuthor().getAsMention())).queue();
                 }
             }
         }
+    }
+
+    @Override
+    public void onGuildMessageUpdate(GuildMessageUpdateEvent event) {
+        advertiseCheck(event.getMessage(), event.getGuild(), event.getMember(), event.getChannel());
     }
 
     @Override

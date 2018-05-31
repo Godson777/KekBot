@@ -23,9 +23,9 @@ public class CoinFlip extends Command {
         int flip = random.nextInt(2);
         String coin;
         if (flip == 0) {
-            coin = "**HEADS!**";
+            coin = "**" + event.getString("command.fun.coinflip.heads") + "!**";
         } else {
-            coin = "**TAILS!**";
+            coin = "**" + event.getString("command.fun.coinflip.tails") + "!**";
         }
         event.getChannel().sendMessage(event.getMessage().getAuthor().getAsMention() + " Flipped the coin and it landed on... " + coin).queue();
     }

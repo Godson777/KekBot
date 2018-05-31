@@ -26,6 +26,7 @@ public class Config {
     private String joinLogChannel;
     private String ticketChannel;
     private String twitterChannel;
+    private String weebToken;
     private List<String> botAdmins = new ArrayList<>();
     private Map<String, Integer> blockedUsers = new HashMap<>();
     private List<String> patrons = new ArrayList<>();
@@ -152,6 +153,14 @@ public class Config {
      */
     public String getDcoinToken() {
         return dcoinToken;
+    }
+
+    /**
+     * Gets token for Weeb.sh
+     * @return The token.
+     */
+    public String getWeebToken() {
+        return weebToken;
     }
 
     public List<String> getPatrons() {

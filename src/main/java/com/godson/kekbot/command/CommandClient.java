@@ -32,7 +32,9 @@ public class CommandClient extends ListenerAdapter {
     private final List<String> botAdmins;
 
     private String prefix = "$";
+    private String defaultLocale = "en_US";
     private final HashMap<String, String> customPrefixes;
+    private final HashMap<String, String> customLocales;
     private final ArrayList<Command> commands;
     private final HashMap<String, Integer> commandIndex;
     private final HashMap<String, OffsetDateTime> cooldowns;
@@ -50,6 +52,7 @@ public class CommandClient extends ListenerAdapter {
         start = OffsetDateTime.now();
         commands = new ArrayList<>();
         customPrefixes = new HashMap<>();
+        customLocales = new HashMap<>();
         cooldowns = new HashMap<>();
         commandIndex = new HashMap<>();
         disabledUsers = new HashMap<>();
@@ -70,7 +73,21 @@ public class CommandClient extends ListenerAdapter {
             if (prefix.equals(this.prefix)) customPrefixes.remove(guildID);
             else customPrefixes.replace(guildID, prefix);
         } else {
+            if (prefix.equals(this.prefix)) return;
             customPrefixes.put(guildID, prefix);
+        }
+    }
+
+    public void setCustomLocale(String guildID, String locale) {
+
+        if (customLocales.containsKey(guildID)) {
+            if (locale.equals(customLocales.get(guildID))) return;
+
+            if (locale.equals(this.defaultLocale)) customLocales.remove(guildID);
+            else customLocales.replace(guildID, locale);
+        } else {
+            if (locale.equals(this.defaultLocale)) return;
+            customLocales.put(guildID, locale);
         }
     }
 
@@ -88,6 +105,9 @@ public class CommandClient extends ListenerAdapter {
         commands.add(command);
     }
 
+    public String getDefaultLocale() {
+        return defaultLocale;
+    }
 
     public ArrayList<Command> getCommands() {
         return commands;
@@ -150,6 +170,10 @@ public class CommandClient extends ListenerAdapter {
 
     public String getPrefix(String guildID) {
         return customPrefixes.getOrDefault(guildID, prefix);
+    }
+
+    public String getLocale(String guildID) {
+        return customLocales.getOrDefault(guildID, defaultLocale);
     }
 
     public boolean isUserDisabled(String userID) {

@@ -29,7 +29,7 @@ public class Granddad extends Command {
             int index = random.nextInt(granddads.length);
             Optional<VoiceChannel> voiceChannel = event.getEvent().getGuild().getVoiceChannels().stream().filter(c -> c.getMembers().contains(event.getEvent().getMember())).findFirst();
             if (!voiceChannel.isPresent()) {
-                event.getEvent().getChannel().sendMessage(KekBot.respond(Action.GET_IN_VOICE_CHANNEL)).queue();
+                event.getEvent().getChannel().sendMessage(KekBot.respond(Action.GET_IN_VOICE_CHANNEL, event.getLocale())).queue();
             } else {
                 KekBot.player.loadAndMeme(event, granddads[index].getAbsolutePath());
             }

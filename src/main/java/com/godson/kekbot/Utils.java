@@ -250,7 +250,7 @@ public class Utils {
     }
 
     /**
-     * Converts milliseconds to a "Time" format. (Example, 1 Day, 20 Hours, 10 minutes, and 5 Seconds.
+     * Converts milliseconds to a "Time" format. (Example, 1 Day, 20 Hours, 10 minutes, and 5 Seconds.)
      * @param millis The milliseconds to convert.
      * @return The converted "Time" format.
      */
@@ -293,31 +293,13 @@ public class Utils {
     }
 
     /**
-     * Combines a set of arguments to a single string.
-     * @param arguments The arguments to combine.
-     * @return The combined {@link String string} object.
-     */
-    public static String combineArguments(String[] arguments) {
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < arguments.length; i++) {
-            builder.append(arguments[i]);
-            if (i != arguments.length-1) builder.append(" ");
-        }
-        return builder.toString();
-    }
-
-    /**
      * Compares two members and checks if a user based action is able to be done.
      * @param target The target of the check.
      * @param author The author that's performing the action.
      * @return The {@link boolean} result that confirms whether or not the action can be done.
      */
     public static boolean checkHierarchy(Member target, Member author) {
-        if (author.getRoles().size() > 0) {
-            return target.getRoles().size() < 1 || target.getRoles().size() >= 1 && target.getRoles().stream().map(Role::getPositionRaw).max(Integer::compareTo).get() >= author.getRoles().stream().map(Role::getPositionRaw).max(Integer::compareTo).get();
-        } else {
-            return target.getRoles().size() <= 0;
-        }
+        return author.getRoles().size() > 0 && (target.getRoles().size() < 1 || target.getRoles().size() >= 1 && target.getRoles().stream().map(Role::getPositionRaw).max(Integer::compareTo).get() >= author.getRoles().stream().map(Role::getPositionRaw).max(Integer::compareTo).get());
     }
 
     /**

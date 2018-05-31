@@ -93,7 +93,7 @@ public class ProfileCommand extends Command {
                             PagedSelectionMenu.Builder tokenView = new PagedSelectionMenu.Builder();
 
                             tokenView.setEventWaiter(KekBot.waiter);
-                            tokenView.addChoices(tokens.stream().map(token -> token.getName() + (profile.getToken() == token ? " **(Equipped)**" : "")).collect(Collectors.toList()).toArray(new String[tokens.size()]));
+                            tokenView.addChoices(tokens.stream().map(token -> token.getName() + (profile.getToken() != null && profile.getToken() == token ? " **(Equipped)**" : "")).collect(Collectors.toList()).toArray(new String[tokens.size()]));
                             tokenView.setItemsPerPage(5);
                             tokenView.setFinalAction(message -> message.clearReactions().queue());
                             tokenView.setSelectionAction((m, i) -> {
@@ -123,7 +123,7 @@ public class ProfileCommand extends Command {
                             PagedSelectionMenu.Builder backgroundView = new PagedSelectionMenu.Builder();
 
                             backgroundView.setEventWaiter(KekBot.waiter);
-                            backgroundView.addChoices(backgrounds.stream().map(background -> background.getName() + (profile.getCurrentBackground() == background ? " **(Equipped)**" : "")).collect(Collectors.toList()).toArray(new String[backgrounds.size()]));
+                            backgroundView.addChoices(backgrounds.stream().map(background -> background.getName() + (profile.getCurrentBackground() != null && profile.getCurrentBackground() == background ? " **(Equipped)**" : "")).collect(Collectors.toList()).toArray(new String[backgrounds.size()]));
                             backgroundView.setItemsPerPage(5);
                             backgroundView.setFinalAction(message -> message.clearReactions().queue());
                             backgroundView.setSelectionAction((m, i) -> {

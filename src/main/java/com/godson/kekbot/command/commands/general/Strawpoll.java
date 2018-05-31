@@ -47,7 +47,7 @@ public class Strawpoll extends Command {
                 Gson gson = new GsonBuilder().setPrettyPrinting().create();
                 String json = gson.toJson(poll);
                 try {
-                    Document document = Jsoup.connect("http://strawpoll.me/api/v2/polls")
+                    Document document = Jsoup.connect("https://www.strawpoll.me/api/v2/polls")
                             .userAgent("Mozilla/5.0").ignoreContentType(true)
                             .requestBody(json)
                             .post();

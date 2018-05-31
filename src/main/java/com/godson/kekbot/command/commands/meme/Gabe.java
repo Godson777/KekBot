@@ -30,7 +30,7 @@ public class Gabe extends Command {
             int index = random.nextInt(gabes.length);
             Optional<VoiceChannel> voiceChannel = event.getGuild().getVoiceChannels().stream().filter(c -> c.getMembers().contains(event.getMember())).findFirst();
             if (!voiceChannel.isPresent()) {
-                event.getChannel().sendMessage(KekBot.respond(Action.GET_IN_VOICE_CHANNEL)).queue();
+                event.getChannel().sendMessage(KekBot.respond(Action.GET_IN_VOICE_CHANNEL, event.getLocale())).queue();
             } else {
                 KekBot.player.loadAndMeme(event, gabes[index].getAbsolutePath());
             }

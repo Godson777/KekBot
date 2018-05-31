@@ -132,22 +132,11 @@ public class SnailRace extends Game {
     }
 
     @Override
-    public void endTie(int topkeks, int KXP) {
-        StringBuilder builder = new StringBuilder();
-        if (topkeks > 0 && KXP > 0) {
-            for (User player : players) {
-                Profile profile = Profile.getProfile(player);
-                profile.tieGame(topkeks, KXP);
-                builder.append(stateEarnings(player, topkeks, KXP)).append("\n");
-                profile.save();
-            }
-            channel.sendMessage(builder.toString()).queue();
-        }
-        if (betsEnabled) bets.declareTie();
-        KekBot.gamesManager.closeGame(channel);
+    public void endTie() {
         timer.cancel();
         finished = true;
         race.editMessage(drawRace()).queue();
+        super.endTie();
     }
 
     private void endGame(boolean tie) {
