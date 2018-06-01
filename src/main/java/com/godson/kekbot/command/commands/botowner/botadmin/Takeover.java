@@ -8,8 +8,6 @@ import com.godson.kekbot.objects.TakeoverManager;
 import com.godson.kekbot.questionaire.QuestionType;
 import com.godson.kekbot.questionaire.Questionnaire;
 import com.godson.kekbot.responses.Action;
-import com.sun.javaws.exceptions.InvalidArgumentException;
-import net.dv8tion.jda.core.entities.Message;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -18,11 +16,8 @@ import javax.net.ssl.SSLHandshakeException;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 
 public class Takeover extends Command {
