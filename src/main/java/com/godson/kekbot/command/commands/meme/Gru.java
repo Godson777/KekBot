@@ -16,6 +16,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Gru extends Command {
 
@@ -40,6 +43,10 @@ public class Gru extends Command {
         if (event.combineArgs().contains("--hyper")) hyper = true;
         if (event.combineArgs().contains("--egg")) egg = true;
 
+        String[] args = event.getArgs();
+
+        args = Arrays.stream(args).filter(s -> !s.equalsIgnoreCase("--hyper") && !s.equalsIgnoreCase("--egg")).toArray(String[]::new);
+
         if (event.getMessage().getAttachments().size() > 0) {
             if (event.getMessage().getAttachments().get(0).isImage()) {
                 try {
@@ -50,7 +57,7 @@ public class Gru extends Command {
                 }
             } else event.getChannel().sendMessage("That's not a valid image.").queue();
         } else {
-            if (event.getArgs().length > 0) {
+            if (args.length > 0) {
                 event.getChannel().sendTyping().queue();
                 try {
                     URL image = new URL(event.combineArgs().replaceAll("--hyper", ""));

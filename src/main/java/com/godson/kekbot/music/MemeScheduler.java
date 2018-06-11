@@ -56,10 +56,6 @@ public class MemeScheduler extends AudioEventAdapter {
     }
 
     private void closeConnection() {
-        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-        executor.schedule(() -> {
-            KekBot.player.closeConnection(guild);
-            executor.shutdown();
-        }, 0, TimeUnit.SECONDS);
+        new Thread(() -> KekBot.player.closeConnection(guild)).start();
     }
 }

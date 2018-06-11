@@ -30,9 +30,12 @@ public class CommandClient extends ListenerAdapter {
 
     private final String botOwner;
     private final List<String> botAdmins;
+    private final List<String> botMods;
 
     private String prefix = "$";
+    private String defaultLocale = "en_US";
     private final HashMap<String, String> customPrefixes;
+    private final HashMap<String, String> customLocales;
     private final ArrayList<Command> commands;
     private final HashMap<String, Integer> commandIndex;
     private final HashMap<String, OffsetDateTime> cooldowns;
@@ -50,6 +53,7 @@ public class CommandClient extends ListenerAdapter {
         start = OffsetDateTime.now();
         commands = new ArrayList<>();
         customPrefixes = new HashMap<>();
+        customLocales = new HashMap<>();
         cooldowns = new HashMap<>();
         commandIndex = new HashMap<>();
         disabledUsers = new HashMap<>();
@@ -59,6 +63,7 @@ public class CommandClient extends ListenerAdapter {
         Config config = Config.getConfig();
         botOwner = config.getBotOwner();
         botAdmins = config.getBotAdmins();
+        botMods = config.getBotMods();
     }
 
     public void setPrefix(String prefix) {
@@ -70,7 +75,21 @@ public class CommandClient extends ListenerAdapter {
             if (prefix.equals(this.prefix)) customPrefixes.remove(guildID);
             else customPrefixes.replace(guildID, prefix);
         } else {
+            if (prefix.equals(this.prefix)) return;
             customPrefixes.put(guildID, prefix);
+        }
+    }
+
+    public void setCustomLocale(String guildID, String locale) {
+
+        if (customLocales.containsKey(guildID)) {
+            if (locale.equals(customLocales.get(guildID))) return;
+
+            if (locale.equals(this.defaultLocale)) customLocales.remove(guildID);
+            else customLocales.replace(guildID, locale);
+        } else {
+            if (locale.equals(this.defaultLocale)) return;
+            customLocales.put(guildID, locale);
         }
     }
 
@@ -88,6 +107,9 @@ public class CommandClient extends ListenerAdapter {
         commands.add(command);
     }
 
+    public String getDefaultLocale() {
+        return defaultLocale;
+    }
 
     public ArrayList<Command> getCommands() {
         return commands;
@@ -152,6 +174,10 @@ public class CommandClient extends ListenerAdapter {
         return customPrefixes.getOrDefault(guildID, prefix);
     }
 
+    public String getLocale(String guildID) {
+        return customLocales.getOrDefault(guildID, defaultLocale);
+    }
+
     public boolean isUserDisabled(String userID) {
         return disabledUsers.containsKey(userID) && disabledUsers.get(userID) >= 1;
     }
@@ -170,6 +196,26 @@ public class CommandClient extends ListenerAdapter {
 
     List<String> getBotAdmins() {
         return botAdmins;
+    }
+
+    List<String> getBotMods() {
+        return botMods;
+    }
+
+    public void addBotAdmin(String id) {
+        if (!botAdmins.contains(id)) botAdmins.add(id);
+    }
+
+    public void removeBotAdmin(String id) {
+        botAdmins.remove(id);
+    }
+
+    public void addBotMod(String id) {
+        if (!botMods.contains(id)) botMods.add(id);
+    }
+
+    public void removeBotMod(String id) {
+        botMods.remove(id);
     }
 
     @Override

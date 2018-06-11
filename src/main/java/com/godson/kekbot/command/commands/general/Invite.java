@@ -14,6 +14,6 @@ public class Invite extends Command {
 
     @Override
     public void onExecuted(CommandEvent event) {
-        event.getChannel().sendMessage("Want to add KekBot to your server? Use the link below! \nhttps://discordapp.com/oauth2/authorize?&client_id=213151748855037953&scope=bot&permissions=8").queue();
+        event.getChannel().sendMessage(event.getString("command.general.invite", "https://discordapp.com/oauth2/authorize?&client_id=213151748855037953&scope=bot&permissions=8")).queue();
     }
 }

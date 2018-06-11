@@ -1,6 +1,7 @@
 package com.godson.kekbot.command.commands.admin;
 
 import com.godson.kekbot.KekBot;
+import com.godson.kekbot.LocaleUtils;
 import com.godson.kekbot.TriConsumer;
 import com.godson.kekbot.Utils;
 import com.godson.kekbot.command.Command;
@@ -10,6 +11,7 @@ import com.godson.kekbot.questionaire.QuestionType;
 import com.godson.kekbot.questionaire.Questionnaire;
 import com.godson.kekbot.settings.Settings;
 import com.jagrosh.jdautilities.menu.Paginator;
+import com.jagrosh.jdautilities.menu.SelectionDialog;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Role;
@@ -33,17 +35,17 @@ public class SettingsCommand extends Command {
         category = new Category("Admin");
         requiredUserPerms = new Permission[]{Permission.ADMINISTRATOR};
 
-        settings.put("prefix", new Setting("Prefix used to call commands",
-                "Enter the prefix you'd like to use:",
+        settings.put("prefix", new Setting("settings.prefix.description",
+                "settings.prefix.noargs",
                 (event, settings, newPrefix) -> {
             String oldPrefix = event.getPrefix();
             if (newPrefix.equals(oldPrefix)) {
-                event.getChannel().sendMessage("This is already the currently set prefix.").queue();
+                event.getChannel().sendMessage(event.getString("settings.prefix.oldprefix")).queue();
                 return;
             }
 
             if (newPrefix.length() > 5) {
-                event.getChannel().sendMessage("For your convenience, and due to limitations, I cannot allow you to set prefixes more than __**5**__ characters long.").queue();
+                event.getChannel().sendMessage(event.getString("settings.prefix.charlimit", 5)).queue();
                 return;
             }
 
@@ -51,27 +53,27 @@ public class SettingsCommand extends Command {
 
             settings.setPrefix(newPrefix).save();
             event.getClient().setCustomPrefix(event.getGuild().getId(), newPrefix);
-            event.getChannel().sendMessage("Successfully changed prefix from `" + oldPrefix + "` " + "to `" + newPrefix + "`").queue();
+            event.getChannel().sendMessage(event.getString("settings.prefix.success", oldPrefix, newPrefix)).queue();
         }));
-        settings.put("autorole", new Setting("Set a specific role to be applied to newcoming members.",
-                "Enter the name of the role you'd like users to be given (or say `reset` to stop giving users a role on join):",
+        settings.put("autorole", new Setting("settings.autorole.description",
+                "settings.autorole.noargs",
                 ((event, settings, role) -> {
                     if (role.equalsIgnoreCase("reset")) {
                         settings.setAutoRoleID(null).save();
-                        event.getChannel().sendMessage("Done, I won't give users a role upon join.").queue();
+                        event.getChannel().sendMessage(event.getString("settings.autorole.reset")).queue();
                         return;
                     }
 
                     List<Role> check = event.getGuild().getRolesByName(role, false);
                     if (check.size() == 0) {
-                        event.getChannel().sendMessage("Unable to find any roles by the name of `" + role + "`!").queue();
+                        event.getChannel().sendMessage(event.getString("command.norolefound", role)).queue();
                         return;
                     }
                         settings.setAutoRoleID(check.get(0).getId()).save();
-                        event.getChannel().sendMessage("Got it! I will now give newcomers the role \"" + check.get(0).getName() + "\"!").queue();
+                        event.getChannel().sendMessage(event.getString("settings.autorole.success", check.get(0).getName())).queue();
                 })));
-        settings.put("getrole", new Setting("Add or remove a role that users can equip with the `getrole` command.",
-                "Enter the name of the role you want to add or remove from the list: (Or say `list` to list the roles available to users.)",
+        settings.put("getrole", new Setting("settings.getrole.description",
+                "settings.getrole.noargs",
                 ((event, settings, role) -> {
                     if (role.equalsIgnoreCase("list")) {
                         Paginator.Builder builder = new Paginator.Builder();
@@ -89,26 +91,26 @@ public class SettingsCommand extends Command {
 
                     List<Role> check = event.getGuild().getRolesByName(role, false);
                     if (check.size() == 0) {
-                        event.getChannel().sendMessage("Unable to find any roles by the name of `" + role + "`!").queue();
+                        event.getChannel().sendMessage(event.getString("command.norolefound", role)).queue();
                         return;
                     }
 
                     if (settings.getFreeRoles().contains(check.get(0).getId())) {
                         settings.removeFreeRole(check.get(0).getId()).save();
-                        event.getChannel().sendMessage("This role has been removed from the list of free roles.").queue();
+                        event.getChannel().sendMessage(event.getString("settings.getrole.removed")).queue();
                         return;
                     }
 
                     settings.addFreeRole(check.get(0).getId()).save();
-                    event.getChannel().sendMessage("This role has been added to the list of free roles.").queue();
+                    event.getChannel().sendMessage(event.getString("settings.getrole.added")).queue();
                 })));
-        settings.put("welcomechannel", new Setting("Sets the channel where welcome/farewell messages will be sent.",
-                "Mention the channel (`#channel`) you'd like welcome/farewell messages to be sent to (or say `reset` to stop sending welcome/farewell messages to a previously selected channel):",
+        settings.put("welcomechannel", new Setting("settings.welcomechannel.description",
+                "settings.welcomechannel.noargs",
                 (event, settings, channel) -> {
                     if (channel.equalsIgnoreCase("reset")) {
                         settings.getAnnounceSettings().setWelcomeChannel(null);
                         settings.save();
-                        event.getChannel().sendMessage("Successfully reset the welcome channel, welcome/farewell messages will no longer be sent.").queue();
+                        event.getChannel().sendMessage(event.getString("settings.welcomechannel.reset")).queue();
                         return;
                     }
 
@@ -116,72 +118,89 @@ public class SettingsCommand extends Command {
                     try {
                         wChannel = Utils.resolveChannelMention(event.getGuild(), channel);
                     } catch (IllegalArgumentException e) {
-                        event.getChannel().sendMessage("Huh? That doesn't look like a channel.").queue();
+                        event.getChannel().sendMessage(event.getString("settings.welcomechannel.invalidchannel")).queue();
                         return;
                     }
 
                     if (wChannel == null) {
-                        event.getChannel().sendMessage("Alright there, you and I both know that's not an actual channel. Get outta here.").queue();
+                        event.getChannel().sendMessage(event.getString("settings.welcomechannel.notachannel")).queue();
                         return;
                     }
 
                     settings.getAnnounceSettings().setWelcomeChannel(wChannel);
                     settings.save();
-                    event.getChannel().sendMessage("Successfully set " + wChannel.getAsMention() + " as the welcome/farewell channel.").queue();
+                    event.getChannel().sendMessage(event.getString("settings.welcomechannel.success", wChannel.getAsMention())).queue();
                 }));
-        settings.put("welcomemessage", new Setting("Sets the welcome message.",
-                "Type the message you want me to use to welcome newcomers. *{mention} gets replaced with `@Example User`, while {name} gets replaced with `Example User`* (or say `reset` to stop sending welcome messages):",
+        settings.put("welcomemessage", new Setting("settings.welcomemessage.description",
+                "settings.welcomemessage.noargs",
                 (event, settings, message) -> {
                     if (message.equalsIgnoreCase("reset")) {
                         settings.getAnnounceSettings().setWelcomeMessage(null);
                         settings.save();
-                        event.getChannel().sendMessage("Successfully reset the welcome message, welcome messages will no longer be sent.").queue();
+                        event.getChannel().sendMessage(event.getString("settings.welcomemessage.reset")).queue();
                         return;
                     }
 
                     settings.getAnnounceSettings().setWelcomeMessage(message);
                     settings.save();
-                    event.getChannel().sendMessage("Message saved.").queue();
+                    event.getChannel().sendMessage(event.getString("settings.welcomemessage.success")).queue();
                 }));
-        settings.put("farewellmessage", new Setting("Sets the farewell message.",
-                "Type the message you want me to use to say goodbye. *{mention} gets replaced with `@Example User`, while {name} gets replaced with `Example User`* (or say `reset` to stop sending farewell messages):",
+        settings.put("farewellmessage", new Setting("settings.farewellmessage.description",
+                "settings.farewellmessage.noargs",
                 (event, settings, message) -> {
                     if (message.equalsIgnoreCase("reset")) {
                         settings.getAnnounceSettings().setFarewellMessage(null);
                         settings.save();
-                        event.getChannel().sendMessage("Successfully reset the farewell message, farewell messages will no longer be sent.").queue();
+                        event.getChannel().sendMessage(event.getString("settings.farewellmessage.reset")).queue();
                         return;
                     }
 
                     settings.getAnnounceSettings().setFarewellMessage(message);
                     settings.save();
-                    event.getChannel().sendMessage("Message saved.").queue();
+                    event.getChannel().sendMessage(event.getString("settings.welcomemessage.success")).queue();
                 }));
-        settings.put("antiad", new Setting("Whether or not KekBot should delete discord invites posted by users. (Users with `Manage Messages` permisison bypass this.)",
-                "Say `on` to turn on anti-ad, say `off` to turn it off:",
+        settings.put("antiad", new Setting("settings.antiad.description",
+                "settings.antiad.noargs",
                 (event, settings, state) -> {
                     if (state.equalsIgnoreCase("on")) {
                         settings.setAntiAd(true).save();
-                        event.getChannel().sendMessage("Anti-Ad is now on.").queue();
+                        event.getChannel().sendMessage(event.getString("settings.antiad.on")).queue();
                         return;
                     }
 
                     if (state.equalsIgnoreCase("off")) {
                         settings.setAntiAd(false).save();
-                        event.getChannel().sendMessage("Anti-Ad is now off.").queue();
+                        event.getChannel().sendMessage(event.getString("settings.antiad.off")).queue();
                         return;
                     }
 
-                    event.getChannel().sendMessage("Not a valid option.").queue();
+                    event.getChannel().sendMessage(event.getString("settings.antiad.invalid")).queue();
+                }));
+        settings.put("language", new Setting("settings.language.description", null,
+                (event, settings, h) -> {
+                    SelectionDialog.Builder builder = new SelectionDialog.Builder();
+                    LocaleUtils.languages.forEach(language -> builder.addChoices(language.getLeft()));
+                    builder.setEventWaiter(KekBot.waiter);
+                    builder.setUsers(event.getAuthor());
+                    builder.useLooping(true);
+                    builder.setSelectionConsumer((m, i) -> {
+                        settings.setLocale(LocaleUtils.languages.get(i-1).getRight());
+                        event.getClient().setCustomLocale(event.getGuild().getId(), settings.getLocale());
+                        settings.save();
+                        event.getChannel().sendMessage(LocaleUtils.getString("settings.language.set", settings.getLocale(), LocaleUtils.languages.get(i-1).getLeft())).queue();
+                    });
+                    builder.setDefaultEnds("\u23F9", "");
+                    builder.setSelectedEnds("➡", "");
+                    builder.build().display(event.getChannel());
                 }));
     }
 
     @Override
     public void onExecuted(CommandEvent event) throws Throwable {
         if (event.getArgs().length < 1) {
-            final String[] missingArg = {"Here are the available settings you can edit: \n\n"};
+            final String[] missingArg = {event.getString("command.admin.settings.noargs") + "\n\n"};
 
-            settings.forEach((s, setting) -> missingArg[0] += "`" + s + "` - " + setting.description + "\n");
+            settings.forEach((s, setting) -> missingArg[0] += "`" + s + "` - " + event.getString(setting.description) + "\n");
 
             Questionnaire.newQuestionnaire(event).addQuestion(missingArg[0], QuestionType.STRING).execute(r -> editSetting(event, r.getAnswerAsType(0, String.class), Optional.of(r)));
         } else {
@@ -199,11 +218,11 @@ public class SettingsCommand extends Command {
                 String welcomeMessage = settings.getAnnounceSettings().getWelcomeMessage();
                 String farewellMessage = settings.getAnnounceSettings().getFarewellMessage();
                 event.getChannel().sendMessage("`prefix` - " + event.getPrefix() + "\n" +
-                        "`autorole` - " + (autoRole == null ? "No role set." : autoRole.getName()) + "\n" +
-                        "`welcomechannel` - " + (welcomeChannel == null ? "No channel set." : welcomeChannel.getAsMention()) + "\n" +
-                        "`welcomemessage` - " + (welcomeMessage == null ? "No message set." : "`" + welcomeMessage + "`") + "\n" +
-                        "`farewellmessage` - " + (farewellMessage == null ? "No message set." : "`" + farewellMessage + "`") + "\n" +
-                        "`antiad` - " + (settings.isAntiAdEnabled() ? "On" : "Off")).queue();
+                        "`autorole` - " + (autoRole == null ? event.getString("command.admin.settings.norole") : autoRole.getName()) + "\n" +
+                        "`welcomechannel` - " + (welcomeChannel == null ? event.getString("command.admin.settings.nochannel") : welcomeChannel.getAsMention()) + "\n" +
+                        "`welcomemessage` - " + (welcomeMessage == null ? event.getString("command.admin.settings.nomessage") : "`" + welcomeMessage + "`") + "\n" +
+                        "`farewellmessage` - " + (farewellMessage == null ? event.getString("command.admin.settings.nomessage") : "`" + farewellMessage + "`") + "\n" +
+                        "`antiad` - " + (settings.isAntiAdEnabled() ? event.getString("command.admin.settings.on") : event.getString("command.admin.settings.off"))).queue();
                 return;
             }
             editSetting(event, event.getArgs()[0], Optional.empty());
@@ -214,8 +233,13 @@ public class SettingsCommand extends Command {
         if (settings.containsKey(value)) {
             Setting setting = settings.get(value);
             if (event.getArgs().length < 2) {
+                if (setting.missingArgMessage == null) {
+                    setting.action.accept(event, Settings.getSettings(event.getGuild()), null);
+                    return;
+                }
+
                 Questionnaire.newQuestionnaire(event).useRawInput()
-                        .addQuestion(setting.missingArgMessage, QuestionType.STRING)
+                        .addQuestion(event.getString(setting.missingArgMessage), QuestionType.STRING)
                         .execute(r -> setting.action.accept(event, Settings.getSettings(event.getGuild()), r.getAnswerAsType(0, String.class)));
             } else {
                 setting.action.accept(event, Settings.getSettings(event.getGuild()), event.combineArgs(1));

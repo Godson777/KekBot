@@ -2,6 +2,7 @@ package com.godson.kekbot.profile.rewards.lottery;
 
 import com.godson.kekbot.CustomEmote;
 import com.godson.kekbot.KekBot;
+import com.godson.kekbot.LocaleUtils;
 import com.godson.kekbot.profile.Profile;
 import com.godson.kekbot.Utils;
 import javafx.util.Pair;
@@ -50,15 +51,15 @@ public class Lottery {
     }
 
     public String printStats(User gambler, Guild guild) {
-        return "Draw in: **" + (Utils.convertMillisToTime(nextExecutionTime - System.currentTimeMillis())) + "**" +
-                "\nYou can buy a ticket for **" + CustomEmote.printPrice(ticketPrice) + "** with `" + KekBot.getGuildPrefix(guild) + "lottery buy`." +
-                "\nThere is currently **" + CustomEmote.printPrice(pot) + "** in the pot." +
-                "\nYou have **" + getOwnedTickets(gambler) + (getOwnedTickets(gambler) != 1 ? " tickets" : " ticket") + " **.";
+        String locale = KekBot.getCommandClient().getLocale(guild.getId());
+        return LocaleUtils.getString("lottery.stats", locale, "**" + Utils.convertMillisToTime(nextExecutionTime - System.currentTimeMillis(), locale) + "**",
+                "**" + CustomEmote.printPrice(ticketPrice) + "**", "`" + KekBot.getCommandClient().getPrefix(guild.getId()) + "lottery buy`", "**" + CustomEmote.printPrice(pot) + "**",
+                "**" + getOwnedTickets(gambler), LocaleUtils.getPluralString(getOwnedTickets(gambler), "amount.tickets", locale) + "**");
     }
 
-    public String addTicket(User gambler) throws IllegalArgumentException {
+    public String addTicket(User gambler, String locale) throws IllegalArgumentException {
         if (!canUserPurchaseTicket(gambler))
-            return "You've already purchased " + ticketMax + " tickets for this round. Wait until the round is over before you buy more tickets!";
+            return LocaleUtils.getString("lottery.maxpurchased", locale);
 
         Profile profile = Profile.getProfile(gambler);
         if (profile.getTopkeks() >= ticketPrice) {
@@ -67,17 +68,17 @@ public class Lottery {
             profile.save();
             pot += ticketPrice;
             ticketsCount++;
-            return "You have successfully purchased 1 ticket for " + CustomEmote.printPrice(ticketPrice);
-        } else return "You cannot purchase a lottery ticket. Tickets are worth " + CustomEmote.printPrice(ticketPrice) + ", you only have " + CustomEmote.printPrice(profile.getTopkeks()) + ".";
+            return LocaleUtils.getString("lottery.purchasesuccess", locale, 1, LocaleUtils.getString("amount.tickets.single", locale), CustomEmote.printPrice(ticketPrice));
+        } else return LocaleUtils.getString("lottery.nofunds", CustomEmote.printPrice(ticketPrice), CustomEmote.printPrice(profile.getTopkeks()));
     }
 
-    public String addTicket(User gambler, int tickets) throws IllegalArgumentException {
+    public String addTicket(User gambler, int tickets, String locale) throws IllegalArgumentException {
         int ownedTickets = getOwnedTickets(gambler);
         if (tickets > ticketMax - ownedTickets)
             tickets = ticketMax - ownedTickets;
 
         if (!canUserPurchaseTicket(gambler) || tickets == 0)
-            return "You've already purchased " + ticketMax + "tickets for this round. Wait until the round is over before you buy more tickets!";
+            return LocaleUtils.getString("lottery.maxpurchased", locale);
 
         Profile profile = Profile.getProfile(gambler);
         if (profile.getTopkeks() >= ticketPrice*tickets) {
@@ -86,9 +87,9 @@ public class Lottery {
             profile.save();
             pot += ticketPrice*tickets;
             ticketsCount += tickets;
-            if (tickets == 1) return "You have successfully purchased 1 ticket for " + CustomEmote.printPrice(ticketPrice);
-            else return "You have successfully purchased " + tickets + " tickets for " + CustomEmote.printPrice(ticketPrice*tickets);
-        } else return "You cannot purchase " + tickets + " tickets. Tickets are worth " + CustomEmote.printPrice(ticketPrice) + ", " + tickets + " tickets costs a total of " + CustomEmote.printPrice(ticketPrice*tickets) + ", you only have " + CustomEmote.printPrice(profile.getTopkeks()) + ".";
+            if (tickets == 1) return LocaleUtils.getString("lottery.purchasesuccess", locale, 1, LocaleUtils.getString("amount.tickets.single", locale), CustomEmote.printPrice(ticketPrice));
+            else return LocaleUtils.getString("lottery.purchasesuccess", locale, tickets, LocaleUtils.getPluralString(tickets, "amount.tickets", locale), CustomEmote.printPrice(ticketPrice*tickets));
+        } else return LocaleUtils.getString("lottery.nofundsmass", locale, tickets, CustomEmote.printPrice(ticketPrice), tickets, CustomEmote.printPrice(ticketPrice*tickets), CustomEmote.printPrice(profile.getTopkeks()));
     }
 
     private void draw() {
@@ -136,10 +137,10 @@ public class Lottery {
         } else winners.add(0, new Pair<>(user, earned));
     }
 
-    public String listWinners() {
-        if (winners.size() == 0) return "There haven't been any winners yet. Likely because I just got rebooted. Or, because no one's tried to play yet... \uD83D\uDE26";
+    public String listWinners(String locale) {
+        if (winners.size() == 0) return LocaleUtils.getString("lottery.nowinners", locale);
         else {
-            StringBuilder builder = new StringBuilder().append("Here are the last ").append(winners.size()).append(" winners.\n\n");
+            StringBuilder builder = new StringBuilder().append(LocaleUtils.getString("lottery.pastwinners", locale, winners.size())).append(" winners.\n\n");
             for (int i = 0; i < winners.size(); i++) {
                 User user = winners.get(i).getKey();
                 builder.append(i + 1).append(". ")
@@ -165,6 +166,11 @@ public class Lottery {
         timer.purge();
         timer = new Timer();
         initializeTimer();
+    }
+
+    public void emergencyDraw() {
+        ballot.remove(0);
+        forceDraw(false);
     }
 
     private class LotteryTicket {

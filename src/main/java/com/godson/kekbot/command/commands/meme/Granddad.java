@@ -9,6 +9,7 @@ import com.godson.kekbot.command.CommandEvent;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.Random;
 
@@ -23,16 +24,16 @@ public class Granddad extends Command {
 
     @Override
     public void onExecuted(CommandEvent event) {
-        if (new File("resources/granddad").isDirectory()) {
-            File granddads[] = new File("resources/granddad").listFiles();
-            Random random = new Random();
-            int index = random.nextInt(granddads.length);
-            Optional<VoiceChannel> voiceChannel = event.getEvent().getGuild().getVoiceChannels().stream().filter(c -> c.getMembers().contains(event.getEvent().getMember())).findFirst();
-            if (!voiceChannel.isPresent()) {
-                event.getEvent().getChannel().sendMessage(KekBot.respond(Action.GET_IN_VOICE_CHANNEL)).queue();
-            } else {
-                KekBot.player.loadAndMeme(event, granddads[index].getAbsolutePath());
-            }
+        boolean reboot = (Arrays.stream(event.getArgs()).anyMatch(s -> s.equalsIgnoreCase("--reboot")));
+
+        File granddads[] = new File(reboot ? "resources/sound/granddad/reboot" : "resources/sound/granddad").listFiles();
+        Random random = new Random();
+        int index = random.nextInt(granddads.length);
+        Optional<VoiceChannel> voiceChannel = event.getEvent().getGuild().getVoiceChannels().stream().filter(c -> c.getMembers().contains(event.getEvent().getMember())).findFirst();
+        if (!voiceChannel.isPresent()) {
+            event.getEvent().getChannel().sendMessage(KekBot.respond(Action.GET_IN_VOICE_CHANNEL, event.getLocale())).queue();
+        } else {
+            KekBot.player.loadAndMeme(event, granddads[index].getAbsolutePath());
         }
     }
 }

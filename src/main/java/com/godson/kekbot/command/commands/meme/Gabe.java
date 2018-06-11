@@ -9,6 +9,7 @@ import com.godson.kekbot.responses.Action;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.Random;
 
@@ -24,16 +25,16 @@ public class Gabe extends Command {
 
     @Override
     public void onExecuted(CommandEvent event) throws Throwable {
-        if (new File("resources/sound/gabe").isDirectory()) {
-            File gabes[] = new File("resources/sound/gabe").listFiles();
-            Random random = new Random();
-            int index = random.nextInt(gabes.length);
-            Optional<VoiceChannel> voiceChannel = event.getGuild().getVoiceChannels().stream().filter(c -> c.getMembers().contains(event.getMember())).findFirst();
-            if (!voiceChannel.isPresent()) {
-                event.getChannel().sendMessage(KekBot.respond(Action.GET_IN_VOICE_CHANNEL)).queue();
-            } else {
-                KekBot.player.loadAndMeme(event, gabes[index].getAbsolutePath());
-            }
+        boolean reboot = (Arrays.stream(event.getArgs()).anyMatch(s -> s.equalsIgnoreCase("--reboot")));
+
+        File gabes[] = new File(reboot ? "resources/sound/gabe/reboot" : "resources/sound/gabe").listFiles();
+        Random random = new Random();
+        int index = random.nextInt(gabes.length);
+        Optional<VoiceChannel> voiceChannel = event.getGuild().getVoiceChannels().stream().filter(c -> c.getMembers().contains(event.getMember())).findFirst();
+        if (!voiceChannel.isPresent()) {
+            event.getChannel().sendMessage(KekBot.respond(Action.GET_IN_VOICE_CHANNEL, event.getLocale())).queue();
+        } else {
+            KekBot.player.loadAndMeme(event, gabes[index].getAbsolutePath());
         }
     }
 }
