@@ -53,7 +53,7 @@ public class SettingsCommand extends Command {
 
             settings.setPrefix(newPrefix).save();
             event.getClient().setCustomPrefix(event.getGuild().getId(), newPrefix);
-            event.getChannel().sendMessage(event.getString("settings.prefix.success", oldPrefix, newPrefix)).queue();
+            event.getChannel().sendMessage(event.getString("settings.prefix.success", "`" + oldPrefix + "`", "`" + newPrefix + "`")).queue();
         }));
         settings.put("autorole", new Setting("settings.autorole.description",
                 "settings.autorole.noargs",
@@ -70,8 +70,8 @@ public class SettingsCommand extends Command {
                         return;
                     }
                         settings.setAutoRoleID(check.get(0).getId()).save();
-                        event.getChannel().sendMessage(event.getString("settings.autorole.success", check.get(0).getName())).queue();
-                })));
+                        event.getChannel().sendMessage(event.getString("settings.autorole.success", "`" + check.get(0).getName() + "`")).queue();
+                }), "`reset`"));
         settings.put("getrole", new Setting("settings.getrole.description",
                 "settings.getrole.noargs",
                 ((event, settings, role) -> {
@@ -103,7 +103,7 @@ public class SettingsCommand extends Command {
 
                     settings.addFreeRole(check.get(0).getId()).save();
                     event.getChannel().sendMessage(event.getString("settings.getrole.added")).queue();
-                })));
+                }), "`list`"));
         settings.put("welcomechannel", new Setting("settings.welcomechannel.description",
                 "settings.welcomechannel.noargs",
                 (event, settings, channel) -> {
@@ -130,7 +130,7 @@ public class SettingsCommand extends Command {
                     settings.getAnnounceSettings().setWelcomeChannel(wChannel);
                     settings.save();
                     event.getChannel().sendMessage(event.getString("settings.welcomechannel.success", wChannel.getAsMention())).queue();
-                }));
+                }, "`reset`"));
         settings.put("welcomemessage", new Setting("settings.welcomemessage.description",
                 "settings.welcomemessage.noargs",
                 (event, settings, message) -> {
@@ -144,7 +144,7 @@ public class SettingsCommand extends Command {
                     settings.getAnnounceSettings().setWelcomeMessage(message);
                     settings.save();
                     event.getChannel().sendMessage(event.getString("settings.welcomemessage.success")).queue();
-                }));
+                }, "`reset`"));
         settings.put("farewellmessage", new Setting("settings.farewellmessage.description",
                 "settings.farewellmessage.noargs",
                 (event, settings, message) -> {
@@ -158,7 +158,7 @@ public class SettingsCommand extends Command {
                     settings.getAnnounceSettings().setFarewellMessage(message);
                     settings.save();
                     event.getChannel().sendMessage(event.getString("settings.welcomemessage.success")).queue();
-                }));
+                }, "`reset`"));
         settings.put("antiad", new Setting("settings.antiad.description",
                 "settings.antiad.noargs",
                 (event, settings, state) -> {
@@ -175,7 +175,7 @@ public class SettingsCommand extends Command {
                     }
 
                     event.getChannel().sendMessage(event.getString("settings.antiad.invalid")).queue();
-                }));
+                }, "`on`", "`off`"));
         settings.put("language", new Setting("settings.language.description", null,
                 (event, settings, h) -> {
                     SelectionDialog.Builder builder = new SelectionDialog.Builder();
@@ -239,7 +239,7 @@ public class SettingsCommand extends Command {
                 }
 
                 Questionnaire.newQuestionnaire(event).useRawInput()
-                        .addQuestion(event.getString(setting.missingArgMessage), QuestionType.STRING)
+                        .addQuestion(event.getString(setting.missingArgMessage, (Object[]) setting.substitutes), QuestionType.STRING)
                         .execute(r -> setting.action.accept(event, Settings.getSettings(event.getGuild()), r.getAnswerAsType(0, String.class)));
             } else {
                 setting.action.accept(event, Settings.getSettings(event.getGuild()), event.combineArgs(1));
@@ -251,11 +251,13 @@ public class SettingsCommand extends Command {
         private String description;
         private TriConsumer<CommandEvent, Settings, String> action;
         private String missingArgMessage;
+        private String[] substitutes;
 
-        Setting(String description, String missingArgMessage, TriConsumer<CommandEvent, Settings, String> action) {
+        Setting(String description, String missingArgMessage, TriConsumer<CommandEvent, Settings, String> action, String... substitutes) {
             this.description = description;
             this.missingArgMessage = missingArgMessage;
             this.action = action;
+            this.substitutes = substitutes;
         }
     }
 }
