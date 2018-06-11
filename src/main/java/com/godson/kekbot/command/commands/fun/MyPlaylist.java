@@ -2,15 +2,18 @@ package com.godson.kekbot.command.commands.fun;
 
 import com.godson.kekbot.CustomEmote;
 import com.godson.kekbot.KekBot;
+import com.godson.kekbot.LocaleUtils;
 import com.godson.kekbot.Utils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
+import com.godson.kekbot.menu.PagedSelectionMenu;
 import com.godson.kekbot.music.Playlist;
 import com.godson.kekbot.profile.Profile;
 import com.godson.kekbot.questionaire.QuestionType;
 import com.godson.kekbot.questionaire.Questionnaire;
-import org.apache.commons.lang3.StringUtils;
+import com.jagrosh.jdautilities.menu.Paginator;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -29,30 +32,32 @@ public class MyPlaylist extends Command {
     public void onExecuted(CommandEvent event) throws Throwable {
         Profile profile = Profile.getProfile(event.getAuthor());
         Questionnaire.newQuestionnaire(event)
-                .addChoiceQuestion("Welcome to the custom playlist wizard! Here, you can **create**, **remove**, **edit** and **view** your playlists! Remember that you can also say `cancel` at any time to quit." +
-                        (profile.getPlaylists().size() > 0 ? "" : "\nHm, you don't seem to have any playlists to **remove**, **edit**, or **view**... Why not try to **create** one, first?"), "create", "remove", "edit", "view")
-                .withCustomErrorMessage("Hm, that doesn't sound like a valid option... Could you try again?")
+                .addChoiceQuestion(event.getString("command.fun.myplaylist.intro", "**create**", "**remove**", "**edit**", "**view**", "`cancel`") +
+                        (profile.getPlaylists().size() > 0 ? "" : "\n" + event.getString("command.fun.myplaylist.intro.empty", "**remove**", "**edit**", "**view**", "**create**")), "create", "remove", "edit", "view")
+                .withCustomErrorMessage(event.getString("command.fun.myplaylist.invalidchoice"))
                 .withoutRepeats()
+                .includeCancel(false)
                 .execute(results -> {
                     switch (results.getAnswer(0).toString()) {
                         case "create":
                             Questionnaire.newQuestionnaire(results)
-                                    .addQuestion("Great! Now all we need is your new playlist's name. Type it in below, or say `cancel` to quit.", QuestionType.STRING)
+                                    .addQuestion(event.getString("command.fun.myplaylist.create.intro"), QuestionType.STRING)
                                     .execute(results1 -> {
                                         String playlistName = results1.getAnswer(0).toString();
                                         if (profile.getPlaylists().stream().anyMatch(playlist -> playlist.getName().equalsIgnoreCase(playlistName))) {
-                                            event.getChannel().sendMessage(CustomEmote.think() + " Hm, you already have a playlist with that name. Try coming up with something else?").queue();
+                                            event.getChannel().sendMessage(CustomEmote.think() + " " + event.getString("command.fun.myplaylist.create.exists")).queue();
                                             results1.reExecuteWithoutMessage();
                                         } else if (playlistName.equalsIgnoreCase("exit")) {
-                                            event.getChannel().sendMessage("Woah there, you can't name your playlist *that*! That's a reserved word! Sorry fam, but I'mma need you to come up with something else...").queue();
+                                            event.getChannel().sendMessage(event.getString("command.fun.myplaylist.create.invalidname")).queue();
                                             results1.reExecuteWithoutMessage();
                                         } else if (playlistName.length() > 50) {
-                                            event.getChannel().sendMessage("Woah there, that playlist is too long! Could you try to keep it less than 50 characters?").queue();
+                                            event.getChannel().sendMessage(event.getString("command.fun.myplaylist.create.toolong")).queue();
                                             results1.reExecuteWithoutMessage();
                                         } else {
                                             Playlist playlist = new Playlist(playlistName);
                                             Questionnaire.newQuestionnaire(results1)
-                                                    .addQuestion("Hmm, `" + playlistName + "`, eh? Sounds good! Now, all we need are some tracks. All you have to do is get the URL of your favorite YouTube or SoundCloud track, and paste it. Keep pasting URLs as you add them to your playlist. Then, when you're done, say `done`. Make sure you wait for any tracks to be loaded before finishing, otherwise they won't be saved.", QuestionType.STRING)
+                                                    .addQuestion(event.getString("command.fun.myplaylist.create.awaittracks", "`" + playlistName + "`")
+                                                            + event.getString("command.fun.myplaylist.awaittracks", "`done`"), QuestionType.STRING)
                                                     .execute(results2 -> {
                                                         String URL = results2.getAnswer(0).toString();
                                                         if (!URL.equalsIgnoreCase("done")) {
@@ -60,16 +65,16 @@ public class MyPlaylist extends Command {
                                                         } else {
                                                             if (playlist.getTracks().size() > 0) {
                                                                 Questionnaire.newQuestionnaire(results2)
-                                                                        .addYesNoQuestion("Alright! Now that *that's* all set, I gotta ask real quick... Do you want to hide this playlist from your profile card? You'll still be able to queue it whenever, it'll just stay hidden from everyone else who might be looking.")
+                                                                        .addYesNoQuestion(event.getString("command.fun.myplaylist.create.hidequestion"))
                                                                         .execute(results3 -> {
                                                                             if (results3.getAnswerAsType(0, boolean.class)) playlist.setHidden(true);
                                                                             profile.addPlaylist(playlist);
                                                                             profile.save();
-                                                                            event.getChannel().sendMessage("Boom! You've just made a brand spankin' new playlist! You can queue it at any time using `" + event.getPrefix() + "queue playlist " + playlist.getName() + "`!").queue();
+                                                                            event.getChannel().sendMessage(event.getString("command.fun.myplaylist.create.success", "`" + event.getPrefix() + "queue playlist " + playlist.getName() + "`")).queue();
                                                                         });
 
                                                             } else {
-                                                                event.getChannel().sendMessage("You can't finish making your playlist if there are no tracks in it! Try adding some tracks, first! All you have to do is get the URL of your favorite YouTube or SoundCloud track, and paste it. Keep pasting URLs as you add them to your playlist. Then, when you're done, say `done`.").queue();
+                                                                event.getChannel().sendMessage(event.getString("command.fun.myplaylist.create.empty")).queue();
                                                                 results2.reExecuteWithoutMessage();
                                                             }
                                                         }
@@ -79,10 +84,11 @@ public class MyPlaylist extends Command {
                             break;
                         case "remove":
                             if (profile.getPlaylists().size() == 0) {
-                                event.getChannel().sendMessage("Woah there, you don't seem to have any playlists created. You should try to *create* a playlist, first.").queue();
+                                event.getChannel().sendMessage(event.getString("command.fun.myplaylist.noplaylists", "*create*")).queue();
                             } else {
                                 Questionnaire.newQuestionnaire(results)
-                                        .addQuestion("If you know the name of your playlist, type it here. (Case Insensitive)\nIf not, you could also try to *view* your playlists, and then go from there.", QuestionType.STRING)
+                                        .addQuestion(event.getString("command.fun.myplaylist.modify.intro", "*view*"), QuestionType.STRING)
+                                        .includeCancel(false)
                                         .execute(results1 -> {
                                             switch (results1.getAnswer(0).toString()) {
                                                 case "view":
@@ -94,7 +100,7 @@ public class MyPlaylist extends Command {
                                                         Playlist playlist = potentialPlaylist.get();
                                                         confirmDelete(results1, playlist, profile);
                                                     } else {
-                                                        event.getChannel().sendMessage("Hm, there doesn't appear to be a playlist by that name. Try another one?").queue();
+                                                        event.getChannel().sendMessage(event.getString("command.fun.myplaylist.invalidplaylist")).queue();
                                                     }
                                                     break;
                                             }
@@ -103,10 +109,10 @@ public class MyPlaylist extends Command {
                             break;
                         case "edit":
                             if (profile.getPlaylists().size() == 0) {
-                                event.getChannel().sendMessage("Woah there, you don't seem to have any playlists created. You should try to *create* a playlist, first.").queue();
+                                event.getChannel().sendMessage(event.getString("command.fun.myplaylist.noplaylists", "*create*")).queue();
                             } else {
                                 Questionnaire.newQuestionnaire(results)
-                                        .addQuestion("If you know the name of your playlist, type it here. (Case Insensitive)\nIf not, you could also try to *view* your playlists, and then go from there.", QuestionType.STRING)
+                                        .addQuestion(event.getString("command.fun.myplaylist.modify.intro", "*view*"), QuestionType.STRING)
                                         .execute(results1 -> {
                                             switch (results1.getAnswer(0).toString()) {
                                                 case "view":
@@ -118,7 +124,7 @@ public class MyPlaylist extends Command {
                                                         Playlist playlist = potentialPlaylist.get();
                                                         editPlaylist(results1, playlist, profile);
                                                     } else {
-                                                        event.getChannel().sendMessage("Hm, there doesn't appear to be a playlist by that name. Try another one?").queue();
+                                                        event.getChannel().sendMessage(event.getString("command.fun.myplaylist.invalidplaylist")).queue();
                                                     }
                                                     break;
                                             }
@@ -126,7 +132,7 @@ public class MyPlaylist extends Command {
                             }
                             break;
                         case "view":
-                            if (profile.getPlaylists().size() == 0) event.getChannel().sendMessage("Woah there, you don't seem to have any playlists created. You should try to *create* a playlist, first.").queue();
+                            if (profile.getPlaylists().size() == 0) event.getChannel().sendMessage(event.getString("command.fun.myplaylist.noplaylists", "*create*")).queue();
                             else listPlaylists(results, 0, profile);
                             break;
                     }
@@ -136,7 +142,7 @@ public class MyPlaylist extends Command {
     private void listPlaylists(Questionnaire.Results results, int mode, Profile profile) {
         Questionnaire.newQuestionnaire(results)
                 .withoutRepeats()
-                .addYesNoQuestion("Do you want to include your hidden playlists on this list?")
+                .addYesNoQuestion(LocaleUtils.getString("command.fun.myplaylist.view.intro", KekBot.getGuildLocale(results.getGuild())))
                 .execute(results1 -> {
                     List<Playlist> playlists;
                     if (results1.getAnswerAsType(0, boolean.class)) {
@@ -145,203 +151,137 @@ public class MyPlaylist extends Command {
                         playlists = profile.getPlaylists().stream().filter(playlist -> !playlist.isHidden()).collect(Collectors.toList());
                     }
                     List<String> playlistNames = playlists.stream().map(playlist -> "`" + playlist.getName() + "` - (" + Utils.convertMillisToTime(playlist.getTotalLength()) + ")" + (playlist.isHidden() ? " ***(HIDDEN)***" : "")).collect(Collectors.toList());
-                    final int page[] = {0};
-                    String message = "Here are your playlists: \n\n" +
-                            StringUtils.join(playlistNames.subList(page[0] * 15, ((page[0] + 1) * 15 <= playlistNames.size() ? (page[0] + 1) * 15 : playlistNames.size())), "\n") +
-                            "\n" + (playlists.size() > 15 ? "\nTo view the next page, type `next`, or to go back to a previous page, type `back`. (Page " + (page[0] + 1) + "/" + (playlistNames.size() / 15 + 1) + ")\n" : "") +
-                            (mode != 0 ? "Once you've found the name of the playlist you want to " + (mode == 1 ? "remove" : (mode == 2 ? "edit" : "")) + ", type it in. Otherwise... " : "") +
-                            "If you're ready to leave and do something else, type `exit`, or `cancel`.";
-                    Questionnaire.newQuestionnaire(results1)
-                            .withoutRepeats()
-                            .addQuestion(message, QuestionType.STRING)
-                            .execute(results2 -> {
-                                switch (results2.getAnswer(0).toString()) {
-                                    case "exit":
-                                        results2.getChannel().sendMessage("Exited.").queue();
-                                        break;
-                                    case "next":
-                                        if (((page[0] + 1) * 15) > playlists.size()) {
-                                            results2.getChannel().sendMessage("There is no next page!").queue();
-                                            results2.reExecuteWithoutMessage();
-                                        } else {
-                                            ++page[0];
-                                            results.getChannel().sendMessage("Here are your playlists: \n\n" +
-                                                    StringUtils.join(playlistNames.subList(page[0] * 15, ((page[0] + 1) * 15 <= playlistNames.size() ? (page[0] + 1) * 15 : playlistNames.size())), "\n") +
-                                                    "\n" + (playlists.size() > 15 ? "\nTo view the next page, type `next`, or to go back to a previous page, type `back`. (Page " + (page[0] + 1) + "/" + (playlistNames.size() / 15 + 1) + ")\n" : "") +
-                                                    (mode != 0 ? "Once you've found the name of the playlist you want to " + (mode == 1 ? "remove" : (mode == 2 ? "edit" : "")) + ", type it in. Otherwise... " : "") +
-                                                    "If you're ready to leave and do something else, type `exit`, or `cancel`.").queue();
-                                            results2.reExecuteWithoutMessage();
-                                        }
-                                        break;
-                                    case "back":
-                                        if (page[0] - 1 == -1) {
-                                            results2.getChannel().sendMessage("You're already at the beginning!").queue();
-                                            results2.reExecuteWithoutMessage();
-                                        } else {
-                                            --page[0];
-                                            results.getChannel().sendMessage("Here are your playlists: \n\n" +
-                                                    StringUtils.join(playlistNames.subList(page[0] * 15, ((page[0] + 1) * 15 <= playlistNames.size() ? (page[0] + 1) * 15 : playlistNames.size())), "\n") +
-                                                    "\n" + (playlists.size() > 15 ? "\nTo view the next page, type `next`, or to go back to a previous page, type `back`. (Page " + (page[0] + 1) + "/" + (playlistNames.size() / 15 + 1) + ")\n" : "") +
-                                                    (mode != 0 ? "Once you've found the name of the playlist you want to " + (mode == 1 ? "remove" : (mode == 2 ? "edit" : "")) + ", type it in. Otherwise... " : "") +
-                                                    "If you're ready to leave and do something else, type `exit`, or `cancel`.").queue();
-                                            results2.reExecuteWithoutMessage();
-                                        }
-                                        break;
-                                    default:
-                                        switch (mode) {
-                                            case 0:
-                                                results2.getChannel().sendMessage("I'm sorry, I didn't quite catch that, let's try that again...").queue();
-                                                results2.reExecuteWithoutMessage();
-                                                break;
-                                            case 1:
-                                                Optional<Playlist> potentialRemove = profile.getPlaylists().stream().filter(playlist1 -> playlist1.getName().equalsIgnoreCase(results2.getAnswer(0).toString())).findFirst();
-                                                if (potentialRemove.isPresent()) {
-                                                    Playlist playlist = potentialRemove.get();
-                                                    confirmDelete(results2, playlist, profile);
-                                                } else {
-                                                    results2.getChannel().sendMessage("Hm, there doesn't appear to be a playlist by that name. Try another one?").queue();
-                                                    results2.reExecuteWithoutMessage();
-                                                }
-                                                break;
-                                            case 2:
-                                                Optional<Playlist> potentialEdit = profile.getPlaylists().stream().filter(playlist1 -> playlist1.getName().equalsIgnoreCase(results2.getAnswer(0).toString())).findFirst();
-                                                if (potentialEdit.isPresent()) {
-                                                    Playlist playlist = potentialEdit.get();
-                                                    editPlaylist(results2, playlist, profile);
-                                                } else {
-                                                    results2.getChannel().sendMessage("Hm, there doesn't appear to be a playlist by that name. Try another one?").queue();
-                                                    results2.reExecuteWithoutMessage();
-                                                }
-                                        }
-                                }
+                    switch (mode) {
+                        case 0:
+                            Paginator.Builder list = new Paginator.Builder();
+                            list.addItems(playlistNames.toArray(new String[playlistNames.size()]));
+                            list.setUsers(results.getUser());
+                            list.setEventWaiter(KekBot.waiter);
+                            list.waitOnSinglePage(true);
+                            list.showPageNumbers(true);
+                            list.setItemsPerPage(10);
+                            list.setText(LocaleUtils.getString("command.fun.myplaylist.view.list", KekBot.getGuildLocale(results.getGuild())));
+                            KekBot.getCommandClient().registerQuestionnaire(results.getChannel().getId(), results.getUser().getId());
+                            list.setFinalAction(m -> {
+                                KekBot.getCommandClient().unregisterQuestionnaire(results.getChannel().getId(), results.getUser().getId());
+                                m.clearReactions().queue();
                             });
+                            list.build().display(results.getChannel());
+                            break;
+                        case 1:
+                        case 2:
+                            PagedSelectionMenu.Builder dList = new PagedSelectionMenu.Builder();
+                            dList.addChoices(playlistNames.toArray(new String[playlistNames.size()]));
+                            dList.setUsers(results.getUser());
+                            dList.setEventWaiter(KekBot.waiter);
+                            dList.showPageNumbers(true);
+                            dList.setText(LocaleUtils.getString("command.fun.myplaylist.view.list", KekBot.getGuildLocale(results.getGuild())));
+                            KekBot.getCommandClient().registerQuestionnaire(results.getChannel().getId(), results.getUser().getId());
+                            dList.setFinalAction(m -> {
+                                KekBot.getCommandClient().unregisterQuestionnaire(results.getChannel().getId(), results.getUser().getId());
+                                m.clearReactions().queue();
+                            });
+                            dList.setItemsPerPage(10);
+                            dList.setSelectionAction((m, i) -> {
+                                m.clearReactions().queue();
+                                if (mode == 1) confirmDelete(results, playlists.get(i-1), profile);
+                                else editPlaylist(results, playlists.get(i-1), profile);
+                            });
+                            dList.build().display(results.getChannel());
+                    }
                 });
     }
 
     private void confirmDelete(Questionnaire.Results results, Playlist playlist, Profile profile) {
         Questionnaire.newQuestionnaire(results)
-                .addYesNoQuestion("Are you sure you want to delete your playlist `" + playlist.getName() + "`?")
+                .addYesNoQuestion(LocaleUtils.getString("command.fun.myplaylist.remove.confirm", KekBot.getGuildLocale(results.getGuild()), "`" + playlist.getName() + "`"))
                 .execute(results1 -> {
                     if (results1.getAnswerAsType(0, boolean.class)) {
                         profile.removePlaylist(playlist);
                         profile.save();
-                        results1.getChannel().sendMessage("Done. That playlist is no longer with us... ☠").queue();
-                    } else results1.getChannel().sendMessage("Fair enough, that playlist seems pretty important, I'm glad you didn't remove it.").queue();
+                        results1.getChannel().sendMessage(LocaleUtils.getString("command.fun.myplaylist.remove.success", KekBot.getGuildLocale(results.getGuild()))).queue();
+                    } else results1.getChannel().sendMessage(LocaleUtils.getString("command.fun.myplaylist.remove.cancelled", KekBot.getGuildLocale(results.getGuild()))).queue();
                 });
     }
 
     private void editPlaylist(Questionnaire.Results results, Playlist playlist, Profile profile) {
         List<Playlist.KAudioTrackInfo> tracks = playlist.getTracks();
-        List<String> trackNames = tracks.stream().map(track -> (tracks.indexOf(track) + 1) + ". `" + track.title + "` - (" + Utils.convertMillisToTime(track.length) + ")").collect(Collectors.toList());
-        final int[] page = {0};
-        String message = "Alright, I found these tracks lying around in your playlist: \n\n" +
-                StringUtils.join(trackNames.subList(page[0] * 15, ((page[0] + 1) * 15 <= trackNames.size() ? (page[0] + 1) * 15 : trackNames.size())), "\n") +
-                "\n" + (tracks.size() > 15 ? "\nTo view the next page, type `next`, or to go back to a previous page, type `back`. (Page " + (page[0] + 1) + "/" + (trackNames.size() / 15 + 1) + ")" : "") +
-                "\nOnce you've found the track you want to edit, type it's number in, or if you want to add tracks, say `add`. Otherwise, if you're ready to leave and do something else, type `exit`, or `cancel`.";
-        Questionnaire.newQuestionnaire(results)
-                .addQuestion(message, QuestionType.STRING)
-                .withoutRepeats()
-                .execute(results1 -> {
-                    switch (results1.getAnswer(0).toString()) {
-                        case "exit":
-                            results1.getChannel().sendMessage("Exited.").queue();
-                            break;
-                        case "next":
-                            if (((page[0] + 1) * 15) > tracks.size()) {
-                                results1.getChannel().sendMessage("There is no next page!").queue();
-                                results1.reExecuteWithoutMessage();
+        List<String> trackNames = new ArrayList<>();
+        trackNames.add("Add new track");
+        trackNames.addAll(tracks.stream().map(track -> "`" + track.title + "` - (" + Utils.convertMillisToTime(track.length) + ")").collect(Collectors.toList()));
+        PagedSelectionMenu.Builder dList = new PagedSelectionMenu.Builder();
+        dList.addChoices(trackNames.toArray(new String[trackNames.size()]));
+        dList.setUsers(results.getUser());
+        dList.setEventWaiter(KekBot.waiter);
+        dList.showPageNumbers(true);
+        dList.setText(LocaleUtils.getString("command.fun.myplaylist.edit.list", KekBot.getGuildLocale(results.getGuild())));
+        KekBot.getCommandClient().registerQuestionnaire(results.getChannel().getId(), results.getUser().getId());
+        dList.setFinalAction(m -> {
+            KekBot.getCommandClient().unregisterQuestionnaire(results.getChannel().getId(), results.getUser().getId());
+            m.clearReactions().queue();
+        });
+        dList.setItemsPerPage(10);
+        dList.setSelectionAction((m, i) -> {
+            m.clearReactions().queue();
+            if (i-1 == 0) {
+                Questionnaire.newQuestionnaire(results)
+                        .addQuestion(LocaleUtils.getString("command.fun.myplaylist.edit.add", KekBot.getGuildLocale(results.getGuild()))
+                                + LocaleUtils.getString("command.fun.myplaylist.awaittracks", KekBot.getGuildLocale(results.getGuild()), "`done`"), QuestionType.STRING)
+                        .execute(results2 -> {
+                            String URL = results2.getAnswer(0).toString();
+                            if (!URL.equalsIgnoreCase("done")) {
+                                KekBot.player.addToPlaylist(results2, URL, playlist);
                             } else {
-                                ++page[0];
-                                results.getChannel().sendMessage("Next page eh? Well, I found these tracks lying around too... \n\n" +
-                                        StringUtils.join(trackNames.subList(page[0] * 15, ((page[0] + 1) * 15 <= trackNames.size() ? (page[0] + 1) * 15 : trackNames.size())), "\n") +
-                                        "\n" + (tracks.size() > 15 ? "\nTo view the next page, type `next`, or to go back to a previous page, type `back`. (Page " + (page[0] + 1) + "/" + (trackNames.size() / 15 + 1) + ")" : "") +
-                                        "\nOnce you've found the track you want to edit, type it's number in, or if you want to add tracks, say `add`. Otherwise, if you're ready to leave and do something else, type `exit`, or `cancel`.").queue();
-                                results1.reExecuteWithoutMessage();
-                            }
-                            break;
-                        case "back":
-                            if (page[0] - 1 == -1) {
-                                results1.getChannel().sendMessage("You're already at the beginning!").queue();
-                                results1.reExecuteWithoutMessage();
-                            } else {
-                                --page[0];
-                                results.getChannel().sendMessage("Retracing our steps, are we? Alright, here's what I dug up earlier: \n\n" +
-                                        StringUtils.join(trackNames.subList(page[0] * 15, ((page[0] + 1) * 15 <= trackNames.size() ? (page[0] + 1) * 15 : trackNames.size())), "\n") +
-                                        "\n" + (tracks.size() > 15 ? "\nTo view the next page, type `next`, or to go back to a previous page, type `back`. (Page " + (page[0] + 1) + "/" + (trackNames.size() / 15 + 1) + ")" : "") +
-                                        "\nOnce you've found the track you want to edit, type it's number in, or if you want to add tracks, say `add`. Otherwise, if you're ready to leave and do something else, type `exit`, or `cancel`.").queue();
-                                results1.reExecuteWithoutMessage();
-                            }
-                            break;
-                        case "add":
-                            Questionnaire.newQuestionnaire(results1)
-                                    .addQuestion("Alright, let's give this playlist some more tracks to hold! All you have to do is get the URL of your favorite YouTube or SoundCloud track, and paste it. Keep pasting URLs as you add them to your playlist. Then, when you're done, say `done`. Make sure you wait for any tracks to be loaded before finishing, otherwise they won't be saved.", QuestionType.STRING)
-                                    .execute(results2 -> {
-                                        String URL = results2.getAnswer(0).toString();
-                                        if (!URL.equalsIgnoreCase("done")) {
-                                            KekBot.player.addToPlaylist(results2, URL, playlist);
-                                        } else {
-                                            profile.save();
-                                            Questionnaire.newQuestionnaire(results2)
-                                                    .addYesNoQuestion("Done, I've saved your playlist. Now that we've covered that, do you want to go back to editing your playlist?")
-                                                    .execute(results3 -> {
-                                                        if (results3.getAnswerAsType(0, boolean.class)) {
-                                                            editPlaylist(results3, playlist, profile);
-                                                        } else {
-                                                            results3.getChannel().sendMessage("Exited.").queue();
-                                                        }
-                                                    });
-                                        }
-                                    });
-                            break;
-                        default:
-                            int trackNumber;
-                            try {
-                                trackNumber = Integer.valueOf(results1.getAnswerAsType(0, String.class)) - 1;
-                            } catch (NumberFormatException e) {
-                                results1.getChannel().sendMessage("That doesn't appear to be a valid option... Could you try again?").queue();
-                                results1.reExecuteWithoutMessage();
-                                return;
-                            }
-                            if (trackNumber < playlist.getTracks().size() && trackNumber >= 0) {
-                                Playlist.KAudioTrackInfo track = playlist.getTracks().get(trackNumber);
-                                Questionnaire.newQuestionnaire(results1)
-                                        .addYesNoQuestion("Because moving and replacing tracks has not been implemented yet, all you can do right now is remove.\nDo you want to remove this track?")
-                                        .execute(results2 -> {
-                                            if (results2.getAnswerAsType(0, boolean.class)) {
-                                                playlist.removeTrack(track);
-                                                profile.save();
-                                                if (tracks.size() > 0) {
-                                                    Questionnaire.newQuestionnaire(results2)
-                                                            .addYesNoQuestion("Alright. That track is gone. Do you want to to back to editing your playlist?")
-                                                            .execute(results3 -> {
-                                                                if (results3.getAnswerAsType(0, boolean.class)) {
-                                                                    editPlaylist(results3, playlist, profile);
-                                                                } else {
-                                                                    results3.getChannel().sendMessage("Exited.").queue();
-                                                                }
-                                                            });
-                                                } else {
-                                                    profile.removePlaylist(playlist);
-                                                    profile.save();
-                                                    results2.getChannel().sendMessage("Because you deleted all the tracks in this playlist, the playlist has been removed. Exited.").queue();
-                                                }
+                                profile.save();
+                                Questionnaire.newQuestionnaire(results2)
+                                        .addYesNoQuestion(LocaleUtils.getString("command.fun.myplaylist.edit.success", KekBot.getGuildLocale(results.getGuild())))
+                                        .execute(results3 -> {
+                                            if (results3.getAnswerAsType(0, boolean.class)) {
+                                                editPlaylist(results3, playlist, profile);
                                             } else {
-                                                Questionnaire.newQuestionnaire(results2)
-                                                        .addYesNoQuestion("Alright, I've left the track alone. Do you want to to back to editing your playlist?")
-                                                        .execute(results3 -> {
-                                                            if (results3.getAnswerAsType(0, boolean.class)) {
-                                                                editPlaylist(results3, playlist, profile);
-                                                            } else {
-                                                                results3.getChannel().sendMessage("Exited.").queue();
-                                                            }
-                                                        });
+                                                results3.getChannel().sendMessage(LocaleUtils.getString("command.fun.myplaylist.exited", KekBot.getGuildLocale(results.getGuild()))).queue();
                                             }
                                         });
-                            } else {
-                                results1.getChannel().sendMessage("There's no track in that position. Try another one.").queue();
-                                results1.reExecuteWithoutMessage();
                             }
-                    }
-                });
+                        });
+            } else {
+                int trackNumber = i - 2;
+                Playlist.KAudioTrackInfo track = playlist.getTracks().get(trackNumber);
+                Questionnaire.newQuestionnaire(results)
+                        .addYesNoQuestion(LocaleUtils.getString("command.fun.myplaylist.edit.remove.intro", KekBot.getGuildLocale(results.getGuild())))
+                        .execute(results1 -> {
+                            if (results1.getAnswerAsType(0, boolean.class)) {
+                                playlist.removeTrack(track);
+                                profile.save();
+                                if (tracks.size() > 0) {
+                                    Questionnaire.newQuestionnaire(results1)
+                                            .addYesNoQuestion(LocaleUtils.getString("command.fun.myplaylist.edit.remove.syccess", KekBot.getGuildLocale(results.getGuild())))
+                                            .execute(results2 -> {
+                                                if (results2.getAnswerAsType(0, boolean.class)) {
+                                                    editPlaylist(results2, playlist, profile);
+                                                } else {
+                                                    results2.getChannel().sendMessage(LocaleUtils.getString("command.fun.myplaylist.exited", KekBot.getGuildLocale(results.getGuild()))).queue();
+                                                }
+                                            });
+                                } else {
+                                    profile.removePlaylist(playlist);
+                                    profile.save();
+                                    results1.getChannel().sendMessage(LocaleUtils.getString("command.fun.myplaylist.edit.remove.empty", KekBot.getGuildLocale(results.getGuild()))).queue();
+                                }
+                            } else {
+                                Questionnaire.newQuestionnaire(results1)
+                                        .addYesNoQuestion(LocaleUtils.getString("command.fun.myplaylist.edit.remove.cancelled", KekBot.getGuildLocale(results.getGuild())))
+                                        .execute(results2 -> {
+                                            if (results2.getAnswerAsType(0, boolean.class)) {
+                                                editPlaylist(results2, playlist, profile);
+                                            } else {
+                                                results2.getChannel().sendMessage(LocaleUtils.getString("command.fun.myplaylist.exited", KekBot.getGuildLocale(results.getGuild()))).queue();
+                                            }
+                                        });
+                            }
+                        });
+            }
+        });
+        dList.build().display(results.getChannel());
     }
 }

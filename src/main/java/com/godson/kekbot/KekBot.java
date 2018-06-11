@@ -34,9 +34,11 @@ import me.duncte123.weebJava.models.WeebApi;
 import me.duncte123.weebJava.types.TokenType;
 import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.bot.sharding.ShardManager;
+import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Icon;
 import org.apache.commons.lang3.StringUtils;
+import org.discordbots.api.client.DiscordBotListAPI;
 
 import javax.imageio.ImageIO;
 import javax.security.auth.login.LoginException;
@@ -45,6 +47,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class KekBot {
     //Seting configs, and resources.
@@ -63,6 +66,7 @@ public class KekBot {
     public static Icon pfp;
     public static boolean dev;
     public static WeebApi weebApi = new WeebApiBuilder(TokenType.WOLKETOKENS, "KekBot/1.5.1/BETA").setToken(Config.getConfig().getWeebToken()).build();
+    public static DiscordBotListAPI dbl;
 
 
     //ALL THE MANAGERS.
@@ -92,6 +96,10 @@ public class KekBot {
     public static void main(String[] args) throws LoginException {
         boolean beta = false;
         boolean dev = false;
+
+        if (Config.getConfig().getdBotsListToken() != null) dbl = new DiscordBotListAPI.Builder().token(Config.getConfig().getdBotsListToken()).build();
+        else dbl = null;
+
         for (String arg : args) {
             if (arg.equalsIgnoreCase("--beta")) beta = true;
             if (arg.equalsIgnoreCase("--dev") && !beta) {
@@ -165,7 +173,7 @@ public class KekBot {
             client.addCommand(new Roll());
             client.addCommand(new ProfileCommand());
             client.addCommand(new Pick());
-            client.addCommand(new RIP());
+            //client.addCommand(new RIP());
             client.addCommand(new Quote());
             client.addCommand(new UDCommand());
             client.addCommand(new ShopCommand());
@@ -251,6 +259,7 @@ public class KekBot {
             //Bot Owner and Bot Admin commands.
             client.addCommand(new Responses());
             client.addCommand(new BotAdmin());
+            client.addCommand(new BotMod());
             client.addCommand(new AddGame());
             client.addCommand(new Shutdown());
             client.addCommand(new Patreon());
@@ -258,6 +267,7 @@ public class KekBot {
             client.addCommand(new Eval());
             client.addCommand(new Tweet());
             client.addCommand(new Takeover(takeoverManager));
+            client.addCommand(new BlockUser());
 
 
             jda = new DefaultShardManagerBuilder().setToken(token).addEventListeners(waiter, client, gamesManager, listener, player).setShardsTotal(shards).build();
@@ -361,10 +371,17 @@ public class KekBot {
         jda.removeEventListener(client);
         KekBot.player.shutdown(reason);
         KekBot.gamesManager.shutdown(reason);
-        lottery.forceDraw(false);
+        lottery.emergencyDraw();
         listener.shutdown();
         if (twitterManager != null) twitterManager.shutdown(reason);
         waiter.shutdown();
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                for (JDA jda : KekBot.jda.getShards()) jda.shutdown();
+            }
+        }, TimeUnit.SECONDS.toMillis(5));
+
     }
 
 }

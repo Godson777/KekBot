@@ -24,7 +24,7 @@ public class Byemom extends Command {
     @Override
     public void onExecuted(CommandEvent event) {
         if (event.getArgs().length < 1) {
-            event.getChannel().sendMessage("You must supply some text for this command!").queue();
+            event.getChannel().sendMessage(event.getString("command.meme.byemom.noargs")).queue();
             return;
         }
 

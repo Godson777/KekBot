@@ -36,7 +36,7 @@ public class Help extends Command {
     }
 
     private void sendHelp(CommandEvent event) {
-        List<Category> categories = event.getClient().getCommands().stream().map(Command::getCategory).distinct().sorted(Comparator.comparing(Category::getName)).filter(Objects::nonNull).collect(Collectors.toList());
+        List<Category> categories = event.getClient().getCommands().stream().map(Command::getCategory).distinct().sorted(Comparator.comparing(Category::getName)).collect(Collectors.toList());
         EmbedPaginator.Builder builder = new EmbedPaginator.Builder();
         builder.addUsers(event.getAuthor());
         builder.setEventWaiter(KekBot.waiter);
@@ -77,13 +77,14 @@ public class Help extends Command {
 
         if (found) {
             event.getChannel().sendMessage(getCommandHelp(event, command.get())).queue();
-        } else event.getChannel().sendMessage("Command not found.").queue();
+        } else event.getChannel().sendMessage(event.getString("command.general.help.commandnotfound")).queue();
     }
 
     private MessageEmbed getCommandHelp(CommandEvent event, Command command) {
         EmbedBuilder builder = new EmbedBuilder();
         builder.addField("Command:", command.getName(), true);
         builder.addField("Category:", command.getCategory().getName(), true);
+        builder.addField("Aliases:", StringUtils.join(command.getAliases(), ", "), false);
         builder.addField("Description:", command.getDescription(), false);
         if (command.getExtendedDescription() != null && command.getExDescriptionPosition().equals(ExtendedPosition.BEFORE))
             builder.addField("", command.getExtendedDescription().replaceAll("\\{p}", Matcher.quoteReplacement(event.getPrefix())), false);

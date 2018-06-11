@@ -32,7 +32,7 @@ public class PollManager {
                     for (int i = 0; i < poll.getOptions().length; i++) {
                         builder.append("**").append(poll.getOptions()[i]).append(":** ").append(poll.getVotes()[i]).append("\n");
                     }
-                    channel.sendMessage("Time's up! Let's see the results...\n\n" + builder.toString()).queue();
+                    channel.sendMessage(event.getString("poll.finished") + "\n\n" + builder.toString()).queue();
                     polls.remove(guild);
                     pollTriggers.remove(guild);
                 }

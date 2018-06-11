@@ -50,8 +50,7 @@ public class Takeover extends Command {
                     return;
                 }
                 try {
-                    if (manager.startTakeover(event.combineArgs(1))) event.getChannel().sendMessage("Takeover started.").queue();
-                    else event.getChannel().sendMessage("Failed to start takeover.").queue();
+                    event.getChannel().sendMessage(manager.startTakeover(event.combineArgs(1))).queue();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -295,7 +294,7 @@ public class Takeover extends Command {
             //Save the image as a file, and set the takeover's file name.
             String avaFile = FilenameUtils.getName(image.getPath());
             ImageIO.write(check, "png", new File("takeovers/" + takeover.getName() + "/" + avaFile));
-            if (takeover.getAvaFile() != null) new File("takeovers/" + takeover.getName() + "/" + avaFile).delete();
+            if (takeover.getAvaFile() != null) new File("takeovers/" + takeover.getName() + "/" + takeover.getAvaFile()).delete();
             takeover.setAvaFile(avaFile);
         } catch (MalformedURLException | UnknownHostException | IllegalArgumentException | FileNotFoundException e) {
             event.getChannel().sendMessage("`" + url + "`" + " is not a valid URL.").queue();
@@ -352,12 +351,16 @@ public class Takeover extends Command {
 
     private void setTakeoverImage(CommandEvent event, TakeoverManager.Takeover takeover) {
         Questionnaire.newQuestionnaire(event)
-                .addQuestion("Send image file to use for avatar.", QuestionType.STRING)
+                .addQuestion("Send image file to use for avatar. (Or say `default` for default image.)", QuestionType.STRING)
                 .execute(results -> {
                     //Store the URL for now.
                     String url = results.getAnswerAsType(0, String.class);
 
-                    if (setImage(event, takeover, results, url)) return;
+                    if (url.equalsIgnoreCase("default")) {
+                        takeover.setAvaFile("default");
+                    } else {
+                        if (setImage(event, takeover, results, url)) return;
+                    }
 
                     takeover.save();
                     setTakeoverGames(event, takeover);
@@ -366,9 +369,14 @@ public class Takeover extends Command {
 
     private void setTakeoverGames(CommandEvent event, TakeoverManager.Takeover takeover) {
         Questionnaire.newQuestionnaire(event)
-                .addQuestion("Enter a playing status.", QuestionType.STRING)
+                .addQuestion("Enter a playing status. (Or say `default` for default list of games.)", QuestionType.STRING)
                 .execute(results -> {
                     //Add the "game", then prompt if we want to add another.
+                    if (results.getAnswerAsType(0, String.class).equalsIgnoreCase("default")) {
+                        setTakeoverResponses(event, takeover);
+                        return;
+                    }
+
                     takeover.getGames().add(results.getAnswerAsType(0, String.class));
                     Questionnaire.newQuestionnaire(results)
                             .addYesNoQuestion("Done. Add another?")

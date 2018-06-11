@@ -62,7 +62,7 @@ public class Role extends Command {
                         if (Utils.checkHierarchy(role, event.getMember())) {
                             if (Utils.checkHierarchy(role, event.getSelfMember())) {
                                 event.getGuild().getController().addRolesToMember(member, role).reason("Role Given by: " + event.getAuthor().getName() + "#" + event.getAuthor().getDiscriminator() + " (" + event.getAuthor().getId() + ")").queue();
-                                event.getChannel().sendMessage(KekBot.respond(Action.ROLE_ADDED, event.getMentionedUsers().get(0).getName() + "#" + event.getMentionedUsers().get(0).getDiscriminator())).queue();
+                                event.getChannel().sendMessage(KekBot.respond(Action.ROLE_ADDED, event.getLocale(), event.getMentionedUsers().get(0).getName() + "#" + event.getMentionedUsers().get(0).getDiscriminator())).queue();
                             } else
                                 event.getChannel().sendMessage(LocaleUtils.getString("command.admin.role.add.hierarchyboterror", event.getLocale())).queue();
                         } else
@@ -94,7 +94,7 @@ public class Role extends Command {
                         }
                     }
                     if (success.size() != 0) {
-                        event.getChannel().sendMessage(KekBot.respond(Action.ROLE_ADDED, StringUtils.join(success, ", ")) +
+                        event.getChannel().sendMessage(KekBot.respond(Action.ROLE_ADDED, event.getLocale(), StringUtils.join(success, ", ")) +
                                 (exist.size() != 0 ? LocaleUtils.getString("command.admin.role.add.mass.exceptions", event.getLocale(), exist.size() + (exist.size() == 1 ? "user" : "users"), StringUtils.join(exist, ", ")) : "")).queue();
                     } else {
                         event.getChannel().sendMessage(LocaleUtils.getString("command.admin.role.add.mass.fail", event.getLocale())).queue();
@@ -128,7 +128,7 @@ public class Role extends Command {
                         if (Utils.checkHierarchy(role, event.getMember())) {
                             if (Utils.checkHierarchy(role, event.getSelfMember())) {
                                 event.getGuild().getController().removeRolesFromMember(member, event.getGuild().getRolesByName(args[0], true).get(0)).reason("Role Removed by: " + event.getAuthor().getName() + "#" + event.getAuthor().getDiscriminator() + " (" + event.getAuthor().getId() + ")").queue();
-                                event.getChannel().sendMessage(KekBot.respond(Action.ROLE_TAKEN, member.getUser().getName() + "#" + member.getUser().getDiscriminator())).queue();
+                                event.getChannel().sendMessage(KekBot.respond(Action.ROLE_TAKEN, event.getLocale(), member.getUser().getName() + "#" + member.getUser().getDiscriminator())).queue();
                             } else
                                 event.getChannel().sendMessage(LocaleUtils.getString("command.admin.role.remove.hierarchyboterror", event.getLocale())).queue();
                         } else
@@ -165,7 +165,7 @@ public class Role extends Command {
                     }
 
                     if (success.size() != 0) {
-                        event.getChannel().sendMessage(KekBot.respond(Action.ROLE_TAKEN, StringUtils.join(success, ", ")) +
+                        event.getChannel().sendMessage(KekBot.respond(Action.ROLE_TAKEN, event.getLocale(), StringUtils.join(success, ", ")) +
                                 (exist.size() != 0 ? LocaleUtils.getString("command.admin.role.remove.mass.exceptions", event.getLocale(), exist.size() + (exist.size() == 1 ? "user" : "users"), StringUtils.join(exist, ", ")) : "")).queue();
                     } else {
                         event.getChannel().sendMessage(LocaleUtils.getString("command.admin.role.remove.mass.fail", event.getLocale())).queue();

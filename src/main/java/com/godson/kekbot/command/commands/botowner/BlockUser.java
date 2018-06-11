@@ -36,7 +36,7 @@ public class BlockUser extends Command {
                             event.getChannel().sendMessage(user.getName() + " was added to the blacklist under type " + type + ".").queue();
                         }
                     } catch (NumberFormatException e) {
-                        event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, "`" + args[1] + "`")).queue();
+                        event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getLocale(), "`" + args[1] + "`")).queue();
                     }
                 } else event.getChannel().sendMessage("No block type specified.").queue();
             } else {

@@ -58,6 +58,11 @@ public abstract class Command {
             return;
         }
 
+        if (commandPermission == CommandPermission.MOD && !(event.isBotMod())) {
+            terminate(event, "Unfortunately, only a bot mod can use this command.");
+            return;
+        }
+
         if (category != null && !category.test(event)) {
             terminate(event, category.getFailMessage());
             return;
@@ -290,7 +295,7 @@ public abstract class Command {
     }
 
     protected enum CommandPermission {
-        USER, ADMIN, OWNER;
+        USER, MOD, ADMIN, OWNER;
 
         CommandPermission() {};
     }

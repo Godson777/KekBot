@@ -2,6 +2,7 @@ package com.godson.kekbot.games;
 
 import com.godson.kekbot.CustomEmote;
 import com.godson.kekbot.KekBot;
+import com.godson.kekbot.LocaleUtils;
 import com.godson.kekbot.profile.Profile;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -309,5 +310,9 @@ public abstract class Game {
 
     public boolean isTranslatable() {
         return isTranslatable;
+    }
+
+    public String getString(String unlocalizedMessage, Object... objects) {
+        return LocaleUtils.getString(unlocalizedMessage, KekBot.getCommandClient().getLocale(channel.getGuild().getId()), objects);
     }
 }

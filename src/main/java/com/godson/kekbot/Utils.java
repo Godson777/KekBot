@@ -249,12 +249,18 @@ public class Utils {
                 (seconds > 0 ? (seconds > 9 ? seconds : "0" + seconds) : "00");
     }
 
+
+    public static String convertMillisToTime(long millis) {
+        return convertMillisToTime(millis, KekBot.getCommandClient().getDefaultLocale());
+    }
+
     /**
      * Converts milliseconds to a "Time" format. (Example, 1 Day, 20 Hours, 10 minutes, and 5 Seconds.)
      * @param millis The milliseconds to convert.
+     * @param locale The locale to translate into.
      * @return The converted "Time" format.
      */
-    public static String convertMillisToTime(long millis) {
+    public static String convertMillisToTime(long millis, String locale) {
         long days = TimeUnit.MILLISECONDS.toDays(millis);
         long hours = TimeUnit.MILLISECONDS.toHours(millis) -
                 TimeUnit.DAYS.toHours(TimeUnit.MILLISECONDS.toDays(millis));
@@ -262,9 +268,10 @@ public class Utils {
                 TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis));
         long seconds = TimeUnit.MILLISECONDS.toSeconds(millis) -
                 TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis));
-        return (days != 0 ? days + (days > 1 ? " Days, " : " Day, ") : "") +
-                (hours != 0 ? hours + (hours > 1 ? " Hours, " : " Hour, ") : "") + minutes +
-                (minutes != 1 ? " Minutes and " : " Minute and ") + seconds + (seconds != 1 ? " Seconds." : " Second.");
+        return (days != 0 ? days + " " + LocaleUtils.getPluralString(days, "amount.time.days", locale) + ", " : "")
+                + (hours != 0 ? hours + " " + LocaleUtils.getPluralString(hours, "amount.time.hours", locale) + ", " : "") +
+                minutes + " " + LocaleUtils.getPluralString(minutes, "amount.time.minutes", locale) + " "
+                + seconds + " " + LocaleUtils.getPluralString(hours, "amount.time.seconds", locale) + "." ;
     }
 
     /**

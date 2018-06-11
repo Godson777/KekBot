@@ -11,6 +11,7 @@ public class Kirb extends Command {
 
     public Kirb() {
         name = "kirb";
+        aliases = new String[]{"poyo"};
         description = "POYO";
         usage.add("kirb");
         category = CommandCategories.meme;

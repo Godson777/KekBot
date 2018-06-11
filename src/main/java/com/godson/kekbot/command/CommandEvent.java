@@ -50,6 +50,10 @@ public class CommandEvent {
         return isBotOwner() || client.getBotAdmins().contains(event.getAuthor().getId());
     }
 
+    public boolean isBotMod() {
+        return isBotOwner() || isBotAdmin() || client.getBotMods().contains(event.getAuthor().getId());
+    }
+
     public ChannelType getChannelType() {
         return event.getChannelType();
     }
@@ -104,6 +108,10 @@ public class CommandEvent {
 
     public String getString(String unlocalizedMessage, Object... objects) {
         return LocaleUtils.getString(unlocalizedMessage, getLocale(), objects);
+    }
+
+    public String getPluralString(long amount, String unlocalizedMessage, Object... objects) {
+        return LocaleUtils.getPluralString(amount, unlocalizedMessage, getLocale(), objects);
     }
 
     /**

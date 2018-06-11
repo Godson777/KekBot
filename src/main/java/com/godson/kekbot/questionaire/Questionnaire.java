@@ -1,6 +1,7 @@
 package com.godson.kekbot.questionaire;
 
 import com.godson.kekbot.KekBot;
+import com.godson.kekbot.LocaleUtils;
 import com.godson.kekbot.command.CommandEvent;
 import com.google.gson.internal.Primitives;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
@@ -34,6 +35,7 @@ public class Questionnaire {
     private final Guild guild;
     private final TextChannel channel;
     private final User user;
+    private final String locale;
 
     //Timeout Stuff:
     private long timeout = 1;
@@ -65,24 +67,28 @@ public class Questionnaire {
         this.guild = event.getGuild();
         this.channel = event.getTextChannel();
         this.user = event.getAuthor();
+        this.locale = event.getLocale();
     }
 
     private Questionnaire(MessageReceivedEvent event) {
         this.guild = event.getGuild();
         this.channel = event.getTextChannel();
         this.user = event.getAuthor();
+        this.locale = KekBot.getCommandClient().getLocale(guild.getId());
     }
 
     private Questionnaire(Guild guild, TextChannel channel, User user) {
         this.guild = guild;
         this.channel = channel;
         this.user = user;
+        this.locale = KekBot.getCommandClient().getLocale(guild.getId());
     }
 
     private Questionnaire(Results results) {
         this.guild = results.getGuild();
         this.channel = results.getChannel();
         this.user = results.getUser();
+        this.locale = KekBot.getCommandClient().getLocale(guild.getId());
     }
 
     public Questionnaire withoutRepeats() {
@@ -160,7 +166,7 @@ public class Questionnaire {
 
     private void execute(int i) {
         Question question = questions.get(i);
-        if (!skipQuestionMessage) channel.sendMessage(question.getMessage() + (includeCancel ? " (Or say `cancel` to exit.)" : "")).queue();
+        if (!skipQuestionMessage) channel.sendMessage(question.getMessage() + (includeCancel ? " " + LocaleUtils.getString("questionnaire.cancelmessage", locale, "`" + "cancel" + "`") : "")).queue();
         //here comes some crazy shit
         waiter.waitForEvent(Event.class, e -> {
             if (e instanceof GuildMessageReceivedEvent)
@@ -170,9 +176,9 @@ public class Questionnaire {
         }, e -> {
             if (e instanceof GuildMessageReceivedEvent) {
                 String message = (useRawInput ? ((GuildMessageReceivedEvent) e).getMessage().getContentRaw() : ((GuildMessageReceivedEvent) e).getMessage().getContentDisplay());
-                RestAction<Message> errorMessage = ((GuildMessageReceivedEvent) e).getChannel().sendMessage((!customErrorMessageEnabled ? "I'm sorry, I didn't quite catch that, let's try that again..." : customErrorMessage));
+                RestAction<Message> errorMessage = ((GuildMessageReceivedEvent) e).getChannel().sendMessage((!customErrorMessageEnabled ? LocaleUtils.getString("questionnaire.error", locale) : customErrorMessage));
                 if (message.equalsIgnoreCase("cancel")) {
-                    ((GuildMessageReceivedEvent) e).getChannel().sendMessage("Cancelled.").queue();
+                    ((GuildMessageReceivedEvent) e).getChannel().sendMessage(LocaleUtils.getString("questionnaire.cancelled", locale)).queue();
                     KekBot.getCommandClient().unregisterQuestionnaire(channel.getId(), user.getId());
                 } else {
                     switch (question.getType()) {
@@ -227,7 +233,7 @@ public class Questionnaire {
             }
         }, timeout, timeoutUnit, () -> {
             KekBot.getCommandClient().unregisterQuestionnaire(channel.getId(), user.getId());
-            channel.sendMessage("You took too long. Canceled.").queue();
+            channel.sendMessage(LocaleUtils.getString("questionnaire.noinput", locale) + " " + LocaleUtils.getString("questionnaire.cancelled", locale)).queue();
         });
     }
 

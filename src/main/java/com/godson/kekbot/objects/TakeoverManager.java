@@ -54,28 +54,34 @@ public class TakeoverManager {
         takeovers.add(takeover);
     }
 
-    public boolean startTakeover(String takeover) throws IOException {
+    public String startTakeover(String takeover) throws IOException {
         Optional<Takeover> takeoverOptional = takeovers.stream().filter(t -> t.name.equals(takeover)).findFirst();
-        if (!takeoverOptional.isPresent()) return false;
+        if (!takeoverOptional.isPresent()) return "Takeover not found.";
+        for (Action action : Action.values()) {
+            if (!takeoverOptional.get().getResponses().containsKey(action)) {
+                return "Missing Response for Action: " + action.name();
+            }
+        }
         takeoverActive = true;
         FileWriter fileWriter = new FileWriter("takeover");
         fileWriter.write(takeover);
         fileWriter.flush();
         fileWriter.close();
         activateTakeover(takeoverOptional.get(), false);
-        return true;
+        return "Takeover Started";
     }
 
     private void activateTakeover(Takeover takeover, boolean reboot) {
         if (!reboot) {
             try {
-                KekBot.jda.getShards().get(0).getSelfUser().getManager().setAvatar(Icon.from(new File("takeovers/" + takeover.getName() + "/" + takeover.getAvaFile()))).queue();
+                if (!takeover.getAvaFile().equalsIgnoreCase("default"))
+                    KekBot.jda.getShards().get(0).getSelfUser().getManager().setAvatar(Icon.from(new File("takeovers/" + takeover.getName() + "/" + takeover.getAvaFile()))).queue();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        KekBot.takeoverReponses(takeover.getResponses());
-        KekBot.listener.gameStatus.takeoverGames(takeover.getGames());
+        if (!takeover.getResponses().isEmpty()) KekBot.takeoverReponses(takeover.getResponses());
+        if (!takeover.getGames().isEmpty()) KekBot.listener.gameStatus.takeoverGames(takeover.getGames());
     }
 
     public void deactivateTakeover() {

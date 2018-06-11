@@ -1,9 +1,7 @@
 package com.godson.kekbot.games;
 
 import com.godson.kekbot.CustomEmote;
-import com.godson.kekbot.KekBot;
 import com.godson.kekbot.Utils;
-import com.godson.kekbot.profile.Profile;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
@@ -38,10 +36,7 @@ public class SnailRace extends Game {
 
     @Override
     public String getRules() {
-        return "It's a race to the finish! As soon as the game starts, everyone will have a snail trying to race for the finish line." +
-                "Players don't have to do anything to win, snails move automatically, making this a game of chance!" +
-                "\n\nFirst snail to reach the finish wins!" +
-                "\nDepending on how many players are playing, there can also be second and third place winners!";
+        return getString("game.rules.snailrace");
     }
 
     private void prepareMessage() {
@@ -72,8 +67,8 @@ public class SnailRace extends Game {
         String space = "               ";
         String currentTime = Utils.convertMillisToHMmSs(System.currentTimeMillis() - startTime);
         StringBuilder builder = new StringBuilder();
-        if (!finished) builder.append("***The race has begun!***");
-        else builder.append("***The race is now over!***");
+        if (!finished) builder.append("***" + getString("game.snailrace.start") + "***");
+        else builder.append("***" + getString("game.snailrace.end") + "***");
         builder.append(" (Time Spent: ").append(currentTime).append(")").append("\n\n");
         for (int i = 0; i < players.size(); i++) {
             User player = players.get(i);

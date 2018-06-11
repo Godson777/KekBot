@@ -1,5 +1,6 @@
 package com.godson.kekbot.command.commands.meme;
 
+import com.godson.kekbot.command.CommandCategories;
 import com.godson.kekbot.command.commands.weeb.WeebCommand;
 import me.duncte123.weebJava.models.WeebApi;
 
@@ -12,6 +13,7 @@ public class Discord extends WeebCommand {
         usage.add("discord");
         type = "discord_memes";
         message = "command.meme.discord";
+        category = CommandCategories.meme;
     }
 
 }

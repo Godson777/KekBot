@@ -40,6 +40,9 @@
     <orderEntry type="library" name="Maven: com.github.Godson777:Discoin4J:v1.0.1" level="project" />
     <orderEntry type="library" name="Maven: org.twitter4j:twitter4j-core:4.0.6" level="project" />
     <orderEntry type="library" name="Maven: org.twitter4j:twitter4j-stream:4.0.6" level="project" />
+    <orderEntry type="library" name="Maven: com.github.DiscordBotList:DBL-Java-Wrapper:4b27930" level="project" />
+    <orderEntry type="library" name="Maven: com.squareup.retrofit2:converter-gson:2.3.0" level="project" />
+    <orderEntry type="library" name="Maven: com.squareup.retrofit2:retrofit:2.3.0" level="project" />
     <orderEntry type="library" name="Maven: me.duncte123:weebJava:1.2.1" level="project" />
     <orderEntry type="library" name="Maven: com.afollestad:ason:1.4.16" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: com.intellij:annotations:12.0" level="project" />

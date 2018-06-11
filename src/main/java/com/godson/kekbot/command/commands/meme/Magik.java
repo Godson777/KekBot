@@ -36,14 +36,14 @@ public class Magik extends Command {
     public void onExecuted(CommandEvent event) {
         if (event.getMessage().getAttachments().size() > 0) {
             if (event.getMessage().getAttachments().get(0).isImage()) {
-                event.getChannel().sendMessage("Generating, please wait... " + CustomEmote.load()).queue(m -> {
+                event.getChannel().sendMessage(event.getString("command.meme.magik.generating") + CustomEmote.load()).queue(m -> {
                     try {
                         event.getChannel().sendFile(generate(event.getMessage().getAttachments().get(0).getInputStream()), "magik.png", null).queue(h -> m.delete().queue());
                     } catch (IOException | InterruptedException | IM4JavaException e) {
                         throwException(e, event, "Image Generation Problem");
                     }
                 });
-            } else event.getChannel().sendMessage("That's not a valid image.").queue();
+            } else event.getChannel().sendMessage(event.getString("command.textimage.imagenotvalid")).queue();
         } else {
             if (event.getArgs().length > 0) {
                 try {
@@ -54,11 +54,11 @@ public class Magik extends Command {
                     InputStream stream = connection.getInputStream();
                     BufferedImage check = ImageIO.read(stream);
                     if (check == null) {
-                        event.getChannel().sendMessage("No image found.").queue();
+                        event.getChannel().sendMessage(event.getString("command.textimage.noimage")).queue();
                         return;
                     }
 
-                    event.getChannel().sendMessage("Generating, please wait... " + CustomEmote.load()).queue(m -> {
+                    event.getChannel().sendMessage(event.getString("command.meme.magik.generating") + CustomEmote.load()).queue(m -> {
                         try {
                             event.getChannel().sendFile(generate(check), "magik.png", null).queue(h -> m.delete().queue());
                         } catch (IOException | InterruptedException | IM4JavaException e) {
@@ -66,9 +66,9 @@ public class Magik extends Command {
                         }
                     });
                 } catch (MalformedURLException | UnknownHostException | IllegalArgumentException | FileNotFoundException e) {
-                    event.getChannel().sendMessage("`" + event.getArgs()[0] + "`" + " is not a valid URL.").queue();
+                    event.getChannel().sendMessage(event.getString("command.textimage.invalidurl", "`" + event.getArgs()[0] + "`")).queue();
                 } catch (SSLHandshakeException | SocketException e) {
-                    event.getChannel().sendMessage("Unable to connect to URL.").queue();
+                    event.getChannel().sendMessage(event.getString("command.textimage.unabletoconnect")).queue();
                 } catch (IOException e) {
                     throwException(e, event, "Image Generation Problem");
                 }
@@ -81,7 +81,7 @@ public class Magik extends Command {
 
                         if (message.getAttachments().get(0).isImage()) {
 
-                                event.getChannel().sendMessage("Generating, please wait... " + CustomEmote.load()).queue(m -> {
+                                event.getChannel().sendMessage(event.getString("command.meme.magik.generating") + CustomEmote.load()).queue(m -> {
                                     try {
                                     event.getChannel().sendFile(generate(message.getAttachments().get(0).getInputStream()), "magik.png", null).queue(h -> m.delete().queue());
                                     } catch (IOException | InterruptedException | IM4JavaException e) {
@@ -91,7 +91,7 @@ public class Magik extends Command {
                                 return;
                         }
                     }
-                    event.getChannel().sendMessage("No image provided.").queue();
+                    event.getChannel().sendMessage(event.getString("command.textimage.noimage")).queue();
                 });
             }
         }

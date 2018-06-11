@@ -1,7 +1,7 @@
 package com.godson.kekbot.games;
 
 import com.godson.kekbot.KekBot;
-import com.godson.kekbot.Utils;
+import com.godson.kekbot.LocaleUtils;
 import com.godson.kekbot.profile.Profile;
 import com.godson.kekbot.profile.Token;
 import net.dv8tion.jda.core.entities.Message;
@@ -91,14 +91,14 @@ public class TicTacToe extends Game {
             if (turn == 2) {
                 aiFillSlot();
                 turn = 1;
-                channel.sendMessage("**KekBot got the first move.**").queue();
+                channel.sendMessage("**" + getString("game.tictactoe.aifirst") + "**").queue();
             } else {
                 drawBoard();
-                channel.sendMessage("**" + players.get(0).getName() + ", you're first!**").queue();
+                channel.sendMessage("**" + getString("game.tictactoe.playerfirst", players.get(0).getName()) + "**").queue();
             }
         } else {
             drawBoard();
-            channel.sendMessage("**" + players.get(turn-1).getName() + ", you're first!**").queue();
+            channel.sendMessage("**" + getString("game.tictactoe.playerfirst", players.get(turn-1).getName()) + "**").queue();
         }
     }
 
@@ -115,8 +115,7 @@ public class TicTacToe extends Game {
 
     @Override
     public String getRules() {
-        return "A board game classic! As soon as the game starts, players have to take turns trying to create a line. It's exactly what you'd expect from TicTacToe." +
-                "Players are able to place their piece down by typing the number representing a space on the board in chat. The player who finishes their line first wins!";
+        return getString("game.rules.tictactoe");
     }
 
     private void drawBoard() {
@@ -162,12 +161,12 @@ public class TicTacToe extends Game {
                         }
                     }
                 } else {
-                    if (board[slot] == getPlayerNumber(player)) channel.sendMessage("You already own that space.").queue();
-                    else channel.sendMessage("Your opponent already owns that space.").queue();
+                    if (board[slot] == getPlayerNumber(player)) channel.sendMessage(getString("game.tictactoe.spaceowned")).queue();
+                    else channel.sendMessage(getString("game.tictactoe.spaceownedopponent")).queue();
                 }
             }
         } else {
-            channel.sendMessage("It's not your turn yet!").queue();
+            channel.sendMessage(getString("game.tictactoe.notturn")).queue();
         }
     }
 
@@ -288,7 +287,7 @@ public class TicTacToe extends Game {
         }
         if (winner) {
             drawBoard();
-            channel.sendMessage("\uD83C\uDF89 **" + player.getName() + " wins!** \uD83C\uDF89").queue();
+            channel.sendMessage("\uD83C\uDF89 **" + LocaleUtils.getString("game.tictactoe.win", player.getName()) + "** \uD83C\uDF89").queue();
             if (players.size() == getMaxNumberOfPlayers()) endGame(player, random.nextInt(8), ThreadLocalRandom.current().nextInt(4, 7));
             else endGame(player, random.nextInt(3) + 1, random.nextInt(3) + 1);
         }
@@ -317,7 +316,7 @@ public class TicTacToe extends Game {
         }
         if (winner) {
             drawBoard();
-            channel.sendMessage("\uD83C\uDF89 **KekBot wins!** \uD83C\uDF89").queue();
+            channel.sendMessage("\uD83C\uDF89 **" + getString("game.tictactoe.botwin") + "** \uD83C\uDF89").queue();
             endGame();
         }
         return winner;
@@ -333,7 +332,7 @@ public class TicTacToe extends Game {
         }
         if (draw) {
             drawBoard();
-            channel.sendMessage("**It's a draw!**").queue();
+            channel.sendMessage("**" + getString("game.tictactoe.draw") + "**").queue();
             endTie(random.nextInt(2), random.nextInt(3));
             KekBot.gamesManager.closeGame(channel);
         }

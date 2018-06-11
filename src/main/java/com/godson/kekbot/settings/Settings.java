@@ -114,11 +114,11 @@ public class Settings {
                 .with("Prefix", prefix)
                 .with("AutoRole ID", autoRoleID)
                 .with("Announce Settings", announceSettings)
-                .with("Tags", tags)
-                .with("Quotes", quotes)
-                .with("Free Roles", (freeRoles == null ? new ArrayList<Role>() : freeRoles))
+                .with("Tags", tags == null ? new TagManager() : tags)
+                .with("Quotes", quotes == null ? new QuoteManager() : quotes)
+                .with("Free Roles", freeRoles == null ? new ArrayList<Role>() : freeRoles)
                 .with("Anti-Ad", antiAd)
-                .with("Locale", locale);
+                .with("Locale", locale == null ? "en_US" : locale);
 
         if (KekBot.r.table("Settings").get(guildID).run(KekBot.conn) == null) {
             KekBot.r.table("Settings").insert(settings).run(KekBot.conn);

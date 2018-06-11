@@ -29,7 +29,7 @@ public class DELET extends Command {
     @Override
     public void onExecuted(CommandEvent event) throws Throwable {
         if (event.getArgs().length < 1) {
-            event.getChannel().sendMessage("Who are you going to DELET?").queue();
+            event.getChannel().sendMessage(event.getString("command.meme.delet.noargs")).queue();
             return;
         }
 
@@ -43,7 +43,7 @@ public class DELET extends Command {
         }
 
         if (!isMention(event.combineArgs()) || event.getMentionedUsers().size() < 1) {
-            event.getChannel().sendMessage("The user you want to DELET must be in the form of a mention!").queue();
+            event.getChannel().sendMessage(event.getString("command.meme.delet.nomention")).queue();
             return;
         }
 

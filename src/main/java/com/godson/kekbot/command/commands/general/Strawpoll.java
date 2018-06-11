@@ -32,7 +32,7 @@ public class Strawpoll extends Command {
             String combinedArgs = event.combineArgs();
             String pollVariables[] = combinedArgs.split("\\u007c");
             if (pollVariables.length == 1) {
-                event.getChannel().sendMessage("No poll options specified!").queue();
+                event.getChannel().sendMessage(event.getString("command.general.poll.nooptions")).queue();
             } else {
                 List<String> list = new ArrayList<>();
                 for (String option : pollVariables) {
@@ -56,6 +56,6 @@ public class Strawpoll extends Command {
                     e.printStackTrace();
                 }
             }
-        } else event.getChannel().sendMessage("No poll title specified!").queue();
+        } else event.getChannel().sendMessage(event.getString("command.noargs", "`" + event.getPrefix() + "help strawpoll`")).queue();
     }
 }

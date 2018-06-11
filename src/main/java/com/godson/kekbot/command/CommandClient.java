@@ -30,6 +30,7 @@ public class CommandClient extends ListenerAdapter {
 
     private final String botOwner;
     private final List<String> botAdmins;
+    private final List<String> botMods;
 
     private String prefix = "$";
     private String defaultLocale = "en_US";
@@ -62,6 +63,7 @@ public class CommandClient extends ListenerAdapter {
         Config config = Config.getConfig();
         botOwner = config.getBotOwner();
         botAdmins = config.getBotAdmins();
+        botMods = config.getBotMods();
     }
 
     public void setPrefix(String prefix) {
@@ -194,6 +196,26 @@ public class CommandClient extends ListenerAdapter {
 
     List<String> getBotAdmins() {
         return botAdmins;
+    }
+
+    List<String> getBotMods() {
+        return botMods;
+    }
+
+    public void addBotAdmin(String id) {
+        if (!botAdmins.contains(id)) botAdmins.add(id);
+    }
+
+    public void removeBotAdmin(String id) {
+        botAdmins.remove(id);
+    }
+
+    public void addBotMod(String id) {
+        if (!botMods.contains(id)) botMods.add(id);
+    }
+
+    public void removeBotMod(String id) {
+        botMods.remove(id);
     }
 
     @Override
