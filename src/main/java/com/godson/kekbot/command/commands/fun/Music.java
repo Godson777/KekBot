@@ -15,6 +15,7 @@ import net.dv8tion.jda.core.entities.VoiceChannel;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 public class Music extends Command {
@@ -44,10 +45,17 @@ public class Music extends Command {
         exDescPos = ExtendedPosition.AFTER;
     }
 
+    private static Function<String, String> parseURL = new Function<String, String>() {
+        @Override
+        public String apply(String url) {
+            return url.startsWith("<") && url.endsWith(">") ?
+                url.substring(url.indexOf("<") + 1, url.lastIndexOf(">")) :
+                url;
+        }
+    };
+
     private static Stream<String> parseURLs(String[] args) {
-        return Arrays.stream(args).map(url -> url.startsWith("<") && url.endsWith(">") ?
-            url.substring(url.indexOf("<") + 1, url.lastIndexOf(">")) :
-            url);
+        return Arrays.stream(args).map(parseURL);
     }
 
     @Override
