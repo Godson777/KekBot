@@ -44,6 +44,10 @@ public class Music extends Command {
         exDescPos = ExtendedPosition.AFTER;
     }
 
+    private static String[] splitURLs(String string) {
+        return string.split("\\s+");
+    }
+
     @Override
     public void onExecuted(CommandEvent event) {
         if (!event.getMember().getVoiceState().inVoiceChannel()) {
@@ -72,8 +76,11 @@ public class Music extends Command {
                 if (args.length == 1) {
                     // TODO: Jorge pls fix my type
                     final List<Attachment> attachments = event.getMessage().getAttachments();
-                    if (attachments.size() > 0) KekBot.player.loadAndPlay(event, attachments.get(0).getUrl());
-                    else if (!cmd.equals("play")) showPlaylist(event);
+                    if (attachments.size() > 0) {
+                        for (final Attachment attachment : attachments) {
+                            KekBot.player.loadAndPlay(event, attachment.getUrl());
+                        }
+                    } else if (!cmd.equals("play")) showPlaylist(event);
                 } else {
                     final String subcmd = args[1].toLowerCase();
 
@@ -104,9 +111,14 @@ public class Music extends Command {
                         search = "ytsearch:" + search;
                         KekBot.player.loadAndSearchYT(event, search);
                     } else {
-                        String trackUrl = event.combineArgs(1);
-                        if (trackUrl.startsWith("<") && trackUrl.endsWith(">")) trackUrl = trackUrl.substring(trackUrl.indexOf("<") + 1, trackUrl.lastIndexOf(">"));
-                        KekBot.player.loadAndPlay(event, trackUrl);
+                        for (final String trackUrl : splitURLs(event.combineArgs(1))) {
+                            KekBot.player.loadAndPlay(
+                                event,
+                                trackUrl.startsWith("<") && trackUrl.endsWith(">") ?
+                                    trackUrl.substring(trackUrl.indexOf("<") + 1, trackUrl.lastIndexOf(">")) :
+                                    trackUrl
+                            );
+                        }
                     }
                 }
                 break;
