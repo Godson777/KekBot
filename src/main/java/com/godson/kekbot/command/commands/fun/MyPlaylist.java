@@ -70,7 +70,7 @@ public class MyPlaylist extends Command {
                                                                             if (results3.getAnswerAsType(0, boolean.class)) playlist.setHidden(true);
                                                                             profile.addPlaylist(playlist);
                                                                             profile.save();
-                                                                            event.getChannel().sendMessage(event.getString("command.fun.myplaylist.create.success", "`" + event.getPrefix() + "queue playlist " + playlist.getName() + "`")).queue();
+                                                                            event.getChannel().sendMessage(event.getString("command.fun.myplaylist.create.success", "`" + event.getPrefix() + "music queue playlist " + playlist.getName() + "`")).queue();
                                                                         });
 
                                                             } else {
