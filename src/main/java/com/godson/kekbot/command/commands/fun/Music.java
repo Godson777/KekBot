@@ -44,8 +44,10 @@ public class Music extends Command {
         exDescPos = ExtendedPosition.AFTER;
     }
 
-    private static String[] splitURLs(String string) {
-        return string.split("\\s+");
+    private static Stream<String> parseURLs(String[] args) {
+        return Arrays.stream(args).map(url -> url.startsWith("<") && url.endsWith(">") ?
+            url.substring(url.indexOf("<") + 1, url.lastIndexOf(">")) :
+            url);
     }
 
     @Override
@@ -111,14 +113,9 @@ public class Music extends Command {
                         search = "ytsearch:" + search;
                         KekBot.player.loadAndSearchYT(event, search);
                     } else {
-                        for (final String trackUrl : splitURLs(event.combineArgs(1))) {
-                            KekBot.player.loadAndPlay(
-                                event,
-                                trackUrl.startsWith("<") && trackUrl.endsWith(">") ?
-                                    trackUrl.substring(trackUrl.indexOf("<") + 1, trackUrl.lastIndexOf(">")) :
-                                    trackUrl
-                            );
-                        }
+                        parseURLs(Arrays.copyOfRange(args, 2, args.length)).forEach(trackUrl -> {
+                            KekBot.player.loadAndPlay(event, trackUrl);
+                        });
                     }
                 }
                 break;
