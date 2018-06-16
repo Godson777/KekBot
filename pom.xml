@@ -6,7 +6,7 @@
 
     <groupId>com.godson</groupId>
     <artifactId>kekbot</artifactId>
-    <version>1.5.1-BETA2</version>
+    <version>1.5.1-BETA3</version>
 
     <repositories>
         <repository>
