@@ -9,8 +9,8 @@ import com.godson.kekbot.music.Playlist;
 import com.godson.kekbot.profile.Profile;
 import com.godson.kekbot.responses.Action;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.entities.VoiceChannel;
 
 import java.util.Arrays;
 import java.util.List;
@@ -39,20 +39,16 @@ public class Music extends Command {
         usage.add("music host - Makes someone else the \"Host\". (Host Only)");
         usage.add("music stop - Stops the current music session. (Host Only)");
         usage.add("music pause - Pauses the current music session. (Host Only)");
+        usage.add("music resume - Resumes the current music session. (Host Only)");
         usage.add("music repeat - Toggles repeat mode, switches from OFF, SINGLE, and MULTI. (Host Only)");
         usage.add("music shuffle - Shuffles all the tracks that are in the queue. (Host Only)");
         extendedDescription = "All \"Host Only\" commands can also be executed by a user with Administrator permissions.";
         exDescPos = ExtendedPosition.AFTER;
     }
 
-    private static Function<String, String> parseURL = new Function<String, String>() {
-        @Override
-        public String apply(String url) {
-            return url.startsWith("<") && url.endsWith(">") ?
-                url.substring(url.indexOf("<") + 1, url.lastIndexOf(">")) :
-                url;
-        }
-    };
+    private static Function<String, String> parseURL = url -> url.startsWith("<") && url.endsWith(">") ?
+        url.substring(url.indexOf("<") + 1, url.lastIndexOf(">")) :
+        url;
 
     private static Stream<String> parseURLs(String[] args) {
         return Arrays.stream(args).map(parseURL);
@@ -84,46 +80,52 @@ public class Music extends Command {
             case "que": // lul
             case "q":
                 if (args.length == 1) {
-                    // TODO: Jorge pls fix my type
-                    final List<Attachment> attachments = event.getMessage().getAttachments();
+                    final List<Message.Attachment> attachments = event.getMessage().getAttachments();
                     if (attachments.size() > 0) {
-                        for (final Attachment attachment : attachments) {
+                        for (final Message.Attachment attachment : attachments) {
                             KekBot.player.loadAndPlay(event, attachment.getUrl());
                         }
                     } else if (!cmd.equals("play")) showPlaylist(event);
                 } else {
                     final String subcmd = args[1].toLowerCase();
 
-                    if (subcmd.equals("playlist") || subcmd.equals("pl")) {
-                        if (args.length < 3) {
-                            event.getChannel().sendMessage(event.getString("command.fun.music.queue.playlist.noargs")).queue();
-                            return;
-                        }
+                    switch (subcmd) {
+                        case "playlist":
+                        case "pl":
+                            if (args.length < 3) {
+                                event.getChannel().sendMessage(event.getString("command.fun.music.queue.playlist.noargs")).queue();
+                                return;
+                            }
 
-                        String playlistName = event.combineArgs(2);
-                        Profile profile = Profile.getProfile(event.getAuthor());
-                        Stream<Playlist> playlists = profile.getPlaylists().stream();
-                        // Try to find an exact match. If there isn't one, try a case insensitive match.
-                        Optional<Playlist> playlist = playlists.filter(pl -> pl.getName().equals(playlistName)).findFirst();
-                        if (!playlist.isPresent()) {
-                            playlist = playlists.filter(pl -> pl.getName().equalsIgnoreCase(playlistName)).findFirst();
-                        }
+                            String playlistName = event.combineArgs(2);
+                            Profile profile = Profile.getProfile(event.getAuthor());
+                            Stream<Playlist> playlists = profile.getPlaylists().stream();
+                            // Try to find an exact match. If there isn't one, try a case insensitive match.
+                            Optional<Playlist> playlist = playlists.filter(pl -> pl.getName().equals(playlistName)).findFirst();
+                            if (!playlist.isPresent()) {
+                                playlist = playlists.filter(pl -> pl.getName().equalsIgnoreCase(playlistName)).findFirst();
+                            }
 
-                        if (playlist.isPresent()) KekBot.player.loadAndPlay(event, playlist.get(), profile);
-                        else event.getChannel().sendMessage(CustomEmote.think() + " " + event.getString("command.fun.music.queue.playlist.playlistnotfound")).queue();
-                    } else if (subcmd.equals("searchyt") || subcmd.equals("syt")) {
-                        if (args.length < 3) {
-                            event.getChannel().sendMessage(event.getString("command.fun.music.queue.searchyt.noargs")).queue();
-                            return;
-                        }
-                        String search = event.combineArgs(2);
-                        event.getChannel().sendMessage(event.getString("command.fun.music.queue.searchyt.search", "`" + search + "`")).queue();
-                        search = "ytsearch:" + search;
-                        KekBot.player.loadAndSearchYT(event, search);
-                    } else {
-                        parseURLs(Arrays.copyOfRange(args, 2, args.length)).forEach(trackUrl -> {
-                            KekBot.player.loadAndPlay(event, trackUrl);
-                        });
+                            if (playlist.isPresent()) KekBot.player.loadAndPlay(event, playlist.get(), profile);
+                            else
+                                event.getChannel().sendMessage(CustomEmote.think() + " " + event.getString("command.fun.music.queue.playlist.playlistnotfound")).queue();
+                            break;
+                        case "searchyt":
+                        case "syt":
+                            if (args.length < 3) {
+                                event.getChannel().sendMessage(event.getString("command.fun.music.queue.searchyt.noargs")).queue();
+                                return;
+                            }
+                            String search = event.combineArgs(2);
+                            event.getChannel().sendMessage(event.getString("command.fun.music.queue.searchyt.search", "`" + search + "`")).queue();
+                            search = "ytsearch:" + search;
+                            KekBot.player.loadAndSearchYT(event, search);
+                            break;
+                        default:
+                            parseURLs(Arrays.copyOfRange(args, 2, args.length)).forEach(trackUrl -> {
+                                KekBot.player.loadAndPlay(event, trackUrl);
+                            });
+                            break;
                     }
                 }
                 break;
@@ -145,6 +147,7 @@ public class Music extends Command {
                     event.getChannel().sendMessage(event.getString("command.fun.music.volume.noargs")).queue();
                     return;
                 }
+
                 try {
                     int volume = Integer.valueOf(args[1]);
                     KekBot.player.setVolume(event, volume);
@@ -245,7 +248,7 @@ public class Music extends Command {
                     return;
                 }
 
-                if (args.length == 0) {
+                if (args.length == 1) {
                     event.getChannel().sendMessage(event.getString("command.fun.music.host.noargs")).queue();
                     return;
                 }
@@ -272,8 +275,14 @@ public class Music extends Command {
 
             case "unpause":
             case "resume":
-                // TODO: Smarter behavior for "unpause" and "resume": complain if not paused.
-                // falls through
+                if (!event.getGuild().getAudioManager().isConnected()) {
+                    event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING, event.getLocale())).queue();
+                    return;
+                }
+
+                KekBot.player.unpauseTrack(event);
+                break;
+
             case "pause":
                 if (!event.getGuild().getAudioManager().isConnected()) {
                     event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING, event.getLocale())).queue();
@@ -282,7 +291,6 @@ public class Music extends Command {
 
                 KekBot.player.pauseTrack(event);
                 break;
-
             case "repeat":
                 if (!event.getGuild().getAudioManager().isConnected()) {
                     event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING, event.getLocale())).queue();
