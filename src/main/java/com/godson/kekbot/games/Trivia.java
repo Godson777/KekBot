@@ -22,7 +22,9 @@ public class Trivia extends Game {
     private boolean roundActive = false;
     private int round = 0;
     private int maxRounds = 15;
+    private int roundDuration = 10;
     private TriviaQuestion currentQuestion;
+    private List<TriviaQuestion> previousQuestions = new ArrayList<>();
 
     private ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor();
     private ScheduledFuture<?> scheduledFuture = null;
@@ -64,15 +66,20 @@ public class Trivia extends Game {
     public String getRules() {
         return "It's a good-ol' game of Trivia! I'll ask a question, and it's up to everyone to try to figure out the answer, " +
                 "whoever gets the correct answer first gets a point. Whoever gets the most points by the end of the game is the winner. " +
-                "But don't take too long, as you only have 30 seconds to get the answer, after that, the round is over and no one gets a point.";
+                "But don't take too long, as you only have " + roundDuration + " seconds to get the answer, after that, the round is over and no one gets a point.";
     }
 
     private void startRound() {
         roundActive = true;
         String category = questions.keySet().toArray(new String[questions.size()])[random.nextInt(questions.size())];
         currentQuestion = questions.get(category).get(random.nextInt(questions.get(category).size()));
+        while (!previousQuestions.isEmpty() && previousQuestions.contains(currentQuestion)) {
+            category = questions.keySet().toArray(new String[questions.size()])[random.nextInt(questions.size())];
+            currentQuestion = questions.get(category).get(random.nextInt(questions.get(category).size()));
+        }
+        previousQuestions.add(currentQuestion);
         channel.sendMessage("Round " + ++round + ":\n\n" + currentQuestion.category + "\n" + currentQuestion.question).queue();
-        scheduledFuture = timer.schedule((Runnable) this::endRound, 30, TimeUnit.SECONDS);
+        scheduledFuture = timer.schedule((Runnable) this::endRound, roundDuration, TimeUnit.SECONDS);
     }
 
     private void endRound(User user) {
@@ -89,19 +96,19 @@ public class Trivia extends Game {
         if (round >= maxRounds) {
             List<User> winners = new ArrayList<>(playerPoints.keySet());
             winners.sort(Comparator.comparingInt(playerPoints::get).reversed());
-            endGame(winners.get(0), ThreadLocalRandom.current().nextInt(8, 12), ThreadLocalRandom.current().nextInt(8, 12));
             String space = StringUtils.repeat(" ", 20);
             StringBuilder builder = new StringBuilder();
             for (User player : players) {
                 builder.append("`").append(
                         (player.getName().length() > 20 ?
-                                player.getName().substring(0, 11) + "..." :
+                                player.getName().substring(0, 19) + "..." :
                                 (player.getName().length() < 20 ? player.getName() + space.substring(0, 19 - player.getName().length()) :
                                         player.getName())))
                         .append(":` ").append(playerPoints.get(player));
                 builder.append("\n");
             }
             channel.sendMessage(result + "\n\nGame over! Here are the results:\n\n" + builder.toString()).queue();
+            endGame(winners.get(0), playerPoints.get(winners.get(0)), playerPoints.get(winners.get(0)) / 2);
             return;
         }
         channel.sendMessage(result + "\n\nNext round starting in 5 seconds...").queue();
