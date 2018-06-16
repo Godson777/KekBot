@@ -582,7 +582,7 @@ public class MusicPlayer extends ListenerAdapter {
                 channel.sendMessage(event.getString("music.song.current", "`" + track.getInfo().title + "` [" + Utils.songTimestamp(track.getPosition(), track.getDuration()) + "]")
                         + "\n" + event.getString("music.song.url", "`" + musicManagers.get(guildId).player.getPlayingTrack().getInfo().uri + "`")
                         + "\n" + event.getString("music.queuedby", musicManagers.get(guildId).scheduler.currentPlayer.getName())
-                        + "\n" + event.getString("music.volume", musicManagers.get(guildId).player.getVolume())).queue();
+                        + "\n" + event.getString("music.song.volume", musicManagers.get(guildId).player.getVolume())).queue();
             } else {
                 channel.sendMessage(event.getString("music.nomusic")).queue();
             }
