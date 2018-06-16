@@ -4,16 +4,14 @@ import com.godson.kekbot.KekBot;
 import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.responses.Action;
 import com.godson.kekbot.settings.Config;
-import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.events.ReadyEvent;
-import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import net.dv8tion.jda.core.utils.tuple.Pair;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import twitter4j.*;
+import twitter4j.StatusUpdate;
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
+import twitter4j.TwitterFactory;
 
-import java.awt.*;
 import java.io.UnsupportedEncodingException;
 import java.sql.Time;
 import java.time.Instant;
@@ -21,12 +19,11 @@ import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.*;
-import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class TwitterManager extends ListenerAdapter {
+public class TwitterManager {
 
     private final MarkovChain chain;
     private final ScheduledExecutorService tweeter = new ScheduledThreadPoolExecutor(2);
@@ -35,59 +32,6 @@ public class TwitterManager extends ListenerAdapter {
     private final Twitter twitter = TwitterFactory.getSingleton();
     private final List<Pair<Instant, StatusUpdate>> statuses = new ArrayList<>();
 
-    private Map<Long, Message> currentTweets = new HashMap<>();
-    TwitterStream twitterStream = new TwitterStreamFactory().getInstance();
-    StatusListener listener = new StatusListener() {
-        @Override
-        public void onStatus(Status status) {
-            //We do need this tho
-
-            EmbedBuilder builder = new EmbedBuilder();
-            builder.setThumbnail(status.getUser().getProfileImageURL());
-            builder.setColor(Color.RED);
-            builder.setTitle("New tweet by: " + status.getUser().getName(), "https://twitter.com/" + status.getUser().getScreenName() + "/status/" + status.getId());
-            builder.setAuthor("@" + status.getUser().getScreenName());
-            builder.setTimestamp(Instant.now());
-            if (status.getMediaEntities().length > 0) builder.setImage(status.getMediaEntities()[0].getMediaURL());
-            builder.setDescription(status.getText());
-
-            KekBot.jda.getTextChannelById("450878100536950794").sendMessage(builder.build()).queue(m -> currentTweets.put(status.getId(), m));
-        }
-
-        @Override
-        public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {
-            //We may not need this
-            if (currentTweets.containsKey(statusDeletionNotice.getStatusId())) {
-                Message m = currentTweets.get(statusDeletionNotice.getStatusId());
-                EmbedBuilder builder = new EmbedBuilder();
-                builder.setColor(Color.GRAY);
-                builder.setTimestamp(m.getCreationTime());
-                builder.setTitle("This tweet was removed from Twitter.");
-                m.editMessage(builder.build()).queue();
-                currentTweets.remove(statusDeletionNotice.getStatusId());
-            }
-        }
-
-        @Override
-        public void onTrackLimitationNotice(int i) {
-            //We may not need this
-        }
-
-        @Override
-        public void onScrubGeo(long l, long l1) {
-            //We may not need this
-        }
-
-        @Override
-        public void onStallWarning(StallWarning stallWarning) {
-            //We may not need this
-        }
-
-        @Override
-        public void onException(Exception e) {
-            //We may not need this
-        }
-    };
     private final int initialDelay = 60;
     private final int subsequentDelay = 30;
 
@@ -98,16 +42,16 @@ public class TwitterManager extends ListenerAdapter {
                 Instant now = Instant.now();
                 Optional<Pair<Instant, StatusUpdate>> status = statuses.stream().filter(s -> now.isAfter(s.getLeft())).findFirst();
                 if (status.isPresent()) {
-                    //tweet(status.get().getRight());
+                    tweet(status.get().getRight());
                     statuses.remove(status.get());
                 } else {
-                    //tweet();
+                    tweet();
                 }
             }, 0, subsequentDelay, TimeUnit.MINUTES);
             firstTweet = true;
         }, initialDelay, TimeUnit.MINUTES);
         lastTweet = Instant.now();
-        //tweet("KekBot has started up. Please wait an hour before expecting more high quality™ tweets.\n\n" + Instant.now().toString());
+        tweet("KekBot has started up. Please wait an hour before expecting more high quality™ tweets.\n\n" + Instant.now().toString());
     }
 
     private void tweet() {
@@ -131,7 +75,7 @@ public class TwitterManager extends ListenerAdapter {
             }
 
             //Otherwise, throw everything into a traceback.txt file, and send it to chat for monitoring.
-            String s = KekBot.respond(Action.EXCEPTION_THROWN, KekBot.getCommandClient().getDefaultLocale()) + endl + endl + ExceptionUtils.getStackTrace(e);
+            String s = KekBot.respond(Action.EXCEPTION_THROWN) + endl + endl + ExceptionUtils.getStackTrace(e);
             try {
                 byte[] b = s.getBytes("UTF-8");
                 KekBot.jda.getTextChannelById(Config.getConfig().getTwitterChannel()).sendFile(b, "traceback.txt", new MessageBuilder("Failed to send tweet. Traceback: ").build()).queue();
@@ -155,7 +99,7 @@ public class TwitterManager extends ListenerAdapter {
             }
 
             //Otherwise, throw everything into a traceback.txt file, and send it to chat for monitoring.
-            String s = KekBot.respond(Action.EXCEPTION_THROWN, KekBot.getCommandClient().getDefaultLocale()) + endl + endl + ExceptionUtils.getStackTrace(e);
+            String s = KekBot.respond(Action.EXCEPTION_THROWN) + endl + endl + ExceptionUtils.getStackTrace(e);
             try {
                 byte[] b = s.getBytes("UTF-8");
                 KekBot.jda.getTextChannelById(Config.getConfig().getTwitterChannel()).sendFile(b, "traceback.txt", new MessageBuilder("Failed to send tweet. Traceback: ").build()).queue();
@@ -179,7 +123,7 @@ public class TwitterManager extends ListenerAdapter {
             }
 
             //Otherwise, throw everything into a traceback.txt file, and send it to chat for monitoring.
-            String s = KekBot.respond(Action.EXCEPTION_THROWN, KekBot.getCommandClient().getDefaultLocale()) + endl + endl + ExceptionUtils.getStackTrace(e);
+            String s = KekBot.respond(Action.EXCEPTION_THROWN) + endl + endl + ExceptionUtils.getStackTrace(e);
             try {
                 byte[] b = s.getBytes("UTF-8");
                 KekBot.jda.getTextChannelById(Config.getConfig().getTwitterChannel()).sendFile(b, "traceback.txt", new MessageBuilder("Failed to send tweet. Traceback: ").build()).queue();
@@ -218,20 +162,9 @@ public class TwitterManager extends ListenerAdapter {
 
     public void shutdown(String reason) {
         tweeter.shutdown();
-        twitterStream.shutdown();
-        //tweet("KekBot is shutting down. (Reason: " + reason + ")");
+        tweet("KekBot is shutting down. (Reason: " + reason + ")");
     }
 
-    @Override
-    public void onReady(ReadyEvent event) {
-        if (event.getJDA().getShardInfo().getShardId() == event.getJDA().getShardInfo().getShardTotal() - 1) {
 
-            twitterStream.addListener(listener);
-            twitterStream.sample();
-            long[] ids = new long[]{958176875108593664L, 610103342L};
-            FilterQuery filterQuery = new FilterQuery();
-            filterQuery.follow(ids);
-            twitterStream.filter(filterQuery);
-        }
-    }
+
 }

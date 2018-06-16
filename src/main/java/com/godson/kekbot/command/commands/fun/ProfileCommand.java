@@ -1,20 +1,26 @@
 package com.godson.kekbot.command.commands.fun;
 
 import com.godson.kekbot.CustomEmote;
+import com.godson.kekbot.GSONUtils;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.menu.PagedSelectionMenu;
 import com.godson.kekbot.profile.*;
 import com.godson.kekbot.questionaire.QuestionType;
 import com.godson.kekbot.questionaire.Questionnaire;
 import com.godson.kekbot.responses.Action;
+import com.godson.kekbot.Utils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
+import com.godson.kekbot.settings.Config;
+import com.jagrosh.jdautilities.menu.Paginator;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.requests.RestAction;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,12 +48,12 @@ public class ProfileCommand extends Command {
             if (event.getArgs()[0].equalsIgnoreCase("edit")) {
                 Profile profile = Profile.getProfile(event.getAuthor());
                 if (event.getArgs().length < 2) {
-                    event.getChannel().sendMessage(event.getString("command.fun.profile.edit") + "\n" +
+                    event.getChannel().sendMessage("Here are the available values you can edit:\n" +
                             "\n**Title:** " + profile.getSubtitle() +
-                            "\n**Bio:** " + (profile.getBio() != null ? profile.getBio() : event.getString("command.fun.profile.edit.nobio")) +
-                            "\n**Tokens:** " + (profile.getTokens().size() > 0 ? profile.getTokens().size() + " " + event.getPluralString(profile.getTokens().size(), "amount.tokens") : "¯\\_(ツ)_/¯") +
-                            "\n**Backgrounds:** " + (profile.getBackgrounds().size() > 0 ? profile.getBackgrounds().size() + " " + event.getPluralString(profile.getBackgrounds().size(), "amount.backgrounds") : "¯\\_(ツ)_/¯") +
-                            "\n**Playlists:** " + event.getString("command.fun.profile.edit.myplaylist", event.getPrefix() + "myplaylist")).queue();
+                            "\n**Bio:** " + (profile.getBio() != null ? profile.getBio() : "No Bio Set.") +
+                            "\n**Tokens:** " + (profile.getTokens().size() > 0 ? profile.getTokens().size() + " " + (profile.getTokens().size() > 1 ? "Tokens" : "Token") : "¯\\_(ツ)_/¯") +
+                            "\n**Backgrounds:** " + (profile.getBackgrounds().size() > 0 ? profile.getBackgrounds().size() + " " + (profile.getBackgrounds().size() > 1 ? "Backgrounds" : "Background") : "¯\\_(ツ)_/¯") +
+                            "\n**Playlists:** " + "Use " + event.getClient().getPrefix(event.getGuild().getId()) + "myplaylist to view your playlists.").queue();
                 } else {
                     switch (event.getArgs()[1].toLowerCase()) {
                         case "title":
@@ -55,7 +61,7 @@ public class ProfileCommand extends Command {
                                 setTitle(event, profile, event.combineArgs(2));
                             } else {
                                 Questionnaire.newQuestionnaire(event)
-                                        .addQuestion(event.getString("command.fun.profile.edit.title"), QuestionType.STRING)
+                                        .addQuestion("Type the title you would like to use below. Or type `cancel` to exit.", QuestionType.STRING)
                                         .execute(results -> setTitle(event, profile, results.getAnswer(0).toString()));
                             }
                             break;
@@ -64,12 +70,12 @@ public class ProfileCommand extends Command {
                                 setBio(event, profile, event.combineArgs(2));
                             } else {
                                 Questionnaire.newQuestionnaire(event)
-                                        .addQuestion(event.getString("command.fun.profile.edit.bio"), QuestionType.STRING)
+                                        .addQuestion("Type the title you would like to use below. Or type `cancel` to exit.", QuestionType.STRING)
                                         .execute(results -> {
                                             if (ProfileUtils.testBio(results.getAnswer(0).toString())) {
                                                 setBio(event, profile, results.getAnswer(0).toString());
                                             } else {
-                                                event.getChannel().sendMessage(event.getString("command.fun.profile.edit.bio.retryerror")).queue();
+                                                event.getChannel().sendMessage("That bio is too long, and will not fit in your profile card. Please try something shorter, or type `cancel` to exit.").queue();
                                                 results.reExecuteWithoutMessage();
                                             }
                                         });
@@ -80,14 +86,14 @@ public class ProfileCommand extends Command {
                             List<Token> tokens = profile.getTokens();
 
                             if (tokens.size() < 1) {
-                                event.getChannel().sendMessage(event.getString("command.fun.profile.edit.tokens.notokens", "`" + event.getPrefix() + "shop`")).queue();
+                                event.getChannel().sendMessage("You don't have any tokens! Try getting some from the `" + event.getPrefix() + "shop`!").queue();
                                 return;
                             }
 
                             PagedSelectionMenu.Builder tokenView = new PagedSelectionMenu.Builder();
 
                             tokenView.setEventWaiter(KekBot.waiter);
-                            tokenView.addChoices(tokens.stream().map(token -> token.getName() + (profile.getToken() != null && profile.getToken() == token ? " **" + event.getString("command.fun.profile.equipped") + "**" : "")).collect(Collectors.toList()).toArray(new String[tokens.size()]));
+                            tokenView.addChoices(tokens.stream().map(token -> token.getName() + (profile.getToken() == token ? " **(Equipped)**" : "")).collect(Collectors.toList()).toArray(new String[tokens.size()]));
                             tokenView.setItemsPerPage(5);
                             tokenView.setFinalAction(message -> message.clearReactions().queue());
                             tokenView.setSelectionAction((m, i) -> {
@@ -95,13 +101,13 @@ public class ProfileCommand extends Command {
                                 Token token = tokens.get(i - 1);
 
                                 if (profile.getToken() == token) {
-                                    event.getChannel().sendMessage(event.getString("command.fun.profile.edit.tokens.alreadyequipped")).queue();
+                                    event.getChannel().sendMessage("You already have this token equipped!").queue();
                                     return;
                                 }
 
                                 profile.equipToken(token);
                                 profile.save();
-                                event.getChannel().sendMessage(event.getString("command.fun.profile.edit.tokens.success", "`" + token.getName() + "`")).queue();
+                                event.getChannel().sendMessage("You have equipped `" + token.getName() + "`.").queue();
                             });
                             tokenView.build().display(event.getChannel());
                             break;
@@ -110,14 +116,14 @@ public class ProfileCommand extends Command {
                             List<Background> backgrounds = profile.getBackgrounds().stream().map(KekBot.backgroundManager::get).collect(Collectors.toList());
 
                             if (backgrounds.size() < 1) {
-                                event.getChannel().sendMessage(event.getString("command.fun.profile.edit.backgrounds.nobackgrounds", "`" + event.getPrefix() + "shop`")).queue();
+                                event.getChannel().sendMessage("You don't have any backgrounds! Try getting some from the `" + event.getPrefix() + "shop`!").queue();
                                 return;
                             }
 
                             PagedSelectionMenu.Builder backgroundView = new PagedSelectionMenu.Builder();
 
                             backgroundView.setEventWaiter(KekBot.waiter);
-                            backgroundView.addChoices(backgrounds.stream().map(background -> background.getName() + (profile.getCurrentBackground() != null && profile.getCurrentBackground() == background ? " **" + event.getString("command.fun.profile.equipped") + "**" : "")).collect(Collectors.toList()).toArray(new String[backgrounds.size()]));
+                            backgroundView.addChoices(backgrounds.stream().map(background -> background.getName() + (profile.getCurrentBackground() == background ? " **(Equipped)**" : "")).collect(Collectors.toList()).toArray(new String[backgrounds.size()]));
                             backgroundView.setItemsPerPage(5);
                             backgroundView.setFinalAction(message -> message.clearReactions().queue());
                             backgroundView.setSelectionAction((m, i) -> {
@@ -125,13 +131,13 @@ public class ProfileCommand extends Command {
                                 Background background = backgrounds.get(i - 1);
 
                                 if (profile.getCurrentBackground() == background) {
-                                    event.getChannel().sendMessage(event.getString("command.fun.profile.edit.backgrounds.alreadyset")).queue();
+                                    event.getChannel().sendMessage("You already have this background set!").queue();
                                     return;
                                 }
 
                                 profile.setCurrentBackground(background);
                                 profile.save();
-                                event.getChannel().sendMessage(event.getString("command.fun.profile.edit.backgrounds.success", "`" + background.getName() + "`")).queue();
+                                event.getChannel().sendMessage("You have set the `" + background.getName() + "` as your current background.").queue();
                             });
                             backgroundView.build().display(event.getChannel());
                             break;
@@ -179,7 +185,7 @@ public class ProfileCommand extends Command {
                                                     event.getChannel().sendMessage("Gave " + user.getName() + "#" + user.getDiscriminator() + " " + CustomEmote.printPrice(toGive) + ".").queue();
                                                 }
                                             } catch (NumberFormatException e) {
-                                                event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getLocale(), event.getArgs()[3])).queue();
+                                                event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getArgs()[3])).queue();
                                             }
                                         }
                                         break;
@@ -203,7 +209,7 @@ public class ProfileCommand extends Command {
 
                                                 }
                                             } catch (NumberFormatException e) {
-                                                event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getLocale(), event.getArgs()[3])).queue();
+                                                event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getArgs()[3])).queue();
                                             }
                                         }
                                         break;
@@ -284,7 +290,7 @@ public class ProfileCommand extends Command {
                                                     event.getChannel().sendMessage("Took away " + CustomEmote.printPrice(toTake) + " from " + user.getName() + "#" + user.getDiscriminator() + ".").queue();
                                                 }
                                             } catch (NumberFormatException e) {
-                                                event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getLocale(), event.getArgs()[3])).queue();
+                                                event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getArgs()[3])).queue();
                                             }
                                         }
                                         break;
@@ -307,7 +313,7 @@ public class ProfileCommand extends Command {
                                                     event.getChannel().sendMessage("Took away " + toTake + " KXP from " + user.getName() + "#" + user.getDiscriminator() + ".").queue();
                                                 }
                                             } catch (NumberFormatException e) {
-                                                event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getLocale(), event.getArgs()[3])).queue();
+                                                event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getArgs()[3])).queue();
                                             }
                                         }
                                         break;
@@ -390,7 +396,7 @@ public class ProfileCommand extends Command {
                                                     event.getChannel().sendMessage("Set " + user.getName() + "#" + user.getDiscriminator() + "'s " + CustomEmote.printTopKek() + "to " + +toSet + ".").queue();
                                                 }
                                             } catch (NumberFormatException e) {
-                                                event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getLocale(), event.getArgs()[3])).queue();
+                                                event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getArgs()[3])).queue();
                                             }
                                         }
                                         break;
@@ -413,7 +419,7 @@ public class ProfileCommand extends Command {
                                                     event.getChannel().sendMessage("Set " + user.getName() + "#" + user.getDiscriminator() + "'s KXP to " + +toSet + ".").queue();
                                                 }
                                             } catch (NumberFormatException e) {
-                                                event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getLocale(), event.getArgs()[3])).queue();
+                                                event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getArgs()[3])).queue();
                                             }
                                         }
                                         break;
@@ -515,7 +521,7 @@ public class ProfileCommand extends Command {
                     event.getChannel().sendTyping().queue();
                     User user = event.getMentionedUsers().get(0);
                     Profile profile = Profile.getProfile(user);
-                    event.getChannel().sendFile(profile.drawCard(), "profile.png", new MessageBuilder().append(event.getString("command.fun.profile.otheruser", user.getName())).build()).queue();
+                    event.getChannel().sendFile(profile.drawCard(), "profile.png", new MessageBuilder().append("Here is ").append(user.getName()).append("'s profile card:").build()).queue();
                 } catch (IOException e) {
                     throwException(e, event, "Profile Image Generation Problem.");
                 }
@@ -526,41 +532,41 @@ public class ProfileCommand extends Command {
     private void setTitle(CommandEvent event, Profile profile, String title) {
         if (title.length() <= 20) {
             Questionnaire.newQuestionnaire(event)
-                    .addYesNoQuestion(event.getString("command.fun.profile.edit.title.confirm", "`" + title + "`"))
+                    .addYesNoQuestion("Are you sure you want to use the title: `" + title + "`?")
                     .execute(results -> {
                         if (results.getAnswerAsType(0, boolean.class)) {
                             profile.setSubtitle(title);
                             profile.save();
-                            event.getChannel().sendMessage(event.getString("command.fun.profile.edit.title.success")).queue();
+                            event.getChannel().sendMessage("Title set!").queue();
                         } else {
-                            event.getChannel().sendMessage(event.getString("questionnaire.cancelled")).queue();
+                            event.getChannel().sendMessage("Cancelled.").queue();
                         }
                     });
         } else {
-            event.getChannel().sendMessage(event.getString("command.fun.profile.edit.title.error")).queue();
+            event.getChannel().sendMessage("Your title is too long. Titles can only be 20 characters or fewer. Try something shorter.").queue();
         }
     }
 
     private void setBio(CommandEvent event, Profile profile, String bio) {
         if (!ProfileUtils.testBio(bio)) {
-            event.getChannel().sendMessage("command.fun.profile.edit.bio.retryerror").queue();
+            event.getChannel().sendMessage("That bio is too long, and will not fit in your profile card. Please try something shorter.").queue();
             return;
         }
 
         if (bio.contains("\n")) {
-            event.getChannel().sendMessage(event.getString("command.fun.profile.edit.bio.newline")).queue();
+            event.getChannel().sendMessage("You cannot use new lines in your bio. Please try something else.").queue();
             return;
         }
 
         Questionnaire.newQuestionnaire(event)
-                .addYesNoQuestion(event.getString("command.fun.profile.edit.bio.confirm", "`" + bio + "`"))
+                .addYesNoQuestion("For your bio, you wrote: `" + bio + "` Is this correct?")
                 .execute(results -> {
                     if (results.getAnswerAsType(0, boolean.class)) {
                         profile.setBio(bio);
                         profile.save();
-                        event.getChannel().sendMessage(event.getString("command.fun.profile.edit.bio.success")).queue();
+                        event.getChannel().sendMessage("Bio set!").queue();
                     } else {
-                        event.getChannel().sendMessage(event.getString("questionnaire.cancelled")).queue();
+                        event.getChannel().sendMessage("Cancelled.").queue();
                     }
                 });
     }

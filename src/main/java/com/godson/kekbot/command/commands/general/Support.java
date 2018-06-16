@@ -14,10 +14,12 @@ public class Support extends Command {
         cooldownScope = CooldownScope.USER_GUILD;
     }
 
-    private String invite = "https://discord.gg/3nbqavE";
-
     @Override
     public void onExecuted(CommandEvent event) {
-        event.getTextChannel().sendMessage(event.getString("command.general.support", invite)).queue();
+        String support = "Want to show your support for KekBot? There are plenty of ways to do so!\n" +
+                "You can join KekBot's official server here: https://discord.gg/3nbqavE\n" +
+                "There, you can suggest features, memes, and other things that'll help impact KekBot's progress!\n" +
+                "And you can also visit KekBot's Patreon: https://www.patreon.com/KekBot";
+        event.getTextChannel().sendMessage(support).queue();
     }
 }

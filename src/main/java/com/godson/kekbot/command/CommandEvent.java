@@ -1,7 +1,6 @@
 package com.godson.kekbot.command;
 
 import com.godson.kekbot.KekBot;
-import com.godson.kekbot.LocaleUtils;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.*;
@@ -50,10 +49,6 @@ public class CommandEvent {
         return isBotOwner() || client.getBotAdmins().contains(event.getAuthor().getId());
     }
 
-    public boolean isBotMod() {
-        return isBotOwner() || isBotAdmin() || client.getBotMods().contains(event.getAuthor().getId());
-    }
-
     public ChannelType getChannelType() {
         return event.getChannelType();
     }
@@ -100,18 +95,6 @@ public class CommandEvent {
 
     public Message getMessage() {
         return event.getMessage();
-    }
-
-    public String getLocale() {
-        return client.getLocale(event.getGuild().getId());
-    }
-
-    public String getString(String unlocalizedMessage, Object... objects) {
-        return LocaleUtils.getString(unlocalizedMessage, getLocale(), objects);
-    }
-
-    public String getPluralString(long amount, String unlocalizedMessage, Object... objects) {
-        return LocaleUtils.getPluralString(amount, unlocalizedMessage, getLocale(), objects);
     }
 
     /**

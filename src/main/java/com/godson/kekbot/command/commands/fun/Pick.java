@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class Pick extends Command {
 
-    private final String noChoicesGiven = "command.fun.pick.noargs";
+    private final String noChoicesGiven = "You haven't given me any choices, though...";
 
     public Pick() {
         name = "pick";
@@ -67,9 +67,9 @@ public class Pick extends Command {
         List<String> choices = parseChoices(event.combineArgs());
         if (choices.size() > 1) {
             Random random = new Random();
-            event.getChannel().sendMessage(KekBot.respond(Action.CHOICE_MADE, event.getLocale(), "`" + choices.get(random.nextInt(choices.size())) + "`")).queue();
+            event.getChannel().sendMessage(KekBot.respond(Action.CHOICE_MADE, choices.get(random.nextInt(choices.size())))).queue();
         } else if (choices.size() == 1) {
-            event.getChannel().sendMessage(event.getString("command.fun.pick.onearg", "`" + choices.get(0) + "`")).queue();
+            event.getChannel().sendMessage("Well, I guess I'm choosing `" + choices.get(0) + "`, since you haven't given me anything else to pick...").queue();
         } else {
             event.getChannel().sendMessage(noChoicesGiven).queue();
         }

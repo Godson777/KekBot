@@ -21,7 +21,7 @@ public abstract class TextImageCommand extends Command {
                 } catch (IOException e) {
                     throwException(e, event, "Image Generation Problem");
                 }
-            } else event.getChannel().sendMessage(event.getString("command.textimage.imagenotvalid")).queue();
+            } else event.getChannel().sendMessage("That's not a valid image.").queue();
         } else {
             if (event.getArgs().length > 0) {
                 event.getChannel().sendTyping().queue();
@@ -35,7 +35,7 @@ public abstract class TextImageCommand extends Command {
                         try {
                             event.getChannel().sendFile(generate(event.combineArgs()), filename + ".png", null).queue();
                         } catch (IllegalArgumentException e) {
-                            event.getChannel().sendMessage(event.getString("command.textimage.texttoolong")).queue();
+                            event.getChannel().sendMessage("The text you've entered is too long for this command, try something else.").queue();
                         }
                         return;
                     }
@@ -45,18 +45,18 @@ public abstract class TextImageCommand extends Command {
                     try {
                         event.getChannel().sendFile(generate(event.combineArgs()), filename + ".png", null).queue();
                     } catch (IllegalArgumentException e1) {
-                        event.getChannel().sendMessage(event.getString("command.textimage.texttoolong")).queue();
+                        event.getChannel().sendMessage("The text you've entered is too long for this command, try something else.").queue();
                     }
                 } catch (SSLHandshakeException | SocketException e) {
-                    event.getChannel().sendMessage(event.getString("command.textimage.unabletoconnect")).queue();
+                    event.getChannel().sendMessage("Unable to connect to URL.").queue();
                 } catch (IOException e) {
                     try {
                         event.getChannel().sendFile(generate(event.combineArgs()), filename + ".png", null).queue();
                     } catch (IllegalArgumentException e1) {
-                        event.getChannel().sendMessage(event.getString("command.textimage.texttoolong")).queue();
+                        event.getChannel().sendMessage("The text you've entered is too long for this command, try something else.").queue();
                     }
                 }
-            } else event.getChannel().sendMessage(event.getString("command.textimage.noargs")).queue();
+            } else event.getChannel().sendMessage("No image or text provided.").queue();
         }
     }
 

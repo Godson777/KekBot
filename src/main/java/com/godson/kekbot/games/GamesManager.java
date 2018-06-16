@@ -1,10 +1,7 @@
 package com.godson.kekbot.games;
 
 import com.godson.kekbot.KekBot;
-import com.godson.kekbot.LocaleUtils;
 import com.godson.kekbot.music.GuildMusicManager;
-import com.godson.kekbot.questionaire.QuestionType;
-import com.godson.kekbot.questionaire.Questionnaire;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
@@ -29,7 +26,7 @@ public class GamesManager extends ListenerAdapter {
             Game game = activeGames.get(Long.valueOf(channel.getId()));
             if (game.hasRoomForPlayers()) {
                 game.addPlayer(player);
-                String joinMessage = "**" + LocaleUtils.getString("game.playerjoined", KekBot.getGuildLocale(channel.getGuild()), player.getName(), "(" + game.players.size() + "/" + game.getMaxNumberOfPlayers() + ")") + "**";
+                String joinMessage = "**" + player.getName() + " joined the game. (" + game.players.size() + "/" + game.getMaxNumberOfPlayers() + ")**";
                 if (game.hasMinimum() && game.hasMinimumPlayers() && !game.reachedMinimumPlayers()) {
                     joinMessage += " *(Minimum Players Reached! You can now start the game with `" + KekBot.getGuildPrefix(channel.getGuild()) + "game ready`!)*";
                 }
@@ -45,20 +42,13 @@ public class GamesManager extends ListenerAdapter {
                 return;
             }
             Game game = gameRegistry.getGame(gameName, channel);
-            if (!game.isTranslatable() && !KekBot.getCommandClient().getDefaultLocale().equals(KekBot.getGuildLocale(channel.getGuild()))) {
-                Questionnaire.newQuestionnaire(channel.getGuild(), channel, host)
-                        .addYesNoQuestion(LocaleUtils.getString("game.nottranslatable", KekBot.getGuildLocale(channel.getGuild())))
-                        .execute(results -> {
-                            if (results.getAnswerAsType(0, boolean.class)) {
-                                prepareGame(channel, game, host);
-                            } else {
-                                channel.sendMessage("Lobby closed.").queue();
-                            }
-                        });
-                return;
-            }
-            prepareGame(channel, game, host);
-
+            game.addPlayer(host);
+            activeGames.put(Long.valueOf(channel.getId()), game);
+            channel.sendMessage(game.getGameName() + " lobby created! (If you don't know how to play, you can use `" + KekBot.getGuildPrefix(channel.getGuild()) + "game rules` to view the rules and instructions.)" +
+                    (game.hasMinimum() ? " ***(Minimum " + game.getMinNumberOfPlayers() + " players to play. Maximum " + game.getMaxNumberOfPlayers() + " players.)***" : "") +
+                    (game.hasRoomForPlayers() ? " Players can join by using `" + KekBot.getGuildPrefix(channel.getGuild()) + "game join`." : "") +
+                    (game.hasRoomForPlayers() && game.hasAI() ? " Or, you can start the game early with `{p}game ready`, and play with an AI." : "") +
+                    (game.hasAI() && !game.hasRoomForPlayers() ? " You can now start the game with `" + KekBot.getGuildPrefix(channel.getGuild()) + "game ready`" : "")).queue();
         } else {
             Game game = getGame(channel);
             User otherHost = game.players.get(0);
@@ -69,16 +59,6 @@ public class GamesManager extends ListenerAdapter {
             if (game.isReady()) channel.sendMessage("There's already a game of `" + game.getGameName() + "` being played here. The game was started by " + otherHost.getName() + ".").queue();
             else channel.sendMessage("There's already a lobby for `" + game.getGameName() + "` in this channel, the lobby was created by " + otherHost.getName() + ".").queue();
         }
-    }
-
-    private void prepareGame(TextChannel channel, Game game, User host) {
-        game.addPlayer(host);
-        activeGames.put(Long.valueOf(channel.getId()), game);
-        channel.sendMessage(game.getGameName() + " lobby created! (If you don't know how to play, you can use `" + KekBot.getGuildPrefix(channel.getGuild()) + "game rules` to view the rules and instructions.)" +
-                (game.hasMinimum() ? " ***(Minimum " + game.getMinNumberOfPlayers() + " players to play. Maximum " + game.getMaxNumberOfPlayers() + " players.)***" : "") +
-                (game.hasRoomForPlayers() ? " Players can join by using `" + KekBot.getGuildPrefix(channel.getGuild()) + "game join`." : "") +
-                (game.hasRoomForPlayers() && game.hasAI() ? " Or, you can start the game early with `" + KekBot.getGuildPrefix(channel.getGuild()) + "game ready`, and play with an AI." : "") +
-                (game.hasAI() && !game.hasRoomForPlayers() ? " You can now start the game with `" + KekBot.getGuildPrefix(channel.getGuild()) + "game ready`" : "")).queue();
     }
 
     public void closeGame(TextChannel channel) {

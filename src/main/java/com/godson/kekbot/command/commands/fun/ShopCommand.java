@@ -35,23 +35,27 @@ public class ShopCommand extends Command {
     public ShopCommand() {
         name = "shop";
         description = "Opens up the profile shop.";
-        usage.add("shop");
+        usage.add("shop <category>");
+        usage.add("shop <category> <page>");
+        usage.add("shop buy <category> <itemID>");
+        usage.add("shop info <category> <itemID>");
+        if (Config.getConfig().getDcoinToken() != null) usage.add("shop convert");
         extendedDescription = "\nAvailable Categories:" +
                 "\nTokens" +
                 "\nBackgrounds" +
                 "\n\n#Notes:" +
                 "\nArrows signify other pages in a shop." +
-                "\nCrossed out items require you to be a higher level.";
+                "\nCrossed out items require you to be a higher level. You can find out what level is required by using {p}shop info <category> <itemID>.";
         exDescPos = ExtendedPosition.AFTER;
         category = new Category("Fun");
     }
 
     @Override
-    public void onExecuted(CommandEvent event) {
+    public void onExecuted(CommandEvent event) throws Exception {
         OrderedMenu.Builder builder = new OrderedMenu.Builder();
         builder.addChoices("Tokens","Backgrounds");
         if (Config.getConfig().getDcoinToken() != null) builder.addChoices("Convert Topkeks");
-        builder.setDescription(event.getString("command.fun.shop.intro") + "\n");
+        builder.setDescription("Welcome to KekBot's shop! We have all kinds of different things you can shop for in here! What are you interested in?\n");
 
         //Make sure there's a cancel button.
         builder.useCancelButton(true);
@@ -95,12 +99,12 @@ public class ShopCommand extends Command {
                         Profile profile = Profile.getProfile(event.getAuthor());
 
                         //Item's info.
-                        String info = "***" + event.getString("command.fun.shop.name") + "*** " + selectedToken.getName() +
-                                "\n***" + event.getString("command.fun.shop.requireslevel", selectedToken.getRequiredLevel()) + "***" +
-                                "\n****" + event.getString("command.fun.shop.currentlevel", profile.getLevel()) + "***" +
-                                "\n***" + event.getString("command.fun.shop.price", CustomEmote.printPrice(selectedToken.getPrice())) + "***" +
-                                "\n***" + event.getString("command.fun.shop.description") + "*** " + selectedToken.getDescription() +
-                                "\n***" + event.getString("command.fun.shop.preview") + "***";
+                        String info = "***Name:*** " + selectedToken.getName() +
+                                "\n***Requires Level " + selectedToken.getRequiredLevel() + ".***" +
+                                "\n***Your Level: " + profile.getLevel() + "***" +
+                                "\n***Price:*** " + CustomEmote.printPrice(selectedToken.getPrice()) + "***" +
+                                "\n***Description:*** " + selectedToken.getDescription() +
+                                "\n***Preview:***";
 
                         event.getChannel().sendTyping().queue();
                         try {
@@ -166,12 +170,12 @@ public class ShopCommand extends Command {
                         Profile profile = Profile.getProfile(event.getAuthor());
 
                         //Item's info.
-                        String info = "***" + event.getString("command.fun.shop.name") + "*** " + selectedBackground.getName() +
-                                "\n***" + event.getString("command.fun.shop.requireslevel", selectedBackground.getRequiredLevel()) + "***" +
-                                "\n****" + event.getString("command.fun.shop.currentlevel", profile.getLevel()) + "***" +
-                                "\n***" + event.getString("command.fun.shop.price", CustomEmote.printPrice(selectedBackground.getPrice())) + "***" +
-                                "\n***" + event.getString("command.fun.shop.description") + "*** " + selectedBackground.getDescription() +
-                                "\n***" + event.getString("command.fun.shop.preview") + "***";
+                        String info = "***Name:*** " + selectedBackground.getName() +
+                                "\n***Requires Level " + selectedBackground.getRequiredLevel() + ".***" +
+                                "\n***Your Level: " + profile.getLevel() + "***" +
+                                "\n***Price:*** " + CustomEmote.printPrice(selectedBackground.getPrice()) + "***" +
+                                "\n***Description:*** " + selectedBackground.getDescription() +
+                                "\n***Preview:***";
 
                         event.getChannel().sendTyping().queue();
                         try {

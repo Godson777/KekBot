@@ -16,6 +16,6 @@ public class GoogleSearch extends Command {
     public void onExecuted(CommandEvent event) {
         if (event.getArgs().length > 0) {
             event.getChannel().sendMessage("http://google.com/#q=" + event.combineArgs().replace(" ", "+")).queue();
-        } else event.getChannel().sendMessage(event.getString("command.general.google.noargs")).queue();
+        } else event.getChannel().sendMessage("You haven't given me anything to search for!").queue();
     }
 }

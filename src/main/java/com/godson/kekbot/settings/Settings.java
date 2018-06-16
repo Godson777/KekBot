@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Settings {
+    //Remove these annotations when porting from 1.4 settings to 1.5.
     @SerializedName("Guild ID")
     private String guildID;
     @SerializedName("Prefix")
@@ -28,8 +29,6 @@ public class Settings {
     private List<String> freeRoles = new ArrayList<>();
     @SerializedName("Anti-Ad")
     private boolean antiAd = false;
-    @SerializedName("Locale")
-    private String locale = "en_US";
 
     public class AnnounceSettings {
         private String welcomeChannelID;
@@ -98,14 +97,6 @@ public class Settings {
         return autoRoleID;
     }
 
-    public void setLocale(String locale) {
-        this.locale = locale;
-    }
-
-    public String getLocale() {
-        return locale;
-    }
-
     /**
      * Saves all the settings into rethinkdb, allowing for later reading/writing.
      */
@@ -114,11 +105,10 @@ public class Settings {
                 .with("Prefix", prefix)
                 .with("AutoRole ID", autoRoleID)
                 .with("Announce Settings", announceSettings)
-                .with("Tags", tags == null ? new TagManager() : tags)
-                .with("Quotes", quotes == null ? new QuoteManager() : quotes)
-                .with("Free Roles", freeRoles == null ? new ArrayList<Role>() : freeRoles)
-                .with("Anti-Ad", antiAd)
-                .with("Locale", locale == null ? "en_US" : locale);
+                .with("Tags", tags)
+                .with("Quotes", quotes)
+                .with("Free Roles", (freeRoles == null ? new ArrayList<Role>() : freeRoles))
+                .with("Anti-Ad", antiAd);
 
         if (KekBot.r.table("Settings").get(guildID).run(KekBot.conn) == null) {
             KekBot.r.table("Settings").insert(settings).run(KekBot.conn);

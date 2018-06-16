@@ -114,16 +114,13 @@ public class EmbedPaginator extends Menu {
 
         MessageEmbed embed = embeds.get(pageNum-1);
         embed.getFields().forEach(ebuilder::addField);
-        if (embed.getTitle() != null) ebuilder.setTitle(embed.getTitle());
-        if (embed.getDescription() != null) ebuilder.setDescription(embed.getDescription());
         if (embed.getColor() == null) ebuilder.setColor(color);
         else ebuilder.setColor(embed.getColor());
         if (embed.getThumbnail() != null) ebuilder.setThumbnail(embed.getThumbnail().getUrl());
         if (embed.getTimestamp() != null) ebuilder.setTimestamp(embed.getTimestamp());
-        if (embed.getAuthor() != null) ebuilder.setAuthor(embed.getAuthor().getName(), embed.getAuthor().getUrl(), embed.getAuthor().getIconUrl());
 
         if(showPageNumbers)
-            ebuilder.setFooter("Page " + pageNum + "/" + pages + (embed.getFooter() != null ? " | " + embed.getFooter().getText() : "") , null);
+            ebuilder.setFooter("Page " + pageNum + "/" + pages, null);
         mbuilder.setEmbed(ebuilder.build());
         return mbuilder.build();
     }

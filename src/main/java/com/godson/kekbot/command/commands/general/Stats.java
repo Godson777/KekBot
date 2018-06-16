@@ -20,7 +20,7 @@ public class Stats extends Command {
         name = "stats";
         description = "Prints KekBot's stats.";
         usage.add("stats");
-        usage.add("stats nerds");
+        usage.add("stats nerd");
         category = new Category("General");
     }
 
@@ -61,7 +61,7 @@ public class Stats extends Command {
             builder.setColor(event.getSelfMember().getColor() != null ? event.getSelfMember().getColor() : Color.RED);
             event.getChannel().sendMessage(builder.build()).queue();
         } else {
-            if (event.getArgs()[0].equalsIgnoreCase("nerds") || event.getArgs()[0].equalsIgnoreCase("dev")) {
+            if (event.getArgs()[0].equalsIgnoreCase("nerd") || event.getArgs()[0].equalsIgnoreCase("dev")) {
                 boolean dev = event.getArgs()[0].equalsIgnoreCase("dev");
                 StringBuilder builder = new StringBuilder();
                 builder.append("Version: " + KekBot.version + "");

@@ -23,10 +23,10 @@ public class CoinFlip extends Command {
         int flip = random.nextInt(2);
         String coin;
         if (flip == 0) {
-            coin = "**" + event.getString("command.fun.coinflip.heads") + "!**";
+            coin = "**HEADS!**";
         } else {
-            coin = "**" + event.getString("command.fun.coinflip.tails") + "!**";
+            coin = "**TAILS!**";
         }
-        event.getChannel().sendMessage(event.getString("command.fun.coinflip.flip", event.getAuthor().getName(), coin)).queue();
+        event.getChannel().sendMessage(event.getMessage().getAuthor().getAsMention() + " Flipped the coin and it landed on... " + coin).queue();
     }
 }

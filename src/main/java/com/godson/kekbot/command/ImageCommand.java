@@ -23,7 +23,7 @@ public abstract class ImageCommand extends Command {
                 } catch (IOException e) {
                     throwException(e, event, "Image Generation Problem");
                 }
-            } else event.getChannel().sendMessage(event.getString("command.textimage.imagenotvalid")).queue();
+            } else event.getChannel().sendMessage("That's not a valid image.").queue();
         } else {
             if (event.getArgs().length > 0) {
                 event.getChannel().sendTyping().queue();
@@ -34,15 +34,15 @@ public abstract class ImageCommand extends Command {
                     connection.connect();
                     BufferedImage check = ImageIO.read(connection.getInputStream());
                     if (check == null) {
-                        event.getChannel().sendMessage(event.getString("command.textimage.noimage")).queue();
+                        event.getChannel().sendMessage("No image found.").queue();
                         return;
                     }
 
                     event.getChannel().sendFile(generate(check), filename + ".png", null).queue();
                 } catch (MalformedURLException | UnknownHostException | IllegalArgumentException | FileNotFoundException e) {
-                    event.getChannel().sendMessage(event.getString("command.textimage.invalidurl", "`" + event.getArgs()[0] + "`")).queue();
+                    event.getChannel().sendMessage("`" + event.getArgs()[0] + "`" + " is not a valid URL.").queue();
                 } catch (SSLHandshakeException | SocketException e) {
-                    event.getChannel().sendMessage(event.getString("command.textimage.unabletoconnect")).queue();
+                    event.getChannel().sendMessage("Unable to connect to URL.").queue();
                 } catch (IOException e) {
                     throwException(e, event, "Image Generation Problem");
                 }
@@ -63,7 +63,7 @@ public abstract class ImageCommand extends Command {
                             }
                         }
                     }
-                    event.getChannel().sendMessage(event.getString("command.textimage.noimage")).queue();
+                    event.getChannel().sendMessage("No image provided.").queue();
                 });
             }
         }

@@ -2,7 +2,6 @@ package com.godson.kekbot.menu;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.menu.Menu;
-import com.jagrosh.jdautilities.menu.Paginator;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.*;
@@ -18,13 +17,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 public class PagedSelectionMenu extends Menu {
 
     private final Color color;
-    private final BiFunction<Integer, Integer, String> text;
     private final Consumer<Message> finalAction;
     private final int pages;
     private final boolean showPageNumbers;
@@ -42,12 +39,11 @@ public class PagedSelectionMenu extends Menu {
     public static final String[] NUMBERS = new String[]{"1⃣", "2⃣", "3⃣", "4⃣", "5⃣", "6⃣", "7⃣", "8⃣", "9⃣", "\ud83d\udd1f"};
 
 
-    protected PagedSelectionMenu(EventWaiter waiter, Set<User> users, Set<Role> roles, BiFunction<Integer, Integer, String> text, long timeout, TimeUnit unit, Consumer<Message> finalAction,
+    protected PagedSelectionMenu(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit, Consumer<Message> finalAction,
                                  List<String> choices, int itemsPerPage, BiConsumer<Message, Integer> selectionAction, Color color, boolean showPageNumbers) {
         super(waiter, users, roles, timeout, unit);
         this.finalAction = finalAction;
         this.choices = choices;
-        this.text = text;
         this.pages = (int)Math.ceil((double)this.choices.size() / (double)itemsPerPage);
         this.numberOfItems = choices.size();
         this.itemsPerPage = itemsPerPage;
@@ -100,10 +96,6 @@ public class PagedSelectionMenu extends Menu {
         ebuilder.setColor(color);
         if (this.showPageNumbers) {
             ebuilder.setFooter("Page " + pageNum + "/" + this.pages, null);
-        }
-
-        if (this.text != null) {
-            mbuilder.append(this.text.apply(pageNum, this.pages));
         }
 
         mbuilder.setEmbed(ebuilder.build());
@@ -222,7 +214,6 @@ public class PagedSelectionMenu extends Menu {
         private int itemsPerPage;
         private BiConsumer<Message, Integer> selectionAction;
         private Color color;
-        private BiFunction<Integer, Integer, String> text = (page, pages) -> "";
         private boolean showPageNumbers;
 
         private final List<String> choices = new LinkedList<>();
@@ -234,21 +225,11 @@ public class PagedSelectionMenu extends Menu {
             Checks.check(this.itemsPerPage <= 10, "Must have no more than ten choices per page.");
             Checks.check(this.selectionAction != null, "Must provide an selection consumer.");
             Checks.check(!this.choices.isEmpty(), "Must include at least one item to paginate.");
-            return new PagedSelectionMenu(waiter, users, roles, text, timeout, unit, finalAction, choices, itemsPerPage, selectionAction, color, showPageNumbers);
+            return new PagedSelectionMenu(waiter, users, roles, timeout, unit, finalAction, choices, itemsPerPage, selectionAction, color, showPageNumbers);
         }
 
         public PagedSelectionMenu.Builder setSelectionAction(BiConsumer<Message, Integer> selectionAction) {
             this.selectionAction = selectionAction;
-            return this;
-        }
-
-        public PagedSelectionMenu.Builder setText(String text) {
-            this.text = (i0, i1) -> text;
-            return this;
-        }
-
-        public PagedSelectionMenu.Builder setText(BiFunction<Integer, Integer, String> textBiFunction) {
-            this.text = textBiFunction;
             return this;
         }
 

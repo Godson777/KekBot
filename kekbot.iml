@@ -12,7 +12,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Maven: org.im4java:im4java:1.4.0" level="project" />
     <orderEntry type="library" name="Maven: com.sedmelluq:lavaplayer:1.2.62" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: com.sedmelluq:lavaplayer-common:1.0.6" level="project" />
     <orderEntry type="library" scope="RUNTIME" name="Maven: com.sedmelluq:lavaplayer-natives:1.2.55" level="project" />
@@ -38,16 +37,7 @@
     <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.8.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.commons:commons-lang3:3.7" level="project" />
     <orderEntry type="library" name="Maven: com.github.Godson777:Discoin4J:v1.0.1" level="project" />
-    <orderEntry type="library" name="Maven: org.twitter4j:twitter4j-core:4.0.6" level="project" />
-    <orderEntry type="library" name="Maven: org.twitter4j:twitter4j-stream:4.0.6" level="project" />
-    <orderEntry type="library" name="Maven: com.github.DiscordBotList:DBL-Java-Wrapper:4b27930" level="project" />
-    <orderEntry type="library" name="Maven: com.squareup.retrofit2:converter-gson:2.3.0" level="project" />
-    <orderEntry type="library" name="Maven: com.squareup.retrofit2:retrofit:2.3.0" level="project" />
-    <orderEntry type="library" name="Maven: me.duncte123:weebJava:1.2.1" level="project" />
-    <orderEntry type="library" name="Maven: com.afollestad:ason:1.4.16" level="project" />
-    <orderEntry type="library" scope="RUNTIME" name="Maven: com.intellij:annotations:12.0" level="project" />
-    <orderEntry type="library" name="Maven: org.apache.commons:commons-text:1.1" level="project" />
-    <orderEntry type="library" name="Maven: com.github.natanbc:reliqua:1.2" level="project" />
+    <orderEntry type="library" name="Maven: org.twitter4j:twitter4j-core:4.0.4" level="project" />
     <orderEntry type="library" name="Maven: com.rethinkdb:rethinkdb-driver:2.3.3" level="project" />
     <orderEntry type="library" name="Maven: com.googlecode.json-simple:json-simple:1.1.1" level="project" />
     <orderEntry type="library" name="Maven: junit:junit:4.10" level="project" />

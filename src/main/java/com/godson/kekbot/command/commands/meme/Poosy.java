@@ -6,7 +6,6 @@ import com.godson.kekbot.command.CommandCategories;
 import com.godson.kekbot.command.CommandEvent;
 
 import java.io.File;
-import java.util.Arrays;
 
 public class Poosy extends Command {
 
@@ -19,9 +18,7 @@ public class Poosy extends Command {
 
     @Override
     public void onExecuted(CommandEvent event) throws Throwable {
-        boolean reboot = (Arrays.stream(event.getArgs()).anyMatch(s -> s.equalsIgnoreCase("--reboot")));
-
         event.getChannel().sendTyping().queue();
-        event.getChannel().sendFile(new File(reboot ? "resources/memegen/poosy-reboot.png" : "resources/memegen/poosy.png"), "poosy.png", null).queue();
+        event.getChannel().sendFile(new File("resources/memegen/poosy.png"), "poosy.png", null).queue();
     }
 }

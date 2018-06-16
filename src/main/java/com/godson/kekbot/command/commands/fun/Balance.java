@@ -21,15 +21,15 @@ public class Balance extends Command {
     public void onExecuted(CommandEvent event) {
         if (event.getArgs().length > 0) {
             if (event.getMentionedUsers().size() != 1) {
-                event.getChannel().sendMessage((event.getMentionedUsers().size() > 1 ? event.getString("command.fun.balance.toomanyusers") : event.getString("command.fun.balance.nousers"))).queue();
+                event.getChannel().sendMessage((event.getMentionedUsers().size() > 1 ? "Too many" : "No") + "users specified.").queue();
                 return;
             }
             Profile profile = Profile.getProfile(event.getMentionedUsers().get(0));
-            event.getChannel().sendMessage(event.getString("command.fun.balance.otherbal",event.getMentionedUsers().get(0).getName(), CustomEmote.printPrice(profile.getTopkeks()))).queue();
+            event.getChannel().sendMessage(event.getMentionedUsers().get(0).getName() + " has " + CustomEmote.printPrice(profile.getTopkeks())).queue();
             return;
         }
 
         Profile profile = Profile.getProfile(event.getAuthor());
-        event.getChannel().sendMessage(event.getString("command.fun.balance.authorbal", CustomEmote.printPrice(profile.getTopkeks()))).queue();
+        event.getChannel().sendMessage("You have " + CustomEmote.printPrice(profile.getTopkeks())).queue();
     }
 }

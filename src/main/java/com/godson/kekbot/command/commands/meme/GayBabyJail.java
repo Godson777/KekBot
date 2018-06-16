@@ -29,12 +29,12 @@ public class GayBabyJail extends Command {
     @Override
     public void onExecuted(CommandEvent event) throws Throwable {
         if (event.getArgs().length < 1) {
-            event.getChannel().sendMessage(event.getString("command.meme.noargs")).queue();
+            event.getChannel().sendMessage("Who are you targeting?").queue();
             return;
         }
 
         if (!isMention(event.combineArgs()) || event.getMentionedUsers().size() < 1) {
-            event.getChannel().sendMessage(event.getString("command.meme.nomention")).queue();
+            event.getChannel().sendMessage("The user you want to target must be in the form of a mention!").queue();
             return;
         }
 

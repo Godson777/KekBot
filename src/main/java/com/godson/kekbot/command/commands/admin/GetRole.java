@@ -1,8 +1,6 @@
 package com.godson.kekbot.command.commands.admin;
 
 import com.godson.kekbot.KekBot;
-import com.godson.kekbot.LocaleUtils;
-import com.godson.kekbot.Utils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.settings.Settings;
@@ -25,22 +23,12 @@ public class GetRole extends Command {
     @Override
     public void onExecuted(CommandEvent event) {
         if (event.getArgs().length < 1) {
-            event.getChannel().sendMessage(LocaleUtils.getString("command.noargs", event.getLocale(), "`" + event.getPrefix() + "help " + name + "`")).queue();
+            event.getChannel().sendMessage("No arguments specified, check `" + event.getPrefix() + "help " + name + "` for more help.").queue();
             return;
         }
 
         Settings settings = Settings.getSettings(event.getGuild());
         String role = event.combineArgs();
-
-        //We're gonna quickly check if a role is missing on this server.
-        for (String s : settings.getFreeRoles()) {
-            if (event.getGuild().getRoles().stream().noneMatch(r -> r.getId().equals(s))) {
-                //Role is missing, delete from getrole.
-                settings.removeFreeRole(s);
-                settings.save();
-            }
-        }
-
 
         if (role.equalsIgnoreCase("list")) {
             Paginator.Builder builder = new Paginator.Builder();
@@ -58,27 +46,22 @@ public class GetRole extends Command {
 
         List<Role> check = event.getGuild().getRolesByName(role, false);
         if (check.size() == 0) {
-            event.getChannel().sendMessage(LocaleUtils.getString("command.norolefound", event.getLocale(), role)).queue();
+            event.getChannel().sendMessage("Unable to find any roles by the name of `" + role + "`!").queue();
             return;
         }
 
         if (!settings.getFreeRoles().contains(check.get(0).getId())) {
-            event.getChannel().sendMessage(LocaleUtils.getString("command.admin.getrole.invalidrole", event.getLocale())).queue();
-            return;
-        }
-
-        if (!Utils.checkHierarchy(check.get(0), event.getSelfMember())) {
-            event.getChannel().sendMessage(LocaleUtils.getString("command.admin.getrole.roleerror", event.getLocale())).queue();
+            event.getChannel().sendMessage("This isn't a role I can give to you.").queue();
             return;
         }
 
         if (event.getMember().getRoles().contains(check.get(0))) {
             event.getGuild().getController().removeRolesFromMember(event.getMember(), check.get(0)).reason("getrole command").queue();
-            event.getChannel().sendMessage(LocaleUtils.getString("command.admin.getrole.roleremoved", event.getLocale(), "`" + role + "`")).queue();
+            event.getChannel().sendMessage("Done, you no longer have the `" + role + "` role.").queue();
             return;
         }
 
         event.getGuild().getController().addRolesToMember(event.getMember(), check.get(0)).reason("getrole command").queue();
-        event.getChannel().sendMessage(LocaleUtils.getString("command.admin.getrole.roleadded", event.getLocale(), "`" + role + "`")).queue();
+        event.getChannel().sendMessage("Done, you now have the `" + role + "` role.").queue();
     }
 }

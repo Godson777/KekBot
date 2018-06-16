@@ -1,7 +1,6 @@
 package com.godson.kekbot.games;
 
 import com.godson.kekbot.CustomEmote;
-import com.godson.kekbot.LocaleUtils;
 import com.godson.kekbot.profile.Profile;
 import javafx.util.Pair;
 import net.dv8tion.jda.core.entities.User;
@@ -23,46 +22,46 @@ public class BetManager {
         this.spectatorsEnabled = spectatorsEnabled;
     }
 
-    public String addPlayerBet(User user, double bet, String locale) {
+    public String addPlayerBet(User user, double bet) {
         Profile profile = Profile.getProfile(user);
         if (playersEnabled) {
             if (!players.containsKey(user)) {
                 if (!profile.canSpend(bet)) {
-                    return LocaleUtils.getString("game.bet.notenoughfunds", locale, CustomEmote.printTopKek());
+                    return "You don't have enough " + CustomEmote.printTopKek() + " to make that bet!";
                 }
                 profile.spendTopKeks(bet);
                 profile.save();
                 players.put(user, bet);
                 playerPot += bet;
-                return LocaleUtils.getString("game.bet.player.success", locale);
+                return "Your bet has been added to the pot.";
             } else {
                 if (bet > players.get(user)) {
                     if (!profile.canSpend(bet - players.get(user))) {
-                        return LocaleUtils.getString("game.bet.notenoughfunds", locale, CustomEmote.printTopKek());
+                        return "You don't have enough " + CustomEmote.printTopKek() + " to make that bet!";
                     }
                     profile.spendTopKeks(bet - players.get(user));
                     profile.save();
                     playerPot += (bet - players.get(user));
                     players.replace(user, bet);
-                    return LocaleUtils.getString("game.bet.player.increased", locale);
-                } else return LocaleUtils.getString("game.bet.player.decrease", locale);
+                    return "Your bet was increased.";
+                } else return "You cannot lower your bet.";
             }
-        } else return LocaleUtils.getString("game.bet.player.error", locale);
+        } else return "This game does not support player bets.";
     }
 
-    public String addSpectatorBet(User user, int player, double bet, String locale) {
+    public String addSpectatorBet(User user, int player, double bet) {
         Profile profile = Profile.getProfile(user);
         if (spectatorsEnabled) {
             if (!spectators.containsKey(user)) {
                 if (!profile.canSpend(bet)) {
-                    return LocaleUtils.getString("game.bet.notenoughfunds", locale, CustomEmote.printTopKek());
+                    return "You don't have enough " + CustomEmote.printTopKek() + " to make that bet!";
                 }
                 profile.spendTopKeks(bet);
                 profile.save();
                 spectators.put(user, new Pair<>(player, bet));
-                return LocaleUtils.getString("game.bet.spectator.success", locale);
-            } else return LocaleUtils.getString("game.bet.spectator.existing", locale);
-        } else return LocaleUtils.getString("game.bet.spectator.error", locale);
+                return "Your bet has been accepted.";
+            } else return "You cannot edit your bet once it's been made.";
+        } else return "This game does not support spectator bets.";
     }
 
     public Double declareWinners(Game game, List<Integer> winnerIDs) {

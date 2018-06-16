@@ -249,18 +249,12 @@ public class Utils {
                 (seconds > 0 ? (seconds > 9 ? seconds : "0" + seconds) : "00");
     }
 
-
-    public static String convertMillisToTime(long millis) {
-        return convertMillisToTime(millis, KekBot.getCommandClient().getDefaultLocale());
-    }
-
     /**
-     * Converts milliseconds to a "Time" format. (Example, 1 Day, 20 Hours, 10 minutes, and 5 Seconds.)
+     * Converts milliseconds to a "Time" format. (Example, 1 Day, 20 Hours, 10 minutes, and 5 Seconds.
      * @param millis The milliseconds to convert.
-     * @param locale The locale to translate into.
      * @return The converted "Time" format.
      */
-    public static String convertMillisToTime(long millis, String locale) {
+    public static String convertMillisToTime(long millis) {
         long days = TimeUnit.MILLISECONDS.toDays(millis);
         long hours = TimeUnit.MILLISECONDS.toHours(millis) -
                 TimeUnit.DAYS.toHours(TimeUnit.MILLISECONDS.toDays(millis));
@@ -268,10 +262,9 @@ public class Utils {
                 TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis));
         long seconds = TimeUnit.MILLISECONDS.toSeconds(millis) -
                 TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis));
-        return (days != 0 ? days + " " + LocaleUtils.getPluralString(days, "amount.time.days", locale) + ", " : "")
-                + (hours != 0 ? hours + " " + LocaleUtils.getPluralString(hours, "amount.time.hours", locale) + ", " : "") +
-                minutes + " " + LocaleUtils.getPluralString(minutes, "amount.time.minutes", locale) + " "
-                + seconds + " " + LocaleUtils.getPluralString(hours, "amount.time.seconds", locale) + "." ;
+        return (days != 0 ? days + (days > 1 ? " Days, " : " Day, ") : "") +
+                (hours != 0 ? hours + (hours > 1 ? " Hours, " : " Hour, ") : "") + minutes +
+                (minutes != 1 ? " Minutes and " : " Minute and ") + seconds + (seconds != 1 ? " Seconds." : " Second.");
     }
 
     /**
@@ -300,13 +293,31 @@ public class Utils {
     }
 
     /**
+     * Combines a set of arguments to a single string.
+     * @param arguments The arguments to combine.
+     * @return The combined {@link String string} object.
+     */
+    public static String combineArguments(String[] arguments) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < arguments.length; i++) {
+            builder.append(arguments[i]);
+            if (i != arguments.length-1) builder.append(" ");
+        }
+        return builder.toString();
+    }
+
+    /**
      * Compares two members and checks if a user based action is able to be done.
      * @param target The target of the check.
      * @param author The author that's performing the action.
      * @return The {@link boolean} result that confirms whether or not the action can be done.
      */
     public static boolean checkHierarchy(Member target, Member author) {
-        return author.getRoles().size() > 0 && (target.getRoles().size() < 1 || target.getRoles().size() >= 1 && target.getRoles().stream().map(Role::getPositionRaw).max(Integer::compareTo).get() >= author.getRoles().stream().map(Role::getPositionRaw).max(Integer::compareTo).get());
+        if (author.getRoles().size() > 0) {
+            return target.getRoles().size() < 1 || target.getRoles().size() >= 1 && target.getRoles().stream().map(Role::getPositionRaw).max(Integer::compareTo).get() >= author.getRoles().stream().map(Role::getPositionRaw).max(Integer::compareTo).get();
+        } else {
+            return target.getRoles().size() <= 0;
+        }
     }
 
     /**

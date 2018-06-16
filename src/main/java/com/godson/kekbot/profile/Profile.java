@@ -18,7 +18,6 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -402,7 +401,6 @@ public class Profile {
      */
     public void addTopKeks(double topkeks) {
         this.topkeks += topkeks;
-        this.topkeks = new BigDecimal(Double.toString(this.topkeks)).setScale(2, RoundingMode.HALF_UP).doubleValue();
     }
 
     /**
@@ -419,10 +417,7 @@ public class Profile {
      * @param topkeks The amount to subtract.
      */
     public void spendTopKeks(double topkeks) {
-        if (canSpend(topkeks)) {
-            this.topkeks -= topkeks;
-            this.topkeks = new BigDecimal(Double.toString(this.topkeks)).setScale(2, RoundingMode.HALF_UP).doubleValue();
-        }
+        if (canSpend(topkeks)) this.topkeks -= topkeks;
         else this.topkeks = 0;
     }
 

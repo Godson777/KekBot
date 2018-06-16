@@ -1,6 +1,5 @@
 package com.godson.kekbot.command.commands.fun;
 
-import com.godson.kekbot.LocaleUtils;
 import com.godson.kekbot.games.Game;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.profile.Profile;
@@ -40,9 +39,9 @@ public class GameCommand extends Command {
         category = new Category("Fun");
     }
 
-    private static String getGameStatus(Game game, String locale) {
-        final String ready = LocaleUtils.getString("command.fun.game.readystatus", locale);
-        final String morePlayers = LocaleUtils.getString("command.fun.game.awaitingstatus", locale);
+    private static String getGameStatus(Game game) {
+        final String ready = "Ready to Play!";
+        final String morePlayers = "Awaiting more players...";
         if (game.hasMinimum()) {
             if (game.hasMinimumPlayers()) return ready;
             else return morePlayers;
@@ -61,7 +60,7 @@ public class GameCommand extends Command {
             switch (event.getArgs()[0].toLowerCase()) {
                 case "create":
                     if (event.getArgs().length >= 2) {
-                        String game = event.combineArgs(1, event.getArgs().length);
+                        String game = Utils.combineArguments(Arrays.copyOfRange(event.getArgs(), 1, event.getArgs().length));
                         KekBot.gamesManager.addGame(channel, game.toLowerCase(), event.getAuthor());
                     }
                     break;
@@ -70,18 +69,18 @@ public class GameCommand extends Command {
                     if (KekBot.gamesManager.doesUserHaveGame(channel, event.getAuthor())) {
                         Game game = KekBot.gamesManager.getGame(channel);
                         if (!game.players.get(0).equals(event.getAuthor())) {
-                            channel.sendMessage(event.getString("command.fun.game.start.error", game.players.get(0).getName())).queue();
+                            channel.sendMessage("Only Player 1 (" + game.players.get(0).getName() + ") can run this command.").queue();
                             return;
                         }
                         if (!game.isReady()) game.ready();
-                        else channel.sendMessage(event.getString("command.fun.game.start.alreadystarted")).queue();
+                        else channel.sendMessage("The game has already started!").queue();
                     }
                     break;
                 case "rules":
                     if (!KekBot.gamesManager.isChannelFree(channel)) {
                         Game game = KekBot.gamesManager.getGame(channel);
                         channel.sendMessage(game.getRules()).queue();
-                    } else channel.sendMessage(event.getString("command.fun.game.nolobby")).queue();
+                    } else channel.sendMessage("There doesn't seem to be a game lobby in here...").queue();
                     break;
                 case "lobby":
                     if (!KekBot.gamesManager.isChannelFree(channel)) {
@@ -89,12 +88,12 @@ public class GameCommand extends Command {
                         EmbedBuilder embed = new EmbedBuilder();
                         embed.setTitle("Current Game:")
                                 .addBlankField(false)
-                                .addField(event.getString("command.fun.game.lobby.currentgame"), game.getGameName(), false);
-                        if (game.hasMinimum()) embed.addField(event.getString("command.fun.game.lobby.minplayers"), String.valueOf(game.getMinNumberOfPlayers()), true);
-                        embed.addField(event.getString("command.fun.game.lobby.maxplayers"), String.valueOf(game.getMaxNumberOfPlayers()), true)
-                                .addField(event.getString("command.fun.game.lobby.numplayers"), String.valueOf(game.players.size()), true)
-                                .addField(event.getString("command.fun.game.lobby.status"), getGameStatus(game, event.getLocale()), false)
-                                .addField(event.getString("command.fun.game.lobby.players"), StringUtils.join(game.players.stream().map(user -> game.getPlayerNumber(user) + ". " + user.getName()).collect(Collectors.toList()), "\n"), false);
+                                .addField("Game:", game.getGameName(), false);
+                        if (game.hasMinimum()) embed.addField("Minimum Players Needed:", String.valueOf(game.getMinNumberOfPlayers()), true);
+                        embed.addField("Maximum Players Allowed:", String.valueOf(game.getMaxNumberOfPlayers()), true)
+                                .addField("Number of Players:", String.valueOf(game.players.size()), true)
+                                .addField("Status:", getGameStatus(game), false)
+                                .addField("Players:", StringUtils.join(game.players.stream().map(user -> game.getPlayerNumber(user) + ". " + user.getName()).collect(Collectors.toList()), "\n"), false);
 
                         channel.sendMessage(embed.build()).queue();
                     }
@@ -104,12 +103,12 @@ public class GameCommand extends Command {
                         Game game = KekBot.gamesManager.getGame(channel);
                         if (!game.isReady()) {
                             if (game.players.contains(event.getAuthor())){
-                                channel.sendMessage(event.getString("command.fun.game.join.existing")).queue();
+                                channel.sendMessage("You're already in this game!").queue();
                             } else {
                                 KekBot.gamesManager.joinGame(channel, event.getAuthor());
                             }
-                        } else channel.sendMessage(event.getString("command.fun.game.join.existing")).queue();
-                    } else channel.sendMessage(event.getString("command.fun.game.nolobby")).queue();
+                        } else channel.sendMessage("This game's already started, you can't join it now!").queue();
+                    } else channel.sendMessage("There doesn't seem to be a game lobby in here...").queue();
                     break;
                 case "quit":
                     if (!KekBot.gamesManager.isChannelFree(channel)) {
@@ -121,18 +120,18 @@ public class GameCommand extends Command {
                                 profile.takeKXP(ThreadLocalRandom.current().nextInt(5, 20));
                                 profile.save();
                                 KekBot.gamesManager.killGame(channel);
-                                channel.sendMessage(event.getString("command.fun.game.quit.existing", event.getAuthor().getAsMention())).queue();
-                            } else channel.sendMessage(event.getString("command.fun.game.quit.existingerror")).queue();
+                                channel.sendMessage("This game has ended abruptly due to a player (" + event.getAuthor().getAsMention() + ") having quit the game.").queue();
+                            } else channel.sendMessage("You're not even in this game. Are you sure you're not trying to quit something else?").queue();
                         } else {
                             if (game.players.contains(event.getAuthor())) {
                                 game.removePlayer(event.getAuthor());
                                 if (game.players.size() == 0) {
                                     KekBot.gamesManager.closeGame(channel);
-                                    channel.sendMessage("**" + event.getString("command.fun.game.quit.cancelled", game.getGameName()) + "**").queue();
-                                } else channel.sendMessage("**" + event.getString("command.fun.game.quit.lobby", event.getAuthor().getName(), "(" + game.players.size() + "/" + game.getMaxNumberOfPlayers() + ")") + "**").queue();
+                                    channel.sendMessage("**This game of " + game.getGameName() + " has been cancelled due to all players having left the lobby.**").queue();
+                                } else channel.sendMessage("**" + event.getAuthor().getName() + " left the game. (" + game.players.size() + "/" + game.getMaxNumberOfPlayers() + ")**").queue();
                             }
                         }
-                    } else channel.sendMessage(event.getString("command.fun.game.nolobby")).queue();
+                    } else channel.sendMessage("There doesn't seem to be a game lobby in here...").queue();
                     break;
                 case "cancel":
                     if (!KekBot.gamesManager.isChannelFree(channel)) {
@@ -143,11 +142,11 @@ public class GameCommand extends Command {
                                 if (game.players.get(0).equals(event.getAuthor()) || admin) {
                                     if (game.areBetsAllowed()) game.getBets().declareTie();
                                     KekBot.gamesManager.closeGame(channel);
-                                    channel.sendMessage("**" + event.getString("command.fun.game.cancel", game.getGameName()) + "**").queue();
-                                } else channel.sendMessage(event.getString("command.fun.game.cancel.error", "`Administrator`")).queue();
-                            } else channel.sendMessage(event.getString("command.fun.game.cancel.started", "`" + event.getPrefix() + "game quit`")).queue();
+                                    channel.sendMessage("**This game of " + game.getGameName() + " has been cancelled.**").queue();
+                                } else channel.sendMessage("Only player 1 or someone with the `Administrator` permission can cancel a game.").queue();
+                            } else channel.sendMessage("This game has already started. If you want to quit, you can use `" + KekBot.getGuildPrefix(channel.getGuild()) + "game quit`, however, there will be consequences.").queue();
                         }
-                    } else channel.sendMessage(event.getString("command.fun.game.nolobby")).queue();
+                    } else channel.sendMessage("There doesn't seem to be a game lobby in here...").queue();
                     break;
                 case "bet":
                     if (!KekBot.gamesManager.isChannelFree(channel)) {
@@ -159,11 +158,11 @@ public class GameCommand extends Command {
                                     try {
                                         bet = Double.valueOf(event.getArgs()[1]);
                                     } catch (NumberFormatException e) {
-                                        channel.sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getLocale(), event.getArgs()[1])).queue();
+                                        channel.sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getArgs()[1])).queue();
                                         return;
                                     }
-                                    channel.sendMessage(game.getBets().addPlayerBet(event.getAuthor(), bet, event.getLocale())).queue();
-                                } else channel.sendMessage(event.getString("command.fun.game.bet.noargs")).queue();
+                                    channel.sendMessage(game.getBets().addPlayerBet(event.getAuthor(), bet)).queue();
+                                } else channel.sendMessage("You haven't specified how much you want to bet!").queue();
                             } else {
                                 if (event.getArgs().length >= 2) {
                                     if (event.getMentionedUsers().size() > 0) {
@@ -172,20 +171,20 @@ public class GameCommand extends Command {
                                             try {
                                                 bet = Double.valueOf(event.getArgs()[2]);
                                             } catch (NumberFormatException e) {
-                                                channel.sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getLocale(), event.getArgs()[2])).queue();
+                                                channel.sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getArgs()[2])).queue();
                                                 return;
                                             }
-                                            channel.sendMessage(game.getBets().addSpectatorBet(event.getAuthor(), game.getPlayerNumber(event.getMentionedUsers().get(0)), bet, event.getLocale())).queue();
-                                        } else channel.sendMessage(event.getString("command.fun.game.bet.noargs")).queue();
-                                    } else channel.sendMessage(event.getString("command.fun.game.bet.nomention")).queue();
+                                            channel.sendMessage(game.getBets().addSpectatorBet(event.getAuthor(), game.getPlayerNumber(event.getMentionedUsers().get(0)), bet)).queue();
+                                        } else channel.sendMessage("You haven't specified how much you want to bet!").queue();
+                                    } else channel.sendMessage("The user you want to bet on must be in the form of a mention!").queue();
                                 }
                             }
-                        } else channel.sendMessage(event.getString("command.fun.game.bet.started")).queue();
-                    } else channel.sendMessage(event.getString("command.fun.game.nolobby")).queue();
+                        } else channel.sendMessage("This game's already started, you can't bet in it now!").queue();
+                    } else channel.sendMessage("There doesn't seem to be a game lobby in here...").queue();
                     break;
             }
         } else {
-            channel.sendMessage(event.getString("command.noargs", "`" + event.getPrefix() + "help game`")).queue();
+            channel.sendMessage("No args specified. Use `" + event.getPrefix() +  "help game` for help.").queue();
         }
     }
 }

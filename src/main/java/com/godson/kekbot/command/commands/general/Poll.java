@@ -1,12 +1,11 @@
 package com.godson.kekbot.command.commands.general;
 
-import com.godson.kekbot.KekBot;
 import com.godson.kekbot.objects.PollManager;
+import com.godson.kekbot.objects.PollObject;
 import com.godson.kekbot.Utils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandClient;
 import com.godson.kekbot.command.CommandEvent;
-import com.godson.kekbot.responses.Action;
 import net.dv8tion.jda.core.Permission;
 
 import java.util.ArrayList;
@@ -36,7 +35,7 @@ public class Poll extends Command {
                 String combinedArgs = event.combineArgs();
                 String timeSplit[] = combinedArgs.split("\\u007c", 2);
                 if (timeSplit.length == 1) {
-                    event.getChannel().sendMessage(event.getString("command.general.poll.notime")).queue();
+                    event.getChannel().sendMessage("No time specified!").queue();
                 } else {
                     String pollVariables[] = timeSplit[1].split("\\u007c");
                     long time = 0;
@@ -55,15 +54,15 @@ public class Poll extends Command {
                             }
                         }
                     } catch (NumberFormatException e) {
-                        event.getChannel().sendMessage(event.getString("command.general.poll.invalidtimeformat", "`" + timeStr + "`")).queue();
+                        event.getChannel().sendMessage("`" + timeStr + "` is not a valid time format. (Valid time format: MM:SS)").queue();
                         return;
                     }
                     if (!(time >= TimeUnit.MINUTES.toMillis(1) && time <= TimeUnit.HOURS.toMillis(1))) {
-                        event.getChannel().sendMessage(event.getString("command.general.poll.invalidtime")).queue();
+                        event.getChannel().sendMessage("I'm sorry, polls must last longer than one minute, but shorter than an hour.").queue();
                     }
                     else {
                         if (pollVariables.length == 1) {
-                            event.getChannel().sendMessage(event.getString("command.general.poll.nooptions")).queue();
+                            event.getChannel().sendMessage("No poll options specified!").queue();
                         } else {
                             List<String> list = new ArrayList<>();
                             for (String option : pollVariables) {
@@ -74,28 +73,28 @@ public class Poll extends Command {
                             }
                             String options[] = list.toArray(EMPTY_STRING_ARRAY);
                             if (options.length != 1) {
-                                PollManager.Poll poll = manager.createPoll(event, time, Utils.removeWhitespaceEdges(combinedArgs.substring(0, combinedArgs.indexOf("|"))), options);
+                                PollObject poll = manager.createPoll(event, time, Utils.removeWhitespaceEdges(combinedArgs.substring(0, combinedArgs.indexOf("|"))), options);
                                 StringBuilder builder = new StringBuilder();
                                 for (int i = 0; i < poll.getOptions().length; i++) {
                                     builder.append(i + 1).append(". ").append("**").append(poll.getOptions()[i]).append("**").append("\n");
                                 }
-                                event.getChannel().sendMessage(event.getString("command.general.poll.start", event.getAuthor().getName(), event.getClient().getPrefix(event.getGuild().getId()) + "vote <number>!") + "\n\n" +
+                                event.getChannel().sendMessage(event.getAuthor().getName() + " has just started a poll! Cast your vote by using " + event.getClient().getPrefix(event.getGuild().getId()) + "vote <number>!\n\n" +
                                         "__**" + poll.getTitle() + "**__\n\n" + builder.toString()).queue();
                             } else {
-                                event.getChannel().sendMessage(event.getString("command.general.poll.oneoption")).queue();
+                                event.getChannel().sendMessage("You have to supply at least more than one option!").queue();
                             }
                         }
                     }
                 }
-            } else event.getChannel().sendMessage(event.getString("command.noargs", "`" + event.getPrefix() + "help poll`")).queue();
+            } else event.getChannel().sendMessage("No poll title specified!").queue();
         } else {
             if (event.getArgs().length == 0) {
-                PollManager.Poll poll = manager.getGuildsPoll(event.getGuild());
+                PollObject poll = manager.getGuildsPoll(event.getGuild());
                 StringBuilder builder = new StringBuilder();
                 for (int i = 0; i < poll.getOptions().length; i++) {
                     builder.append(i+1).append(".").append("**").append(poll.getOptions()[i]).append("**").append("\n");
                 }
-                event.getChannel().sendMessage( event.getString("command.general.poll.currentpoll", poll.getCreator().getName() + "#" + poll.getCreator().getDiscriminator()) + "\n\n" +
+                event.getChannel().sendMessage(poll.getCreator().getName() + "# " + poll.getCreator().getDiscriminator() + "started the following poll:\n\n" +
                         poll.getTitle() + "\n" + builder.toString()).queue();
             } else {
                 switch (event.getArgs()[0]) {
@@ -103,19 +102,19 @@ public class Poll extends Command {
                         if (event.getAuthor().equals(manager.getGuildsPoll(event.getGuild()).getCreator()) || event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
                             manager.interruptPoll(event.getGuild());
                         } else {
-                            event.getChannel().sendMessage(event.getString("command.general.poll.stoperror", "`Administrator`")).queue();
+                            event.getChannel().sendMessage("Only the poll's creator, or someone with `Administrator` permissions can stop polls!").queue();
                         }
                         break;
                     case "cancel":
                         if (event.getAuthor().equals(manager.getGuildsPoll(event.getGuild()).getCreator()) || event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
                             manager.cancelPoll(event.getGuild());
-                            event.getChannel().sendMessage(event.getString("command.general.poll.cancelled")).queue();
+                            event.getChannel().sendMessage("The poll has been cancelled.").queue();
                         } else {
-                            event.getChannel().sendMessage(event.getString("command.general.poll.cancelerror", "`Administrator`")).queue();
+                            event.getChannel().sendMessage("Only the poll's creator, or someone with `Administrator` permissions can cancel polls!").queue();
                         }
                         break;
                     default:
-                        event.getChannel().sendMessage(event.getString("command.general.poll.existingpoll")).queue();
+                        event.getChannel().sendMessage("There's already an ongoing poll!").queue();
 
                 }
             }
@@ -132,19 +131,19 @@ public class Poll extends Command {
         public void onExecuted(CommandEvent event) {
             if (manager.guildHasPoll(event.getGuild())) {
                 if (event.getArgs().length == 0) return;
-                PollManager.Poll poll = manager.getGuildsPoll(event.getGuild());
+                PollObject poll = manager.getGuildsPoll(event.getGuild());
                 try {
                     poll.castVote(Integer.valueOf(event.getArgs()[0]) - 1, event.getAuthor());
-                    event.getMessage().addReaction("\u2705").queue();
+                    event.getMessage().addReaction("\\u2705").queue();
                 } catch (NumberFormatException e) {
-                    event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getLocale(), "`" + event.getArgs()[0] + "`")).queue();
+                    event.getChannel().sendMessage("`" + event.getArgs()[0] + "` is not a valid number!").queue();
                 } catch (IllegalArgumentException e) {
-                    event.getChannel().sendMessage(event.getString("command.general.poll.vote.samevote", event.getAuthor().getAsMention(), "`" + poll.getOptions()[Integer.valueOf(event.getArgs()[0]) - 1] + "`")).queue();
+                    event.getChannel().sendMessage(event.getAuthor().getAsMention() + " You've already voted for \"" + poll.getOptions()[Integer.valueOf(event.getArgs()[0]) - 1] + "\"!").queue();
                 } catch (ArrayIndexOutOfBoundsException e) {
-                    event.getChannel().sendMessage(event.getString("command.general.poll.vote.invalidoption")).queue();
+                    event.getChannel().sendMessage(event.getAuthor().getAsMention() + " That's not a valid option!").queue();
                 }
             } else {
-                event.getChannel().sendMessage(event.getString("command.general.poll.vote.nopoll")).queue();
+                event.getChannel().sendMessage(event.getAuthor().getAsMention() + ", There's no ongoing poll!").queue();
             }
         }
     }

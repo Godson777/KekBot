@@ -26,9 +26,7 @@ public class Config {
     private String joinLogChannel;
     private String ticketChannel;
     private String twitterChannel;
-    private String weebToken;
     private List<String> botAdmins = new ArrayList<>();
-    private List<String> botMods = new ArrayList<>();
     private Map<String, Integer> blockedUsers = new HashMap<>();
     private List<String> patrons = new ArrayList<>();
 
@@ -62,16 +60,6 @@ public class Config {
         return this;
     }
 
-    public Config addBotMod(String ID) {
-        botMods.add(ID);
-        return this;
-    }
-
-    public Config removeBotMod(String ID) {
-        botMods.remove(ID);
-        return this;
-    }
-
     public Config addBlockedUser(String ID, int type) {
         blockedUsers.put(ID, type);
         return this;
@@ -96,10 +84,6 @@ public class Config {
 
     public List<String> getBotAdmins() {
         return botAdmins;
-    }
-
-    public List<String> getBotMods() {
-        return botMods;
     }
 
     public Map<String, Integer> getBlockedUsers() {
@@ -168,14 +152,6 @@ public class Config {
      */
     public String getDcoinToken() {
         return dcoinToken;
-    }
-
-    /**
-     * Gets token for Weeb.sh
-     * @return The token.
-     */
-    public String getWeebToken() {
-        return weebToken;
     }
 
     public List<String> getPatrons() {

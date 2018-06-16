@@ -58,11 +58,6 @@ public abstract class Command {
             return;
         }
 
-        if (commandPermission == CommandPermission.MOD && !(event.isBotMod())) {
-            terminate(event, "Unfortunately, only a bot mod can use this command.");
-            return;
-        }
-
         if (category != null && !category.test(event)) {
             terminate(event, category.getFailMessage());
             return;
@@ -78,21 +73,21 @@ public abstract class Command {
                     if (p.name().startsWith("VOICE")) {
                         VoiceChannel vc = event.getMember().getVoiceState().getChannel();
                         if (vc == null) {
-                            terminate(event, KekBot.respond(Action.GET_IN_VOICE_CHANNEL, event.getLocale()));
+                            terminate(event, KekBot.respond(Action.GET_IN_VOICE_CHANNEL));
                             return;
                         } else if (!PermissionUtil.checkPermission(vc, event.getSelfMember(), p)) {
-                            terminate(event, KekBot.respond(Action.NOPERM_BOT, event.getLocale(), "`" + p.getName() + "` (Voice Channel Permission)"));
+                            terminate(event, KekBot.respond(Action.NOPERM_BOT, "`" + p.getName() + "` (Voice Channel Permission)"));
                             return;
                         }
                     } else {
                         if (!PermissionUtil.checkPermission(event.getTextChannel(), event.getSelfMember(), p)) {
-                            terminate(event, KekBot.respond(Action.NOPERM_BOT, event.getLocale(), "`" + p.getName() + "` (Channel Permission)"));
+                            terminate(event, KekBot.respond(Action.NOPERM_BOT, "`" + p.getName() + "` (Channel Permission)"));
                             return;
                         }
                     }
                 } else {
                     if (!PermissionUtil.checkPermission(event.getTextChannel(), event.getSelfMember(), p)) {
-                        terminate(event,  KekBot.respond(Action.NOPERM_BOT, event.getLocale(), "`" + p.getName() + "`"));
+                        terminate(event,  KekBot.respond(Action.NOPERM_BOT, "`" + p.getName() + "`"));
                         return;
                     }
                 }
@@ -104,7 +99,7 @@ public abstract class Command {
                 {
                     if(!PermissionUtil.checkPermission(event.getTextChannel(), event.getMember(), p))
                     {
-                        terminate(event, KekBot.respond(Action.NOPERM_USER, event.getLocale(), "`" + p.getName() + " (Channel Permission)`"));
+                        terminate(event, KekBot.respond(Action.NOPERM_USER, "`" + p.getName() + " (Channel Permission)`"));
                         return;
                     }
                 }
@@ -112,7 +107,7 @@ public abstract class Command {
                 {
                     if(!PermissionUtil.checkPermission(event.getTextChannel(), event.getMember(), p))
                     {
-                        terminate(event,  KekBot.respond(Action.NOPERM_USER, event.getLocale(), "`" + p.getName() + "`"));
+                        terminate(event,  KekBot.respond(Action.NOPERM_USER, "`" + p.getName() + "`"));
                         return;
                     }
                 }
@@ -212,7 +207,7 @@ public abstract class Command {
 
     protected void throwException(Throwable t, CommandEvent event, String description) {
         String endl = System.getProperty("line.separator");
-        String s = KekBot.respond(Action.EXCEPTION_THROWN, event.getLocale()) + endl + endl + "Description: " + description + endl + "Command: " + this.name + endl + endl + ExceptionUtils.getStackTrace(t);
+        String s = KekBot.respond(Action.EXCEPTION_THROWN) + endl + endl + "Description: " + description + endl + "Command: " + this.name + endl + endl + ExceptionUtils.getStackTrace(t);
         try {
             byte[] b = s.getBytes("UTF-8");
             event.getChannel().sendFile(b, "traceback.txt", new MessageBuilder("An error has occurred! This should be reported to the dev right away! Use the `" + event.getPrefix() + "ticket` command to do so, don't forget to show this file, too.").build()).queue();
@@ -295,7 +290,7 @@ public abstract class Command {
     }
 
     protected enum CommandPermission {
-        USER, MOD, ADMIN, OWNER;
+        USER, ADMIN, OWNER;
 
         CommandPermission() {};
     }

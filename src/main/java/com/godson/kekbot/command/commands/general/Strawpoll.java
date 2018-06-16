@@ -32,7 +32,7 @@ public class Strawpoll extends Command {
             String combinedArgs = event.combineArgs();
             String pollVariables[] = combinedArgs.split("\\u007c");
             if (pollVariables.length == 1) {
-                event.getChannel().sendMessage(event.getString("command.general.poll.nooptions")).queue();
+                event.getChannel().sendMessage("No poll options specified!").queue();
             } else {
                 List<String> list = new ArrayList<>();
                 for (String option : pollVariables) {
@@ -47,7 +47,7 @@ public class Strawpoll extends Command {
                 Gson gson = new GsonBuilder().setPrettyPrinting().create();
                 String json = gson.toJson(poll);
                 try {
-                    Document document = Jsoup.connect("https://www.strawpoll.me/api/v2/polls")
+                    Document document = Jsoup.connect("http://strawpoll.me/api/v2/polls")
                             .userAgent("Mozilla/5.0").ignoreContentType(true)
                             .requestBody(json)
                             .post();
@@ -56,6 +56,6 @@ public class Strawpoll extends Command {
                     e.printStackTrace();
                 }
             }
-        } else event.getChannel().sendMessage(event.getString("command.noargs", "`" + event.getPrefix() + "help strawpoll`")).queue();
+        } else event.getChannel().sendMessage("No poll title specified!").queue();
     }
 }

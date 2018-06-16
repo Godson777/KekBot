@@ -10,7 +10,6 @@ public class LotteryCommand extends Command {
     public LotteryCommand() {
         name = "lottery";
         description = "Takes you to the lottery.";
-        aliases = new String[]{"lotto"};
         usage.add("lottery");
         usage.add("lottery buy {tickets}");
         category = new Category("Fun");
@@ -30,15 +29,15 @@ public class LotteryCommand extends Command {
                     try {
                         tickets = Integer.valueOf(event.getArgs()[1]);
                     } catch (NumberFormatException e) {
-                        event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getLocale(), "`" + event.getArgs()[1] + "`")).queue();
+                        event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, "`" + event.getArgs()[1] + "`")).queue();
                         return;
                     }
-                    if (tickets > 0) event.getChannel().sendMessage(KekBot.lottery.addTicket(event.getAuthor(), tickets, event.getLocale())).queue();
-                    else event.getChannel().sendMessage(event.getString("command.fun.lottery.invalidamount")).queue();
-                } else event.getChannel().sendMessage(KekBot.lottery.addTicket(event.getAuthor(), event.getLocale())).queue();
+                    if (tickets > 0) event.getChannel().sendMessage(KekBot.lottery.addTicket(event.getAuthor(), tickets)).queue();
+                    else event.getChannel().sendMessage("You wanna buy *how many* tickets? " + tickets + "? That doesn't make any sense...").queue();
+                } else event.getChannel().sendMessage(KekBot.lottery.addTicket(event.getAuthor())).queue();
                 break;
             case "winners":
-                event.getChannel().sendMessage(KekBot.lottery.listWinners(event.getLocale())).queue();
+                event.getChannel().sendMessage(KekBot.lottery.listWinners()).queue();
                 break;
             case "draw":
                 if (event.isBotOwner()) {

@@ -36,7 +36,7 @@ public class Tweet extends Command {
         try {
              toSkip = Integer.valueOf(event.getArgs()[0]);
         } catch (NumberFormatException e) {
-            event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getLocale(), "`" + event.getArgs()[0] + "`")).queue();
+            event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, "`" + event.getArgs()[0] + "`")).queue();
             return;
         }
 

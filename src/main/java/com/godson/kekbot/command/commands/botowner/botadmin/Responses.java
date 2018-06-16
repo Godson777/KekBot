@@ -73,7 +73,7 @@ public class Responses extends Command {
                         KekBot.removeResponse(action, toRemove);
                         event.getChannel().sendMessage("Removed response.").queue();
                     } catch (NumberFormatException e) {
-                        event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getLocale(), "`" + args[2] + "`")).queue();
+                        event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, "`" + args[2])).queue();
                     } catch (IllegalArgumentException e) {
                         event.getChannel().sendMessage("Action not found.").queue();
                     }

@@ -30,7 +30,7 @@ public class Avatar extends Command {
                 List<Member> search = event.getGuild().getMembersByName(event.combineArgs(), true);
                 if (search.size() == 0) search = event.getGuild().getMembersByNickname(event.combineArgs(), true);
                 if (search.size() > 0) event.getChannel().sendMessage(search.get(0).getUser().getAvatarUrl() + size).queue();
-                else event.getChannel().sendMessage(event.getString("command.fun.avatar.nouser")).queue();
+                else event.getChannel().sendMessage("I couldn't find a user with that name/nickname!").queue();
             }
         } else {
             event.getChannel().sendMessage(event.getMessage().getAuthor().getAvatarUrl() + size).queue();
