@@ -53,7 +53,7 @@ public class KekBot {
     //Seting configs, and resources.
     public static int shards = Config.getConfig().getShards();
     public static ShardManager jda;
-    public static final String version = "1.5.1-BETA1";
+    public static final String version = "1.5.1-BETA2";
     public static final long startTime = System.currentTimeMillis();
     public static BufferedImage genericAvatar;
     private static final Map<Action, List<String>> responses = new HashMap<>();
@@ -296,7 +296,7 @@ public class KekBot {
     public static String respond(Action action, String locale, String... blanks) {
         String[] toReplace = {"{}", "{1}", "{2}", "{3}", "{4}"};
         String[] replacements = {"%s", "%1$s", "%2$s", "%3$s", "%4$s"};
-        if (!locale.equals(client.getDefaultLocale())) {
+        if (locale.equals(client.getDefaultLocale())) {
             try {
                 return String.format(StringUtils.replaceEach(responses.get(action).get(random.nextInt(responses.get(action).size())), toReplace, replacements), blanks);
             } catch (IllegalArgumentException e) {
