@@ -45,10 +45,10 @@ public class UDCommand extends Command {
                 pBuilder.setFinalAction(m -> m.clearReactions().queue());
                 pBuilder.build().display(event.getChannel());
             } else {
-                event.getChannel().sendMessage("No definitions found.").queue();
+                event.getChannel().sendMessage(event.getString("command.fun.ud.nodefinitions")).queue();
             }
         } else {
-            event.getChannel().sendMessage("Next time, supply a word or phrase for me to look up!").queue();
+            event.getChannel().sendMessage(event.getString("command.fun.ud.noargs")).queue();
         }
     }
 }

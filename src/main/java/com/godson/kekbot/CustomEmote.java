@@ -13,6 +13,12 @@ public class CustomEmote {
     private final static String[] DANCES = {"<a:duane:403114999578361856>", "<a:pbjtime:404578308009885702>", "<a:BowserDance:404580609113980929>"};
     private final static String TOPKEK = "<:topkek:317825573441503243>";
     private final static String[] TROPHIES = {"<:GoldTrophy:363572128592822272>", "<:SilverTrophy:363572121928204299>", "<:BronzeTrophy:363572119101112320>"};
+    private final static String[] LOADING =
+            {"<a:loading:438621485985169408>",
+                    "<a:loading2:438621499704737802>",
+                    "<a:loading3:438621490053775370>",
+                    "<a:loading4:438621490162958337>",
+                    "<a:loading5:438621512807874560>"};
     private static Random random = new Random();
 
     public static String think() {
@@ -35,5 +41,9 @@ public class CustomEmote {
     public static String getTrophy(int place) {
         if (place < 0 || place > TROPHIES.length) return TROPHIES[0];
         else return TROPHIES[place];
+    }
+
+    public static String load() {
+        return LOADING[random.nextInt(LOADING.length)];
     }
 }

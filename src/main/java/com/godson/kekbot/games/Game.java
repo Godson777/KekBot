@@ -2,6 +2,7 @@ package com.godson.kekbot.games;
 
 import com.godson.kekbot.CustomEmote;
 import com.godson.kekbot.KekBot;
+import com.godson.kekbot.LocaleUtils;
 import com.godson.kekbot.profile.Profile;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -19,12 +20,13 @@ public abstract class Game {
     private boolean hasAI;
     private boolean isReady = false;
     private boolean reachedMinimum = false;
-    protected boolean betsEnabled;
+    boolean isTranslatable = true;
+    private boolean betsEnabled;
     public List<User> players = new ArrayList<>();
     private List<Integer> winnerIDs = new ArrayList<>();
     private Map<User, Integer> playerNumber = new HashMap<>();
     public TextChannel channel;
-    protected BetManager bets;
+    private BetManager bets;
 
     public Game(int minNumberOfPlayers, int maxNumberOfPlayers, boolean hasAI, TextChannel channel, String gameName, boolean betsEnabled) {
         this.minNumberOfPlayers = minNumberOfPlayers;
@@ -304,5 +306,13 @@ public abstract class Game {
 
     public int getMinNumberOfPlayers() {
         return minNumberOfPlayers;
+    }
+
+    public boolean isTranslatable() {
+        return isTranslatable;
+    }
+
+    public String getString(String unlocalizedMessage, Object... objects) {
+        return LocaleUtils.getString(unlocalizedMessage, KekBot.getCommandClient().getLocale(channel.getGuild().getId()), objects);
     }
 }

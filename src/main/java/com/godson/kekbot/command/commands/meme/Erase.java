@@ -24,12 +24,12 @@ public class Erase extends Command {
     @Override
     public void onExecuted(CommandEvent event) throws Throwable {
         if (event.getArgs().length < 1) {
-            event.getChannel().sendMessage("Oh, alright. Guess we're not erasing anyone then...").queue();
+            event.getChannel().sendMessage(event.getString("command.meme.erase.noargs")).queue();
             return;
         }
 
         if (!isMention(event.combineArgs()) || event.getMentionedUsers().size() < 1) {
-            event.getChannel().sendMessage("The user you wanna erase must be mentioned.").queue();
+            event.getChannel().sendMessage(event.getString("command.meme.erase.nomention")).queue();
             return;
         }
 

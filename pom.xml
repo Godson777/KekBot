@@ -6,7 +6,7 @@
 
     <groupId>com.godson</groupId>
     <artifactId>kekbot</artifactId>
-    <version>1.5-DEV</version>
+    <version>1.5.1-BETA2</version>
 
     <repositories>
         <repository>
@@ -32,6 +32,13 @@
     </repositories>
 
     <dependencies>
+        <dependency>
+            <groupId>org.im4java</groupId>
+            <artifactId>im4java</artifactId>
+            <version>1.4.0</version>
+        </dependency>
+
+
         <dependency>
             <groupId>com.sedmelluq</groupId>
             <artifactId>lavaplayer</artifactId>
@@ -71,7 +78,25 @@
         <dependency>
             <groupId>org.twitter4j</groupId>
             <artifactId>twitter4j-core</artifactId>
-            <version>4.0.4</version>
+            <version>4.0.6</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.twitter4j</groupId>
+            <artifactId>twitter4j-stream</artifactId>
+            <version>4.0.6</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.DiscordBotList</groupId>
+            <artifactId>DBL-Java-Wrapper</artifactId>
+            <version>4b27930</version>
+        </dependency>
+
+        <dependency>
+            <groupId>me.duncte123</groupId>
+            <artifactId>weebJava</artifactId>
+            <version>1.2.1</version>
         </dependency>
 
 

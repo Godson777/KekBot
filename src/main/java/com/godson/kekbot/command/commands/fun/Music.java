@@ -2,17 +2,21 @@ package com.godson.kekbot.command.commands.fun;
 
 import com.godson.kekbot.CustomEmote;
 import com.godson.kekbot.KekBot;
+import com.godson.kekbot.LocaleUtils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.music.Playlist;
 import com.godson.kekbot.profile.Profile;
 import com.godson.kekbot.responses.Action;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.entities.VoiceChannel;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 public class Music extends Command {
 
@@ -35,195 +39,290 @@ public class Music extends Command {
         usage.add("music host - Makes someone else the \"Host\". (Host Only)");
         usage.add("music stop - Stops the current music session. (Host Only)");
         usage.add("music pause - Pauses the current music session. (Host Only)");
+        usage.add("music resume - Resumes the current music session. (Host Only)");
         usage.add("music repeat - Toggles repeat mode, switches from OFF, SINGLE, and MULTI. (Host Only)");
         usage.add("music shuffle - Shuffles all the tracks that are in the queue. (Host Only)");
         extendedDescription = "All \"Host Only\" commands can also be executed by a user with Administrator permissions.";
         exDescPos = ExtendedPosition.AFTER;
     }
 
+    private static Function<String, String> parseURL = url -> url.startsWith("<") && url.endsWith(">") ?
+        url.substring(url.indexOf("<") + 1, url.lastIndexOf(">")) :
+        url;
+
+    private static Stream<String> parseURLs(String[] args) {
+        return Arrays.stream(args).map(parseURL);
+    }
+
     @Override
     public void onExecuted(CommandEvent event) {
         if (!event.getMember().getVoiceState().inVoiceChannel()) {
-            event.getChannel().sendMessage(KekBot.respond(Action.GET_IN_VOICE_CHANNEL)).queue();
+            event.getChannel().sendMessage(KekBot.respond(Action.GET_IN_VOICE_CHANNEL, event.getLocale())).queue();
             return;
         }
 
         if (event.getGuild().getAudioManager().isConnected() && !event.getGuild().getAudioManager().getConnectedChannel().equals(event.getMember().getVoiceState().getChannel())) {
-                event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_IN_CHANNEL, "`" + event.getGuild().getAudioManager().getConnectedChannel().getName() + "`")).queue();
-                return;
+            event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_IN_CHANNEL, event.getLocale(), "`" + event.getGuild().getAudioManager().getConnectedChannel().getName() + "`")).queue();
+            return;
         }
 
-        if (event.getArgs().length > 0) {
-            switch (event.getArgs()[0].toLowerCase()) {
-                case "queue":
-                    if (event.getArgs().length > 1) {
-                        if (event.getArgs()[1].equalsIgnoreCase("playlist")) {
-                            if (event.getArgs().length > 2) {
-                                String playlistName = event.combineArgs(2);
-                                Profile profile = Profile.getProfile(event.getAuthor());
-                                Optional<Playlist> playlist = profile.getPlaylists().stream().filter(playlist1 -> playlist1.getName().equals(playlistName)).findFirst();
-                                if (playlist.isPresent()) {
-                                    KekBot.player.loadAndPlay(event, playlist.get(), profile);
-                                } else
-                                    event.getChannel().sendMessage(CustomEmote.think() + " I'm not finding any playlists by that name... Did you type it correctly?").queue();
-                            } else
-                                event.getChannel().sendMessage("Huh? I get you want to queue a playlist, but you didn't give me the name of your playlist...").queue();
-                        } else if (event.getArgs()[1].equalsIgnoreCase("searchyt")) {
-                            if (event.getArgs().length > 2) {
-                                String search = event.combineArgs(2);
-                                event.getChannel().sendMessage("Searching youtube for: `" + search + "`").queue();
-                                search = "ytsearch:" + search;
-                                KekBot.player.loadAndSearchYT(event, search);
-                            } else event.getChannel().sendMessage("No search terms provided.").queue();
-                        } else {
-                            String trackUrl = event.combineArgs(1);
-                            if (trackUrl.startsWith("<") && trackUrl.endsWith(">")) trackUrl = trackUrl.substring(trackUrl.indexOf("<") + 1, trackUrl.lastIndexOf(">"));
-                            KekBot.player.loadAndPlay(event, trackUrl);
-                        }
-                    }
-                    if (event.getArgs().length < 2 && event.getMessage().getAttachments().size() > 0) {
-                        KekBot.player.loadAndPlay(event, event.getMessage().getAttachments().get(0).getUrl());
-                    }
-                    break;
-                case "vol":
-                    if (!event.getGuild().getAudioManager().isConnected()) {
-                        event.getTextChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING)).queue();
-                        return;
-                    }
+        final String[] args = event.getArgs();
 
-                    if (event.getArgs().length > 1) {
-                        try {
-                            int volume = Integer.valueOf(event.getArgs()[1]);
-                            KekBot.player.setVolume(event, volume);
-                        } catch (NumberFormatException e) {
-                            event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getArgs()[1])).queue();
-                        }
-                    } else event.getChannel().sendMessage("You haven't even specified the volume you want to set it to!").queue();
-                    break;
-                case "skip":
-                    if (!event.getGuild().getAudioManager().isConnected()) {
-                        event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING)).queue();
-                        return;
-                    }
+        if (args.length == 0) {
+            event.getChannel().sendMessage(LocaleUtils.getString("command.noargs", event.getLocale(), "`" + event.getPrefix() + "help " + name + "`")).queue();
+            return;
+        }
 
-                    if (event.getArgs().length > 1) {
-                        try {
-                            int toSkip = Integer.valueOf(event.getArgs()[1]);
-                            KekBot.player.skipTrack(event, toSkip);
-                        } catch (NumberFormatException e) {
-                            KekBot.player.skipTrack(event);
+        final String cmd = args[0].toLowerCase();
+        switch (cmd) {
+            case "play":
+            case "queue":
+            case "que": // lul
+            case "q":
+                if (args.length == 1) {
+                    final List<Message.Attachment> attachments = event.getMessage().getAttachments();
+                    if (attachments.size() > 0) {
+                        for (final Message.Attachment attachment : attachments) {
+                            KekBot.player.loadAndPlay(event, attachment.getUrl());
                         }
-                        return;
-                    }
+                    } else if (!cmd.equals("play")) showPlaylist(event);
+                } else {
+                    final String subcmd = args[1].toLowerCase();
 
+                    switch (subcmd) {
+                        case "playlist":
+                        case "pl":
+                            if (args.length < 3) {
+                                event.getChannel().sendMessage(event.getString("command.fun.music.queue.playlist.noargs")).queue();
+                                return;
+                            }
+
+                            String playlistName = event.combineArgs(2);
+                            Profile profile = Profile.getProfile(event.getAuthor());
+                            Stream<Playlist> playlists = profile.getPlaylists().stream();
+                            // Try to find an exact match. If there isn't one, try a case insensitive match.
+                            Optional<Playlist> playlist = playlists.filter(pl -> pl.getName().equals(playlistName)).findFirst();
+                            if (!playlist.isPresent()) {
+                                playlist = playlists.filter(pl -> pl.getName().equalsIgnoreCase(playlistName)).findFirst();
+                            }
+
+                            if (playlist.isPresent()) KekBot.player.loadAndPlay(event, playlist.get(), profile);
+                            else
+                                event.getChannel().sendMessage(CustomEmote.think() + " " + event.getString("command.fun.music.queue.playlist.playlistnotfound")).queue();
+                            break;
+                        case "searchyt":
+                        case "syt":
+                            if (args.length < 3) {
+                                event.getChannel().sendMessage(event.getString("command.fun.music.queue.searchyt.noargs")).queue();
+                                return;
+                            }
+                            String search = event.combineArgs(2);
+                            event.getChannel().sendMessage(event.getString("command.fun.music.queue.searchyt.search", "`" + search + "`")).queue();
+                            search = "ytsearch:" + search;
+                            KekBot.player.loadAndSearchYT(event, search);
+                            break;
+                        default:
+                            parseURLs(Arrays.copyOfRange(args, 2, args.length)).forEach(trackUrl -> {
+                                KekBot.player.loadAndPlay(event, trackUrl);
+                            });
+                            break;
+                    }
+                }
+                break;
+
+            case "volume":
+            case "vol":
+            case "v":
+                if (!event.getGuild().getAudioManager().isConnected()) {
+                    event.getTextChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING, event.getLocale())).queue();
+                    return;
+                }
+
+                if (!event.getMember().hasPermission(Permission.ADMINISTRATOR) && !KekBot.player.getHost(event.getGuild()).equals(event.getAuthor())) {
+                    event.getTextChannel().sendMessage(event.getString("music.nothost", "`Administrator`")).queue();
+                    return;
+                }
+
+                if (args.length == 1) {
+                    event.getChannel().sendMessage(event.getString("command.fun.music.volume.noargs")).queue();
+                    return;
+                }
+
+                try {
+                    int volume = Integer.valueOf(args[1]);
+                    KekBot.player.setVolume(event, volume);
+                } catch (NumberFormatException e) {
+                    event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getLocale(), args[1])).queue();
+                }
+                break;
+
+            case "skip":
+                if (!event.getGuild().getAudioManager().isConnected()) {
+                    event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING, event.getLocale())).queue();
+                    return;
+                }
+
+                if (args.length == 1) {
                     KekBot.player.skipTrack(event);
-                    break;
-                case "skipto":
-                    if (!event.getGuild().getAudioManager().isConnected()) {
-                        event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING)).queue();
-                        return;
-                    }
+                    return;
+                }
+                try {
+                    int toSkip = Integer.valueOf(args[1]);
+                    KekBot.player.skipTrack(event, toSkip);
+                } catch (NumberFormatException e) {
+                    KekBot.player.skipTrack(event);
+                }
+                break;
 
-                    if (event.getArgs().length > 1) {
-                        try {
-                            int skipTo = Integer.valueOf(event.getArgs()[1]);
-                            KekBot.player.skipToTrack(event, skipTo);
-                        } catch (NumberFormatException e) {
-                            event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, "`" + event.getArgs()[1] + "`")).queue();
-                        }
-                    } else event.getChannel().sendMessage("No track specified.").queue();
-                    break;
-                case "remove":
-                    if (!event.getGuild().getAudioManager().isConnected()) {
-                        event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING)).queue();
-                        return;
-                    }
+            case "skipto":
+                if (!event.getGuild().getAudioManager().isConnected()) {
+                    event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING, event.getLocale())).queue();
+                    return;
+                }
 
-                    if (event.getArgs().length > 1) {
-                        try {
-                            int toRemove = Integer.valueOf(event.getArgs()[1]) - 1;
-                            KekBot.player.removeTrack(event, toRemove);
-                        } catch (NumberFormatException e) {
-                            event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, "`" + event.getArgs()[1] + "`")).queue();
-                        }
-                    } else event.getChannel().sendMessage("No track specified.").queue();
-                    break;
-                case "voteskip":
-                    if (!event.getGuild().getAudioManager().isConnected()) {
-                        event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING)).queue();
-                        return;
-                    }
+                if (args.length == 1) {
+                    event.getChannel().sendMessage(event.getString("command.fun.music.notrack")).queue();
+                    return;
+                }
+                try {
+                    int skipTo = Integer.valueOf(args[1]);
+                    KekBot.player.skipToTrack(event, skipTo);
+                } catch (NumberFormatException e) {
+                    event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getLocale(), "`" + args[1] + "`")).queue();
+                }
+                break;
 
-                    KekBot.player.voteSkip(event);
-                    break;
-                case "song":
-                    if (!event.getGuild().getAudioManager().isConnected()) {
-                        event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING)).queue();
-                        return;
-                    }
+            case "remove":
+                if (!event.getGuild().getAudioManager().isConnected()) {
+                    event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING, event.getLocale())).queue();
+                    return;
+                }
 
-                    KekBot.player.getCurrentSong(event.getTextChannel());
-                    break;
-                case "playlist":
-                    if (!event.getGuild().getAudioManager().isConnected()) {
-                        event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING)).queue();
-                        return;
-                    }
+                if (!event.getMember().hasPermission(Permission.ADMINISTRATOR) && !KekBot.player.getHost(event.getGuild()).equals(event.getAuthor())) {
+                    event.getTextChannel().sendMessage(event.getString("music.nothost", "`Administrator`")).queue();
+                    return;
+                }
 
-                    KekBot.player.getPlaylist(event);
-                    break;
-                case "host":
-                    if (!event.getGuild().getAudioManager().isConnected()) {
-                        event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING)).queue();
-                        return;
-                    }
+                if (args.length == 1) {
+                    event.getChannel().sendMessage(event.getString("command.fun.music.notrack")).queue();
+                    return;
+                }
+                try {
+                    int toRemove = Integer.valueOf(args[1]) - 1;
+                    KekBot.player.removeTrack(event, toRemove);
+                } catch (NumberFormatException e) {
+                    event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getLocale(), "`" + args[1] + "`")).queue();
+                }
+                break;
 
-                    if (!event.getMember().hasPermission(Permission.ADMINISTRATOR) && !KekBot.player.getHost(event.getGuild()).equals(event.getAuthor())) {
-                        event.getTextChannel().sendMessage("Only the host and users with the `Administrator` permission can set the volume!").queue();
-                        return;
-                    }
+            case "voteskip":
+                if (!event.getGuild().getAudioManager().isConnected()) {
+                    event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING, event.getLocale())).queue();
+                    return;
+                }
 
-                    if (event.getArgs().length > 0) {
-                        if (event.getMentionedUsers().size() > 0) {
-                            User newHost = event.getMentionedUsers().get(0);
-                            KekBot.player.changeHost(event.getGuild(), newHost);
-                            event.getChannel().sendMessage("Done, " + newHost.getName() + " is now the host.").queue();
-                        } else event.getChannel().sendMessage("You have to mention the user you wanna make the host!").queue();
-                    } else event.getChannel().sendMessage("You haven't specified who to make the host...").queue();
-                    break;
-                case "stop":
-                    if (!event.getGuild().getAudioManager().isConnected()) {
-                        event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING)).queue();
-                        return;
-                    }
+                KekBot.player.voteSkip(event);
+                break;
 
-                    KekBot.player.closeConnection(event.getGuild());
-                    break;
-                case "pause":
-                    if (!event.getGuild().getAudioManager().isConnected()) {
-                        event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING)).queue();
-                        return;
-                    }
+            case "song":
+                if (!event.getGuild().getAudioManager().isConnected()) {
+                    event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING, event.getLocale())).queue();
+                    return;
+                }
 
-                    KekBot.player.pauseTrack(event);
-                    break;
-                case "repeat":
-                    if (!event.getGuild().getAudioManager().isConnected()) {
-                        event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING)).queue();
-                        return;
-                    }
+                KekBot.player.getCurrentSong(event);
+                break;
 
-                    KekBot.player.repeat(event);
-                    break;
-                case "shuffle":
-                    if (!event.getGuild().getAudioManager().isConnected()) {
-                        event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING)).queue();
-                        return;
-                    }
+            case "playlist":
+                showPlaylist(event);
+                break;
 
-                    KekBot.player.shuffle(event);
-                    break;
-            }
-        } else event.getChannel().sendMessage("No arguments provided. Check " + event.getPrefix() + "help " + name + " for more help.").queue();
+            case "host":
+                if (!event.getGuild().getAudioManager().isConnected()) {
+                    event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING, event.getLocale())).queue();
+                    return;
+                }
+
+                if (!event.getMember().hasPermission(Permission.ADMINISTRATOR) && !KekBot.player.getHost(event.getGuild()).equals(event.getAuthor())) {
+                    event.getTextChannel().sendMessage(event.getString("music.nothost", "`Administrator`")).queue();
+                    return;
+                }
+
+                if (args.length == 1) {
+                    event.getChannel().sendMessage(event.getString("command.fun.music.host.noargs")).queue();
+                    return;
+                }
+                if (event.getMentionedUsers().size() > 0) {
+                    User newHost = event.getMentionedUsers().get(0);
+                    KekBot.player.changeHost(event.getGuild(), newHost);
+                    event.getChannel().sendMessage(event.getString("command.fun.music.host.success", newHost.getName())).queue();
+                } else event.getChannel().sendMessage(event.getString("command.fun.music.host.nomention")).queue();
+                break;
+
+            case "stop":
+            case "disconnect":
+            case "dc":
+            case "leave":
+            case "fuckoff":
+            case "gtfo":
+                if (!event.getGuild().getAudioManager().isConnected()) {
+                    event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING, event.getLocale())).queue();
+                    return;
+                }
+
+                KekBot.player.closeConnection(event.getGuild());
+                break;
+
+            case "unpause":
+            case "resume":
+                if (!event.getGuild().getAudioManager().isConnected()) {
+                    event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING, event.getLocale())).queue();
+                    return;
+                }
+
+                KekBot.player.unpauseTrack(event);
+                break;
+
+            case "pause":
+                if (!event.getGuild().getAudioManager().isConnected()) {
+                    event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING, event.getLocale())).queue();
+                    return;
+                }
+
+                KekBot.player.pauseTrack(event);
+                break;
+            case "repeat":
+                if (!event.getGuild().getAudioManager().isConnected()) {
+                    event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING, event.getLocale())).queue();
+                    return;
+                }
+
+                KekBot.player.repeat(event);
+                break;
+
+            case "shuffle":
+                if (!event.getGuild().getAudioManager().isConnected()) {
+                    event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING, event.getLocale())).queue();
+                    return;
+                }
+
+                if (!event.getMember().hasPermission(Permission.ADMINISTRATOR) && !KekBot.player.getHost(event.getGuild()).equals(event.getAuthor())) {
+                    event.getTextChannel().sendMessage(event.getString("music.nothost", "`Administrator`")).queue();
+                    return;
+                }
+
+                KekBot.player.shuffle(event);
+                break;
+        }
     }
+
+    private void showPlaylist(CommandEvent event) {
+        if (!event.getGuild().getAudioManager().isConnected()) {
+            event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING, event.getLocale())).queue();
+            return;
+        }
+
+        KekBot.player.getPlaylist(event);
+    }
+
 }

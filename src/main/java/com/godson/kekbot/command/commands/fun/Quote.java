@@ -36,9 +36,22 @@ public class Quote extends Command {
         Guild guild = event.getGuild();
         Settings settings = Settings.getSettings(guild);
         if (event.getArgs().length == 0) {
-            if (settings.getQuotes().getList().isEmpty()) {
-                channel.sendMessage("You have no quotes!").queue();
-            } else channel.sendMessage(settings.getQuotes().quote()).queue();
+            if (settings.getQuotes() == null || settings.getQuotes().getList().isEmpty()) {
+                channel.sendMessage(event.getString("command.fun.quote.noquotes")).queue();
+            } else {
+                String quote = settings.getQuotes().quote();
+                while (quote.length() > 2000) {
+                    settings.getQuotes().getList().remove(quote);
+                    settings.save();
+                    if (settings.getQuotes().getList().size() > 0) {
+                        quote = settings.getQuotes().quote();
+                    } else {
+                        channel.sendMessage(event.getString("command.fun.quote.noquotes")).queue();
+                        return;
+                    }
+                }
+                channel.sendMessage(quote).queue();
+            }
         } else {
             switch (event.getArgs()[0]) {
                 case "add":
@@ -46,17 +59,17 @@ public class Quote extends Command {
                         if (event.getArgs().length > 1) {
                             settings.getQuotes().addQuote(event.combineArgs(1));
                             settings.save();
-                            channel.sendMessage("Successfully added quote! :thumbsup:").queue();
+                            channel.sendMessage(event.getString("command.fun.quote.addsuccess")).queue();
                         } else {
                             Questionnaire.newQuestionnaire(event)
-                                    .addQuestion("Enter your quote here:", QuestionType.STRING)
+                                    .addQuestion(event.getString("command.fun.quote.add"), QuestionType.STRING)
                                     .execute(results -> {
                                         settings.getQuotes().addQuote(results.getAnswer(0).toString());
                                         settings.save();
-                                        channel.sendMessage("Successfully added quote! :thumbsup:").queue();
+                                        channel.sendMessage(event.getString("command.fun.quote.addsuccess")).queue();
                                     });
                         }
-                    } else channel.sendMessage(KekBot.respond(Action.NOPERM_USER, "`Manage Messages`")).queue();
+                    } else channel.sendMessage(KekBot.respond(Action.NOPERM_USER, event.getLocale(), "`Manage Messages`")).queue();
                     break;
                 case "remove":
                     if (event.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
@@ -67,16 +80,16 @@ public class Quote extends Command {
                                     String quote = settings.getQuotes().getQuote(quoteNumber - 1);
                                     settings.getQuotes().removeQuote(quoteNumber - 1);
                                     settings.save();
-                                    channel.sendMessage("Successfully removed quote: **" + quote + "**.").queue();
+                                    channel.sendMessage(event.getString("command.fun.quote.removesuccess", "`" + quote + "`")).queue();
                                 }
                             } catch (NumberFormatException e) {
-                                channel.sendMessage("\"" + event.getArgs()[1] + "\" is not a number!").queue();
+                                channel.sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getLocale(), "`" + event.getArgs()[1] + "`")).queue();
                             }
-                        } else channel.sendMessage("No quote specified.").queue();
-                    } else channel.sendMessage(KekBot.respond(Action.NOPERM_USER, "`Manage Messages`")).queue();
+                        } else channel.sendMessage(event.getString("command.fun.quote.removenoargs")).queue();
+                    } else channel.sendMessage(KekBot.respond(Action.NOPERM_USER, event.getLocale(), "`Manage Messages`")).queue();
                     break;
                 case "list":
-                    int size = settings.getQuotes().getList().size();
+                    int size = (settings.getQuotes() == null ? 0 : settings.getQuotes().getList().size());
 
                     if (size != 0) {
                         Paginator.Builder builder = new Paginator.Builder();
@@ -85,7 +98,7 @@ public class Quote extends Command {
                             builder.addItems(quote.length() > 200 ? quote.substring(0, 200) + "..." : quote);
                         }
 
-                        builder.setText("Here are your quotes:")
+                        builder.setText(event.getString("command.fun.quote.list"))
                                 .setEventWaiter(KekBot.waiter)
                                 .setColor(event.getGuild().getSelfMember().getColor())
                                 .setItemsPerPage(10)
@@ -97,7 +110,7 @@ public class Quote extends Command {
 
                         builder.build().display(event.getChannel());
                     } else {
-                        channel.sendMessage("There are no quotes to list!").queue();
+                        channel.sendMessage(event.getString("command.fun.quote.noquotes")).queue();
                     }
                     break;
                 default:
@@ -105,10 +118,22 @@ public class Quote extends Command {
                     try {
                         toGet = Integer.valueOf(event.getArgs()[0]) - 1;
                         if (settings.getQuotes().getList().size() > toGet && toGet >= 0) {
-                            channel.sendMessage(settings.getQuotes().getQuote(toGet)).queue();
+                            String quote = settings.getQuotes().getQuote(toGet);
+                            while (quote.length() > 2000) {
+                                settings.getQuotes().getList().remove(toGet);
+                                settings.save();
+                                if (settings.getQuotes().getList().size() > 0) {
+                                    if (toGet > settings.getQuotes().getList().size()) quote = settings.getQuotes().getQuote(toGet);
+                                    else quote = settings.getQuotes().getQuote(settings.getQuotes().getList().size()-1);
+                                } else {
+                                    channel.sendMessage(event.getString("command.fun.quote.noquotes")).queue();
+                                    return;
+                                }
+                            }
+                            channel.sendMessage(quote).queue();
                         } else channel.sendMessage("\"Here, let me just get a quote that doesn't exist... Oh, wait...\" ~You").queue();
                     } catch (NumberFormatException e) {
-                        channel.sendMessage(KekBot.respond(Action.NOT_A_NUMBER, "`" + event.getArgs()[0]) + "`").queue();
+                        channel.sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getLocale(), "`" + event.getArgs()[0]) + "`").queue();
                     }
 
             }

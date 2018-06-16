@@ -1,8 +1,12 @@
 package com.godson.kekbot.command.commands.general;
 
+import com.godson.kekbot.KekBot;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
+import com.godson.kekbot.menu.EmbedPaginator;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.ChannelType;
+import net.dv8tion.jda.core.entities.MessageEmbed;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -25,57 +29,39 @@ public class Help extends Command {
     public void onExecuted(CommandEvent event) {
         String[] args = event.getArgs();
         if (args.length == 0) {
-            sendHelp(event, 0);
+            sendHelp(event);
         } else {
-            if (event.isFromType(ChannelType.PRIVATE)) {
-                try {
-                    int page = Integer.valueOf(args[0]);
-                    sendHelp(event, page -1);
-                } catch (NumberFormatException e) {
-                    sendCommandHelp(event, args[0]);
-                }
-            } else {
-                sendCommandHelp(event, args[0]);
-            }
+            sendCommandHelp(event, args[0]);
         }
     }
 
-    private void sendHelp(CommandEvent event, int page) {
-        event.getAuthor().openPrivateChannel().queue(c -> c.sendMessage(getHelp(event, page)).queue(m -> {
-            if (!event.isFromType(ChannelType.PRIVATE)) event.getChannel().sendMessage(event.getAuthor().getAsMention() + " Alright, check your DMs! :thumbsup:").queue();
-        }, f -> event.getChannel().sendMessage(event.getAuthor().getAsMention() + " Huh, I can't slide into your DMs if you're blocking DMs.").queue()),
-                f -> event.getChannel().sendMessage(event.getAuthor().getAsMention() + " Huh, I can't open DMs with you. I won't be able to send you the help you need.").queue());
-    }
+    private void sendHelp(CommandEvent event) {
+        List<Category> categories = event.getClient().getCommands().stream().map(Command::getCategory).distinct().sorted(Comparator.comparing(Category::getName)).collect(Collectors.toList());
+        EmbedPaginator.Builder builder = new EmbedPaginator.Builder();
+        builder.addUsers(event.getAuthor());
+        builder.setEventWaiter(KekBot.waiter);
+        builder.setFinalAction(m -> m.clearReactions().queue());
+        builder.waitOnSinglePage(true);
+        builder.showPageNumbers(true);
 
-    private String getHelp(CommandEvent event, int page) {
-        final int max = 25;
-        List<String> help = new ArrayList<>();
-        help.add("# KekBot's default prefix for commands is \"$\". However, the server you're on might have it use a different prefix. If you're unsure, feel free to go a server and say \"@KekBot prefix\"");
-        help.add("# To add me to your server, send me an invite link!\n");
-
-        List<Category> categories = event.getClient().getCommands().stream().map(Command::getCategory).distinct().sorted(Comparator.comparing(Category::getName)).filter(Objects::nonNull).collect(Collectors.toList());
         categories.forEach(c -> {
             if (c.getName().equalsIgnoreCase("bot owner") && !event.isBotOwner()) return;
             if (c.getName().equalsIgnoreCase("bot admin") && !event.isBotAdmin()) return;
             if (c.getName().equalsIgnoreCase("test")) return;
             if (c.getName().equals("unassigned")) return;
-            help.add("#" + c.getName());
-            event.getClient().getCommands().stream()
-                    .filter(command -> command.getCategory().equals(c))
-                    .sorted(Comparator.comparing(Command::getName))
-                    .forEachOrdered(command -> help.add("[$" + command.getName() + (aliases.length != 0 ? " | " + StringUtils.join(aliases, " | ") : "") + "](" + command.getDescription() + ")"));
-            help.add("");
+            List<Command> commands = new ArrayList<>(event.getClient().getCommands()).stream().filter(cmd -> cmd.getCategory().equals(c)).sorted(Comparator.comparing(Command::getName)).collect(Collectors.toList());
+            for (int i = 0; i < commands.size(); i += 10) {
+                List<Command> currentPage = commands.subList(i, (i + 10 < commands.size() ? i + 10 : commands.size()));
+                EmbedBuilder eBuilder = new EmbedBuilder();
+                eBuilder.setTitle(c.getName());
+                eBuilder.setDescription(StringUtils.join(currentPage.stream().map(cmd -> event.getPrefix() + cmd.getName() + " - " + cmd.getDescription()).collect(Collectors.toList()), "\n"));
+                eBuilder.setFooter("KekBot v" + KekBot.version, null);
+                eBuilder.setAuthor("KekBot, your friendly meme-based bot!", null, event.getSelfUser().getAvatarUrl());
+                builder.addItems(eBuilder.build());
+            }
         });
 
-        try {
-            if ((page * max) > help.size() || (page * max) < 0) return "Specified page doesn't exist!";
-            else return "```md\n" + StringUtils.join(help.subList((page * max), ((page + 1) * max)), "\n") +
-                    (help.size() > max ? "\n\nPage " + (page + 1) + "/" + (help.size() / max + 1) +
-                            (page == 0 ? "\n# Type \"help <number>\" to view that page!" : "") : "") + "```";
-        } catch (IndexOutOfBoundsException e) {
-            return "```md\n" + StringUtils.join(help.subList((page * max), help.size()), "\n") +
-                    (help.size() > max ? "\n\nPage " + (page + 1) + "/" + (help.size() / max + 1) : "") + "```";
-        }
+        builder.build().display(event.getChannel());
     }
 
     private void sendCommandHelp(CommandEvent event, String commandName) {
@@ -91,22 +77,22 @@ public class Help extends Command {
 
         if (found) {
             event.getChannel().sendMessage(getCommandHelp(event, command.get())).queue();
-        } else event.getChannel().sendMessage("Command not found.").queue();
+        } else event.getChannel().sendMessage(event.getString("command.general.help.commandnotfound")).queue();
     }
 
-    private String getCommandHelp(CommandEvent event, Command command) {
-        final String[] help = {("```md\n[Command](" + command.getName() + ")" +
-                (command.getAliases().length != 0 ? "\n\n[Aliases](" + StringUtils.join(aliases, ", ") + ")" : "") +
-                "\n\n[Category](" + command.getCategory().getName() + ")" +
-                "\n\n[Description](" + command.getDescription() + ")" +
-                (command.getExtendedDescription() != null && command.getExDescriptionPosition().equals(ExtendedPosition.BEFORE) ?
-                        "\n" + command.getExtendedDescription().replaceAll("\\{p}", Matcher.quoteReplacement(event.getPrefix())) : "") +
-                "\n\n#Usage ( Paramaters (<> Required, {} Optional) ):" +
-                "\n")};
-        command.getUsage().forEach(s -> help[0] += event.getClient().getPrefix(event.getGuild().getId()) + s + "\n");
-        help[0] += (command.getExtendedDescription() != null && command.getExDescriptionPosition().equals(ExtendedPosition.AFTER) ?
-                command.getExtendedDescription().replaceAll("\\{p}", Matcher.quoteReplacement(event.getPrefix())) :  "");
-        help[0] += "```";
-        return help[0];
+    private MessageEmbed getCommandHelp(CommandEvent event, Command command) {
+        EmbedBuilder builder = new EmbedBuilder();
+        builder.addField("Command:", command.getName(), true);
+        builder.addField("Category:", command.getCategory().getName(), true);
+        builder.addField("Aliases:", StringUtils.join(command.getAliases(), ", "), false);
+        builder.addField("Description:", command.getDescription(), false);
+        if (command.getExtendedDescription() != null && command.getExDescriptionPosition().equals(ExtendedPosition.BEFORE))
+            builder.addField("", command.getExtendedDescription().replaceAll("\\{p}", Matcher.quoteReplacement(event.getPrefix())), false);
+        builder.addField("Usage (<> Required, {} Optional):", StringUtils.join(command.getUsage().stream().map(usage -> event.getPrefix() + usage).collect(Collectors.toList()), "\n"), false);
+        if (command.getExtendedDescription() != null && command.getExDescriptionPosition().equals(ExtendedPosition.AFTER))
+            builder.addField("", command.getExtendedDescription().replaceAll("\\{p}", Matcher.quoteReplacement(event.getPrefix())), false);
+        builder.setFooter("KekBot v" + KekBot.version, null);
+        builder.setAuthor("KekBot, your friendly meme-based bot!", null, event.getSelfUser().getAvatarUrl());
+        return builder.build();
     }
 }

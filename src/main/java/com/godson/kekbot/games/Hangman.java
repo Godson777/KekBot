@@ -37,6 +37,7 @@ public class Hangman extends Game {
 
     public Hangman(TextChannel channel) {
         super(2, 10, false, channel, "Hangman", false);
+        isTranslatable = false;
         try {
             words.addAll(FileUtils.readLines(new File("resources/games/hangman/words.txt"), "utf-8"));
         } catch (IOException e) {

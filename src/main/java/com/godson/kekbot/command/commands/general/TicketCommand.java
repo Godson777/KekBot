@@ -36,7 +36,7 @@ public class TicketCommand extends Command {
         if (event.getArgs().length > 0) {
             switch (event.getArgs()[0].toLowerCase()) {
                 case "list":
-                    if (!event.isBotAdmin()) return;
+                    if (!event.isBotMod()) return;
 
                     List<Ticket> tickets = TicketManager.getTickets();
                     if (tickets.size() > 0) {
@@ -56,14 +56,14 @@ public class TicketCommand extends Command {
                 case "view":
                     if (event.getArgs().length > 1) {
                         if (TicketManager.getTickets().size() == 0) {
-                            if (event.isBotAdmin()) event.getChannel().sendMessage("There are no tickets to view!").queue();
+                            if (event.isBotMod()) event.getChannel().sendMessage("There are no tickets to view!").queue();
                         } else {
                             Ticket ticket = TicketManager.getTicket(event.getArgs()[1]);
                             if (ticket == null) {
                                 event.getChannel().sendMessage("Ticket not found.").queue();
                                 return;
                             }
-                            if (!ticket.getAuthorID().equals(event.getAuthor().getId()) && !event.isBotAdmin()) {
+                            if (!ticket.getAuthorID().equals(event.getAuthor().getId()) && !event.isBotMod()) {
                                 event.getChannel().sendMessage("You cannot view a ticket you haven't created!").queue();
                                 return;
                             }
@@ -132,7 +132,7 @@ public class TicketCommand extends Command {
                 case "reply":
                     if (event.getArgs().length > 1) {
                         if (TicketManager.getTickets().size() == 0) {
-                            if (event.isBotAdmin())
+                            if (event.isBotMod())
                                 event.getChannel().sendMessage("You don't have any tickets to reply to!").queue();
                             return;
                         }
@@ -141,7 +141,7 @@ public class TicketCommand extends Command {
                             event.getChannel().sendMessage("Ticket not found.").queue();
                             return;
                         }
-                        if (!ticket.getAuthorID().equals(event.getAuthor().getId()) && !event.isBotAdmin()) {
+                        if (!ticket.getAuthorID().equals(event.getAuthor().getId()) && !event.isBotMod()) {
                             event.getChannel().sendMessage("You cannot reply to a ticket you haven't created!").queue();
                             return;
                         }
@@ -159,14 +159,14 @@ public class TicketCommand extends Command {
                     }
                     break;
                 case "close":
-                    if (!event.isBotAdmin()) return;
+                    if (!event.isBotMod()) return;
                     if (event.getArgs().length > 1) {
                         if (TicketManager.getTickets().size() == 0) {
                             event.getChannel().sendMessage("You don't have any tickets to close!").queue();
                             return;
                         }
 
-                        boolean closed = TicketManager.closeTicket(event.getArgs()[1]);
+                        boolean closed = TicketManager.closeTicket(event.getArgs()[1], event.getArgs().length > 2 ? event.combineArgs(2) : null, event.getAuthor());
                         if (!closed) event.getChannel().sendMessage("Ticket not found.").queue();
                         else event.getChannel().sendMessage("Ticket closed.").queue();
                     }

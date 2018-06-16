@@ -23,7 +23,5 @@ public class Shutdown extends Command {
 
 
         KekBot.shutdown(reason);
-
-        for (JDA jda : KekBot.jda.getShards()) jda.shutdown();
     }
 }

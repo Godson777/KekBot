@@ -16,13 +16,14 @@ import java.awt.*;
 import java.lang.reflect.Type;
 import java.time.Instant;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.*;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class TicketManager {
 
     private static Gson gson = new Gson();
+    private static final Timer timer = new Timer();
 
     public static void addTicket(Ticket ticket) {
         User user = KekBot.jda.getUserById(ticket.getAuthorID());
@@ -41,11 +42,17 @@ public class TicketManager {
         KekBot.r.table("Tickets").insert(object).run(KekBot.conn);
     }
 
-    public static boolean closeTicket(String ticketID) {
-        User user = KekBot.jda.getUserById(getTicket(ticketID).getAuthorID());
+    public static boolean closeTicket(String ticketID, String reply, User replier) {
         if (KekBot.r.table("Tickets").get(ticketID).run(KekBot.conn) != null) {
+            if (replier != null) addAdminReply(getTicket(ticketID), reply, replier);
+            User user = KekBot.jda.getUserById(getTicket(ticketID).getAuthorID());
             KekBot.r.table("Tickets").get(ticketID).delete().run(KekBot.conn);
-            if (user != null) user.openPrivateChannel().queue(ch -> ch.sendMessage("Your ticket (" + ticketID + ") has been closed.").queue());
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    if (user != null) user.openPrivateChannel().queue(ch -> ch.sendMessage("Your ticket (" + ticketID + ") has been closed.").queue());
+                }
+            }, TimeUnit.SECONDS.toMillis(2));
             return true;
         } return false;
     }
@@ -71,8 +78,8 @@ public class TicketManager {
 
     public static void addUserReply(Ticket ticket, String response, User replier) {
         String replierName = replier.getName() + "#" + replier.getDiscriminator();
-        KekBot.jda.getUserById(Config.getConfig().getBotOwner()).openPrivateChannel().queue(ch -> ch.sendMessage("You have received a reply for a ticket. (`" + ticket.getID() + "`)\n**" + replierName
-                + "**:\n\n" + response).queue());
+        KekBot.getCommandClient().ticketChannel.sendMessage("You have received a reply for a ticket. (`" + ticket.getID() + "`)\n**" + replierName
+                + "**:\n\n" + response).queue();
 
         ticket.setStatus(Ticket.TicketStatus.RECEIVED_REPLY);
         ticket.addReply(replier, response, false);
