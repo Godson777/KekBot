@@ -235,6 +235,7 @@ public class CommandClient extends ListenerAdapter {
             }
 
             if (settings.getPrefix() != null) setCustomPrefix(guild.getId(), settings.getPrefix());
+            if (settings.getLocale() != null) setCustomLocale(guild.getId(), settings.getLocale());
         });
     }
 
