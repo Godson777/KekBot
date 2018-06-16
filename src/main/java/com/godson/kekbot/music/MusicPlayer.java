@@ -410,6 +410,26 @@ public class MusicPlayer extends ListenerAdapter {
             }
     }
 
+    public void unpauseTrack(CommandEvent event) {
+        GuildMusicManager musicManager = getGuildAudioPlayer(event, 0);
+        Guild guild = event.getGuild();
+        if (!musicManager.isMusic()) {
+            return;
+        }
+
+        if (getHost(guild).equals(event.getEvent().getAuthor()) || event.getEvent().getMember().hasPermission(Permission.ADMINISTRATOR)) {
+            if (!musicManager.player.isPaused()) {
+                event.getChannel().sendMessage(event.getString("music.notpaused")).queue();
+                return;
+            }
+
+            musicManager.player.setPaused(false);
+            event.getChannel().sendMessage(event.getString("music.resumed")).queue();
+        } else {
+            event.getChannel().sendMessage(event.getString("music.nothost", "`Administrator`")).queue();
+        }
+    }
+
     public void pauseTrack(CommandEvent event) {
         GuildMusicManager musicManager = getGuildAudioPlayer(event, 0);
         Guild guild = event.getGuild();
@@ -417,13 +437,13 @@ public class MusicPlayer extends ListenerAdapter {
             return;
         }
             if (getHost(guild).equals(event.getEvent().getAuthor()) || event.getEvent().getMember().hasPermission(Permission.ADMINISTRATOR)) {
-                if (!musicManager.player.isPaused()) {
-                    musicManager.player.setPaused(true);
-                    event.getChannel().sendMessage(event.getString("music.paused")).queue();
-                } else {
-                    musicManager.player.setPaused(false);
-                    event.getChannel().sendMessage(event.getString("music.resumed")).queue();
+                if (musicManager.player.isPaused()) {
+                    event.getChannel().sendMessage(event.getString("music.alreadypaused")).queue();
+                    return;
                 }
+
+                musicManager.player.setPaused(true);
+                event.getChannel().sendMessage(event.getString("music.paused")).queue();
             } else {
                 event.getChannel().sendMessage(event.getString("music.nothost", "`Administrator`")).queue();
             }
