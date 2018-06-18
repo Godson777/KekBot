@@ -108,7 +108,7 @@ public class GameCommand extends Command {
                             } else {
                                 KekBot.gamesManager.joinGame(channel, event.getAuthor());
                             }
-                        } else channel.sendMessage(event.getString("command.fun.game.join.existing")).queue();
+                        } else channel.sendMessage(event.getString("command.fun.game.join.started")).queue();
                     } else channel.sendMessage(event.getString("command.fun.game.nolobby")).queue();
                     break;
                 case "quit":

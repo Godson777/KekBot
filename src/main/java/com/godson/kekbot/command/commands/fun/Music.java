@@ -122,9 +122,7 @@ public class Music extends Command {
                             KekBot.player.loadAndSearchYT(event, search);
                             break;
                         default:
-                            parseURLs(Arrays.copyOfRange(args, 2, args.length)).forEach(trackUrl -> {
-                                KekBot.player.loadAndPlay(event, trackUrl);
-                            });
+                            parseURLs(Arrays.copyOfRange(args, 1, args.length)).forEach(trackUrl -> KekBot.player.loadAndPlay(event, trackUrl));
                             break;
                     }
                 }
