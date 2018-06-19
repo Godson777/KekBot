@@ -37,10 +37,13 @@ public class TwitterManager extends ListenerAdapter {
 
     private Map<Long, Message> currentTweets = new HashMap<>();
     TwitterStream twitterStream = new TwitterStreamFactory().getInstance();
+    long[] ids = new long[]{958176875108593664L, 610103342L, 2996678026L, 624995324L, 1475679589L, 845418771896524801L};
     StatusListener listener = new StatusListener() {
         @Override
         public void onStatus(Status status) {
             //We do need this tho
+            if (status.isRetweet()) return;
+            if (Arrays.stream(ids).noneMatch(id -> id == status.getUser().getId())) return;
 
             EmbedBuilder builder = new EmbedBuilder();
             builder.setThumbnail(status.getUser().getProfileImageURL());
@@ -51,7 +54,7 @@ public class TwitterManager extends ListenerAdapter {
             if (status.getMediaEntities().length > 0) builder.setImage(status.getMediaEntities()[0].getMediaURL());
             builder.setDescription(status.getText());
 
-            KekBot.jda.getTextChannelById("450878100536950794").sendMessage(builder.build()).queue(m -> currentTweets.put(status.getId(), m));
+            KekBot.jda.getTextChannelById("327379946794254338").sendMessage(builder.build()).queue(m -> currentTweets.put(status.getId(), m));
         }
 
         @Override
@@ -98,16 +101,16 @@ public class TwitterManager extends ListenerAdapter {
                 Instant now = Instant.now();
                 Optional<Pair<Instant, StatusUpdate>> status = statuses.stream().filter(s -> now.isAfter(s.getLeft())).findFirst();
                 if (status.isPresent()) {
-                    //tweet(status.get().getRight());
+                    tweet(status.get().getRight());
                     statuses.remove(status.get());
                 } else {
-                    //tweet();
+                    tweet();
                 }
             }, 0, subsequentDelay, TimeUnit.MINUTES);
             firstTweet = true;
         }, initialDelay, TimeUnit.MINUTES);
         lastTweet = Instant.now();
-        //tweet("KekBot has started up. Please wait an hour before expecting more high quality™ tweets.\n\n" + Instant.now().toString());
+        tweet("KekBot has started up. Please wait an hour before expecting more high quality™ tweets.\n\n" + Instant.now().toString());
     }
 
     private void tweet() {
@@ -219,7 +222,7 @@ public class TwitterManager extends ListenerAdapter {
     public void shutdown(String reason) {
         tweeter.shutdown();
         twitterStream.shutdown();
-        //tweet("KekBot is shutting down. (Reason: " + reason + ")");
+        tweet("KekBot is shutting down. (Reason: " + reason + ")");
     }
 
     @Override
@@ -228,7 +231,6 @@ public class TwitterManager extends ListenerAdapter {
 
             twitterStream.addListener(listener);
             twitterStream.sample();
-            long[] ids = new long[]{958176875108593664L, 610103342L};
             FilterQuery filterQuery = new FilterQuery();
             filterQuery.follow(ids);
             twitterStream.filter(filterQuery);

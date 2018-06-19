@@ -53,7 +53,7 @@ public class KekBot {
     //Seting configs, and resources.
     public static int shards = Config.getConfig().getShards();
     public static ShardManager jda;
-    public static final String version = "1.5.1-BETA2";
+    public static final String version = "1.5.1";
     public static final long startTime = System.currentTimeMillis();
     public static BufferedImage genericAvatar;
     private static final Map<Action, List<String>> responses = new HashMap<>();
@@ -65,7 +65,7 @@ public class KekBot {
     public static final MarkovChain chain = new MarkovChain();
     public static Icon pfp;
     public static boolean dev;
-    public static WeebApi weebApi = new WeebApiBuilder(TokenType.WOLKETOKENS, "KekBot/1.5.1/BETA").setToken(Config.getConfig().getWeebToken()).build();
+    public static WeebApi weebApi = new WeebApiBuilder(TokenType.WOLKETOKENS, "KekBot/1.5.1").setToken(Config.getConfig().getWeebToken()).build();
     public static DiscordBotListAPI dbl;
 
 
