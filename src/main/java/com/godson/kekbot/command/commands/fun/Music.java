@@ -223,6 +223,8 @@ public class Music extends Command {
                 break;
 
             case "song":
+            case "nowplaying":
+            case "np":
                 if (!event.getGuild().getAudioManager().isConnected()) {
                     event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING, event.getLocale())).queue();
                     return;
