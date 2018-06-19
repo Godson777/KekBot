@@ -26,7 +26,7 @@ public class Granddad extends Command {
     public void onExecuted(CommandEvent event) {
         boolean reboot = (Arrays.stream(event.getArgs()).anyMatch(s -> s.equalsIgnoreCase("--reboot")));
 
-        File granddads[] = new File(reboot ? "resources/sound/granddad/reboot" : "resources/sound/granddad").listFiles();
+        File granddads[] = Arrays.stream(new File(reboot ? "resources/sound/granddad/reboot" : "resources/sound/granddad").listFiles()).filter(file -> !file.isDirectory()).toArray(File[]::new);
         Random random = new Random();
         int index = random.nextInt(granddads.length);
         Optional<VoiceChannel> voiceChannel = event.getEvent().getGuild().getVoiceChannels().stream().filter(c -> c.getMembers().contains(event.getEvent().getMember())).findFirst();
