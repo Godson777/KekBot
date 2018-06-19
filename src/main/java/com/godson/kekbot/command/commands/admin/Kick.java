@@ -1,6 +1,7 @@
 package com.godson.kekbot.command.commands.admin;
 
 import com.godson.kekbot.KekBot;
+import com.godson.kekbot.LocaleUtils;
 import com.godson.kekbot.Utils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
@@ -28,29 +29,29 @@ public class Kick extends Command {
     @Override
     public void onExecuted(CommandEvent event) {
         if (event.getArgs().length < 1) {
-            event.getChannel().sendMessage(KekBot.respond(Action.KICK_EMPTY)).queue();
+            event.getChannel().sendMessage(KekBot.respond(Action.KICK_EMPTY, event.getLocale())).queue();
             return;
         }
 
 
         if (event.getMentionedUsers().size() == 0) {
-            event.getChannel().sendMessage(event.getMessage().getAuthor().getAsMention() + " The user you want to kick __**must**__ be in the form of a mention!").queue();
+            event.getChannel().sendMessage(LocaleUtils.getString("command.admin.kick.nomention", event.getLocale())).queue();
         } else if (event.getMentionedUsers().size() == 1) {
             if (event.getMentionedUsers().get(0) == event.getJDA().getSelfUser()) {
-                event.getChannel().sendMessage("How would I kick myself? :thinking:").queue();
+                event.getChannel().sendMessage(LocaleUtils.getString("command.admin.kick.kickself", event.getLocale())).queue();
             } else if (event.getMentionedUsers().get(0).equals(event.getMessage().getAuthor())) {
-                event.getChannel().sendMessage("You can't kick yourself, it just doesn't work that way.").queue();
+                event.getChannel().sendMessage(LocaleUtils.getString("command.admin.kick.kickauthor", event.getLocale())).queue();
             } else {
                 if (Utils.checkHierarchy(event.getGuild().getMember(event.getMentionedUsers().get(0)), event.getMember())) {
-                    event.getChannel().sendMessage("You can't kick someone who's highest role is the same as or is higher than yours.").queue();
+                    event.getChannel().sendMessage(LocaleUtils.getString("command.admin.kick.hierarchyusererror", event.getLocale())).queue();
                     return;
                 }
 
                 try {
                     event.getGuild().getController().kick(event.getGuild().getMember(event.getMentionedUsers().get(0))).reason("Kicked by: " + event.getAuthor().getName() + "#" + event.getAuthor().getDiscriminator() + " (" + event.getAuthor().getId() + ")").queue();
-                    event.getChannel().sendMessage(KekBot.respond(Action.KICK_SUCCESS, "`" + event.getMentionedUsers().get(0).getName() + "`")).queue();
+                    event.getChannel().sendMessage(KekBot.respond(Action.KICK_SUCCESS, event.getLocale(), "`" + event.getMentionedUsers().get(0).getName() + "`")).queue();
                 } catch (PermissionException e) {
-                    event.getChannel().sendMessage("`" + event.getMentionedUsers().get(0).getName() + "`'s role is higher than mine. I am unable to kick them.").queue();
+                    event.getChannel().sendMessage(LocaleUtils.getString("command.admin.kick.hierarchyboterror", event.getLocale())).queue();
                 }
             }
         } else {
@@ -60,7 +61,7 @@ public class Kick extends Command {
                 if (event.getMentionedUsers().get(i) != event.getJDA().getSelfUser()) {
                     User user = event.getMentionedUsers().get(i);
                     Member member = event.getGuild().getMember(user);
-                    if (!Utils.checkHierarchy(member, event.getMember())) {
+                    if (Utils.checkHierarchy(member, event.getMember())) {
                         failed.add(event.getMentionedUsers().get(i).getName());
                     } else {
                         try {
@@ -73,13 +74,15 @@ public class Kick extends Command {
                 }
             }
             if (users.size() >= 1) {
-                event.getChannel().sendMessage(KekBot.respond(Action.KICK_SUCCESS, "`" + StringUtils.join(users, ", ") + "`")).queue();
+                event.getChannel().sendMessage(KekBot.respond(Action.KICK_SUCCESS, event.getLocale(), "`" + StringUtils.join(users, ", ") + "`")).queue();
                 if (failed.size() > 0) {
-                    event.getChannel().sendMessage("However, " + failed.size() + (failed.size() == 1 ? " user" : " users") + "(`" + StringUtils.join(failed, ", ") + "`) couldn't be kicked due to having a higher rank than I do. ¯\\_(ツ)_/¯").queue();
+                    event.getChannel().sendMessage(LocaleUtils.getString("command.admin.kick.masskick.exceptions", event.getLocale(),
+                            failed.size() == 1 ? LocaleUtils.getString("amount.users.single", event.getLocale()) : LocaleUtils.getString("amount.users.plural", event.getLocale()),
+                            "`" + StringUtils.join(failed, ", ") + "`")).queue();
                 }
             } else {
                 if (failed.size() >= 1) {
-                    event.getChannel().sendMessage("All of the users you have specified could not be kicked due to having a higher rank than I do. ¯\\_(ツ)_/¯").queue();
+                    event.getChannel().sendMessage(LocaleUtils.getString("command.admin.kick.masskick.fail", event.getLocale())).queue();
                 }
             }
         }

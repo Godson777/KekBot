@@ -1,6 +1,7 @@
 package com.godson.kekbot.command.commands.fun;
 
 import com.godson.kekbot.CustomEmote;
+import com.godson.kekbot.LocaleUtils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
 
@@ -21,18 +22,13 @@ public class EightBall extends Command {
 
     @Override
     public void onExecuted(CommandEvent event) {
-        String[] responses = {"It is certain.", "It is decidedly so.", "Without a doubt.", "Yes, definitely.", "You may rely on it.", "As I see it, yes.", "Most likely.",
-                "Outlook good.", "Yes.", "Signs point to yes.", "Reply hazy, try again.", "Ask again later.", "Better not tell you now.", "Cannot predict now.",
-                "Concentrate and ask again.", "Don't count on it.", "My reply is no.", "My sources say no.", "Outlook not so good.", "Very doubtful."};
-        Random random = new Random();
         if (event.getArgs().length > 0) {
             String question = event.combineArgs();
 
-            event.getChannel().sendMessage(CustomEmote.think() + " You asked: __**" + question + "**__\n\n" +
-                    "\uD83C\uDFB1 8-Ball's response: __**" + responses[random.nextInt(responses.length)] + "**__").queue();
+            int response = random.nextInt(19) + 1;
+            event.getChannel().sendMessage(event.getString("command.fun.8ball.userquestion", CustomEmote.think(), question, event.getString("command.fun.8ball." + response))).queue();
         } else {
-            event.getChannel().sendMessage(CustomEmote.think() + " I ask: __**Did " + event.getAuthor().getName() + " give a question?**__\n\n" +
-                    "\uD83C\uDFB1 8-Ball's response: __**No, they didn't.**__").queue();
+            event.getChannel().sendMessage(event.getString("command.fun.8ball.noargs", CustomEmote.think(), event.getAuthor().getName())).queue();
         }
     }
 }

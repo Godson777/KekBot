@@ -1,15 +1,13 @@
 package com.godson.kekbot.command.commands.admin;
 
 import com.godson.kekbot.KekBot;
+import com.godson.kekbot.LocaleUtils;
 import com.godson.kekbot.Utils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.responses.Action;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 import org.apache.commons.lang3.StringUtils;
 
@@ -30,28 +28,28 @@ public class Ban extends Command {
     @Override
     public void onExecuted(CommandEvent event) {
         if (event.getArgs().length < 1) {
-            event.getChannel().sendMessage(KekBot.respond(Action.BAN_EMPTY)).queue();
+            event.getChannel().sendMessage(KekBot.respond(Action.BAN_EMPTY, event.getLocale())).queue();
             return;
         }
 
         if (event.getMentionedUsers().size() == 0) {
-            event.getChannel().sendMessage(event.getMessage().getAuthor().getAsMention() + " The user you want to ban __**must**__ be in the form of a mention!").queue();
+            event.getChannel().sendMessage(LocaleUtils.getString("command.admin.ban.nomention", event.getLocale())).queue();
         } else if (event.getMentionedUsers().size() == 1) {
             if (event.getMentionedUsers().get(0) == event.getJDA().getSelfUser()) {
-                event.getChannel().sendMessage(":frowning: I can't ban myself...").queue();
+                event.getChannel().sendMessage(LocaleUtils.getString("command.admin.ban.banself", event.getLocale())).queue();
             } else if (event.getMentionedUsers().get(0).equals(event.getMessage().getAuthor())) {
-                event.getChannel().sendMessage("Why would you want to ban yourself? That seems kinda useless to me...").queue();
+                event.getChannel().sendMessage(LocaleUtils.getString("command.admin.ban.banauthor", event.getLocale())).queue();
             } else {
                 if (Utils.checkHierarchy(event.getGuild().getMember(event.getMentionedUsers().get(0)), event.getMember())) {
-                    event.getChannel().sendMessage("You can't ban someone who's highest role is the same as or is higher than yours.").queue();
+                    event.getChannel().sendMessage(LocaleUtils.getString("command.admin.ban.hierarchyusererror", event.getLocale())).queue();
                     return;
                 }
 
                 try {
                     event.getGuild().getController().ban(event.getMentionedUsers().get(0), 0).reason("Banned by: " + event.getAuthor().getName() + "#" + event.getAuthor().getDiscriminator() + " (" + event.getAuthor().getId() + ")").queue();
-                    event.getChannel().sendMessage(KekBot.respond(Action.BAN_SUCCESS, "`" + event.getMentionedUsers().get(0).getName() + "`")).queue();
+                    event.getChannel().sendMessage(KekBot.respond(Action.BAN_SUCCESS, event.getLocale(), "`" + event.getMentionedUsers().get(0).getName() + "`")).queue();
                 } catch (PermissionException e) {
-                    event.getChannel().sendMessage("`" + event.getMentionedUsers().get(0).getName() + "`'s role is higher than mine. I am unable to ban them.").queue();
+                    event.getChannel().sendMessage(LocaleUtils.getString("command.admin.ban.hierarchyboterror", event.getLocale())).queue();
                 }
             }
         } else {
@@ -59,8 +57,9 @@ public class Ban extends Command {
             List<String> failed = new ArrayList<>();
             for (int i = 0; i < event.getMentionedUsers().size(); i++) {
                 if (event.getMentionedUsers().get(i) != event.getJDA().getSelfUser()) {
-                    Member member = event.getGuild().getMember(event.getMentionedUsers().get(i));
-                    if (member.getRoles().stream().map(net.dv8tion.jda.core.entities.Role::getPositionRaw).max(Integer::compareTo).get() >= event.getMember().getRoles().stream().map(Role::getPositionRaw).max(Integer::compareTo).get()) {
+                    User user = event.getMentionedUsers().get(i);
+                    Member member = event.getGuild().getMember(user);
+                    if (Utils.checkHierarchy(member, event.getMember())) {
                         failed.add(event.getMentionedUsers().get(i).getName());
                     } else {
                         try {
@@ -73,13 +72,15 @@ public class Ban extends Command {
                 }
             }
             if (users.size() >= 1) {
-                event.getChannel().sendMessage(KekBot.respond(Action.BAN_SUCCESS, "`" + StringUtils.join(users, ", ") + "`")).queue();
-                if (failed.size() > 0) {
-                    event.getChannel().sendMessage("However, " + failed.size() + (failed.size() == 1 ? " user" : " users") + " (`" + StringUtils.join(failed, ", ") + "`) couldn't be banned due to having a higher rank than I do. ¯\\_(ツ)_/¯").queue();
+                event.getChannel().sendMessage(KekBot.respond(Action.BAN_SUCCESS, event.getLocale(), "`" + StringUtils.join(users, ", ") + "`")).queue();
+                if (failed.size() > 0) {//   `" + StringUtils.join(failed, ", ") + "`
+                    event.getChannel().sendMessage(LocaleUtils.getString("command.admin.ban.massban.exceptions", event.getLocale(),
+                            failed.size() == 1 ? LocaleUtils.getString("amount.users.single", event.getLocale()) : LocaleUtils.getString("amount.users.plural", event.getLocale()),
+                                    "`" + StringUtils.join(failed, ", ") + "`")).queue();
                 }
             } else {
                 if (failed.size() >= 1) {
-                    event.getChannel().sendMessage("All of the users you have specified couldn't be banned due to having a higher rank than I do. ¯\\_(ツ)_/¯").queue();
+                    event.getChannel().sendMessage(LocaleUtils.getString("command.admin.ban.massban.fail", event.getLocale())).queue();
                 }
             }
         }

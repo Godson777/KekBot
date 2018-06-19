@@ -25,12 +25,12 @@ public class Johnny extends Command {
     @Override
     public void onExecuted(CommandEvent event) throws Throwable {
         if (event.getArgs().length < 1) {
-            event.getChannel().sendMessage("Who are you targeting?").queue();
+            event.getChannel().sendMessage(event.getString("command.meme.noargs")).queue();
             return;
         }
 
         if (!isMention(event.combineArgs()) || event.getMentionedUsers().size() < 1) {
-            event.getChannel().sendMessage("The user you want to target must be in the form of a mention!").queue();
+            event.getChannel().sendMessage(event.getString("command.meme.nomention")).queue();
             return;
         }
 

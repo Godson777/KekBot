@@ -1,6 +1,7 @@
 package com.godson.kekbot.command.commands.admin;
 
 import com.godson.kekbot.KekBot;
+import com.godson.kekbot.LocaleUtils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.responses.Action;
@@ -31,21 +32,21 @@ public class Purge extends Command {
     @Override
     public void onExecuted(CommandEvent event) {
         if (event.getArgs().length < 1) {
-            event.getTextChannel().sendMessage(event.getAuthor().getAsMention() + ", next time, try to at least supply a number...").queue();
+            event.getTextChannel().sendMessage(LocaleUtils.getString("command.noargs", event.getLocale(), "`" + event.getPrefix() + "help " + name + "`")).queue();
             return;
         }
 
         try {
             int purge = Integer.parseInt(event.getArgs()[0]);
             if (purge <= 1) {
-                event.getTextChannel().sendMessage(KekBot.respond(Action.PURGE_TOOLOW)).queue();
+                event.getTextChannel().sendMessage(KekBot.respond(Action.PURGE_TOOLOW, event.getLocale())).queue();
             } else if (purge > 100) {
-                event.getTextChannel().sendMessage(KekBot.respond(Action.PURGE_TOOHIGH)).queue();
+                event.getTextChannel().sendMessage(KekBot.respond(Action.PURGE_TOOHIGH, event.getLocale())).queue();
             } else {
                 event.getMessage().delete().queue(useless -> {
                     event.getTextChannel().getHistory().retrievePast(purge).queue(msgsRaw -> {
                         List<Message> msgs = msgsRaw.stream().filter(message -> !message.getCreationTime().plusWeeks(2).isBefore(OffsetDateTime.now())).collect(Collectors.toList());
-                        event.getTextChannel().sendMessage("Purging...").queue(msg -> {
+                        event.getTextChannel().sendMessage(LocaleUtils.getString("command.admin.purge.purging", event.getLocale())).queue(msg -> {
                             if (msgs.size() > 0) {
                                 if (event.getArgs().length >= 2) {
                                     String keyphrase = event.combineArgs(1);
@@ -56,16 +57,16 @@ public class Purge extends Command {
                                         else if (keywordPurge.size() == 1)
                                             keywordPurge.get(0).delete().queue();
                                         if (keywordPurge.size() >= 1)
-                                            msg.editMessage(KekBot.respond(Action.KEYPHRASE_PURGE_SUCCESS, "`" + keywordPurge.size() + "`", "`" + keyphrase + "`")).queue();
+                                            msg.editMessage(KekBot.respond(Action.KEYPHRASE_PURGE_SUCCESS, event.getLocale(), "`" + keywordPurge.size() + "`", "`" + keyphrase + "`")).queue();
                                         else
-                                            msg.editMessage(KekBot.respond(Action.KEYPHRASE_PURGE_FAIL)).queue();
+                                            msg.editMessage(KekBot.respond(Action.KEYPHRASE_PURGE_FAIL, event.getLocale())).queue();
                                     } else {
                                         List<String> mentions = new ArrayList<String>();
                                         event.getMentionedUsers().forEach(user -> mentions.add(user.getAsMention()));
                                         Pattern p = Pattern.compile("([A-Z])+", Pattern.CASE_INSENSITIVE);
                                         Matcher m = p.matcher(keyphrase);
                                         if (mentions.stream().anyMatch(mentions::contains) && m.find()) {
-                                            msg.editMessage("Sorry, but you can't type key-phrases and mentions while attempting to purge.").queue();
+                                            msg.editMessage(LocaleUtils.getString("command.admin.purge.filtererror", event.getLocale())).queue();
                                         } else {
                                             List<Message> mentionPurge = msgs.stream().filter(mes -> event.getMentionedUsers().stream().anyMatch(mes.getAuthor()::equals)).collect(Collectors.toList());
                                             if (mentionPurge.size() > 1)
@@ -73,25 +74,25 @@ public class Purge extends Command {
                                             else if (mentionPurge.size() == 1)
                                                 mentionPurge.get(0).delete().queue();
                                             if (mentionPurge.size() >= 1)
-                                                msg.editMessage(KekBot.respond(Action.MENTION_PURGE_SUCCESS, "`" + mentionPurge.size() + "`", "`" + StringUtils.join(event.getMentionedUsers().stream().map(user -> user.getName() + "#" + user.getDiscriminator()).collect(Collectors.toList()), ", ") + "`")).queue();
+                                                msg.editMessage(KekBot.respond(Action.MENTION_PURGE_SUCCESS, event.getLocale(), "`" + mentionPurge.size() + "`", "`" + StringUtils.join(event.getMentionedUsers().stream().map(user -> user.getName() + "#" + user.getDiscriminator()).collect(Collectors.toList()), ", ") + "`")).queue();
                                             else
-                                                msg.editMessage(KekBot.respond(Action.MENTION_PURGE_FAIL)).queue();
+                                                msg.editMessage(KekBot.respond(Action.MENTION_PURGE_FAIL, event.getLocale())).queue();
                                         }
                                     }
                                 } else {
                                     if (msgs.size() == 1)
-                                        msgs.get(0).delete().queue(delet -> msg.editMessage(KekBot.respond(Action.PURGE_SUCCESS, "`" + msgs.size() + "`")).queue());
+                                        msgs.get(0).delete().queue(delet -> msg.editMessage(KekBot.respond(Action.PURGE_SUCCESS, event.getLocale(), "`" + msgs.size() + "`")).queue());
                                     else
-                                        event.getTextChannel().deleteMessages(msgs).queue(delet -> msg.editMessage(KekBot.respond(Action.PURGE_SUCCESS, "`" + msgs.size() + "`")).queue());
+                                        event.getTextChannel().deleteMessages(msgs).queue(delet -> msg.editMessage(KekBot.respond(Action.PURGE_SUCCESS, event.getLocale(), "`" + msgs.size() + "`")).queue());
                                 }
                             } else
-                                msg.editMessage("Either all the messages I've found are 2+ weeks old, or there are no messages to purge at all.").queue();
+                                msg.editMessage(LocaleUtils.getString("command.admin.purge.purgeerror", event.getLocale())).queue();
                         });
                     });
                 });
             }
         } catch (NumberFormatException e) {
-            event.getTextChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, "`" + event.getArgs()[0] + "`")).queue();
+            event.getTextChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getLocale(), "`" + event.getArgs()[0] + "`")).queue();
         }
     }
 }
