@@ -19,6 +19,9 @@ public class Responses extends Command {
         name = "responses";
         category = new Category("Bot Admin");
         commandPermission = CommandPermission.ADMIN;
+        usage.add("responses add <ACTION> <message>");
+        usage.add("responses list <ACTION>");
+        usage.add("responses remove <ACTION> <message ID>");
     }
 
     @Override

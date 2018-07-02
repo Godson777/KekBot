@@ -1,5 +1,6 @@
 package com.godson.kekbot.command.commands.botowner;
 
+import com.godson.kekbot.ExitCode;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandCategories;
@@ -20,6 +21,7 @@ public class Shutdown extends Command {
 
         String reason = "No Reason Provided.";
         if (event.getArgs().length > 0) reason = event.combineArgs();
+        KekBot.shutdownListener.setExitCode(ExitCode.STOP);
 
 
         KekBot.shutdown(reason);

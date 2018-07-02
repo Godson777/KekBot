@@ -1,5 +1,6 @@
 package com.godson.kekbot.settings;
 
+import com.godson.kekbot.ExitCode;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -212,7 +213,7 @@ public class Config {
             br.close();
         } catch (FileNotFoundException e) {
             System.out.println("config.json not found! What have you done with it?!");
-            System.exit(0);
+            System.exit(ExitCode.SHITTY_CONFIG.getCode());
         } catch (IOException e) {
             e.printStackTrace();
         }
