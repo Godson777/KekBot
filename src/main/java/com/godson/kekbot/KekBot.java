@@ -123,7 +123,7 @@ public class KekBot {
             System.exit(ExitCode.GENERIC_ERROR.getCode());
         }
 
-        if (dev) twitterManager = null;
+        if (dev || beta) twitterManager = null;
         else twitterManager = new TwitterManager(chain);
         Config config = Config.getConfig();
         try {
@@ -146,7 +146,6 @@ public class KekBot {
         if (beta) {
             shards = 1;
             client.setPrefix("$$");
-            twitterManager = null;
         }
         else {
             if (shards == 0) {
