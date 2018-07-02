@@ -5,6 +5,7 @@ import com.godson.kekbot.command.commands.MarkovTest;
 import com.godson.kekbot.command.commands.admin.*;
 import com.godson.kekbot.command.commands.botowner.*;
 import com.godson.kekbot.command.commands.botowner.botadmin.AddGame;
+import com.godson.kekbot.command.commands.botowner.botadmin.Reboot;
 import com.godson.kekbot.command.commands.botowner.botadmin.Responses;
 import com.godson.kekbot.command.commands.botowner.botadmin.Takeover;
 import com.godson.kekbot.command.commands.meme.*;
@@ -28,6 +29,7 @@ import com.godson.kekbot.command.commands.fun.*;
 import com.godson.kekbot.command.commands.general.*;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.rethinkdb.RethinkDB;
+import com.rethinkdb.gen.exc.ReqlDriverError;
 import com.rethinkdb.net.Connection;
 import me.duncte123.weebJava.WeebApiBuilder;
 import me.duncte123.weebJava.models.WeebApi;
@@ -46,14 +48,13 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class KekBot {
     //Seting configs, and resources.
     public static int shards = Config.getConfig().getShards();
     public static ShardManager jda;
-    public static final String version = "1.5.1";
+    public static final Version version = new Version(1, 6, 0, 1);
     public static final long startTime = System.currentTimeMillis();
     public static BufferedImage genericAvatar;
     private static final Map<Action, List<String>> responses = new HashMap<>();
@@ -81,6 +82,10 @@ public class KekBot {
     public static DiscoinManager discoinManager;
     public static TwitterManager twitterManager;
     private static TakeoverManager takeoverManager;
+    public static ShutdownListener shutdownListener = new ShutdownListener();
+
+    //Misc stuff
+    private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(3);
 
     //Some variables that need to be setup with a try statement
     static {
@@ -115,17 +120,22 @@ public class KekBot {
             else pfp = Icon.from(new File("resources/pfp.png"));
         } catch (IOException e) {
             e.printStackTrace();
+            System.exit(ExitCode.GENERIC_ERROR.getCode());
         }
 
         if (dev) twitterManager = null;
         else twitterManager = new TwitterManager(chain);
         Config config = Config.getConfig();
-        conn = r.connection().user(config.getDbUser(), config.getDbPassword()).connect();
+        try {
+            conn = r.connection().user(config.getDbUser(), config.getDbPassword()).connect();
+        } catch (ReqlDriverError e) {
+            System.exit(ExitCode.DB_OFFLINE.getCode());
+        }
         if (beta && (boolean) r.dbList().contains(config.getBetaDatabase()).run(conn)) conn.use(config.getBetaDatabase());
         else if (r.dbList().contains(config.getDatabase()).run(conn)) conn.use(config.getDatabase());
         else {
             System.out.println("Database could not be found, are you sure you typed the name correctly?");
-            System.exit(0);
+            System.exit(ExitCode.SHITTY_CONFIG.getCode());
         }
         takeoverManager = new TakeoverManager();
         String token = beta ? config.getBetaToken() : config.getToken();
@@ -141,12 +151,13 @@ public class KekBot {
         else {
             if (shards == 0) {
                 System.out.println("You must enter the number of shards in your \"config.json\"! Please go back and specify it before launching.");
-                System.exit(0);
+                System.exit(ExitCode.SHITTY_CONFIG.getCode());
             }
         }
 
         if (token == null) {
             System.out.println("Token was not specified in \"config.json\"! Please go back and specify one before launching!");
+            System.exit(ExitCode.SHITTY_CONFIG.getCode());
         } else {
 
             client.addCommand(new Prefix());
@@ -268,9 +279,10 @@ public class KekBot {
             client.addCommand(new Tweet());
             client.addCommand(new Takeover(takeoverManager));
             client.addCommand(new BlockUser());
+            client.addCommand(new Reboot());
 
 
-            jda = new DefaultShardManagerBuilder().setToken(token).addEventListeners(waiter, client, gamesManager, listener, player).setShardsTotal(shards).build();
+            jda = new DefaultShardManagerBuilder().setToken(token).addEventListeners(waiter, client, gamesManager, listener, player, shutdownListener).setShardsTotal(shards).build();
             if (twitterManager != null) jda.addEventListener(twitterManager);
 
             if (!takeoverManager.isTakeoverActive()) {
@@ -375,13 +387,17 @@ public class KekBot {
         listener.shutdown();
         if (twitterManager != null) twitterManager.shutdown(reason);
         waiter.shutdown();
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                for (JDA jda : KekBot.jda.getShards()) jda.shutdown();
-            }
-        }, TimeUnit.SECONDS.toMillis(5));
+        KekBot.schedule(() -> {
+            for (JDA jda : KekBot.jda.getShards()) jda.shutdown();
+        }, 1L, TimeUnit.MINUTES);
+    }
 
+    public static void schedule(Runnable task, Long delay, TimeUnit timeUnit) {
+        scheduler.schedule(task, delay, timeUnit);
+    }
+
+    public static ScheduledFuture<?> scheduleRepeat(Runnable task, long startDelay, long repeatDelay) {
+        return scheduler.scheduleWithFixedDelay(task, startDelay, repeatDelay, TimeUnit.MILLISECONDS);
     }
 
 }

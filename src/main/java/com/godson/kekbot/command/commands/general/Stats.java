@@ -47,7 +47,7 @@ public class Stats extends Command {
             builder.setThumbnail(event.getSelfUser().getAvatarUrl());
             builder.setTitle("KekBot, your friendly all-in-one meme bot!");
             builder.addField("Online for:", Utils.convertMillisToTime(startTime), false);
-            builder.addField("Version:", KekBot.version, true);
+            builder.addField("Version:", KekBot.version.toString(), true);
             builder.addField("Library:", "JDA", true);
             if (KekBot.shards > 1) {
                 builder.addField("Current Shard:", String.valueOf(event.getJDA().getShardInfo().getShardId() + 1), true);

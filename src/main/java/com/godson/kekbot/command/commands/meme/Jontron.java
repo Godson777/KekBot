@@ -26,7 +26,7 @@ public class Jontron extends Command {
     public void onExecuted(CommandEvent event) {
         boolean reboot = (Arrays.stream(event.getArgs()).anyMatch(s -> s.equalsIgnoreCase("--reboot")));
 
-        File jontrons[] = new File(reboot ? "resources/sound/jontron/reboot" : "resources/sound/jontron").listFiles();
+        File jontrons[] = Arrays.stream(new File(reboot ? "resources/sound/jontron/reboot" : "resources/sound/jontron").listFiles()).filter(file -> !file.isDirectory()).toArray(File[]::new);
         Random random = new Random();
         int index = random.nextInt(jontrons.length);
         Optional<VoiceChannel> voiceChannel = event.getEvent().getGuild().getVoiceChannels().stream().filter(c -> c.getMembers().contains(event.getEvent().getMember())).findFirst();

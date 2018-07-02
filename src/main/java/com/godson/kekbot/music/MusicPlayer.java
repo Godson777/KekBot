@@ -696,6 +696,15 @@ public class MusicPlayer extends ListenerAdapter {
         sessions.forEach(id -> closeConnection(KekBot.jda.getGuildById(id), LocaleUtils.getString("music.sessionshutdown", KekBot.getGuildLocale(KekBot.jda.getGuildById(id)), "`" + reason + "`")));
     }
 
+    public void shutdownShard(int shard) {
+        shutdownShard(shard, "Quick reboot, will be back in just a moment!");
+    }
+
+    public void shutdownShard(int shard, String reason) {
+        Set<Long> sessions = new HashSet<>(musicManagers.keySet()).stream().filter(l -> KekBot.jda.getShards().get(shard).getGuilds().stream().anyMatch(g -> g.getId().equalsIgnoreCase(l.toString()))).collect(Collectors.toSet());
+        sessions.forEach(id -> closeConnection(KekBot.jda.getGuildById(id), LocaleUtils.getString("music.sessionshutdown", KekBot.getGuildLocale(KekBot.jda.getGuildById(id)), "`" + reason + "`")));
+    }
+
     @Override
     public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
         if (!event.getGuild().getAudioManager().isConnected() || !isMusic(event.getGuild()) || !event.getChannelLeft().equals(event.getGuild().getAudioManager().getConnectedChannel())) return;

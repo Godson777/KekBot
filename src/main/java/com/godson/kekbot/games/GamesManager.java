@@ -120,6 +120,21 @@ public class GamesManager extends ListenerAdapter {
         }
     }
 
+    public void shutdownShard(int shard) {
+        shutdownShard(shard, "Quick reboot, will be back in just a moment!");
+    }
+
+    public void shutdownShard(int shard, String reason) {
+        Iterator<Map.Entry<Long, Game>> itr = activeGames.entrySet().stream().filter((e -> KekBot.jda.getShards().get(shard).getGuilds().stream().anyMatch(g -> g.getId().equalsIgnoreCase(e.getKey().toString())))).iterator();
+
+        while(itr.hasNext())
+        {
+            Map.Entry<Long, Game> entry = itr.next();
+            entry.getValue().getBets().declareTie();
+            entry.getValue().channel.sendMessage("This game was ended due to KekBot shutting down with the reason: `" + reason + "` (Don't worry, any bets made were all returned.)").queue();
+        }
+    }
+
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
         if (activeGames.containsKey(Long.valueOf(event.getChannel().getId()))) {
