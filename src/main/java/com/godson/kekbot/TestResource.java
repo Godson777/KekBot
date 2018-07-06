@@ -12,12 +12,12 @@ import java.io.IOException;
 public class TestResource {
 
     @GET
-    @Produces({ "image/png", MediaType.TEXT_PLAIN, })
-    public Object getIt(@QueryParam("id") long id) {
+    @Produces({ MediaType.TEXT_PLAIN, "image/png" })
+    public Response getIt(@QueryParam("id") long id) {
         try {
-            return Profile.getProfile(KekBot.jda.getUserById(id)).drawCard();
+            return Response.ok(Profile.getProfile(KekBot.jda.getUserById(id)).drawCard()).build();
         } catch (Exception e) {
-            return "you fucked up";
+            return Response.status(Response.Status.BAD_REQUEST).entity("you fucked up").build();
         }
     }
 }
