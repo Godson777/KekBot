@@ -12,7 +12,7 @@ import java.io.IOException;
 public class TestResource {
 
     @GET
-    @Produces({ MediaType.TEXT_PLAIN, "image/png" })
+    @Produces({ "image/png", MediaType.TEXT_PLAIN })
     public Response getIt(@QueryParam("id") long id) {
         try {
             return Response.ok(Profile.getProfile(KekBot.jda.getUserById(id)).drawCard()).build();
