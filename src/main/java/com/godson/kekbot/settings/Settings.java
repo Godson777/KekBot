@@ -28,6 +28,8 @@ public class Settings {
     private List<String> freeRoles = new ArrayList<>();
     @SerializedName("Anti-Ad")
     private boolean antiAd = false;
+    @SerializedName("Update Channel ID")
+    private String updateChannelID;
     @SerializedName("Locale")
     private String locale = "en_US";
 
@@ -76,6 +78,14 @@ public class Settings {
         this.guildID = guild.getId();
     }
 
+    public void setUpdateChannel(TextChannel channel) {
+        this.updateChannelID = channel.getId();
+    }
+
+    public String getUpdateChannelID() {
+        return updateChannelID;
+    }
+
     public Settings setPrefix(String prefix) {
         this.prefix = prefix;
         return this;
@@ -118,6 +128,7 @@ public class Settings {
                 .with("Quotes", quotes == null ? new QuoteManager() : quotes)
                 .with("Free Roles", freeRoles == null ? new ArrayList<Role>() : freeRoles)
                 .with("Anti-Ad", antiAd)
+                .with("Update Channel ID", updateChannelID)
                 .with("Locale", locale == null ? "en_US" : locale);
 
         if (KekBot.r.table("Settings").get(guildID).run(KekBot.conn) == null) {
