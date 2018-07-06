@@ -109,8 +109,8 @@ public class KekBot {
 
     // Base URI the Grizzly HTTP server will listen on
     public static HttpServer startServer(int mode) {
-        String BASE_URI = "http://kekbot.io/api/";
-        if (mode == 1) BASE_URI = "http://test.kekbot.io/api/";
+        String BASE_URI = "http://api.kekbot.io/";
+        if (mode == 1) BASE_URI = "http://api.kekbot.io/test/";
         if (mode == 2) BASE_URI = "http://localhost:8081/myapp/";
         final ResourceConfig rc = new ResourceConfig().packages("com.godson.kekbot");
 
