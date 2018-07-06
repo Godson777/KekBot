@@ -1,6 +1,7 @@
 package com.godson.kekbot;
 
 import com.godson.discoin4j.Discoin4J;
+import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.commands.MarkovTest;
 import com.godson.kekbot.command.commands.admin.*;
 import com.godson.kekbot.command.commands.botowner.*;
@@ -41,12 +42,19 @@ import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Icon;
 import org.apache.commons.lang3.StringUtils;
 import org.discordbots.api.client.DiscordBotListAPI;
+import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
+import org.glassfish.jersey.moxy.json.MoxyJsonConfig;
+import org.glassfish.jersey.server.ResourceConfig;
+import org.reflections.Reflections;
 
 import javax.imageio.ImageIO;
 import javax.security.auth.login.LoginException;
+import javax.ws.rs.ext.ContextResolver;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -68,6 +76,7 @@ public class KekBot {
     public static boolean dev;
     public static WeebApi weebApi = new WeebApiBuilder(TokenType.WOLKETOKENS, "KekBot/1.5.1").setToken(Config.getConfig().getWeebToken()).build();
     public static DiscordBotListAPI dbl;
+    private static HttpServer server;
 
 
     //ALL THE MANAGERS.
@@ -98,187 +107,85 @@ public class KekBot {
         }
     }
 
+    // Base URI the Grizzly HTTP server will listen on
+    public static HttpServer startServer(int mode) {
+        String BASE_URI = "http://kekbot.io/api/";
+        if (mode == 1) BASE_URI = "http://test.kekbot.io/api/";
+        if (mode == 2) BASE_URI = "http://localhost:8081/myapp/";
+        final ResourceConfig rc = new ResourceConfig().packages("com.godson.kekbot");
+
+        return GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), rc);
+    }
+
     public static void main(String[] args) throws LoginException {
-        boolean beta = false;
-        boolean dev = false;
-
-        if (Config.getConfig().getdBotsListToken() != null) dbl = new DiscordBotListAPI.Builder().token(Config.getConfig().getdBotsListToken()).build();
-        else dbl = null;
-
+        int mode = 0;
         for (String arg : args) {
-            if (arg.equalsIgnoreCase("--beta")) beta = true;
-            if (arg.equalsIgnoreCase("--dev") && !beta) {
-                dev = true;
+            if (arg.equalsIgnoreCase("--beta")) mode = 1;
+            if (arg.equalsIgnoreCase("--dev") && mode != 1) {
+                mode = 2;
                 KekBot.dev = true;
             }
         }
+        server = startServer(mode);
+        setupOptionalResources(mode);
+        startBot(mode);
+    }
 
-
-        try {
-            if (beta) pfp = Icon.from(new File("resources/pfpBeta.png"));
-            else if (dev) pfp = Icon.from(new File("resources/pfpDev.png"));
-            else pfp = Icon.from(new File("resources/pfp.png"));
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(ExitCode.GENERIC_ERROR.getCode());
-        }
-
-        if (dev || beta) twitterManager = null;
-        else twitterManager = new TwitterManager(chain);
+    private static void setupOptionalResources(int mode) {
+        //Load config
         Config config = Config.getConfig();
+
+        if (config.getdBotsListToken() != null) dbl = new DiscordBotListAPI.Builder().token(Config.getConfig().getdBotsListToken()).build();
+        else dbl = null;
+
+        if (config.getDcoinToken() != null && mode > 0) {
+            discoin = new Discoin4J(config.getDcoinToken());
+            discoinManager = new DiscoinManager();
+        }
+    }
+
+    private static void startBot(int mode) throws LoginException {
+        //Modes: 0 = stable, 1 = beta, 2 = dev.
+
+        //Load config
+        Config config = Config.getConfig();
+
+        //Load twitter
+        if (mode > 0) twitterManager = null;
+        else twitterManager = new TwitterManager(chain);
+
+        String token = mode == 1 ? config.getBetaToken() : config.getToken();
+
         try {
             conn = r.connection().user(config.getDbUser(), config.getDbPassword()).connect();
         } catch (ReqlDriverError e) {
             System.exit(ExitCode.DB_OFFLINE.getCode());
         }
-        if (beta && (boolean) r.dbList().contains(config.getBetaDatabase()).run(conn)) conn.use(config.getBetaDatabase());
+        if (mode == 1 && (boolean) r.dbList().contains(config.getBetaDatabase()).run(conn)) conn.use(config.getBetaDatabase());
         else if (r.dbList().contains(config.getDatabase()).run(conn)) conn.use(config.getDatabase());
         else {
             System.out.println("Database could not be found, are you sure you typed the name correctly?");
             System.exit(ExitCode.SHITTY_CONFIG.getCode());
         }
+
+        //Load takeovers
         takeoverManager = new TakeoverManager();
-        String token = beta ? config.getBetaToken() : config.getToken();
-        if (config.getDcoinToken() != null && !beta) {
-            discoin = new Discoin4J(config.getDcoinToken());
-            discoinManager = new DiscoinManager();
-        }
-        if (beta) {
-            shards = 1;
-            client.setPrefix("$$");
-        }
-        else {
-            if (shards == 0) {
-                System.out.println("You must enter the number of shards in your \"config.json\"! Please go back and specify it before launching.");
-                System.exit(ExitCode.SHITTY_CONFIG.getCode());
-            }
-        }
 
         if (token == null) {
             System.out.println("Token was not specified in \"config.json\"! Please go back and specify one before launching!");
             System.exit(ExitCode.SHITTY_CONFIG.getCode());
         } else {
 
-            client.addCommand(new Prefix());
-
-            //Admin Commands
-            client.addCommand(new Role());
-            client.addCommand(new Purge());
-            client.addCommand(new Kick());
-            client.addCommand(new Ban());
-            client.addCommand(new SettingsCommand());
-            client.addCommand(new GetRole());
-
-            //Fun Commands
-            client.addCommand(new Avatar());
-            client.addCommand(new CoinFlip());
-            client.addCommand(new EightBall());
-            client.addCommand(new FullWidth());
-            client.addCommand(new Balance());
-            client.addCommand(new Lenny());
-            client.addCommand(new LotteryCommand());
-            client.addCommand(new GameCommand());
-            client.addCommand(new RateWaifu());
-            client.addCommand(new Emojify());
-            client.addCommand(new Roll());
-            client.addCommand(new ProfileCommand());
-            client.addCommand(new Pick());
-            //client.addCommand(new RIP());
-            client.addCommand(new Quote());
-            client.addCommand(new UDCommand());
-            client.addCommand(new ShopCommand());
-            client.addCommand(new Music());
-            client.addCommand(new Pay());
-            client.addCommand(new Daily());
-
-            //Weeb Commands
-            client.addCommand(new Slap(weebApi));
-            client.addCommand(new Hug(weebApi));
-            client.addCommand(new Kiss(weebApi));
-            client.addCommand(new Punch(weebApi));
-            client.addCommand(new Awoo(weebApi));
-            client.addCommand(new Cuddle(weebApi));
-            client.addCommand(new Lick(weebApi));
-            client.addCommand(new Lewd(weebApi));
-            client.addCommand(new Neko(weebApi));
-            client.addCommand(new Pout(weebApi));
-            client.addCommand(new Shrug(weebApi));
-            client.addCommand(new Pat(weebApi));
-            client.addCommand(new Cry(weebApi));
-            client.addCommand(new Dance(weebApi));
-            client.addCommand(new Nom(weebApi));
-            client.addCommand(new Poke(weebApi));
-            client.addCommand(new OwO(weebApi));
-            client.addCommand(new Sleepy(weebApi));
-            client.addCommand(new Smug(weebApi));
-            client.addCommand(new SRS(weebApi));
-            client.addCommand(new ThumbsUp(weebApi));
-            client.addCommand(new Wag(weebApi));
-            client.addCommand(new Dab(weebApi));
-            client.addCommand(new Deredere(weebApi));
-            client.addCommand(new Tickle(weebApi));
-            client.addCommand(new Bite(weebApi));
-
-            //General Commands
-            client.addCommand(new Help());
-            client.addCommand(new Stats());
-            client.addCommand(new Poll(client));
-            client.addCommand(new Strawpoll());
-            client.addCommand(new GoogleSearch());
-            client.addCommand(new LMGTFY());
-            client.addCommand(new Changelog());
-            client.addCommand(new Credits());
-            client.addCommand(new Invite());
-            client.addCommand(new TicketCommand());
-            client.addCommand(new TagCommand());
-            client.addCommand(new MyPlaylist());
-            client.addCommand(new Support());
-            client.addCommand(new Ping());
-
-            //Meme Commands
-            client.addCommand(new Granddad());
-            client.addCommand(new Gril());
-            client.addCommand(new JustRight());
-            client.addCommand(new Byemom());
-            client.addCommand(new Erase());
-            client.addCommand(new Gabe());
-            client.addCommand(new Poosy());
-            client.addCommand(new LongLive());
-            client.addCommand(new Johnny());
-            client.addCommand(new DELET());
-            client.addCommand(new GayBabyJail());
-            client.addCommand(new Jontron());
-            client.addCommand(new LuigiThumb());
-            client.addCommand(new SwitchSetup());
-            client.addCommand(new Gru());
-            client.addCommand(new Lean());
-            client.addCommand(new Doubt());
-            client.addCommand(new Kaede());
-            client.addCommand(new Magik());
-            client.addCommand(new Think(weebApi));
-            client.addCommand(new Discord(weebApi));
-            client.addCommand(new Kirb());
-            client.addCommand(new YouTried());
-
-
-
-            client.addCommand(new TestCommand());
-            client.addCommand(new MarkovTest(chain));
-
-
-            //Bot Owner and Bot Admin commands.
-            client.addCommand(new Responses());
-            client.addCommand(new BotAdmin());
-            client.addCommand(new BotMod());
-            client.addCommand(new AddGame());
-            client.addCommand(new Shutdown());
-            client.addCommand(new Patreon());
-            client.addCommand(new GetInvite());
-            client.addCommand(new Eval());
-            client.addCommand(new Tweet());
-            client.addCommand(new Takeover(takeoverManager));
-            client.addCommand(new BlockUser());
-            client.addCommand(new Reboot());
+            if (mode == 1) {
+                shards = 1;
+                client.setPrefix("$$");
+            }
+            else {
+                if (shards == 0) {
+                    System.out.println("You must enter the number of shards in your \"config.json\"! Please go back and specify it before launching.");
+                    System.exit(ExitCode.SHITTY_CONFIG.getCode());
+                }
+            }
 
 
             jda = new DefaultShardManagerBuilder().setToken(token).addEventListeners(waiter, client, gamesManager, listener, player, shutdownListener).setShardsTotal(shards).build();
@@ -291,6 +198,129 @@ public class KekBot {
                 }
             }
         }
+
+        //Loading all commands.
+        client.addCommand(new Prefix());
+
+        //Admin Commands
+        client.addCommand(new Role());
+        client.addCommand(new Purge());
+        client.addCommand(new Kick());
+        client.addCommand(new Ban());
+        client.addCommand(new SettingsCommand());
+        client.addCommand(new GetRole());
+
+        //Fun Commands
+        client.addCommand(new Avatar());
+        client.addCommand(new CoinFlip());
+        client.addCommand(new EightBall());
+        client.addCommand(new FullWidth());
+        client.addCommand(new Balance());
+        client.addCommand(new Lenny());
+        client.addCommand(new LotteryCommand());
+        client.addCommand(new GameCommand());
+        client.addCommand(new RateWaifu());
+        client.addCommand(new Emojify());
+        client.addCommand(new Roll());
+        client.addCommand(new ProfileCommand());
+        client.addCommand(new Pick());
+        //client.addCommand(new RIP());
+        client.addCommand(new Quote());
+        client.addCommand(new UDCommand());
+        client.addCommand(new ShopCommand());
+        client.addCommand(new Music());
+        client.addCommand(new Pay());
+        client.addCommand(new Daily());
+
+        //Weeb Commands
+        client.addCommand(new Slap(weebApi));
+        client.addCommand(new Hug(weebApi));
+        client.addCommand(new Kiss(weebApi));
+        client.addCommand(new Punch(weebApi));
+        client.addCommand(new Awoo(weebApi));
+        client.addCommand(new Cuddle(weebApi));
+        client.addCommand(new Lick(weebApi));
+        client.addCommand(new Lewd(weebApi));
+        client.addCommand(new Neko(weebApi));
+        client.addCommand(new Pout(weebApi));
+        client.addCommand(new Shrug(weebApi));
+        client.addCommand(new Pat(weebApi));
+        client.addCommand(new Cry(weebApi));
+        client.addCommand(new Dance(weebApi));
+        client.addCommand(new Nom(weebApi));
+        client.addCommand(new Poke(weebApi));
+        client.addCommand(new OwO(weebApi));
+        client.addCommand(new Sleepy(weebApi));
+        client.addCommand(new Smug(weebApi));
+        client.addCommand(new SRS(weebApi));
+        client.addCommand(new ThumbsUp(weebApi));
+        client.addCommand(new Wag(weebApi));
+        client.addCommand(new Dab(weebApi));
+        client.addCommand(new Deredere(weebApi));
+        client.addCommand(new Tickle(weebApi));
+        client.addCommand(new Bite(weebApi));
+
+        //General Commands
+        client.addCommand(new Help());
+        client.addCommand(new Stats());
+        client.addCommand(new Poll(client));
+        client.addCommand(new Strawpoll());
+        client.addCommand(new GoogleSearch());
+        client.addCommand(new LMGTFY());
+        client.addCommand(new Changelog());
+        client.addCommand(new Credits());
+        client.addCommand(new Invite());
+        client.addCommand(new TicketCommand());
+        client.addCommand(new TagCommand());
+        client.addCommand(new MyPlaylist());
+        client.addCommand(new Support());
+        client.addCommand(new Ping());
+
+        //Meme Commands
+        client.addCommand(new Granddad());
+        client.addCommand(new Gril());
+        client.addCommand(new JustRight());
+        client.addCommand(new Byemom());
+        client.addCommand(new Erase());
+        client.addCommand(new Gabe());
+        client.addCommand(new Poosy());
+        client.addCommand(new LongLive());
+        client.addCommand(new Johnny());
+        client.addCommand(new DELET());
+        client.addCommand(new GayBabyJail());
+        client.addCommand(new Jontron());
+        client.addCommand(new LuigiThumb());
+        client.addCommand(new SwitchSetup());
+        client.addCommand(new Gru());
+        client.addCommand(new Lean());
+        client.addCommand(new Doubt());
+        client.addCommand(new Kaede());
+        client.addCommand(new Magik());
+        client.addCommand(new Think(weebApi));
+        client.addCommand(new Discord(weebApi));
+        client.addCommand(new Kirb());
+        client.addCommand(new YouTried());
+
+
+        client.addCommand(new TestCommand());
+        client.addCommand(new MarkovTest(chain));
+
+
+        //Bot Owner and Bot Admin commands.
+        client.addCommand(new Responses());
+        client.addCommand(new BotAdmin());
+        client.addCommand(new BotMod());
+        client.addCommand(new AddGame());
+        client.addCommand(new Shutdown());
+        client.addCommand(new Patreon());
+        client.addCommand(new GetInvite());
+        client.addCommand(new Eval());
+        client.addCommand(new Tweet());
+        client.addCommand(new Takeover(takeoverManager));
+        client.addCommand(new BlockUser());
+        client.addCommand(new Reboot());
+
+
     }
 
     public static CommandClient getCommandClient() {
