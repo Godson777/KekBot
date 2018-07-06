@@ -193,6 +193,32 @@ public class SettingsCommand extends Command {
                     builder.setSelectedEnds("➡", "");
                     builder.build().display(event.getChannel());
                 }));
+        settings.put("updates", new Setting("settings.updates.description", "settings.updates.noargs",
+                ((event, settings, channel) -> {
+                    if (channel.equalsIgnoreCase("reset")) {
+                        settings.getAnnounceSettings().setWelcomeChannel(null);
+                        settings.save();
+                        event.getChannel().sendMessage(event.getString("settings.updates.reset")).queue();
+                        return;
+                    }
+
+                    TextChannel wChannel;
+                    try {
+                        wChannel = Utils.resolveChannelMention(event.getGuild(), channel);
+                    } catch (IllegalArgumentException e) {
+                        event.getChannel().sendMessage(event.getString("settings.welcomechannel.invalidchannel")).queue();
+                        return;
+                    }
+
+                    if (wChannel == null) {
+                        event.getChannel().sendMessage(event.getString("settings.welcomechannel.notachannel")).queue();
+                        return;
+                    }
+
+                    settings.setUpdateChannel(wChannel);
+                    settings.save();
+                    event.getChannel().sendMessage(event.getString("settings.updates.success", wChannel.getAsMention())).queue();
+                }), "`reset`"));
     }
 
     @Override
