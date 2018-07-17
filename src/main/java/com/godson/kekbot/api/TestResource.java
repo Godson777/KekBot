@@ -30,7 +30,7 @@ public class TestResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    public Response test(String json, @HeaderParam("auth") String auth) {
+    public Response test(String json, @HeaderParam("Authorization") String auth) {
         JSONObject object = new JSONObject(json);
         if (!auth.equalsIgnoreCase("pineapple")) {
             return Response.status(Response.Status.FORBIDDEN).entity("either wrong fucking token or no token at all smh").build();
