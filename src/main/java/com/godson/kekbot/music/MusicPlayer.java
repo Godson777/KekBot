@@ -2,11 +2,11 @@ package com.godson.kekbot.music;
 
 import com.godson.kekbot.CustomEmote;
 import com.godson.kekbot.KekBot;
-import com.godson.kekbot.LocaleUtils;
+import com.godson.kekbot.util.LocaleUtils;
 import com.godson.kekbot.profile.Profile;
 import com.godson.kekbot.questionaire.Questionnaire;
 import com.godson.kekbot.responses.Action;
-import com.godson.kekbot.Utils;
+import com.godson.kekbot.util.Utils;
 import com.godson.kekbot.command.CommandEvent;
 import com.jagrosh.jdautilities.menu.OrderedMenu;
 import com.jagrosh.jdautilities.menu.Paginator;
@@ -25,6 +25,7 @@ import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.events.guild.voice.*;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import net.dv8tion.jda.core.managers.AudioManager;
+import net.dv8tion.jda.core.utils.PermissionUtil;
 
 import java.awt.*;
 import java.util.*;
@@ -493,6 +494,10 @@ public class MusicPlayer extends ListenerAdapter {
             Optional<VoiceChannel> voiceChannel = event.getGuild().getVoiceChannels().stream().filter(c -> c.getMembers().contains(event.getEvent().getMember())).findFirst();
             if (!voiceChannel.isPresent()) {
                 event.getTextChannel().sendMessage(KekBot.respond(Action.GET_IN_VOICE_CHANNEL, event.getLocale())).queue();
+                killConnection(event.getGuild());
+            } else if (!PermissionUtil.checkPermission(voiceChannel.get(), event.getSelfMember(), Permission.VOICE_CONNECT)) {
+                event.getTextChannel().sendMessage(event.getString("music.noperms")).queue();
+                killConnection(event.getGuild());
             } else {
                 audioManager.openAudioConnection(voiceChannel.get());
                 announceStart(event, voiceChannel.get());
