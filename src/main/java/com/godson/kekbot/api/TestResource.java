@@ -33,12 +33,16 @@ public class TestResource {
     public Response test(String json, @HeaderParam("Authorization") String auth) {
         JSONObject object = new JSONObject(json);
         if (!auth.equalsIgnoreCase("pineapple")) {
+            System.out.println("API TEST: no header from post request");
             return Response.status(Response.Status.FORBIDDEN).entity("either wrong fucking token or no token at all smh").build();
         } else {
             try {
-                KekBot.jda.getUserById("99405418077364224").openPrivateChannel().queue(c -> c.sendMessage("holy fuck test compreete").queue());
+                KekBot.jda.getUserById("99405418077364224").openPrivateChannel().queue(c -> c.sendMessage("holy fuck test compreete" + "\n\ndata recieved: \n" + json).queue());
+                System.out.println("API TEST: succ");
                 return Response.ok().entity("succ").build();
             } catch (Exception e) {
+                System.out.println("API TEST: user fucked up somehow");
+                System.out.println("API TEST: data provided: \n" + json);
                 return Response.status(Response.Status.BAD_REQUEST).entity("you fucked up").build();
             }
         }
