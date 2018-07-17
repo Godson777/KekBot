@@ -1,7 +1,7 @@
 package com.godson.kekbot.music;
 
 import com.godson.kekbot.KekBot;
-import com.godson.kekbot.Utils;
+import com.godson.kekbot.util.Utils;
 import com.godson.kekbot.command.CommandEvent;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;

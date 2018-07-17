@@ -1,7 +1,6 @@
 package com.godson.kekbot.command.commands.fun;
 
 import com.godson.kekbot.CustomEmote;
-import com.godson.kekbot.LocaleUtils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
 

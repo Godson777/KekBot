@@ -1,11 +1,10 @@
 package com.godson.kekbot.command.commands.fun;
 
-import com.godson.kekbot.LocaleUtils;
+import com.godson.kekbot.util.LocaleUtils;
 import com.godson.kekbot.games.Game;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.profile.Profile;
 import com.godson.kekbot.responses.Action;
-import com.godson.kekbot.Utils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -13,7 +12,6 @@ import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.TextChannel;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 

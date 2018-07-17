@@ -1,7 +1,6 @@
 package com.godson.kekbot;
 
 import com.godson.discoin4j.Discoin4J;
-import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.commands.MarkovTest;
 import com.godson.kekbot.command.commands.admin.*;
 import com.godson.kekbot.command.commands.botowner.*;
@@ -17,7 +16,7 @@ import com.godson.kekbot.objects.DiscoinManager;
 import com.godson.kekbot.objects.MarkovChain;
 import com.godson.kekbot.objects.TakeoverManager;
 import com.godson.kekbot.objects.TwitterManager;
-import com.godson.kekbot.profile.BackgroundManager;
+import com.godson.kekbot.profile.item.BackgroundManager;
 import com.godson.kekbot.profile.rewards.lottery.Lottery;
 import com.godson.kekbot.responses.Responder;
 import com.godson.kekbot.settings.Config;
@@ -28,6 +27,7 @@ import com.godson.kekbot.command.CommandClient;
 import com.godson.kekbot.command.commands.TestCommand;
 import com.godson.kekbot.command.commands.fun.*;
 import com.godson.kekbot.command.commands.general.*;
+import com.godson.kekbot.util.LocaleUtils;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.rethinkdb.RethinkDB;
 import com.rethinkdb.gen.exc.ReqlDriverError;
@@ -44,13 +44,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.discordbots.api.client.DiscordBotListAPI;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
-import org.glassfish.jersey.moxy.json.MoxyJsonConfig;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.reflections.Reflections;
 
 import javax.imageio.ImageIO;
 import javax.security.auth.login.LoginException;
-import javax.ws.rs.ext.ContextResolver;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -62,7 +59,7 @@ public class KekBot {
     //Seting configs, and resources.
     public static int shards = Config.getConfig().getShards();
     public static ShardManager jda;
-    public static final Version version = new Version(1, 6, 0, 1);
+    public static final Version version = new Version(1, 6, 0, 3);
     public static final long startTime = System.currentTimeMillis();
     public static BufferedImage genericAvatar;
     private static final Map<Action, List<String>> responses = new HashMap<>();
@@ -74,7 +71,7 @@ public class KekBot {
     public static final MarkovChain chain = new MarkovChain();
     public static Icon pfp;
     public static boolean dev;
-    public static WeebApi weebApi = new WeebApiBuilder(TokenType.WOLKETOKENS, "KekBot/1.5.1").setToken(Config.getConfig().getWeebToken()).build();
+    public static WeebApi weebApi = new WeebApiBuilder(TokenType.WOLKETOKENS, "KekBot/1.6/BETA").setToken(Config.getConfig().getWeebToken()).build();
     public static DiscordBotListAPI dbl;
     private static HttpServer server;
 
@@ -108,11 +105,11 @@ public class KekBot {
     }
 
     // Base URI the Grizzly HTTP server will listen on
-    public static HttpServer startServer(int mode) {
-        String BASE_URI = "http://kekbot.io/api/";
-        if (mode == 1) BASE_URI = "http://test.kekbot.io/api/";
+    private static HttpServer startServer(int mode) {
+        String BASE_URI = Config.getConfig().getAPIip();
+        if (mode == 1) BASE_URI = Config.getConfig().getAPIip() + "test/";
         if (mode == 2) BASE_URI = "http://localhost:8081/myapp/";
-        final ResourceConfig rc = new ResourceConfig().packages("com.godson.kekbot");
+        final ResourceConfig rc = new ResourceConfig().packages("com.godson.kekbot.api");
 
         return GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), rc);
     }
@@ -188,8 +185,9 @@ public class KekBot {
             }
 
 
-            jda = new DefaultShardManagerBuilder().setToken(token).addEventListeners(waiter, client, gamesManager, listener, player, shutdownListener).setShardsTotal(shards).build();
+            jda = new DefaultShardManagerBuilder().setToken(token).addEventListeners(waiter, client, gamesManager, listener, player).setShardsTotal(shards).build();
             if (twitterManager != null) jda.addEventListener(twitterManager);
+            if (mode != 2) jda.addEventListener(shutdownListener);
 
             if (!takeoverManager.isTakeoverActive()) {
                 for (Action action : Action.values()) {
@@ -300,6 +298,7 @@ public class KekBot {
         client.addCommand(new Discord(weebApi));
         client.addCommand(new Kirb());
         client.addCommand(new YouTried());
+        client.addCommand(new DSXSays());
 
 
         client.addCommand(new TestCommand());
@@ -427,6 +426,10 @@ public class KekBot {
 
     public static ScheduledFuture<?> scheduleRepeat(Runnable task, long startDelay, long repeatDelay) {
         return scheduler.scheduleWithFixedDelay(task, startDelay, repeatDelay, TimeUnit.MILLISECONDS);
+    }
+
+    public static float nextFloat() {
+        return random.nextFloat();
     }
 
 }

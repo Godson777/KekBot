@@ -1,21 +1,15 @@
 package com.godson.kekbot.settings;
 
-import com.godson.kekbot.GSONUtils;
 import com.godson.kekbot.KekBot;
-import com.godson.kekbot.Utils;
+import com.godson.kekbot.util.Utils;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.rethinkdb.model.MapObject;
 import com.rethinkdb.net.Cursor;
-import com.sedmelluq.discord.lavaplayer.remote.RemoteNode;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.User;
-import org.json.JSONObject;
 
 import java.awt.*;
-import java.lang.reflect.Type;
 import java.time.Instant;
-import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.TimeUnit;

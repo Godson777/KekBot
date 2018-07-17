@@ -1,6 +1,4 @@
-package com.godson.kekbot.profile;
-
-import com.godson.kekbot.Utils;
+package com.godson.kekbot.profile.item;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

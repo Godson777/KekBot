@@ -1,7 +1,7 @@
 package com.godson.kekbot.games;
 
 import com.godson.kekbot.CustomEmote;
-import com.godson.kekbot.Utils;
+import com.godson.kekbot.util.Utils;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;

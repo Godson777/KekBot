@@ -2,7 +2,7 @@ package com.godson.kekbot.shop;
 
 import com.godson.kekbot.CustomEmote;
 import com.godson.kekbot.KekBot;
-import com.godson.kekbot.profile.Background;
+import com.godson.kekbot.profile.item.Background;
 import com.godson.kekbot.profile.Profile;
 import net.dv8tion.jda.core.entities.User;
 

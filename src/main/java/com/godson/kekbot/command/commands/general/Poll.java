@@ -2,7 +2,7 @@ package com.godson.kekbot.command.commands.general;
 
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.objects.PollManager;
-import com.godson.kekbot.Utils;
+import com.godson.kekbot.util.Utils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandClient;
 import com.godson.kekbot.command.CommandEvent;

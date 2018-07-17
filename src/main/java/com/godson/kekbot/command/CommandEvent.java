@@ -1,12 +1,8 @@
 package com.godson.kekbot.command;
 
-import com.godson.kekbot.KekBot;
-import com.godson.kekbot.LocaleUtils;
+import com.godson.kekbot.util.LocaleUtils;
 import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.*;
-import net.dv8tion.jda.core.entities.impl.DataMessage;
-import net.dv8tion.jda.core.entities.impl.ReceivedMessage;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.apache.commons.lang3.StringUtils;
 

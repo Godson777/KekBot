@@ -1,8 +1,7 @@
-package com.godson.kekbot;
+package com.godson.kekbot.util;
 
 import net.dv8tion.jda.core.utils.tuple.Pair;
 
-import javax.annotation.Resource;
 import java.io.UnsupportedEncodingException;
 import java.util.*;
 

@@ -28,6 +28,7 @@ public class Config {
     private String ticketChannel;
     private String twitterChannel;
     private String weebToken;
+    private String APIip;
     private List<String> botAdmins = new ArrayList<>();
     private List<String> botMods = new ArrayList<>();
     private Map<String, Integer> blockedUsers = new HashMap<>();
@@ -46,6 +47,10 @@ public class Config {
     public String getDbUser() {
         if (dbUser != null) return dbUser;
         else throw new NullPointerException("Database user not listed in config.json.");
+    }
+
+    public String getAPIip() {
+        return APIip;
     }
 
     public String getDbPassword() {

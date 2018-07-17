@@ -1,22 +1,15 @@
 package com.godson.kekbot.command.commands.meme;
 
-import com.godson.kekbot.Utils;
-import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandCategories;
-import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.command.ImageCommand;
-import com.godson.kekbot.profile.ProfileUtils;
 
 import javax.imageio.ImageIO;
-import javax.net.ssl.SSLHandshakeException;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.*;
 
 public class SwitchSetup extends ImageCommand {
 
