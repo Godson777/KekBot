@@ -1,8 +1,6 @@
 package com.godson.kekbot.command.commands.general;
 
-import com.godson.kekbot.GSONUtils;
 import com.godson.kekbot.KekBot;
-import com.godson.kekbot.Utils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.settings.Config;

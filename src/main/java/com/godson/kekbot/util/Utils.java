@@ -1,8 +1,9 @@
-package com.godson.kekbot;
+package com.godson.kekbot.util;
 
-import com.godson.kekbot.profile.BackgroundManager;
+import com.godson.kekbot.KekBot;
+import com.godson.kekbot.Version;
+import com.godson.kekbot.profile.item.BackgroundManager;
 import com.godson.kekbot.settings.Config;
-import com.google.gson.internal.Primitives;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import net.dv8tion.jda.core.JDA;

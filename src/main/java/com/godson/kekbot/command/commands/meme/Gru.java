@@ -1,10 +1,9 @@
 package com.godson.kekbot.command.commands.meme;
 
-import com.godson.kekbot.Utils;
+import com.godson.kekbot.util.Utils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandCategories;
 import com.godson.kekbot.command.CommandEvent;
-import com.godson.kekbot.command.TextImageCommand;
 
 import javax.imageio.ImageIO;
 import javax.net.ssl.SSLHandshakeException;
@@ -17,8 +16,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.*;
 import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class Gru extends Command {
 

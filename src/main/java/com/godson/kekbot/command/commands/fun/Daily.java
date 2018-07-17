@@ -1,24 +1,19 @@
 package com.godson.kekbot.command.commands.fun;
 
 import com.godson.kekbot.CustomEmote;
-import com.godson.kekbot.KekBot;
-import com.godson.kekbot.Utils;
+import com.godson.kekbot.util.Utils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
-import com.godson.kekbot.objects.SPoll;
 import com.godson.kekbot.profile.Profile;
 import com.godson.kekbot.questionaire.Questionnaire;
 import com.godson.kekbot.settings.Config;
 import com.google.gson.JsonParser;
-import net.dv8tion.jda.core.entities.User;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
 import java.time.temporal.ChronoUnit;
-import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 public class Daily extends Command {
 

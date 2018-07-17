@@ -1,6 +1,6 @@
 package com.godson.kekbot.command.commands.meme;
 
-import com.godson.kekbot.Utils;
+import com.godson.kekbot.util.Utils;
 import com.godson.kekbot.command.*;
 
 import javax.imageio.ImageIO;
@@ -157,7 +157,7 @@ public class Kaede extends Command {
         String[] split = text.toString().split("\n");
 
         //For loop to determine total height of all text.
-        for (String aSplit : split) {
+        for (int i = 0; i < split.length; i++) {
             totalY += graphics.getFontMetrics().getHeight();
         }
 

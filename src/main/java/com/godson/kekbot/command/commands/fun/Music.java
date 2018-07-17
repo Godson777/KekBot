@@ -2,7 +2,7 @@ package com.godson.kekbot.command.commands.fun;
 
 import com.godson.kekbot.CustomEmote;
 import com.godson.kekbot.KekBot;
-import com.godson.kekbot.LocaleUtils;
+import com.godson.kekbot.util.LocaleUtils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.music.Playlist;

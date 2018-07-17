@@ -2,9 +2,9 @@ package com.godson.kekbot.profile.rewards.lottery;
 
 import com.godson.kekbot.CustomEmote;
 import com.godson.kekbot.KekBot;
-import com.godson.kekbot.LocaleUtils;
+import com.godson.kekbot.util.LocaleUtils;
 import com.godson.kekbot.profile.Profile;
-import com.godson.kekbot.Utils;
+import com.godson.kekbot.util.Utils;
 import javafx.util.Pair;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.User;

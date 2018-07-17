@@ -1,9 +1,9 @@
 package com.godson.kekbot.games;
 
 import com.godson.kekbot.KekBot;
-import com.godson.kekbot.LocaleUtils;
+import com.godson.kekbot.util.LocaleUtils;
 import com.godson.kekbot.profile.Profile;
-import com.godson.kekbot.profile.Token;
+import com.godson.kekbot.profile.item.Token;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
