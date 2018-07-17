@@ -79,7 +79,7 @@ public class Utils {
 
     public static Version getLatestVersion(boolean beta) {
         String request = "";
-        String branch = beta ? "beta" : "master";
+        String branch = beta ? "Beta" : "master";
         try {
             request = Unirest.get("https://raw.githubusercontent.com/Godson777/KekBot/" + branch + "/pom.xml").header("User-Agent", "Mozilla/5.0").asString().getBody();
         } catch (UnirestException e) {
