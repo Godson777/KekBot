@@ -78,7 +78,7 @@ public class Lottery {
             tickets = ticketMax - ownedTickets;
 
         if (!canUserPurchaseTicket(gambler) || tickets == 0)
-            return LocaleUtils.getString("lottery.maxpurchased", locale);
+            return LocaleUtils.getString("lottery.maxpurchased", locale, ticketMax);
 
         Profile profile = Profile.getProfile(gambler);
         if (profile.getTopkeks() >= ticketPrice*tickets) {

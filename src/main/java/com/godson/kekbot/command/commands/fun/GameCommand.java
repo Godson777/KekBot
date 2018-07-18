@@ -33,7 +33,8 @@ public class GameCommand extends Command {
                 "\n\nAvailable Games:" +
                 "\nTic-Tac-Toe (or \"ttt\" for short.)" +
                 "\nSnail Race (or \"sr\" for short.)" +
-                "\nHangman";
+                "\nHangman" +
+                "\nTrivia";
         exDescPos = ExtendedPosition.AFTER;
         category = new Category("Fun");
     }
