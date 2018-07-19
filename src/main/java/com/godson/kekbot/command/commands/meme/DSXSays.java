@@ -3,6 +3,7 @@ package com.godson.kekbot.command.commands.meme;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.command.TextImageCommand;
+import com.godson.kekbot.util.ImageUtils;
 import com.godson.kekbot.util.Utils;
 
 import javax.imageio.ImageIO;
@@ -40,56 +41,10 @@ public class DSXSays extends Command {
                 graphics.setFont(new Font("Calibri", Font.BOLD, 144));
                 graphics.setColor(Color.BLACK);
 
-                StringBuilder text = new StringBuilder();
-                String[] words = Utils.removeWhitespaceEdges(message).split(" ");
-
-                //Max width for text we can go:
-                int maxTextWidth = 1226;
-
-                //This snippet of code separates the message, going over every space and separating any text into a new line if too long.
-                //Because this only treats the separation with spaces, really long words like "Supercalifragilistic" go over the boarder.
-                StringBuilder test = new StringBuilder();
-                for (String word : words) {
-                    if (graphics.getFont().getStringBounds(word, graphics.getFontRenderContext()).getWidth() > maxTextWidth) {
-                        event.getChannel().sendMessage(event.getString("command.textimage.texttoolong")).queue();
-                        return;
-                    }
-                    if (graphics.getFont().getStringBounds(test + " " + word, graphics.getFontRenderContext()).getWidth() <= maxTextWidth)
-                        test.append(word).append(" ");
-                    else {
-                        text.append(test).append("\n");
-                        test.delete(0, test.length());
-                        test.append(word).append(" ");
-                    }
-                }
-                text.append(test);
-
-                //Total height of all the text.
-                int totalY = 0;
-
-                //Splits the text into an array with every new line it bumps into.
-                String[] split = text.toString().split("\n");
-
-                //For loop to determine total height of all text.
-                for (int i = 0; i < split.length; i++) {
-                    totalY += graphics.getFontMetrics().getHeight();
-                }
-
-                if (totalY > graphics.getFontMetrics().getHeight() * 3) {
+                if (!ImageUtils.drawCenteredString(graphics, message, 54, 397, 1237, 3025)) {
                     event.getChannel().sendMessage(event.getString("command.textimage.texttoolong")).queue();
                     return;
                 }
-
-                //Some math stuff for centering the image.
-                Rectangle2D r2D = graphics.getFont().getStringBounds(split[0], graphics.getFontRenderContext());
-                int rWidth = (int) Math.round(r2D.getWidth());
-                int rHeight = (int) Math.round(r2D.getHeight());
-                int rX = (int) Math.round(r2D.getX());
-                int rY = (int) Math.round(r2D.getY());
-                int a = (1226 / 2) - (rWidth / 2) - rX;
-                int b = (750 / 2) - (rHeight / 2) - rY;
-
-                drawString(graphics, text.toString(), 88 + a, 473 + b - (totalY <= graphics.getFontMetrics().getHeight() * 2 ? totalY : graphics.getFontMetrics().getHeight() * 2));
 
                 graphics.dispose();
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();

@@ -37,10 +37,8 @@ public class SwitchSetup extends ImageCommand {
         Rectangle2D r2D = new Rectangle(dimension);
         int rWidth = (int) Math.round(r2D.getWidth());
         int rHeight = (int) Math.round(r2D.getHeight());
-        int rX = (int) Math.round(r2D.getX());
-        int rY = (int) Math.round(r2D.getY());
-        int a = (174 / 2) - (rWidth / 2) - rX;
-        int b = (157 / 2) - (rHeight / 2) - rY;
+        int a = (174 / 2) - (rWidth / 2);
+        int b = (157 / 2) - (rHeight / 2);
 
         graphics.drawImage(image, 366 + a, 214 + b, dimension.width, dimension.height, null);
         graphics.drawImage(base, 0, 0, null);
