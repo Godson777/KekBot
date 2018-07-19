@@ -99,11 +99,11 @@ public class Music extends Command {
 
                             String playlistName = event.combineArgs(2);
                             Profile profile = Profile.getProfile(event.getAuthor());
-                            Stream<Playlist> playlists = profile.getPlaylists().stream();
+                            List<Playlist> playlists = profile.getPlaylists();
                             // Try to find an exact match. If there isn't one, try a case insensitive match.
-                            Optional<Playlist> playlist = playlists.filter(pl -> pl.getName().equals(playlistName)).findFirst();
+                            Optional<Playlist> playlist = playlists.stream().filter(pl -> pl.getName().equals(playlistName)).findFirst();
                             if (!playlist.isPresent()) {
-                                playlist = playlists.filter(pl -> pl.getName().equalsIgnoreCase(playlistName)).findFirst();
+                                playlist = playlists.stream().filter(pl -> pl.getName().equalsIgnoreCase(playlistName)).findFirst();
                             }
 
                             if (playlist.isPresent()) KekBot.player.loadAndPlay(event, playlist.get(), profile);

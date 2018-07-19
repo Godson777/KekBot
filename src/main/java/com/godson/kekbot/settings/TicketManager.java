@@ -38,7 +38,7 @@ public class TicketManager {
 
     public static boolean closeTicket(String ticketID, String reply, User replier) {
         if (KekBot.r.table("Tickets").get(ticketID).run(KekBot.conn) != null) {
-            if (replier != null) addAdminReply(getTicket(ticketID), reply, replier);
+            if (reply != null) addAdminReply(getTicket(ticketID), reply, replier);
             User user = KekBot.jda.getUserById(getTicket(ticketID).getAuthorID());
             KekBot.r.table("Tickets").get(ticketID).delete().run(KekBot.conn);
             timer.schedule(new TimerTask() {

@@ -1,5 +1,6 @@
 package com.godson.kekbot.command.commands.meme;
 
+import com.godson.kekbot.util.ImageUtils;
 import com.godson.kekbot.util.Utils;
 import com.godson.kekbot.command.*;
 
@@ -132,47 +133,7 @@ public class Kaede extends Command {
 
         graphics.rotate(Math.toRadians(-6.92));
 
-        StringBuilder text = new StringBuilder();
-        String[] words = Utils.removeWhitespaceEdges(string).split(" ");
-
-        //This snippet of code separates the message, going over every space and separating any text into a new line if too long.
-        //Because this only treats the separation with spaces, really long words like "Supercalifragilistic" go over the boarder.
-        StringBuilder test = new StringBuilder();
-        for (String word : words) {
-            if (graphics.getFont().getStringBounds(word, graphics.getFontRenderContext()).getWidth() > 610) throw new IllegalArgumentException("String too long pls");
-            if (graphics.getFont().getStringBounds(test + " " + word, graphics.getFontRenderContext()).getWidth() <= 610)
-                test.append(word).append(" ");
-            else {
-                text.append(test).append("\n");
-                test.delete(0, test.length());
-                test.append(word).append(" ");
-            }
-        }
-        text.append(test);
-
-        //Total height of all the text.
-        int totalY = 0;
-
-        //Splits the text into an array with every new line it bumps into.
-        String[] split = text.toString().split("\n");
-
-        //For loop to determine total height of all text.
-        for (int i = 0; i < split.length; i++) {
-            totalY += graphics.getFontMetrics().getHeight();
-        }
-
-        if (totalY > graphics.getFontMetrics().getHeight() * 3) throw new IllegalArgumentException("String too long pls");
-
-        //Some math stuff for centering the image.
-        Rectangle2D r2D = graphics.getFont().getStringBounds(split[0], graphics.getFontRenderContext());
-        int rWidth = (int) Math.round(r2D.getWidth());
-        int rHeight = (int) Math.round(r2D.getHeight());
-        int rX = (int) Math.round(r2D.getX());
-        int rY = (int) Math.round(r2D.getY());
-        int a = (610 / 2) - (rWidth / 2) - rX;
-        int b = (379 / 2) - (rHeight / 2) - rY;
-
-        drawString(graphics, text.toString(), 60 + a, 717 + b - (totalY <= graphics.getFontMetrics().getHeight() * 2 ? totalY : graphics.getFontMetrics().getHeight() * 2));
+        if (!ImageUtils.drawCenteredString(graphics, string, 60, 690, 610, 379)) throw new IllegalArgumentException("String too long pls");
 
         graphics.dispose();
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -185,7 +146,7 @@ public class Kaede extends Command {
         return finished;
     }
 
-    private void drawString(Graphics g, String text, int x, int y) {
+    private static void drawString(Graphics g, String text, int x, int y) {
         for (String line : text.split("\n"))
             g.drawString(line, x, y += g.getFontMetrics().getHeight());
     }
