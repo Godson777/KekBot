@@ -4,10 +4,7 @@ import com.godson.discoin4j.Discoin4J;
 import com.godson.kekbot.command.commands.MarkovTest;
 import com.godson.kekbot.command.commands.admin.*;
 import com.godson.kekbot.command.commands.botowner.*;
-import com.godson.kekbot.command.commands.botowner.botadmin.AddGame;
-import com.godson.kekbot.command.commands.botowner.botadmin.Reboot;
-import com.godson.kekbot.command.commands.botowner.botadmin.Responses;
-import com.godson.kekbot.command.commands.botowner.botadmin.Takeover;
+import com.godson.kekbot.command.commands.botowner.botadmin.*;
 import com.godson.kekbot.command.commands.meme.*;
 import com.godson.kekbot.command.commands.weeb.*;
 import com.godson.kekbot.games.GamesManager;
@@ -20,6 +17,7 @@ import com.godson.kekbot.profile.item.BackgroundManager;
 import com.godson.kekbot.profile.rewards.lottery.Lottery;
 import com.godson.kekbot.responses.Responder;
 import com.godson.kekbot.settings.Config;
+import com.godson.kekbot.settings.Settings;
 import com.godson.kekbot.shop.BackgroundShop;
 import com.godson.kekbot.shop.TokenShop;
 import com.godson.kekbot.responses.Action;
@@ -28,6 +26,7 @@ import com.godson.kekbot.command.commands.TestCommand;
 import com.godson.kekbot.command.commands.fun.*;
 import com.godson.kekbot.command.commands.general.*;
 import com.godson.kekbot.util.LocaleUtils;
+import com.godson.kekbot.util.Utils;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.rethinkdb.RethinkDB;
 import com.rethinkdb.gen.exc.ReqlDriverError;
@@ -40,6 +39,7 @@ import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Icon;
+import net.dv8tion.jda.core.entities.TextChannel;
 import org.apache.commons.lang3.StringUtils;
 import org.discordbots.api.client.DiscordBotListAPI;
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -59,7 +59,7 @@ public class KekBot {
     //Seting configs, and resources.
     public static int shards = Config.getConfig().getShards();
     public static ShardManager jda;
-    public static final Version version = new Version(1, 6, 0, 4);
+    public static final Version version = new Version(1, 6, 0, 5);
     public static final long startTime = System.currentTimeMillis();
     public static BufferedImage genericAvatar;
     private static final Map<Action, List<String>> responses = new HashMap<>();
@@ -318,6 +318,7 @@ public class KekBot {
         client.addCommand(new Takeover(takeoverManager));
         client.addCommand(new BlockUser());
         client.addCommand(new Reboot());
+        client.addCommand(new Update());
 
 
     }
@@ -405,9 +406,23 @@ public class KekBot {
 
     /**
      * Prepares some objects for shutting down.
-     * @param reason
+     * @param reason The reason for shutting down.
      */
     public static void shutdown(String reason) {
+        if (reason.equals("owo i smell an update, stay on your toes!")) {
+            for (Guild guild : KekBot.jda.getGuilds()) {
+                Settings settings = Settings.getSettings(guild);
+                if (settings.getUpdateChannelID() == null) continue;
+                if (guild.getTextChannelById(settings.getUpdateChannelID()) == null) {
+                    TextChannel warningChannel = Utils.findAvailableTextChannel(guild);
+                    if (warningChannel != null) warningChannel.sendMessage("I tried to alert this server for an incoming update, but the channel was deleted for some reason! Please fix this with the `settings` command once I'm done updating!").queue();
+                    settings.setUpdateChannel(null);
+                    settings.save();
+                    continue;
+                }
+                guild.getTextChannelById(settings.getUpdateChannelID()).sendMessage(reason).queue();
+            }
+        }
         jda.removeEventListener(client);
         KekBot.player.shutdown(reason);
         KekBot.gamesManager.shutdown(reason);
@@ -430,6 +445,11 @@ public class KekBot {
 
     public static float nextFloat() {
         return random.nextFloat();
+    }
+
+    public static void update() {
+        KekBot.shutdown("owo i smell an update, stay on your toes!");
+        KekBot.shutdownListener.setExitCode(ExitCode.UPDATE);
     }
 
 }
