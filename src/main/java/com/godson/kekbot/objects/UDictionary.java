@@ -7,15 +7,9 @@ import java.util.List;
 
 public class UDictionary {
     private List<String> tags = new ArrayList<>();
-    @SerializedName("result_type")
-    private String resultType;
     @SerializedName("list")
     private List<Definition> definitions;
     private List<String> sounds;
-
-    public String getResultType() {
-        return resultType;
-    }
 
     public List<Definition> getDefinitions() {
         return definitions;
