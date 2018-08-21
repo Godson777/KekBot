@@ -26,7 +26,7 @@ public class UDCommand extends Command {
         if (event.getArgs().length > 0) {
             UDictionary results = GSONUtils.getUDResults(event.combineArgs().replace(" ", "+"));
             //Random random = new Random();
-            if (!results.getResultType().equals("no_results")) {
+            if (!results.getDefinitions().isEmpty()) {
                 EmbedPaginator.Builder pBuilder = new EmbedPaginator.Builder();
 
                 for (UDictionary.Definition definition : results.getDefinitions()) {
