@@ -37,7 +37,7 @@ public class Version {
     }
 
     public static Version fromString(String version) {
-        String[] parts = version.split("\\.");
+        String[] parts = version.split("\\.|BETA");
         if (parts.length == 4) {
             return new Version(Utils.parseInt(parts[0], 1), Utils.parseInt(parts[1], 0), Utils.parseInt(parts[2], 0), Utils.parseInt(parts[3], 1));
         } else if (parts.length == 3) {

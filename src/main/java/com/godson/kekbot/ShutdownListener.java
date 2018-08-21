@@ -22,9 +22,7 @@ public class ShutdownListener extends ListenerAdapter {
         updater.scheduleAtFixedRate(() -> {
             Version latest = Utils.getLatestVersion(KekBot.version.getBetaVersion() > 0);
             if (latest.isHigherThan(KekBot.version)) {
-                String reason = "owo i smell an update, stay on your toes!";
-                KekBot.shutdown(reason);
-                KekBot.shutdownListener.setExitCode(ExitCode.UPDATE);
+                KekBot.update();
             }
         }, 0,30, TimeUnit.MINUTES);
     }
