@@ -26,7 +26,7 @@ public class Credits extends Command {
                 "\n" + KekBot.jda.getUserById("181569245253992448").getName() +
                 "\n\n# Special thanks to: #" +
                 "\n" + KekBot.jda.getUserById("240128376105336832").getName() + " for making the TopKek drawing, and a few other assets for profiles." +
-                "\n" + KekBot.jda.getUserById("255472639261409281").getName() + " for making some assets for shops." +
+                "\n" + "Mothpebbles" + " for making some assets for shops." +
                 "\nJDA Team for making JDA in the first place." +
                 "\nEveryone in the Discord4J and JDA servers for helping me with my stupid problems and putting up with me." +
                 "\nTo view KekBot's patreon supporters, call `" + event.getPrefix() + "credits patreon`." + "```").queue();

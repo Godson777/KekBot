@@ -19,7 +19,7 @@ public class Update extends Command {
     public void onExecuted(CommandEvent event) {
         Version latest = Utils.getLatestVersion(KekBot.version.getBetaVersion() > 0);
 
-        if (!latest.isHigherThan(KekBot.version)) {
+        if (!latest.isHigherThan(KekBot.version) && !event.getMessage().getContentRaw().contains("--forced")) {
             event.getChannel().sendMessage("KekBot is currently running the latest version. (" + KekBot.version.toString() + ")").queue();
             return;
         }
