@@ -184,7 +184,9 @@ public class SettingsCommand extends Command {
                         event.getClient().setCustomLocale(event.getGuild().getId(), settings.getLocale());
                         settings.save();
                         event.getChannel().sendMessage(LocaleUtils.getString("settings.language.set", settings.getLocale(), LocaleUtils.languages.get(i-1).getLeft())).queue();
+                        m.clearReactions().queue();
                     });
+                    builder.setCanceled(m -> m.clearReactions().queue());
                     builder.setDefaultEnds("\u23F9", "");
                     builder.setSelectedEnds("➡", "");
                     builder.build().display(event.getChannel());

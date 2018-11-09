@@ -33,8 +33,8 @@ public class Daily extends Command {
             event.getChannel().sendMessage(event.getString("command.fun.daily.alreadyclaimed", Utils.convertMillisToTime(event.getMessage().getCreationTime().toInstant().until(profile.getDaily(), ChronoUnit.MILLIS)))).queue();
             return;
         }
-
-        if (Config.getConfig().getdBotsListToken() != null) {
+        //Temporarily outdated, will remake the daily bonus feature in a later update.
+        /*if (Config.getConfig().getdBotsListToken() != null) {
             try {
                 Document document = Jsoup.connect("https://discordbots.org/api/bots/213151748855037953/check?userId=" + event.getAuthor().getId())
                         .userAgent("Mozilla/5.0").ignoreContentType(true)
@@ -63,7 +63,8 @@ public class Daily extends Command {
             }
         } else {
             claimDaily(false, profile, event);
-        }
+        }*/
+        claimDaily(false, profile, event);
     }
 
     private void claimDaily(boolean voted, Profile profile, CommandEvent event) {

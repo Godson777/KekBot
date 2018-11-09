@@ -129,7 +129,13 @@ public class TagCommand extends Command {
     private void addTagContents(Settings settings, CommandEvent event, String name) {
         Questionnaire.newQuestionnaire(event)
                 .addQuestion(event.getString("command.general.tag.add.valuenoargs", "`" + name + "`"), QuestionType.STRING)
-                .execute(results -> addTag(settings, event, name, results.getAnswer(0).toString()));
+                .execute(results -> {
+                    if (!results.getAnswer(0).equals("")) {
+                        addTag(settings, event, name, results.getAnswer(0).toString());
+                    }
+                        event.getChannel().sendMessage("Attachments cannot be used in tags. Please try again.").queue();
+                        results.reExecute();
+                });
     }
 
     private void addTag(Settings settings, CommandEvent event, String name, String value) {

@@ -69,7 +69,7 @@ public class Lottery {
             pot += ticketPrice;
             ticketsCount++;
             return LocaleUtils.getString("lottery.purchasesuccess", locale, 1, LocaleUtils.getString("amount.tickets.single", locale), CustomEmote.printPrice(ticketPrice));
-        } else return LocaleUtils.getString("lottery.nofunds", CustomEmote.printPrice(ticketPrice), CustomEmote.printPrice(profile.getTopkeks()));
+        } else return LocaleUtils.getString("lottery.nofunds", locale, CustomEmote.printPrice(ticketPrice), CustomEmote.printPrice(profile.getTopkeks()));
     }
 
     public String addTicket(User gambler, int tickets, String locale) throws IllegalArgumentException {

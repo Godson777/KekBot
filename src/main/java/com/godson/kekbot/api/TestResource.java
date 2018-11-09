@@ -36,7 +36,7 @@ public class TestResource {
             return Response.status(Response.Status.FORBIDDEN).entity("either wrong fucking token or no token at all smh").build();
         } else {
             try {
-                //KekBot.jda.getUserById("99405418077364224").openPrivateChannel().queue(c -> c.sendMessage("holy fuck test compreete" + "\n\ndata recieved: \n" + json).queue());
+                KekBot.jda.getUserById("99405418077364224").openPrivateChannel().queue(c -> c.sendMessage("holy fuck test compreete" + "\n\ndata recieved: \n" + json).queue());
                 System.out.println("API TEST: succ");
                 return Response.ok().entity("succ").build();
             } catch (Exception e) {
