@@ -1,14 +1,9 @@
-package com.godson.kekbot.api;
+package com.godson.kekbot.apitest;
 
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.profile.Profile;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import org.json.JSONObject;
 
 import javax.ws.rs.*;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -16,7 +11,6 @@ import javax.ws.rs.core.Response;
 @Path("test")
 public class TestResource {
 
-    /*
     @GET
     @Produces({ "image/png", MediaType.TEXT_PLAIN })
     public Response getIt(@QueryParam("id") long id) {
@@ -25,9 +19,12 @@ public class TestResource {
         } catch (Exception e) {
             return Response.status(Response.Status.BAD_REQUEST).entity("you fucked up").build();
         }
-    }*/
+    }
 
-    @POST
+    /**
+     * leftover code from doing discordbots.org integration, will reuse later for daily bonuses.
+     */
+    /*@POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     public Response test(String json, @HeaderParam("Authorization") String auth) {
@@ -45,5 +42,5 @@ public class TestResource {
                 return Response.status(Response.Status.BAD_REQUEST).entity("you fucked up").build();
             }
         }
-    }
+    }*/
 }
