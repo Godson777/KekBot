@@ -9,6 +9,7 @@ import com.godson.kekbot.music.Playlist;
 import com.godson.kekbot.profile.Profile;
 import com.godson.kekbot.responses.Action;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 
@@ -253,9 +254,18 @@ public class Music extends Command {
                     return;
                 }
                 if (event.getMentionedUsers().size() > 0) {
-                    User newHost = event.getMentionedUsers().get(0);
-                    KekBot.player.changeHost(event.getGuild(), newHost);
-                    event.getChannel().sendMessage(event.getString("command.fun.music.host.success", newHost.getName())).queue();
+                    if (KekBot.player.isWaiting(event.getGuild())) return;
+                    Member newHost = event.getGuild().getMember(event.getMentionedUsers().get(0));
+                    if (!event.getGuild().getAudioManager().getConnectedChannel().getMembers().contains(newHost)) {
+                        event.getChannel().sendMessage(event.getString("command.fun.music.host.invalid")).queue();
+                        return;
+                    }
+                    if (newHost.getUser().isBot()) {
+                        event.getChannel().sendMessage(event.getString("command.fun.music.host.bot")).queue();
+                        return;
+                    }
+                    KekBot.player.changeHost(event.getGuild(), newHost.getUser());
+                    event.getChannel().sendMessage(event.getString("command.fun.music.host.success", newHost.getUser().getName())).queue();
                 } else event.getChannel().sendMessage(event.getString("command.fun.music.host.nomention")).queue();
                 break;
 

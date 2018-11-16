@@ -807,8 +807,12 @@ public class MusicPlayer extends ListenerAdapter {
                     }
 
                     Member member = null;
-                    if (event1 instanceof GuildVoiceJoinEvent) member = event1.getMember();
-                    if (event1 instanceof GuildVoiceMoveEvent) member = event1.getMember();
+                    if (event1 instanceof GuildVoiceJoinEvent) {
+                        if (!event1.getMember().getUser().isBot()) member = event1.getMember();
+                    }
+                    if (event1 instanceof GuildVoiceMoveEvent) {
+                        if (!event1.getMember().getUser().isBot()) member = event1.getMember();
+                    }
 
                     if (isWaitingUserHost(musicManager, m, member, event.getGuild())) return;
                     m.editMessage(LocaleUtils.getString("music.awaituser.success", KekBot.getGuildLocale(event.getGuild()), member.getUser().getName())).queue();
@@ -927,8 +931,12 @@ public class MusicPlayer extends ListenerAdapter {
                     }
 
                     Member member = null;
-                    if (event1 instanceof GuildVoiceJoinEvent) member = event1.getMember();
-                    if (event1 instanceof GuildVoiceMoveEvent) member = event1.getMember();
+                    if (event1 instanceof GuildVoiceJoinEvent) {
+                        if (!event1.getMember().getUser().isBot()) member = event1.getMember();
+                    }
+                    if (event1 instanceof GuildVoiceMoveEvent) {
+                        if (!event1.getMember().getUser().isBot()) member = event1.getMember();
+                    }
 
                     if (isWaitingUserHost(musicManager, m, member, event.getGuild())) return;
                     if (!member.getUser().isBot()) m.editMessage(LocaleUtils.getString("music.awaituser.success", KekBot.getGuildLocale(event.getGuild()), member.getUser().getName())).queue();
@@ -958,5 +966,9 @@ public class MusicPlayer extends ListenerAdapter {
             event.getGuild().getAudioManager().closeAudioConnection();
             killConnection(event.getGuild());
         }
+    }
+
+    public boolean isWaiting(Guild guild) {
+        return musicManagers.get(guild.getIdLong()).waiting;
     }
 }
