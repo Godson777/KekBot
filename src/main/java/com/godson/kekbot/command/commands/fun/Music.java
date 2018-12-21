@@ -47,14 +47,6 @@ public class Music extends Command {
         exDescPos = ExtendedPosition.AFTER;
     }
 
-    private static Function<String, String> parseURL = url -> url.startsWith("<") && url.endsWith(">") ?
-        url.substring(url.indexOf("<") + 1, url.lastIndexOf(">")) :
-        url;
-
-    private static Stream<String> parseURLs(String[] args) {
-        return Arrays.stream(args).map(parseURL);
-    }
-
     @Override
     public void onExecuted(CommandEvent event) {
         if (!event.getMember().getVoiceState().inVoiceChannel()) {
@@ -123,7 +115,7 @@ public class Music extends Command {
                             KekBot.player.loadAndSearchYT(event, search);
                             break;
                         default:
-                            parseURLs(Arrays.copyOfRange(args, 1, args.length)).forEach(trackUrl -> KekBot.player.loadAndPlay(event, trackUrl));
+                            KekBot.player.loadAndPlay(event, event.combineArgs(1));
                             break;
                     }
                 }
