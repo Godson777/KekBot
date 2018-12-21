@@ -10,25 +10,16 @@ import com.godson.kekbot.KekBot;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.menu.ShopMenu;
-import com.godson.kekbot.profile.Background;
+import com.godson.kekbot.profile.item.Background;
 import com.godson.kekbot.profile.Profile;
-import com.godson.kekbot.profile.Token;
+import com.godson.kekbot.profile.item.Token;
 import com.godson.kekbot.questionaire.QuestionType;
 import com.godson.kekbot.questionaire.Questionnaire;
-import com.godson.kekbot.responses.Action;
 import com.godson.kekbot.settings.Config;
 import com.jagrosh.jdautilities.menu.ButtonMenu;
 import com.jagrosh.jdautilities.menu.OrderedMenu;
-import com.jagrosh.jdautilities.menu.SelectionDialog;
-import net.dv8tion.jda.core.MessageBuilder;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 public class ShopCommand extends Command {
 

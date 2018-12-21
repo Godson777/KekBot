@@ -1,11 +1,10 @@
 package com.godson.kekbot.command.commands.admin;
 
 import com.godson.kekbot.KekBot;
-import com.godson.kekbot.LocaleUtils;
+import com.godson.kekbot.util.LocaleUtils;
 import com.godson.kekbot.TriConsumer;
-import com.godson.kekbot.Utils;
+import com.godson.kekbot.util.Utils;
 import com.godson.kekbot.command.Command;
-import com.godson.kekbot.command.CommandCategories;
 import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.questionaire.QuestionType;
 import com.godson.kekbot.questionaire.Questionnaire;
@@ -13,14 +12,11 @@ import com.godson.kekbot.settings.Settings;
 import com.jagrosh.jdautilities.menu.Paginator;
 import com.jagrosh.jdautilities.menu.SelectionDialog;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.utils.tuple.Pair;
 
 import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class SettingsCommand extends Command {
@@ -188,11 +184,39 @@ public class SettingsCommand extends Command {
                         event.getClient().setCustomLocale(event.getGuild().getId(), settings.getLocale());
                         settings.save();
                         event.getChannel().sendMessage(LocaleUtils.getString("settings.language.set", settings.getLocale(), LocaleUtils.languages.get(i-1).getLeft())).queue();
+                        m.clearReactions().queue();
                     });
+                    builder.setCanceled(m -> m.clearReactions().queue());
                     builder.setDefaultEnds("\u23F9", "");
                     builder.setSelectedEnds("➡", "");
                     builder.build().display(event.getChannel());
                 }));
+        settings.put("updates", new Setting("settings.updates.description", "settings.updates.noargs",
+                ((event, settings, channel) -> {
+                    if (channel.equalsIgnoreCase("reset")) {
+                        settings.getAnnounceSettings().setWelcomeChannel(null);
+                        settings.save();
+                        event.getChannel().sendMessage(event.getString("settings.updates.reset")).queue();
+                        return;
+                    }
+
+                    TextChannel wChannel;
+                    try {
+                        wChannel = Utils.resolveChannelMention(event.getGuild(), channel);
+                    } catch (IllegalArgumentException e) {
+                        event.getChannel().sendMessage(event.getString("settings.welcomechannel.invalidchannel")).queue();
+                        return;
+                    }
+
+                    if (wChannel == null) {
+                        event.getChannel().sendMessage(event.getString("settings.welcomechannel.notachannel")).queue();
+                        return;
+                    }
+
+                    settings.setUpdateChannel(wChannel);
+                    settings.save();
+                    event.getChannel().sendMessage(event.getString("settings.updates.success", wChannel.getAsMention())).queue();
+                }), "`reset`"));
     }
 
     @Override
@@ -202,7 +226,7 @@ public class SettingsCommand extends Command {
 
             settings.forEach((s, setting) -> missingArg[0] += "`" + s + "` - " + event.getString(setting.description) + "\n");
 
-            Questionnaire.newQuestionnaire(event).addQuestion(missingArg[0], QuestionType.STRING).execute(r -> editSetting(event, r.getAnswerAsType(0, String.class), Optional.of(r)));
+            Questionnaire.newQuestionnaire(event).withTimeout(1, TimeUnit.MINUTES).addQuestion(missingArg[0], QuestionType.STRING).execute(r -> editSetting(event, r.getAnswerAsType(0, String.class), Optional.of(r)));
         } else {
             if (event.getArgs()[0].equalsIgnoreCase("review")) {
                 Settings settings = Settings.getSettings(event.getGuild());
@@ -238,7 +262,7 @@ public class SettingsCommand extends Command {
                     return;
                 }
 
-                Questionnaire.newQuestionnaire(event).useRawInput()
+                Questionnaire.newQuestionnaire(event).withTimeout(1, TimeUnit.MINUTES).useRawInput()
                         .addQuestion(event.getString(setting.missingArgMessage, (Object[]) setting.substitutes), QuestionType.STRING)
                         .execute(r -> setting.action.accept(event, Settings.getSettings(event.getGuild()), r.getAnswerAsType(0, String.class)));
             } else {

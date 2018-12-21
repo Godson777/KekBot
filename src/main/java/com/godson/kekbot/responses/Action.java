@@ -1,7 +1,5 @@
 package com.godson.kekbot.responses;
 
-import com.godson.kekbot.LocaleUtils;
-
 public enum Action {
     //Successfully purged {} messages.
     PURGE_SUCCESS(1, "action.purgesuccess.default"),

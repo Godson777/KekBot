@@ -2,9 +2,9 @@ package com.godson.kekbot.profile.rewards.lottery;
 
 import com.godson.kekbot.CustomEmote;
 import com.godson.kekbot.KekBot;
-import com.godson.kekbot.LocaleUtils;
+import com.godson.kekbot.util.LocaleUtils;
 import com.godson.kekbot.profile.Profile;
-import com.godson.kekbot.Utils;
+import com.godson.kekbot.util.Utils;
 import javafx.util.Pair;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.User;
@@ -69,7 +69,7 @@ public class Lottery {
             pot += ticketPrice;
             ticketsCount++;
             return LocaleUtils.getString("lottery.purchasesuccess", locale, 1, LocaleUtils.getString("amount.tickets.single", locale), CustomEmote.printPrice(ticketPrice));
-        } else return LocaleUtils.getString("lottery.nofunds", CustomEmote.printPrice(ticketPrice), CustomEmote.printPrice(profile.getTopkeks()));
+        } else return LocaleUtils.getString("lottery.nofunds", locale, CustomEmote.printPrice(ticketPrice), CustomEmote.printPrice(profile.getTopkeks()));
     }
 
     public String addTicket(User gambler, int tickets, String locale) throws IllegalArgumentException {

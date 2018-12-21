@@ -1,7 +1,7 @@
 package com.godson.kekbot.questionaire;
 
 import com.godson.kekbot.KekBot;
-import com.godson.kekbot.LocaleUtils;
+import com.godson.kekbot.util.LocaleUtils;
 import com.godson.kekbot.command.CommandEvent;
 import com.google.gson.internal.Primitives;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;

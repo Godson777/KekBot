@@ -1,6 +1,6 @@
 package com.godson.kekbot.profile;
 
-import com.godson.kekbot.Utils;
+import com.godson.kekbot.util.Utils;
 
 import java.awt.*;
 import java.awt.font.FontRenderContext;

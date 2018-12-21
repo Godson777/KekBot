@@ -2,8 +2,8 @@ package com.godson.kekbot.command.commands.fun;
 
 import com.godson.kekbot.CustomEmote;
 import com.godson.kekbot.KekBot;
-import com.godson.kekbot.LocaleUtils;
-import com.godson.kekbot.Utils;
+import com.godson.kekbot.util.LocaleUtils;
+import com.godson.kekbot.util.Utils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.menu.PagedSelectionMenu;
@@ -240,6 +240,7 @@ public class MyPlaylist extends Command {
                                                 editPlaylist(results3, playlist, profile);
                                             } else {
                                                 results3.getChannel().sendMessage(LocaleUtils.getString("command.fun.myplaylist.exited", KekBot.getGuildLocale(results.getGuild()))).queue();
+                                                KekBot.getCommandClient().unregisterQuestionnaire(results.getChannel().getId(), results.getUser().getId());
                                             }
                                         });
                             }
@@ -261,6 +262,7 @@ public class MyPlaylist extends Command {
                                                     editPlaylist(results2, playlist, profile);
                                                 } else {
                                                     results2.getChannel().sendMessage(LocaleUtils.getString("command.fun.myplaylist.exited", KekBot.getGuildLocale(results.getGuild()))).queue();
+                                                    KekBot.getCommandClient().unregisterQuestionnaire(results.getChannel().getId(), results.getUser().getId());
                                                 }
                                             });
                                 } else {
@@ -276,6 +278,7 @@ public class MyPlaylist extends Command {
                                                 editPlaylist(results2, playlist, profile);
                                             } else {
                                                 results2.getChannel().sendMessage(LocaleUtils.getString("command.fun.myplaylist.exited", KekBot.getGuildLocale(results.getGuild()))).queue();
+                                                KekBot.getCommandClient().unregisterQuestionnaire(results.getChannel().getId(), results.getUser().getId());
                                             }
                                         });
                             }

@@ -1,7 +1,7 @@
 package com.godson.kekbot.command.commands.general;
 
 import com.godson.kekbot.KekBot;
-import com.godson.kekbot.Utils;
+import com.godson.kekbot.util.Utils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -47,7 +47,7 @@ public class Stats extends Command {
             builder.setThumbnail(event.getSelfUser().getAvatarUrl());
             builder.setTitle("KekBot, your friendly all-in-one meme bot!");
             builder.addField("Online for:", Utils.convertMillisToTime(startTime), false);
-            builder.addField("Version:", KekBot.version, true);
+            builder.addField("Version:", KekBot.version.toString(), true);
             builder.addField("Library:", "JDA", true);
             if (KekBot.shards > 1) {
                 builder.addField("Current Shard:", String.valueOf(event.getJDA().getShardInfo().getShardId() + 1), true);

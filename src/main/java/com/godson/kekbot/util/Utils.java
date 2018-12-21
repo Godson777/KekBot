@@ -1,8 +1,11 @@
-package com.godson.kekbot;
+package com.godson.kekbot.util;
 
-import com.godson.kekbot.profile.BackgroundManager;
+import com.godson.kekbot.KekBot;
+import com.godson.kekbot.Version;
+import com.godson.kekbot.profile.item.BackgroundManager;
 import com.godson.kekbot.settings.Config;
-import com.google.gson.internal.Primitives;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.entities.impl.JDAImpl;
@@ -21,6 +24,8 @@ import java.net.URLConnection;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Utils {
 
@@ -67,6 +72,32 @@ public class Utils {
         EMOJI['9'] = "9⃣ ";
         EMOJI['!'] = "❗ ";
         EMOJI['?'] = "❓ ";
+    }
+
+    private static final Pattern versionPattern = Pattern.compile("<version>([0-9]+\\.[0-9]+\\.[0-9]+)</version>");
+    private static final Pattern betaVersionPattern = Pattern.compile("<version>([0-9]+\\.[0-9]+\\.[0-9]+-BETA[0-9]+)</version>");
+
+    public static Version getLatestVersion(boolean beta) {
+        String request = "";
+        String branch = beta ? "Beta" : "master";
+        try {
+            request = Unirest.get("https://raw.githubusercontent.com/Godson777/KekBot/" + branch + "/pom.xml").header("User-Agent", "Mozilla/5.0").asString().getBody();
+        } catch (UnirestException e) {
+            e.printStackTrace();
+        }
+        Matcher matcher = beta ? betaVersionPattern.matcher(request) : versionPattern.matcher(request);
+        if (matcher.find()) {
+            return Version.fromString(matcher.group(1));
+        }
+        return KekBot.version;
+    }
+
+    public static int parseInt(String intStr, int fallback) {
+        try {
+            return Integer.parseInt(intStr);
+        } catch (NumberFormatException e) {
+            return fallback;
+        }
     }
 
     /**

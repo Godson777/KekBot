@@ -1,5 +1,6 @@
 package com.godson.kekbot.settings;
 
+import com.godson.kekbot.ExitCode;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -27,6 +28,7 @@ public class Config {
     private String ticketChannel;
     private String twitterChannel;
     private String weebToken;
+    private String APIip;
     private List<String> botAdmins = new ArrayList<>();
     private List<String> botMods = new ArrayList<>();
     private Map<String, Integer> blockedUsers = new HashMap<>();
@@ -45,6 +47,10 @@ public class Config {
     public String getDbUser() {
         if (dbUser != null) return dbUser;
         else throw new NullPointerException("Database user not listed in config.json.");
+    }
+
+    public String getAPIip() {
+        return APIip;
     }
 
     public String getDbPassword() {
@@ -212,7 +218,7 @@ public class Config {
             br.close();
         } catch (FileNotFoundException e) {
             System.out.println("config.json not found! What have you done with it?!");
-            System.exit(0);
+            System.exit(ExitCode.SHITTY_CONFIG.getCode());
         } catch (IOException e) {
             e.printStackTrace();
         }

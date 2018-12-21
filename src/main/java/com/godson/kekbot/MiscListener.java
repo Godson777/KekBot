@@ -1,6 +1,8 @@
 package com.godson.kekbot;
 
 import com.godson.kekbot.settings.Settings;
+import com.godson.kekbot.util.LocaleUtils;
+import com.godson.kekbot.util.Utils;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.ReadyEvent;
@@ -10,7 +12,6 @@ import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -98,8 +99,8 @@ public class MiscListener extends ListenerAdapter {
             } else {
                 //The bot doesn't have manage role perms, so we'll turn off auto role.
                 settings.setAutoRoleID(null);
-                event.getGuild().getTextChannels().get(0).sendMessage("Unable to automatically set role due to not having the `Manage Roles` permission, fix my permissions, then re-enable auto-role with the `settings` command.").queue();
                 settings.save();
+                if (errorChannel != null) event.getGuild().getTextChannels().get(0).sendMessage("Unable to automatically set role due to not having the `Manage Roles` permission, fix my permissions, then re-enable auto-role with the `settings` command.").queue();
             }
         }
 

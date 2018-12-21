@@ -1,30 +1,16 @@
 package com.godson.kekbot.command.commands;
 
 
-import com.godson.kekbot.CustomEmote;
-import com.godson.kekbot.GSONUtils;
-import com.godson.kekbot.KekBot;
-import com.godson.kekbot.Utils;
-import com.godson.kekbot.profile.Profile;
-import com.godson.kekbot.responses.Action;
-import com.godson.kekbot.responses.Responder;
-import com.godson.kekbot.settings.QuoteManager;
-import com.godson.kekbot.settings.Settings;
+import com.godson.kekbot.profile.item.LootBox;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
-import com.godson.kekbot.settings.TagManager;
-import com.google.gson.Gson;
-import com.rethinkdb.model.MapObject;
-import com.sun.imageio.plugins.gif.GIFImageWriterSpi;
-import net.dv8tion.jda.core.entities.Guild;
-import org.apache.commons.lang3.exception.ExceptionUtils;
+import com.google.gson.JsonObject;
+import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
-import javax.imageio.ImageIO;
-import javax.imageio.stream.ImageOutputStream;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.*;
-import java.net.Inet4Address;
+import java.io.IOException;
+import java.net.URL;
 
 public class TestCommand extends Command {
 
@@ -36,5 +22,18 @@ public class TestCommand extends Command {
 
     @Override
     public void onExecuted(CommandEvent event) {
+        /*LootBox lootBox = new LootBox();
+        int attempts = 1;
+        StringBuilder builder = new StringBuilder();
+        for (LootBox.Rarity rarity : LootBox.Rarity.values()) {
+            while (lootBox.getRarity() != rarity) {
+                lootBox = new LootBox();
+                attempts++;
+            }
+            builder.append(lootBox.getRarity().name()).append("! Took ").append(attempts).append(" attempts.\n");
+            attempts = 0;
+        }
+        event.getChannel().sendMessage(builder.toString()).queue();*/
+        //event.getClient().unregisterQuestionnaire();
     }
 }

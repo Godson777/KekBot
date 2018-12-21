@@ -2,11 +2,11 @@ package com.godson.kekbot.music;
 
 import com.godson.kekbot.CustomEmote;
 import com.godson.kekbot.KekBot;
-import com.godson.kekbot.LocaleUtils;
+import com.godson.kekbot.util.LocaleUtils;
 import com.godson.kekbot.profile.Profile;
 import com.godson.kekbot.questionaire.Questionnaire;
 import com.godson.kekbot.responses.Action;
-import com.godson.kekbot.Utils;
+import com.godson.kekbot.util.Utils;
 import com.godson.kekbot.command.CommandEvent;
 import com.jagrosh.jdautilities.menu.OrderedMenu;
 import com.jagrosh.jdautilities.menu.Paginator;
@@ -25,6 +25,7 @@ import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.core.events.guild.voice.*;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import net.dv8tion.jda.core.managers.AudioManager;
+import net.dv8tion.jda.core.utils.PermissionUtil;
 
 import java.awt.*;
 import java.util.*;
@@ -109,29 +110,29 @@ public class MusicPlayer extends ListenerAdapter {
             event.getChannel().sendMessage(event.getString("music.ongoingmusic")).queue();
             return;
         }
-            playerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
-                @Override
-                public void trackLoaded(AudioTrack track) {
-                    playMeme(event, musicManager, track);
-                }
+        playerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
+            @Override
+            public void trackLoaded(AudioTrack track) {
+                playMeme(event, musicManager, track);
+            }
 
-                @Override
-                public void playlistLoaded(AudioPlaylist playlist) {
-                    AudioTrack firstTrack = playlist.getSelectedTrack();
-                    if (firstTrack == null) {
-                        firstTrack = playlist.getTracks().get(0);
-                    }
-                    playMeme(event, musicManager, firstTrack);
+            @Override
+            public void playlistLoaded(AudioPlaylist playlist) {
+                AudioTrack firstTrack = playlist.getSelectedTrack();
+                if (firstTrack == null) {
+                    firstTrack = playlist.getTracks().get(0);
                 }
+                playMeme(event, musicManager, firstTrack);
+            }
 
-                @Override
-                public void noMatches() {
-                }
+            @Override
+            public void noMatches() {
+            }
 
-                @Override
-                public void loadFailed(FriendlyException exception) {
-                }
-            });
+            @Override
+            public void loadFailed(FriendlyException exception) {
+            }
+        });
     }
 
     public void loadAndPlay(final CommandEvent event, final String trackUrl) {
@@ -140,38 +141,38 @@ public class MusicPlayer extends ListenerAdapter {
             event.getChannel().sendMessage(event.getString("music.ongoingmeme")).queue();
             return;
         }
-            playerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
-                @Override
-                public void trackLoaded(AudioTrack track) {
-                    queueTrack(event, musicManager, track);
+        playerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
+            @Override
+            public void trackLoaded(AudioTrack track) {
+                queueTrack(event, musicManager, track);
+            }
+
+            @Override
+            public void playlistLoaded(AudioPlaylist playlist) {
+                int failed = 0;
+
+                for (AudioTrack track : playlist.getTracks()) {
+                    if (track != null) {
+                        play(event, musicManager, track);
+                    } else failed++;
                 }
 
-                @Override
-                public void playlistLoaded(AudioPlaylist playlist) {
-                    int failed = 0;
+                event.getChannel().sendMessage(event.getString("music.queue.urlplaylist", event.getAuthor().getName(), (playlist.getTracks().size() - failed))
+                        + (failed > 0 ? event.getString("music.queue.urlplaylist.fail", failed, event.getPluralString(failed, "amount.tracks")) : "")).queue();
+            }
 
-                    for (AudioTrack track : playlist.getTracks()) {
-                        if (track != null) {
-                            play(event, musicManager, track);
-                        } else failed++;
-                    }
+            @Override
+            public void noMatches() {
+                event.getChannel().sendMessage(event.getString("music.queue.invalidurl", "`" + trackUrl + "`")).queue();
+                if (musicManager.player.getPlayingTrack() == null) killConnection(event.getGuild());
+            }
 
-                    event.getChannel().sendMessage(event.getString("music.queue.urlplaylist", event.getAuthor().getName(), (playlist.getTracks().size() - failed))
-                            + (failed > 0 ? event.getString("music.queue.urlplaylist.fail", failed, event.getPluralString(failed, "amount.tracks")) : "")).queue();
-                }
-
-                @Override
-                public void noMatches() {
-                    event.getChannel().sendMessage(event.getString("music.queue.invalidurl", "`" + trackUrl + "`")).queue();
-                    if (musicManager.player.getPlayingTrack() == null) killConnection(event.getGuild());
-                }
-
-                @Override
-                public void loadFailed(FriendlyException exception) {
-                    event.getChannel().sendMessage(event.getString("music.queue.loadfailed", exception.getMessage())).queue();
-                    if (musicManager.player.getPlayingTrack() == null) killConnection(event.getGuild());
-                }
-            });
+            @Override
+            public void loadFailed(FriendlyException exception) {
+                event.getChannel().sendMessage(event.getString("music.queue.loadfailed", exception.getMessage())).queue();
+                if (musicManager.player.getPlayingTrack() == null) killConnection(event.getGuild());
+            }
+        });
     }
 
     public void loadAndSearchYT(final CommandEvent event, final String search) {
@@ -180,43 +181,43 @@ public class MusicPlayer extends ListenerAdapter {
             event.getChannel().sendMessage(event.getString("music.ongoingmeme")).queue();
             return;
         }
-            playerManager.loadItemOrdered(musicManager, search, new AudioLoadResultHandler() {
-                @Override
-                public void trackLoaded(AudioTrack track) {
-                    queueTrack(event, musicManager, track);
-                }
+        playerManager.loadItemOrdered(musicManager, search, new AudioLoadResultHandler() {
+            @Override
+            public void trackLoaded(AudioTrack track) {
+                queueTrack(event, musicManager, track);
+            }
 
-                @Override
-                public void playlistLoaded(AudioPlaylist playlist) {
-                    OrderedMenu.Builder builder = new OrderedMenu.Builder();
-                    builder.useNumbers();
-                    builder.setEventWaiter(KekBot.waiter);
-                    builder.setUsers(event.getAuthor());
-                    builder.useCancelButton(true);
-                    int numOfResults = playlist.getTracks().size();
-                    builder.addChoices(playlist.getTracks().subList(0, 10 < numOfResults ? 10 : numOfResults).stream().map(track -> "`" + track.getInfo().title + "`").toArray(String[]::new));
-                    builder.setSelection((m, i) -> {
-                       m.delete().queue();
-                       trackLoaded(playlist.getTracks().get(i-1));
-                    });
-                    builder.setColor(Color.RED);
-                    builder.setText(event.getString("music.queue.searchyt.choose"));
-                    builder.allowTextInput(false);
-                    builder.build().display(event.getChannel());
-                }
+            @Override
+            public void playlistLoaded(AudioPlaylist playlist) {
+                OrderedMenu.Builder builder = new OrderedMenu.Builder();
+                builder.useNumbers();
+                builder.setEventWaiter(KekBot.waiter);
+                builder.setUsers(event.getAuthor());
+                builder.useCancelButton(true);
+                int numOfResults = playlist.getTracks().size();
+                builder.addChoices(playlist.getTracks().subList(0, 10 < numOfResults ? 10 : numOfResults).stream().map(track -> "`" + track.getInfo().title + "`").toArray(String[]::new));
+                builder.setSelection((m, i) -> {
+                    m.delete().queue();
+                    trackLoaded(playlist.getTracks().get(i - 1));
+                });
+                builder.setColor(Color.RED);
+                builder.setText(event.getString("music.queue.searchyt.choose"));
+                builder.allowTextInput(false);
+                builder.build().display(event.getChannel());
+            }
 
-                @Override
-                public void noMatches() {
-                    event.getChannel().sendMessage(event.getString("music.queue.searchyt.nomatches", "`" + search.substring(9) + "`")).queue();
-                    if (musicManager.player.getPlayingTrack() == null) killConnection(event.getGuild());
-                }
+            @Override
+            public void noMatches() {
+                event.getChannel().sendMessage(event.getString("music.queue.searchyt.nomatches", "`" + search.substring(9) + "`")).queue();
+                if (musicManager.player.getPlayingTrack() == null) killConnection(event.getGuild());
+            }
 
-                @Override
-                public void loadFailed(FriendlyException exception) {
-                    event.getChannel().sendMessage(event.getString("music.queue.loadfailed", exception.getMessage())).queue();
-                    if (musicManager.player.getPlayingTrack() == null) killConnection(event.getGuild());
-                }
-            });
+            @Override
+            public void loadFailed(FriendlyException exception) {
+                event.getChannel().sendMessage(event.getString("music.queue.loadfailed", exception.getMessage())).queue();
+                if (musicManager.player.getPlayingTrack() == null) killConnection(event.getGuild());
+            }
+        });
     }
 
     private void queueTrack(CommandEvent event, GuildMusicManager musicManager, AudioTrack track) {
@@ -254,51 +255,51 @@ public class MusicPlayer extends ListenerAdapter {
         final int[] failed = {0};
         musicManager.queueing = true;
 
-                for (int i = 0; i < playlist.getTracks().size(); i++) {
-                    if (musicManager.queueing) {
-                        String trackUrl = playlist.getTracks().get(i).uri;
-                        int finalI = i;
-                        playerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
-                                @Override
-                                public void trackLoaded(AudioTrack track) {
-                                    if (musicManager.queueing) {
-                                        play(event, musicManager, track);
-                                        if (playlist.getTracks().get(playlist.getTracks().size() - 1).uri.equals(trackUrl)) {
-                                            event.getChannel().sendMessage(event.getString("music.queue.userplaylist.success")
-                                                    + (failed[0] > 0 ? event.getString("music.queue.userplaylist.failed", failed[0], event.getPluralString(failed[0], "amount.tracks")) : "")).queue();
-                                            musicManager.queueing = false;
-                                            if (failed[0] > 0) profile.save();
-                                        }
-                                    }
-                                }
+        for (int i = 0; i < playlist.getTracks().size(); i++) {
+            if (musicManager.queueing) {
+                String trackUrl = playlist.getTracks().get(i).uri;
+                int finalI = i;
+                playerManager.loadItemOrdered(musicManager, trackUrl, new AudioLoadResultHandler() {
+                    @Override
+                    public void trackLoaded(AudioTrack track) {
+                        if (musicManager.queueing) {
+                            play(event, musicManager, track);
+                            if (playlist.getTracks().get(playlist.getTracks().size() - 1).uri.equals(trackUrl)) {
+                                event.getChannel().sendMessage(event.getString("music.queue.userplaylist.success")
+                                        + (failed[0] > 0 ? event.getString("music.queue.userplaylist.failed", failed[0], event.getPluralString(failed[0], "amount.tracks")) : "")).queue();
+                                musicManager.queueing = false;
+                                if (failed[0] > 0) profile.save();
+                            }
+                        }
+                    }
 
-                                @Override
-                                public void playlistLoaded(AudioPlaylist audioPlaylist) {
-                                    //Do nothing since this'll never trigger.
-                                }
+                    @Override
+                    public void playlistLoaded(AudioPlaylist audioPlaylist) {
+                        //Do nothing since this'll never trigger.
+                    }
 
-                                @Override
-                                public void noMatches() {
-                                    //Do nothing since this'll never trigger.
-                                }
+                    @Override
+                    public void noMatches() {
+                        //Do nothing since this'll never trigger.
+                    }
 
-                                @Override
-                                public void loadFailed(FriendlyException exception) {
-                                    if (musicManager.queueing) {
-                                        failed[0]++;
-                                        playlist.removeTrack(playlist.getTracks().get(finalI));
-                                        //The following statement is required in case the last track in the queue fails.
-                                        if (playlist.getTracks().get(playlist.getTracks().size() - 1).uri.equals(trackUrl)) {
-                                            event.getChannel().sendMessage(event.getString("music.queue.userplaylist.success")
-                                                    + (failed[0] > 0 ? event.getString("music.queue.userplaylist.failed", failed[0], event.getPluralString(failed[0], "amount.tracks")) : "")).queue();
-                                            musicManager.queueing = false;
-                                            if (failed[0] > 0) profile.save();
-                                        }
-                                    }
-                                }
-                            });
-                    } else break;
-                }
+                    @Override
+                    public void loadFailed(FriendlyException exception) {
+                        if (musicManager.queueing) {
+                            failed[0]++;
+                            playlist.removeTrack(playlist.getTracks().get(finalI));
+                            //The following statement is required in case the last track in the queue fails.
+                            if (playlist.getTracks().get(playlist.getTracks().size() - 1).uri.equals(trackUrl)) {
+                                event.getChannel().sendMessage(event.getString("music.queue.userplaylist.success")
+                                        + (failed[0] > 0 ? event.getString("music.queue.userplaylist.failed", failed[0], event.getPluralString(failed[0], "amount.tracks")) : "")).queue();
+                                musicManager.queueing = false;
+                                if (failed[0] > 0) profile.save();
+                            }
+                        }
+                    }
+                });
+            } else break;
+        }
     }
 
     private void play(CommandEvent event, GuildMusicManager musicManager, AudioTrack track) {
@@ -493,6 +494,10 @@ public class MusicPlayer extends ListenerAdapter {
             Optional<VoiceChannel> voiceChannel = event.getGuild().getVoiceChannels().stream().filter(c -> c.getMembers().contains(event.getEvent().getMember())).findFirst();
             if (!voiceChannel.isPresent()) {
                 event.getTextChannel().sendMessage(KekBot.respond(Action.GET_IN_VOICE_CHANNEL, event.getLocale())).queue();
+                killConnection(event.getGuild());
+            } else if (!PermissionUtil.checkPermission(voiceChannel.get(), event.getSelfMember(), Permission.VOICE_CONNECT)) {
+                event.getTextChannel().sendMessage(event.getString("music.noperms")).queue();
+                killConnection(event.getGuild());
             } else {
                 audioManager.openAudioConnection(voiceChannel.get());
                 announceStart(event, voiceChannel.get());
@@ -696,6 +701,15 @@ public class MusicPlayer extends ListenerAdapter {
         sessions.forEach(id -> closeConnection(KekBot.jda.getGuildById(id), LocaleUtils.getString("music.sessionshutdown", KekBot.getGuildLocale(KekBot.jda.getGuildById(id)), "`" + reason + "`")));
     }
 
+    public void shutdownShard(int shard) {
+        shutdownShard(shard, "Quick reboot, will be back in just a moment!");
+    }
+
+    public void shutdownShard(int shard, String reason) {
+        Set<Long> sessions = new HashSet<>(musicManagers.keySet()).stream().filter(l -> KekBot.jda.getShards().get(shard).getGuilds().stream().anyMatch(g -> g.getId().equalsIgnoreCase(l.toString()))).collect(Collectors.toSet());
+        sessions.forEach(id -> closeConnection(KekBot.jda.getGuildById(id), LocaleUtils.getString("music.sessionshutdown", KekBot.getGuildLocale(KekBot.jda.getGuildById(id)), "`" + reason + "`")));
+    }
+
     @Override
     public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
         if (!event.getGuild().getAudioManager().isConnected() || !isMusic(event.getGuild()) || !event.getChannelLeft().equals(event.getGuild().getAudioManager().getConnectedChannel())) return;
@@ -793,8 +807,12 @@ public class MusicPlayer extends ListenerAdapter {
                     }
 
                     Member member = null;
-                    if (event1 instanceof GuildVoiceJoinEvent) member = event1.getMember();
-                    if (event1 instanceof GuildVoiceMoveEvent) member = event1.getMember();
+                    if (event1 instanceof GuildVoiceJoinEvent) {
+                        if (!event1.getMember().getUser().isBot()) member = event1.getMember();
+                    }
+                    if (event1 instanceof GuildVoiceMoveEvent) {
+                        if (!event1.getMember().getUser().isBot()) member = event1.getMember();
+                    }
 
                     if (isWaitingUserHost(musicManager, m, member, event.getGuild())) return;
                     m.editMessage(LocaleUtils.getString("music.awaituser.success", KekBot.getGuildLocale(event.getGuild()), member.getUser().getName())).queue();
@@ -913,8 +931,12 @@ public class MusicPlayer extends ListenerAdapter {
                     }
 
                     Member member = null;
-                    if (event1 instanceof GuildVoiceJoinEvent) member = event1.getMember();
-                    if (event1 instanceof GuildVoiceMoveEvent) member = event1.getMember();
+                    if (event1 instanceof GuildVoiceJoinEvent) {
+                        if (!event1.getMember().getUser().isBot()) member = event1.getMember();
+                    }
+                    if (event1 instanceof GuildVoiceMoveEvent) {
+                        if (!event1.getMember().getUser().isBot()) member = event1.getMember();
+                    }
 
                     if (isWaitingUserHost(musicManager, m, member, event.getGuild())) return;
                     if (!member.getUser().isBot()) m.editMessage(LocaleUtils.getString("music.awaituser.success", KekBot.getGuildLocale(event.getGuild()), member.getUser().getName())).queue();
@@ -944,5 +966,9 @@ public class MusicPlayer extends ListenerAdapter {
             event.getGuild().getAudioManager().closeAudioConnection();
             killConnection(event.getGuild());
         }
+    }
+
+    public boolean isWaiting(Guild guild) {
+        return musicManagers.get(guild.getIdLong()).waiting;
     }
 }

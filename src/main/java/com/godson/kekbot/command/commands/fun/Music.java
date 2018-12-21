@@ -2,13 +2,14 @@ package com.godson.kekbot.command.commands.fun;
 
 import com.godson.kekbot.CustomEmote;
 import com.godson.kekbot.KekBot;
-import com.godson.kekbot.LocaleUtils;
+import com.godson.kekbot.util.LocaleUtils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.music.Playlist;
 import com.godson.kekbot.profile.Profile;
 import com.godson.kekbot.responses.Action;
 import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.User;
 
@@ -44,14 +45,6 @@ public class Music extends Command {
         usage.add("music shuffle - Shuffles all the tracks that are in the queue. (Host Only)");
         extendedDescription = "All \"Host Only\" commands can also be executed by a user with Administrator permissions.";
         exDescPos = ExtendedPosition.AFTER;
-    }
-
-    private static Function<String, String> parseURL = url -> url.startsWith("<") && url.endsWith(">") ?
-        url.substring(url.indexOf("<") + 1, url.lastIndexOf(">")) :
-        url;
-
-    private static Stream<String> parseURLs(String[] args) {
-        return Arrays.stream(args).map(parseURL);
     }
 
     @Override
@@ -122,7 +115,7 @@ public class Music extends Command {
                             KekBot.player.loadAndSearchYT(event, search);
                             break;
                         default:
-                            parseURLs(Arrays.copyOfRange(args, 1, args.length)).forEach(trackUrl -> KekBot.player.loadAndPlay(event, trackUrl));
+                            KekBot.player.loadAndPlay(event, event.combineArgs(1));
                             break;
                     }
                 }
@@ -223,6 +216,8 @@ public class Music extends Command {
                 break;
 
             case "song":
+            case "nowplaying":
+            case "np":
                 if (!event.getGuild().getAudioManager().isConnected()) {
                     event.getChannel().sendMessage(KekBot.respond(Action.MUSIC_NOT_PLAYING, event.getLocale())).queue();
                     return;
@@ -251,9 +246,18 @@ public class Music extends Command {
                     return;
                 }
                 if (event.getMentionedUsers().size() > 0) {
-                    User newHost = event.getMentionedUsers().get(0);
-                    KekBot.player.changeHost(event.getGuild(), newHost);
-                    event.getChannel().sendMessage(event.getString("command.fun.music.host.success", newHost.getName())).queue();
+                    if (KekBot.player.isWaiting(event.getGuild())) return;
+                    Member newHost = event.getGuild().getMember(event.getMentionedUsers().get(0));
+                    if (!event.getGuild().getAudioManager().getConnectedChannel().getMembers().contains(newHost)) {
+                        event.getChannel().sendMessage(event.getString("command.fun.music.host.invalid")).queue();
+                        return;
+                    }
+                    if (newHost.getUser().isBot()) {
+                        event.getChannel().sendMessage(event.getString("command.fun.music.host.bot")).queue();
+                        return;
+                    }
+                    KekBot.player.changeHost(event.getGuild(), newHost.getUser());
+                    event.getChannel().sendMessage(event.getString("command.fun.music.host.success", newHost.getUser().getName())).queue();
                 } else event.getChannel().sendMessage(event.getString("command.fun.music.host.nomention")).queue();
                 break;
 

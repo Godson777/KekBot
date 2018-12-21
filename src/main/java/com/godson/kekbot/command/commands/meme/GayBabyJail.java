@@ -1,17 +1,14 @@
 package com.godson.kekbot.command.commands.meme;
 
-import com.godson.kekbot.Utils;
+import com.godson.kekbot.util.Utils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandCategories;
 import com.godson.kekbot.command.CommandEvent;
 import net.dv8tion.jda.core.entities.User;
-import org.w3c.dom.css.RGBColor;
 
 import javax.imageio.ImageIO;
-import javax.rmi.CORBA.Util;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.RGBImageFilter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;

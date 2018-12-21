@@ -1,11 +1,8 @@
 package com.godson.kekbot.games;
 
 import com.godson.kekbot.KekBot;
-import com.godson.kekbot.LocaleUtils;
-import com.godson.kekbot.music.GuildMusicManager;
-import com.godson.kekbot.questionaire.QuestionType;
+import com.godson.kekbot.util.LocaleUtils;
 import com.godson.kekbot.questionaire.Questionnaire;
-import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.channel.text.TextChannelDeleteEvent;
@@ -111,6 +108,21 @@ public class GamesManager extends ListenerAdapter {
 
     public void shutdown(String reason) {
         Iterator<Map.Entry<Long, Game>> itr = activeGames.entrySet().iterator();
+
+        while(itr.hasNext())
+        {
+            Map.Entry<Long, Game> entry = itr.next();
+            entry.getValue().getBets().declareTie();
+            entry.getValue().channel.sendMessage("This game was ended due to KekBot shutting down with the reason: `" + reason + "` (Don't worry, any bets made were all returned.)").queue();
+        }
+    }
+
+    public void shutdownShard(int shard) {
+        shutdownShard(shard, "Quick reboot, will be back in just a moment!");
+    }
+
+    public void shutdownShard(int shard, String reason) {
+        Iterator<Map.Entry<Long, Game>> itr = activeGames.entrySet().stream().filter((e -> KekBot.jda.getShards().get(shard).getGuilds().stream().anyMatch(g -> g.getId().equalsIgnoreCase(e.getKey().toString())))).iterator();
 
         while(itr.hasNext())
         {
