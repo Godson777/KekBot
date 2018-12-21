@@ -23,6 +23,11 @@ public class UDCommand extends Command {
 
     @Override
     public void onExecuted(CommandEvent event) {
+        if (!event.getTextChannel().isNSFW()) {
+            event.getChannel().sendMessage(event.getString("command.fun.ud.notnsfw")).queue();
+            return;
+        }
+
         if (event.getArgs().length > 0) {
             UDictionary results = GSONUtils.getUDResults(event.combineArgs().replace(" ", "+"));
             //Random random = new Random();
