@@ -107,7 +107,7 @@ public class ShopCommand extends Command {
                                 tokenView.setUsers(event.getAuthor());
 
                                 //If the user's level matches the required level, allow them to buy it.
-                                if (profile.getLevel() == selectedToken.getRequiredLevel()) tokenView.addChoice("✅");
+                                if (profile.getLevel() >= selectedToken.getRequiredLevel()) tokenView.addChoice("✅");
 
                                 tokenView.addChoice("❌");
 
@@ -178,7 +178,7 @@ public class ShopCommand extends Command {
                                 backgroundView.setUsers(event.getAuthor());
 
                                 //If the user's level matches the required level, allow them to buy it.
-                                if (profile.getLevel() == selectedBackground.getRequiredLevel()) backgroundView.addChoice("✅");
+                                if (profile.getLevel() >= selectedBackground.getRequiredLevel()) backgroundView.addChoice("✅");
 
                                 backgroundView.addChoice("❌");
 

@@ -523,7 +523,8 @@ public class Profile {
      * @return THe user's background.
      */
     public Background getCurrentBackground() {
-        return KekBot.backgroundManager.get(currentBackgroundID);
+        if (currentBackgroundID == null) return null;
+        else return KekBot.backgroundManager.get(currentBackgroundID);
     }
 
     /**
