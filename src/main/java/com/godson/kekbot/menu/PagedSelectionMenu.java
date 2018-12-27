@@ -186,6 +186,7 @@ public class PagedSelectionMenu extends Menu {
                 this.finalAction.accept(m);
                 m.clearReactions().queue();
             } else {
+                this.finalAction.accept(m);
                 selectionAction.accept(m, this.getNumber(e.getReaction().getReactionEmote().getName()) + (itemsPerPage * (pageNum - 1)));
             }
 
