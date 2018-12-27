@@ -180,10 +180,10 @@ public class PagedSelectionMenu extends Menu {
 
     private void waitReaction(Message m, int pageNum) {
         this.waiter.waitForEvent(MessageReactionAddEvent.class, (e) -> {
-            this.finalAction.accept(m);
             return this.isValidReaction(m, e, pageNum);
         }, (e) -> {
             if (e.getReaction().getReactionEmote().getName().equals(SELECTION_CANCEL)) {
+                this.finalAction.accept(m);
                 m.clearReactions().queue();
             } else {
                 selectionAction.accept(m, this.getNumber(e.getReaction().getReactionEmote().getName()) + (itemsPerPage * (pageNum - 1)));
