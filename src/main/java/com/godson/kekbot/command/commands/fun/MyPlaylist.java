@@ -234,7 +234,7 @@ public class MyPlaylist extends Command {
                             } else {
                                 profile.save();
                                 Questionnaire.newQuestionnaire(results2)
-                                        .addYesNoQuestion(LocaleUtils.getString("command.fun.myplaylist.edit.success", KekBot.getGuildLocale(results.getGuild())))
+                                        .addYesNoQuestion(LocaleUtils.getString("command.fun.myplaylist.edit.add.success", KekBot.getGuildLocale(results.getGuild())))
                                         .execute(results3 -> {
                                             if (results3.getAnswerAsType(0, boolean.class)) {
                                                 editPlaylist(results3, playlist, profile);
@@ -256,7 +256,7 @@ public class MyPlaylist extends Command {
                                 profile.save();
                                 if (tracks.size() > 0) {
                                     Questionnaire.newQuestionnaire(results1)
-                                            .addYesNoQuestion(LocaleUtils.getString("command.fun.myplaylist.edit.remove.syccess", KekBot.getGuildLocale(results.getGuild())))
+                                            .addYesNoQuestion(LocaleUtils.getString("command.fun.myplaylist.edit.remove.success", KekBot.getGuildLocale(results.getGuild())))
                                             .execute(results2 -> {
                                                 if (results2.getAnswerAsType(0, boolean.class)) {
                                                     editPlaylist(results2, playlist, profile);
