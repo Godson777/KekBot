@@ -1,6 +1,7 @@
 package com.godson.kekbot.command.commands.admin;
 
 import com.godson.kekbot.KekBot;
+import com.godson.kekbot.settings.Config;
 import com.godson.kekbot.util.LocaleUtils;
 import com.godson.kekbot.TriConsumer;
 import com.godson.kekbot.util.Utils;
@@ -23,7 +24,7 @@ public class SettingsCommand extends Command {
 
     private Map<String, Setting> settings = new HashMap<>();
 
-    public SettingsCommand() {
+    public SettingsCommand(boolean twitter) {
         name = "settings";
         description = "Allows you to edit KekBot settings for your server.";
         usage.add("settings");
@@ -34,23 +35,23 @@ public class SettingsCommand extends Command {
         settings.put("prefix", new Setting("settings.prefix.description",
                 "settings.prefix.noargs",
                 (event, settings, newPrefix) -> {
-            String oldPrefix = event.getPrefix();
-            if (newPrefix.equals(oldPrefix)) {
-                event.getChannel().sendMessage(event.getString("settings.prefix.oldprefix")).queue();
-                return;
-            }
+                    String oldPrefix = event.getPrefix();
+                    if (newPrefix.equals(oldPrefix)) {
+                        event.getChannel().sendMessage(event.getString("settings.prefix.oldprefix")).queue();
+                        return;
+                    }
 
-            if (newPrefix.length() > 5) {
-                event.getChannel().sendMessage(event.getString("settings.prefix.charlimit", 5)).queue();
-                return;
-            }
+                    if (newPrefix.length() > 5) {
+                        event.getChannel().sendMessage(event.getString("settings.prefix.charlimit", 5)).queue();
+                        return;
+                    }
 
-            if (newPrefix.startsWith(" ")) newPrefix = newPrefix.replace(" ","");
+                    if (newPrefix.startsWith(" ")) newPrefix = newPrefix.replace(" ", "");
 
-            settings.setPrefix(newPrefix).save();
-            event.getClient().setCustomPrefix(event.getGuild().getId(), newPrefix);
-            event.getChannel().sendMessage(event.getString("settings.prefix.success", "`" + oldPrefix + "`", "`" + newPrefix + "`")).queue();
-        }));
+                    settings.setPrefix(newPrefix).save();
+                    event.getClient().setCustomPrefix(event.getGuild().getId(), newPrefix);
+                    event.getChannel().sendMessage(event.getString("settings.prefix.success", "`" + oldPrefix + "`", "`" + newPrefix + "`")).queue();
+                }));
         settings.put("autorole", new Setting("settings.autorole.description",
                 "settings.autorole.noargs",
                 ((event, settings, role) -> {
@@ -65,8 +66,8 @@ public class SettingsCommand extends Command {
                         event.getChannel().sendMessage(event.getString("command.norolefound", role)).queue();
                         return;
                     }
-                        settings.setAutoRoleID(check.get(0).getId()).save();
-                        event.getChannel().sendMessage(event.getString("settings.autorole.success", "`" + check.get(0).getName() + "`")).queue();
+                    settings.setAutoRoleID(check.get(0).getId()).save();
+                    event.getChannel().sendMessage(event.getString("settings.autorole.success", "`" + check.get(0).getName() + "`")).queue();
                 }), "`reset`"));
         settings.put("getrole", new Setting("settings.getrole.description",
                 "settings.getrole.noargs",
@@ -180,10 +181,10 @@ public class SettingsCommand extends Command {
                     builder.setUsers(event.getAuthor());
                     builder.useLooping(true);
                     builder.setSelectionConsumer((m, i) -> {
-                        settings.setLocale(LocaleUtils.languages.get(i-1).getRight());
+                        settings.setLocale(LocaleUtils.languages.get(i - 1).getRight());
                         event.getClient().setCustomLocale(event.getGuild().getId(), settings.getLocale());
                         settings.save();
-                        event.getChannel().sendMessage(LocaleUtils.getString("settings.language.set", settings.getLocale(), LocaleUtils.languages.get(i-1).getLeft())).queue();
+                        event.getChannel().sendMessage(LocaleUtils.getString("settings.language.set", settings.getLocale(), LocaleUtils.languages.get(i - 1).getLeft())).queue();
                         m.clearReactions().queue();
                     });
                     builder.setCanceled(m -> m.clearReactions().queue());
@@ -192,7 +193,7 @@ public class SettingsCommand extends Command {
                     builder.build().display(event.getChannel());
                 }));
         settings.put("updates", new Setting("settings.updates.description", "settings.updates.noargs",
-                ((event, settings, channel) -> {
+                (event, settings, channel) -> {
                     if (channel.equalsIgnoreCase("reset")) {
                         settings.getAnnounceSettings().setWelcomeChannel(null);
                         settings.save();
@@ -216,7 +217,25 @@ public class SettingsCommand extends Command {
                     settings.setUpdateChannel(wChannel);
                     settings.save();
                     event.getChannel().sendMessage(event.getString("settings.updates.success", wChannel.getAsMention())).queue();
-                }), "`reset`"));
+                }, "`reset`"));
+        if (Config.getConfig().usingTwitter()) {
+            settings.put("tweetfinish", new Setting("settings.tweetfinish.description", "settings.tweetfinish.noargs",
+                    (event, settings, state) -> {
+                        if (state.equalsIgnoreCase("on")) {
+                            settings.setTweetFinish(true).save();
+                            event.getChannel().sendMessage(event.getString("settings.tweetfinish.on")).queue();
+                            return;
+                        }
+
+                        if (state.equalsIgnoreCase("off")) {
+                            settings.setTweetFinish(false).save();
+                            event.getChannel().sendMessage(event.getString("settings.tweetfinish.off")).queue();
+                            return;
+                        }
+
+                        event.getChannel().sendMessage(event.getString("settings.antiad.invalid")).queue();
+                    }, "`on`", "`off`"));
+        }
     }
 
     @Override
@@ -241,12 +260,16 @@ public class SettingsCommand extends Command {
                 }
                 String welcomeMessage = settings.getAnnounceSettings().getWelcomeMessage();
                 String farewellMessage = settings.getAnnounceSettings().getFarewellMessage();
+                //TODO: Rewrite this mess in a later version
                 event.getChannel().sendMessage("`prefix` - " + event.getPrefix() + "\n" +
-                        "`autorole` - " + (autoRole == null ? event.getString("command.admin.settings.norole") : autoRole.getName()) + "\n" +
-                        "`welcomechannel` - " + (welcomeChannel == null ? event.getString("command.admin.settings.nochannel") : welcomeChannel.getAsMention()) + "\n" +
-                        "`welcomemessage` - " + (welcomeMessage == null ? event.getString("command.admin.settings.nomessage") : "`" + welcomeMessage + "`") + "\n" +
-                        "`farewellmessage` - " + (farewellMessage == null ? event.getString("command.admin.settings.nomessage") : "`" + farewellMessage + "`") + "\n" +
-                        "`antiad` - " + (settings.isAntiAdEnabled() ? event.getString("command.admin.settings.on") : event.getString("command.admin.settings.off"))).queue();
+                                "`autorole` - " + (autoRole == null ? event.getString("command.admin.settings.norole") : autoRole.getName()) + "\n" +
+                                "`welcomechannel` - " + (welcomeChannel == null ? event.getString("command.admin.settings.nochannel") : welcomeChannel.getAsMention()) + "\n" +
+                                "`welcomemessage` - " + (welcomeMessage == null ? event.getString("command.admin.settings.nomessage") : "`" + welcomeMessage + "`") + "\n" +
+                                "`farewellmessage` - " + (farewellMessage == null ? event.getString("command.admin.settings.nomessage") : "`" + farewellMessage + "`") + "\n" +
+                                "`antiad` - " + (settings.isAntiAdEnabled() ? event.getString("command.admin.settings.on") : event.getString("command.admin.settings.off")) + "\n" +
+                                (Config.getConfig().usingTwitter() ?
+                                        "`tweetfinish` - " + (settings.isTweetFinishEnabled() ? event.getString("command.admin.settings.on") : event.getString("command.admin.settings.off")) : ""))
+                        .queue();
                 return;
             }
             editSetting(event, event.getArgs()[0], Optional.empty());

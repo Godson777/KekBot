@@ -28,6 +28,8 @@ public class Settings {
     private List<String> freeRoles = new ArrayList<>();
     @SerializedName("Anti-Ad")
     private boolean antiAd = false;
+    @SerializedName("Tweet Finisher")
+    private boolean tweetFinish = false;
     @SerializedName("Update Channel ID")
     private String updateChannelID;
     @SerializedName("Locale")
@@ -128,6 +130,7 @@ public class Settings {
                 .with("Quotes", quotes == null ? new QuoteManager() : quotes)
                 .with("Free Roles", freeRoles == null ? new ArrayList<Role>() : freeRoles)
                 .with("Anti-Ad", antiAd)
+                .with("Tweet Finisher", tweetFinish)
                 .with("Update Channel ID", updateChannelID)
                 .with("Locale", locale == null ? "en_US" : locale);
 
@@ -202,5 +205,14 @@ public class Settings {
 
     public boolean isAntiAdEnabled() {
         return antiAd;
+    }
+
+    public Settings setTweetFinish(boolean tweetFinish) {
+        this.tweetFinish = tweetFinish;
+        return this;
+    }
+
+    public boolean isTweetFinishEnabled() {
+        return tweetFinish;
     }
 }

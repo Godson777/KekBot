@@ -45,6 +45,7 @@ import org.discordbots.api.client.DiscordBotListAPI;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
+import twitter4j.conf.ConfigurationBuilder;
 
 import javax.imageio.ImageIO;
 import javax.security.auth.login.LoginException;
@@ -59,7 +60,7 @@ public class KekBot {
     //Seting configs, and resources.
     public static int shards = Config.getConfig().getShards();
     public static ShardManager jda;
-    public static final Version version = new Version(1, 5, 2);
+    public static final Version version = new Version(1, 5, 3);
     public static final long startTime = System.currentTimeMillis();
     public static BufferedImage genericAvatar;
     private static final Map<Action, List<String>> responses = new HashMap<>();
@@ -71,9 +72,12 @@ public class KekBot {
     public static final MarkovChain chain = new MarkovChain();
     public static Icon pfp;
     public static boolean dev;
-    public static WeebApi weebApi = new WeebApiBuilder(TokenType.WOLKETOKENS, "KekBot/1.6/BETA").setToken(Config.getConfig().getWeebToken()).build();
+    public static WeebApi weebApi;
     public static DiscordBotListAPI dbl;
     private static HttpServer server;
+
+    //Twitter config
+    public static ConfigurationBuilder twitterConfig;
 
 
     //ALL THE MANAGERS.
@@ -132,8 +136,37 @@ public class KekBot {
         //Load config
         Config config = Config.getConfig();
 
-        if (config.getdBotsListToken() != null) dbl = new DiscordBotListAPI.Builder().token(Config.getConfig().getdBotsListToken()).build();
-        else dbl = null;
+        if (config.getdBotsListToken() != null) dbl = new DiscordBotListAPI.Builder().token(config.getdBotsListToken()).build();
+        if (config.getWeebToken() != null) weebApi = new WeebApiBuilder(TokenType.WOLKETOKENS, "KekBot/" + version.toString()).setToken(config.getWeebToken()).build();
+        if (config.usingTwitter()) {
+            System.out.println("Using Twitter. Checking for missing values...");
+            if (config.getTwConsumerKey() == null) {
+                System.out.println("Twitter Consumer Key not specified in \"config.json\"! Please go back and specify this value before launching!");
+                System.exit(ExitCode.SHITTY_CONFIG.getCode());
+                return;
+            }
+            if (config.getTwConsumerSecret() == null) {
+                System.out.println("Twitter Consumer Key Secret not specified in \"config.json\"! Please go back and specify this value before launching!");
+                System.exit(ExitCode.SHITTY_CONFIG.getCode());
+                return;
+            }
+            if (config.getTwAccessToken() == null) {
+                System.out.println("Twitter Access Token not specified in \"config.json\"! Please go back and specify this value before launching!");
+                System.exit(ExitCode.SHITTY_CONFIG.getCode());
+                return;
+            }
+            if (config.getTwAccessTokenSecret() == null) {
+                System.out.println("Twitter Access Token Secret not specified in \"config.json\"! Please go back and specify this value before launching!");
+                System.exit(ExitCode.SHITTY_CONFIG.getCode());
+                return;
+            }
+            System.out.println("All values found!");
+            twitterConfig = new ConfigurationBuilder()
+                    .setOAuthConsumerKey(config.getTwConsumerKey())
+                    .setOAuthConsumerSecret(config.getTwConsumerSecret())
+                    .setOAuthAccessToken(config.getTwAccessToken())
+                    .setOAuthAccessTokenSecret(config.getTwAccessTokenSecret());
+        }
 
         if (config.getDcoinToken() != null && mode > 0) {
             discoin = new Discoin4J(config.getDcoinToken());
@@ -148,8 +181,9 @@ public class KekBot {
         Config config = Config.getConfig();
 
         //Load twitter
-        if (mode > 0) twitterManager = null;
-        else twitterManager = new TwitterManager(chain);
+        if (config.usingTwitter()) {
+            if (mode == 0) twitterManager = new TwitterManager(chain);
+        }
 
         String token = mode == 1 ? config.getBetaToken() : config.getToken();
 
@@ -158,7 +192,8 @@ public class KekBot {
         } catch (ReqlDriverError e) {
             System.exit(ExitCode.DB_OFFLINE.getCode());
         }
-        if (mode == 1 && (boolean) r.dbList().contains(config.getBetaDatabase()).run(conn)) conn.use(config.getBetaDatabase());
+        if (mode == 1 && (boolean) r.dbList().contains(config.getBetaDatabase()).run(conn))
+            conn.use(config.getBetaDatabase());
         else if (r.dbList().contains(config.getDatabase()).run(conn)) conn.use(config.getDatabase());
         else {
             System.out.println("Database could not be found, are you sure you typed the name correctly?");
@@ -176,8 +211,7 @@ public class KekBot {
             if (mode == 1) {
                 shards = 1;
                 client.setPrefix("$$");
-            }
-            else {
+            } else {
                 if (shards == 0) {
                     System.out.println("You must enter the number of shards in your \"config.json\"! Please go back and specify it before launching.");
                     System.exit(ExitCode.SHITTY_CONFIG.getCode());
@@ -205,7 +239,7 @@ public class KekBot {
         client.addCommand(new Purge());
         client.addCommand(new Kick());
         client.addCommand(new Ban());
-        client.addCommand(new SettingsCommand());
+        client.addCommand(new SettingsCommand(config.usingTwitter()));
         client.addCommand(new GetRole());
 
         //Fun Commands
@@ -230,33 +264,35 @@ public class KekBot {
         client.addCommand(new Pay());
         client.addCommand(new Daily());
 
-        //Weeb Commands
-        client.addCommand(new Slap(weebApi));
-        client.addCommand(new Hug(weebApi));
-        client.addCommand(new Kiss(weebApi));
-        client.addCommand(new Punch(weebApi));
-        client.addCommand(new Awoo(weebApi));
-        client.addCommand(new Cuddle(weebApi));
-        client.addCommand(new Lick(weebApi));
-        client.addCommand(new Lewd(weebApi));
-        client.addCommand(new Neko(weebApi));
-        client.addCommand(new Pout(weebApi));
-        client.addCommand(new Shrug(weebApi));
-        client.addCommand(new Pat(weebApi));
-        client.addCommand(new Cry(weebApi));
-        client.addCommand(new Dance(weebApi));
-        client.addCommand(new Nom(weebApi));
-        client.addCommand(new Poke(weebApi));
-        client.addCommand(new OwO(weebApi));
-        client.addCommand(new Sleepy(weebApi));
-        client.addCommand(new Smug(weebApi));
-        client.addCommand(new SRS(weebApi));
-        client.addCommand(new ThumbsUp(weebApi));
-        client.addCommand(new Wag(weebApi));
-        client.addCommand(new Dab(weebApi));
-        client.addCommand(new Deredere(weebApi));
-        client.addCommand(new Tickle(weebApi));
-        client.addCommand(new Bite(weebApi));
+        //Weeb Commands (Only if weeb.sh token was supplied.)
+        if (weebApi != null) {
+            client.addCommand(new Slap(weebApi));
+            client.addCommand(new Hug(weebApi));
+            client.addCommand(new Kiss(weebApi));
+            client.addCommand(new Punch(weebApi));
+            client.addCommand(new Awoo(weebApi));
+            client.addCommand(new Cuddle(weebApi));
+            client.addCommand(new Lick(weebApi));
+            client.addCommand(new Lewd(weebApi));
+            client.addCommand(new Neko(weebApi));
+            client.addCommand(new Pout(weebApi));
+            client.addCommand(new Shrug(weebApi));
+            client.addCommand(new Pat(weebApi));
+            client.addCommand(new Cry(weebApi));
+            client.addCommand(new Dance(weebApi));
+            client.addCommand(new Nom(weebApi));
+            client.addCommand(new Poke(weebApi));
+            client.addCommand(new OwO(weebApi));
+            client.addCommand(new Sleepy(weebApi));
+            client.addCommand(new Smug(weebApi));
+            client.addCommand(new SRS(weebApi));
+            client.addCommand(new ThumbsUp(weebApi));
+            client.addCommand(new Wag(weebApi));
+            client.addCommand(new Dab(weebApi));
+            client.addCommand(new Deredere(weebApi));
+            client.addCommand(new Tickle(weebApi));
+            client.addCommand(new Bite(weebApi));
+        }
 
         //General Commands
         client.addCommand(new Help());
@@ -294,11 +330,14 @@ public class KekBot {
         client.addCommand(new Doubt());
         client.addCommand(new Kaede());
         client.addCommand(new Magik());
-        client.addCommand(new Think(weebApi));
-        client.addCommand(new Discord(weebApi));
+        if (weebApi != null) {
+            client.addCommand(new Think(weebApi));
+            client.addCommand(new Discord(weebApi));
+        }
         client.addCommand(new Kirb());
         client.addCommand(new YouTried());
         client.addCommand(new DSXSays());
+        client.addCommand(new Spoiler());
 
 
         client.addCommand(new TestCommand());

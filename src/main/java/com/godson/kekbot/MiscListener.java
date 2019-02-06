@@ -1,5 +1,6 @@
 package com.godson.kekbot;
 
+import com.godson.kekbot.settings.Config;
 import com.godson.kekbot.settings.Settings;
 import com.godson.kekbot.util.LocaleUtils;
 import com.godson.kekbot.util.Utils;
@@ -11,15 +12,21 @@ import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import twitter4j.*;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class MiscListener extends ListenerAdapter {
 
     private Timer timer;
     public GameStatus gameStatus = new GameStatus();
+
+    Twitter twitter;
+    private Pattern twitterPattern = Pattern.compile("twitter.com/\\w+/status/(\\d+)");
 
     @Override
     public void onReady(ReadyEvent event) {
@@ -29,6 +36,12 @@ public class MiscListener extends ListenerAdapter {
                 timer = new Timer();
                 timer.schedule(gameStatus, 0, TimeUnit.MINUTES.toMillis(10));
             }
+
+            //Get our local Twitter instance ready:
+            if (Config.getConfig().usingTwitter()) {
+                twitter = new TwitterFactory(KekBot.twitterConfig.build()).getInstance();
+            }
+
             //Announce Ready
             System.out.println("KekBot is ready to roll!");
         }
@@ -39,24 +52,70 @@ public class MiscListener extends ListenerAdapter {
 
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
+        KekBot.chain.addDictionary(event.getMessage().getContentStripped());
         advertiseCheck(event.getMessage(), event.getGuild(), event.getMember(), event.getChannel());
+        if (twitter != null) twitterCheck(event);
     }
 
     private void advertiseCheck(Message message, Guild guild, Member member, TextChannel channel) {
         //First we're gonna check if there's at least one invite on here.
-        if (message.getInvites().size() > 0) {
+        if (!message.getInvites().isEmpty()) {
             //Then, we're gonna check if anti-ad is enabled.
-            if (Settings.getSettings(guild).isAntiAdEnabled()) {
-                //Check if user doesn't have permission to manage messages.
-                if (!member.hasPermission(Permission.MESSAGE_MANAGE)) {
-                    //Now, check for permission to manage messages.
-                    if (guild.getSelfMember().hasPermission(Permission.MESSAGE_MANAGE)) {
-                        message.delete().queue();
-                    }
-                    channel.sendMessage(LocaleUtils.getString("antiad.caught", "en_l33t", message.getAuthor().getAsMention())).queue();
+            if (!Settings.getSettings(guild).isAntiAdEnabled()) return;
+
+            //Check if user doesn't have permission to manage messages.
+            if (!member.hasPermission(Permission.MESSAGE_MANAGE)) {
+                //Now, check for permission to manage messages.
+                if (guild.getSelfMember().hasPermission(Permission.MESSAGE_MANAGE)) {
+                    message.delete().queue();
                 }
+                channel.sendMessage(LocaleUtils.getString("antiad.caught", KekBot.getGuildLocale(guild), message.getAuthor().getAsMention())).queue();
             }
         }
+    }
+
+    private void twitterCheck(GuildMessageReceivedEvent event) {
+        //Are we allowed to start?
+        if (!Settings.getSettings(event.getGuild()).isTweetFinishEnabled()) return;
+
+        //Get our matches.
+        List<String> links = findMatches(twitterPattern, event.getMessage().getContentRaw());
+        //Do we have any matches?
+        if (links.isEmpty()) return;
+
+        //Process the matches and post the remaining images in chat.
+        StringBuilder builder = new StringBuilder();
+        for (String link : links) {
+            try {
+                Status status = twitter.showStatus(Long.valueOf(link.substring(link.lastIndexOf("/") + 1)));
+                MediaEntity[] images = status.getMediaEntities();
+
+                //Do we have more than one image?
+                if (images.length < 2) return;
+
+                //Iterate through every image, and add them to the StringBuilder.
+                for (int i = 1; i < images.length; i++) {
+                    if (images[i].getType().equals("photo")) {
+                        builder.append("\n");
+                        builder.append(images[i].getMediaURLHttps());
+                    }
+                }
+            } catch (TwitterException e) {
+                e.printStackTrace();
+            }
+        }
+
+        //Finally, send the message.
+        event.getChannel().sendMessage(builder).queue();
+    }
+
+    private List<String> findMatches(Pattern pattern, String string) {
+        List<String> matches = new ArrayList<>();
+        Matcher m = pattern.matcher(string);
+        while (m.find()) {
+            matches.add(m.group());
+        }
+        return matches;
     }
 
     @Override
