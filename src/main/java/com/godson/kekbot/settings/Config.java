@@ -11,24 +11,40 @@ import java.util.List;
 import java.util.Map;
 
 public class Config {
+    //Bot Token
     private String token;
+    //Bot Token (when mode 1 is applied)
     private String betaToken;
+    //Rethink stuff
     private String database;
     private String betaDatabase;
     private String dbUser;
     private String dbPassword;
+    //Tokens for bot lists
     private String dApiToken;
     private String dListBotsToken;
     private String dBotsListToken;
     private String carbonToken;
     private String dcoinToken;
+    //Bot Owner's User ID
     private String botOwner;
+    //Number of Shards to run
     private int shards;
+    //Channels for join logs, tickets, and reporting twitter errors
     private String joinLogChannel;
     private String ticketChannel;
     private String twitterChannel;
+    //Weeb.sh token
     private String weebToken;
+    //IP where the API will be hosted.
     private String APIip;
+    //Twitter Stuff
+    private String twConsumerKey;
+    private String twConsumerSecret;
+    private String twAccessToken;
+    private String twAccessTokenSecret;
+    private boolean twitter = false;
+
     private List<String> botAdmins = new ArrayList<>();
     private List<String> botMods = new ArrayList<>();
     private Map<String, Integer> blockedUsers = new HashMap<>();
@@ -182,6 +198,26 @@ public class Config {
      */
     public String getWeebToken() {
         return weebToken;
+    }
+
+    public String getTwConsumerKey() {
+        return twConsumerKey;
+    }
+
+    public String getTwConsumerSecret() {
+        return twConsumerSecret;
+    }
+
+    public String getTwAccessToken() {
+        return twAccessToken;
+    }
+
+    public String getTwAccessTokenSecret() {
+        return twAccessTokenSecret;
+    }
+
+    public boolean usingTwitter() {
+        return twitter;
     }
 
     public List<String> getPatrons() {
