@@ -270,9 +270,6 @@ public class CommandClient extends ListenerAdapter {
                 }
             }
         }
-
-        //Non Command type stuff.
-        KekBot.chain.addDictionary(event.getMessage().getContentStripped());
     }
 
     @Override
