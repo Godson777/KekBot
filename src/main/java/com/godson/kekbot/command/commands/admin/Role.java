@@ -30,7 +30,7 @@ public class Role extends Command {
     @Override
     public void onExecuted(CommandEvent event) {
         if (event.getArgs().length < 1) {
-            event.getChannel().sendMessage(LocaleUtils.getString("command.noargs", event.getLocale())).queue();
+            event.getChannel().sendMessage(event.getString("command.noargs", event.getPrefix() + "help")).queue();
             return;
         }
 
