@@ -19,6 +19,7 @@ public class WorldWideWeb extends ImageCommand {
         usage.add("www <attachment>");
         usage.add("www <image URL>");
         category = CommandCategories.meme;
+        filename = "marvelous";
     }
 
     @Override

@@ -19,6 +19,7 @@ public class TrashWaifu extends ImageCommand {
         usage.add("trashwaifu <attachment>");
         usage.add("trashwaifu <image URL>");
         category = CommandCategories.meme;
+        filename = "trash";
     }
 
     @Override

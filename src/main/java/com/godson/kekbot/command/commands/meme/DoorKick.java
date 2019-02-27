@@ -19,6 +19,7 @@ public class DoorKick extends ImageCommand {
         usage.add("doorkick <attachment>");
         usage.add("doorkick <image URL>");
         category = CommandCategories.meme;
+        filename = "NOPE_NVM";
     }
 
     @Override
