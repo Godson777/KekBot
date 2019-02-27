@@ -25,7 +25,7 @@ public class MiscListener extends ListenerAdapter {
     private Timer timer;
     public GameStatus gameStatus = new GameStatus();
 
-    Twitter twitter;
+    private Twitter twitter;
     private Pattern twitterPattern = Pattern.compile("twitter.com/\\w+/status/(\\d+)");
 
     @Override

@@ -21,7 +21,7 @@ public class Kaede extends Command {
 
     public Kaede() {
         name = "kaede";
-        description = "Kaede";
+        description = "Kaede holds up a sign, whatever the sign contains is up to you.";
         usage.add("kaede <text>");
         usage.add("kaede <attachment>");
         usage.add("kaede <image URL>");
