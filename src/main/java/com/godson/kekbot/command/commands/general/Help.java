@@ -84,7 +84,7 @@ public class Help extends Command {
         EmbedBuilder builder = new EmbedBuilder();
         builder.addField("Command:", command.getName(), true);
         builder.addField("Category:", command.getCategory().getName(), true);
-        builder.addField("Aliases:", StringUtils.join(command.getAliases(), ", "), false);
+        if (command.getAliases().length > 0) builder.addField("Aliases:", StringUtils.join(command.getAliases(), ", "), false);
         builder.addField("Description:", command.getDescription(), false);
         if (command.getExtendedDescription() != null && command.getExDescriptionPosition().equals(ExtendedPosition.BEFORE))
             builder.addField("", command.getExtendedDescription().replaceAll("\\{p}", Matcher.quoteReplacement(event.getPrefix())), false);
