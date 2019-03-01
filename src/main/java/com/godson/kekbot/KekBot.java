@@ -177,6 +177,30 @@ public class KekBot {
     private static void startBot(int mode) throws LoginException {
         //Modes: 0 = stable, 1 = beta, 2 = dev.
 
+        switch (mode) {
+            default:
+                try {
+                    pfp = Icon.from(new File("resources/pfp.png"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+            case 1:
+                try {
+                    pfp = Icon.from(new File("resources/pfpBeta.png"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+            case 2:
+                try {
+                    pfp = Icon.from(new File("resources/pfpDev.png"));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+        }
+
         //Load config
         Config config = Config.getConfig();
 

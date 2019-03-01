@@ -299,13 +299,16 @@ public class Takeover extends Command {
         } catch (MalformedURLException | UnknownHostException | IllegalArgumentException | FileNotFoundException e) {
             event.getChannel().sendMessage("`" + url + "`" + " is not a valid URL.").queue();
             results.reExecute();
+            return true;
         } catch (SSLHandshakeException | SocketException e) {
             event.getChannel().sendMessage("Unable to connect to URL.").queue();
             results.reExecute();
+            return true;
         } catch (IOException e) {
             e.printStackTrace();
             event.getChannel().sendMessage("Unknown error, try again.").queue();
             results.reExecute();
+            return true;
         }
         return false;
     }
