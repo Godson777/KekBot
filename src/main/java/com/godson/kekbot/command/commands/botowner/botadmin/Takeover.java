@@ -64,6 +64,16 @@ public class Takeover extends Command {
                 manager.deactivateTakeover();
                 event.getChannel().sendMessage("Takeover has ended.").queue();
                 break;
+            case "remove":
+                if (event.getArgs().length < 2) {
+                    event.getChannel().sendMessage("No takeover specified.").queue();
+                    return;
+                }
+
+                if (manager.hasTakeover(event.combineArgs(1))) {
+                    manager.removeTakeover(event.combineArgs(1));
+                } else event.getChannel().sendMessage("Takeover not found.").queue();
+                break;
             case "edit":
                 if (event.getArgs().length < 2) {
                     event.getChannel().sendMessage("No takeover specified.").queue();

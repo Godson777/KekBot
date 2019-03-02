@@ -51,7 +51,8 @@ public class TakeoverManager {
     }
 
     public void addTakeover(Takeover takeover) {
-        takeovers.add(takeover);
+        if (takeovers.stream().anyMatch(t -> t.name.equals(takeover.name))) {
+        }
     }
 
     public String startTakeover(String takeover) throws IOException {
@@ -100,6 +101,12 @@ public class TakeoverManager {
 
     public Takeover getTakeover(String takeover) {
         return takeovers.stream().filter(t -> t.getName().equals(takeover)).findFirst().orElse(null);
+    }
+
+    public void removeTakeover(String takeover) {
+        Takeover toRemove = takeovers.stream().filter(t -> t.getName().equals(takeover)).findFirst().orElse(null);
+        if (toRemove == null) return;
+        takeovers.remove(toRemove);
     }
 
     public Takeover getCurrentTakeover() {
@@ -175,8 +182,7 @@ public class TakeoverManager {
 
             this.responses.forEach((action, strings) -> responses.put(action.name(), strings));
 
-            MapObject takeover = KekBot.r.hashMap()
-                    .with("Name", name)
+            MapObject takeover = KekBot.r.hashMap("Name", name)
                     .with("Avatar", avaFile)
                     .with("Games", games)
                     .with("Responses", responses);
