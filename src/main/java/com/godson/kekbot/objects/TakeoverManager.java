@@ -51,8 +51,7 @@ public class TakeoverManager {
     }
 
     public void addTakeover(Takeover takeover) {
-        if (takeovers.stream().anyMatch(t -> t.name.equals(takeover.name))) {
-        }
+        if (!hasTakeover(takeover.name)) takeovers.add(takeover);
     }
 
     public String startTakeover(String takeover) throws IOException {
