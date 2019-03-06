@@ -59,7 +59,7 @@ public class Lottery {
 
     public String addTicket(User gambler, String locale) throws IllegalArgumentException {
         if (!canUserPurchaseTicket(gambler))
-            return LocaleUtils.getString("lottery.maxpurchased", locale);
+            return LocaleUtils.getString("lottery.maxpurchased", locale, ticketMax);
 
         Profile profile = Profile.getProfile(gambler);
         if (profile.getTopkeks() >= ticketPrice) {
