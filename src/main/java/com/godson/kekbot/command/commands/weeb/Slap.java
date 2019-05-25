@@ -2,9 +2,7 @@ package com.godson.kekbot.command.commands.weeb;
 
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
-import me.duncte123.weebJava.exceptions.ImageNotFoundException;
 import me.duncte123.weebJava.models.WeebApi;
-import me.duncte123.weebJava.types.NSFWType;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 

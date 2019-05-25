@@ -15,7 +15,7 @@ public class DoorKick extends ImageCommand {
 
     public DoorKick() {
         name = "doorkick";
-        description = "";
+        description = "WHAT DID I JUST WALK INTO";
         usage.add("doorkick <attachment>");
         usage.add("doorkick <image URL>");
         category = CommandCategories.meme;
