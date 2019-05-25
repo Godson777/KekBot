@@ -5,6 +5,8 @@ import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.menu.EmbedPaginator;
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.MessageBuilder;
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import org.apache.commons.lang3.StringUtils;
@@ -76,7 +78,10 @@ public class Help extends Command {
 
 
         if (found) {
-            event.getChannel().sendMessage(getCommandHelp(event, command.get())).queue();
+            if (event.getSelfMember().hasPermission(event.getTextChannel(), Permission.MESSAGE_EMBED_LINKS))
+                event.getChannel().sendMessage(getCommandHelp(event, command.get())).queue();
+            else
+                event.getChannel().sendMessage(getCommandHelpPlain(event, command.get())).queue();
         } else event.getChannel().sendMessage(event.getString("command.general.help.commandnotfound")).queue();
     }
 
@@ -94,5 +99,30 @@ public class Help extends Command {
         builder.setFooter("KekBot v" + KekBot.version, null);
         builder.setAuthor("KekBot, your friendly meme-based bot!", null, event.getSelfUser().getAvatarUrl());
         return builder.build();
+    }
+
+
+    private String getCommandHelpPlain(CommandEvent event, Command command) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("```\n")
+                .append("Command:\n")
+                .append(command.getName()).append("\n\n")
+                .append("Category:\n")
+                .append(command.getCategory().getName()).append("\n\n");
+        if (command.getAliases().length > 0) builder.append("Aliases: ").append(StringUtils.join(command.getAliases(), ", ")).append("\n\n");
+        builder.append("Description:\n")
+                .append(command.getDescription()).append("\n\n");
+        if (command.getExtendedDescription() != null && command.getExDescriptionPosition().equals(ExtendedPosition.BEFORE))
+            builder.append(command.getExtendedDescription().replaceAll("\\{p}", Matcher.quoteReplacement(event.getPrefix())));
+        builder.append("Usage (<> Required, {} Optional):\n")
+                .append(StringUtils.join(command.getUsage().stream().map(usage -> event.getPrefix() + usage).collect(Collectors.toList()), "\n"));
+        if (command.getExtendedDescription() != null && command.getExDescriptionPosition().equals(ExtendedPosition.AFTER))
+            builder.append(command.getExtendedDescription().replaceAll("\\{p}", Matcher.quoteReplacement(event.getPrefix())));
+        builder.append("\n\n--\n\n")
+                .append("Pro Tip: Enable \"Embed Links\" for me, so I can send cleaner styled messages for commands like this one!\n\n")
+                .append("--\n\n")
+                .append("KekBot v" + KekBot.version).append("\n")
+                .append("```");
+        return builder.toString();
     }
 }

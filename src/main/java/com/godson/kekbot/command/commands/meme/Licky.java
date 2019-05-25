@@ -11,25 +11,25 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 
-public class DoorKick extends ImageCommand {
+public class Licky extends ImageCommand {
 
-    public DoorKick() {
-        name = "doorkick";
-        description = "WHAT DID I JUST WALK INTO";
-        usage.add("doorkick <attachment>");
-        usage.add("doorkick <image URL>");
+    public Licky() {
+        name = "licky";
+        description = "If only I had a Krabby Patty poster instead...";
+        usage.add("licky <attachment>");
+        usage.add("licky <image URL>");
+        filename = "lickylick";
         category = CommandCategories.meme;
-        filename = "NOPE_NVM";
     }
 
     @Override
     protected byte[] generate(BufferedImage image) throws IOException {
-        BufferedImage base = ImageIO.read(new File("resources/memegen/door.png"));
+        BufferedImage base = ImageIO.read(new File("resources/memegen/lick.png"));
         BufferedImage blank = new BufferedImage(base.getWidth(), base.getHeight(), base.getType());
         Graphics2D graphics = blank.createGraphics();
 
-        double widthRatio = 338d / image.getWidth();
-        double heightRatio = 466d / image.getHeight();
+        double widthRatio = 321d / image.getWidth();
+        double heightRatio = 255d / image.getHeight();
         double ratio = Math.min(widthRatio, heightRatio);
 
         Dimension dimension = new Dimension((int) (image.getWidth() * ratio), (int) (image.getHeight() * ratio));
@@ -37,11 +37,13 @@ public class DoorKick extends ImageCommand {
         Rectangle2D r2D = new Rectangle(dimension);
         int rWidth = (int) Math.round(r2D.getWidth());
         int rHeight = (int) Math.round(r2D.getHeight());
-        int a = (338 / 2) - (rWidth / 2);
-        int b = (466 / 2) - (rHeight / 2);
+        int a = (321 / 2) - (rWidth / 2);
+        int b = (255 / 2) - (rHeight / 2);
 
         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        graphics.drawImage(image, 326 + a, 7 + b, dimension.width, dimension.height, null);
+        graphics.setColor(Color.white);
+        graphics.fillRect(279, 0, 321, 270);
+        graphics.drawImage(image, 279+a, b, dimension.width, dimension.height, null);
         graphics.drawImage(base, 0, 0, null);
         graphics.dispose();
         ByteArrayOutputStream stream = new ByteArrayOutputStream();

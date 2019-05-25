@@ -3,7 +3,7 @@ package com.godson.kekbot.command.commands.weeb;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
 import me.duncte123.weebJava.models.WeebApi;
-import me.duncte123.weebJava.types.NSFWType;
+import me.duncte123.weebJava.types.NSFWMode;
 import net.dv8tion.jda.core.EmbedBuilder;
 
 public class WeebCommand extends Command {
@@ -22,7 +22,7 @@ public class WeebCommand extends Command {
         event.getChannel().sendTyping().queue();
         EmbedBuilder builder = new EmbedBuilder();
         builder.setTitle(event.getString(message));
-        builder.setImage(api.getRandomImage(type, event.getTextChannel().isNSFW() ? NSFWType.TRUE : NSFWType.FALSE).getUrl());
+        builder.setImage(api.getRandomImage(type, event.getTextChannel().isNSFW() ? NSFWMode.ALLOW_NSFW : NSFWMode.DISALLOW_NSFW).execute().getUrl());
         builder.setFooter("Powered by Weeb.sh!", null);
         event.getChannel().sendMessage(builder.build()).queue();
     }
@@ -44,7 +44,7 @@ public class WeebCommand extends Command {
             event.getChannel().sendTyping().queue();
             EmbedBuilder builder = new EmbedBuilder();
             builder.setTitle(event.getString(message, event.getMentionedUsers().get(0).getName(), event.getAuthor().getName()));
-            builder.setImage(api.getRandomImage(type, event.getTextChannel().isNSFW() ? NSFWType.TRUE : NSFWType.FALSE).getUrl());
+            builder.setImage(api.getRandomImage(type, event.getTextChannel().isNSFW() ? NSFWMode.ALLOW_NSFW : NSFWMode.DISALLOW_NSFW).execute().getUrl());
             builder.setFooter("Powered by Weeb.sh!", null);
             event.getChannel().sendMessage(builder.build()).queue();
         }

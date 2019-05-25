@@ -127,7 +127,7 @@ public class Utils {
      * @param jda The instance of JDA (or shard) to send stats from.
      */
     public static void sendStats(JDA jda) {
-        OkHttpClient client = ((JDAImpl) jda).getHttpClientBuilder().build();
+        OkHttpClient client = ((JDAImpl) jda).getHttpClient();
         Config config = Config.getConfig();
         String carbonToken = config.getCarbonToken();
         String botsListToken = config.getdBotsListToken();
