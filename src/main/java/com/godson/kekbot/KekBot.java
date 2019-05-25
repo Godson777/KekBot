@@ -365,6 +365,14 @@ public class KekBot {
         client.addCommand(new WorldWideWeb());
         client.addCommand(new TrashWaifu());
         client.addCommand(new DoorKick());
+        client.addCommand(new Garage());
+        client.addCommand(new Brave());
+        client.addCommand(new NotAllowed());
+        client.addCommand(new Torture());
+        client.addCommand(new Technology());
+        client.addCommand(new Licky());
+        client.addCommand(new Doggo());
+        client.addCommand(new Urgent());
 
 
         client.addCommand(new TestCommand());
