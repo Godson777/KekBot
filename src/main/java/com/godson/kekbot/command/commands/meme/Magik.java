@@ -26,7 +26,7 @@ public class Magik extends Command {
         name = "magik";
         description = "Also known as the Content Aware Scale";
         exDescPos = ExtendedPosition.AFTER;
-        extendedDescription = "(Tribute to NotSoBot. RIP)";
+        extendedDescription = "Huh? What do you mean NotSoBot is back? So this tribute was for nothing? wow ok.";
         usage.add("magick <image URL>");
         usage.add("magick <attachment>");
         category = CommandCategories.meme;
