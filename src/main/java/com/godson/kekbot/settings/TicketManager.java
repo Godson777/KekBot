@@ -21,7 +21,7 @@ public class TicketManager {
 
     public static void addTicket(Ticket ticket) {
         User user = KekBot.jda.getUserById(ticket.getAuthorID());
-        KekBot.getCommandClient().ticketChannel.sendMessage("New ticket made by: **" + user.getName() + "** (ID: **" + user.getId() + "**)").queue();
+        KekBot.getCommandClient().getTicketChannel().sendMessage("New ticket made by: **" + user.getName() + "** (ID: **" + user.getId() + "**)").queue();
         while (KekBot.r.table("Tickets").get(ticket.getID()).run(KekBot.conn) != null) {
             ticket.resetID();
         }
@@ -72,7 +72,7 @@ public class TicketManager {
 
     public static void addUserReply(Ticket ticket, String response, User replier) {
         String replierName = replier.getName() + "#" + replier.getDiscriminator();
-        KekBot.getCommandClient().ticketChannel.sendMessage("You have received a reply for a ticket. (`" + ticket.getID() + "`)\n**" + replierName
+        KekBot.getCommandClient().getTicketChannel().sendMessage("You have received a reply for a ticket. (`" + ticket.getID() + "`)\n**" + replierName
                 + "**:\n\n" + response).queue();
 
         ticket.setStatus(Ticket.TicketStatus.RECEIVED_REPLY);

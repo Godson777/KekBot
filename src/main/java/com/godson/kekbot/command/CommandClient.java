@@ -40,8 +40,8 @@ public class CommandClient extends ListenerAdapter {
     //Key = Channel ID, Value = List of User IDs.
     private final HashMap<String, List<String>> activeQuestionnaires;
 
-    private TextChannel joinLogChannel;
-    public TextChannel ticketChannel;
+    private long joinLogChannel;
+    public long ticketChannel;
 
     public CommandClient() {
         start = OffsetDateTime.now();
@@ -216,8 +216,8 @@ public class CommandClient extends ListenerAdapter {
     public void onReady(ReadyEvent event) {
         if (event.getJDA().getShardInfo().getShardId() == KekBot.shards - 1) {
             Config config = Config.getConfig();
-            joinLogChannel = KekBot.jda.getTextChannelById(config.getJoinLogChannel());
-            ticketChannel = KekBot.jda.getTextChannelById(config.getTicketChannel());
+            joinLogChannel = Long.parseLong(config.getJoinLogChannel());
+            ticketChannel = Long.parseLong(config.getTicketChannel());
         }
 
         JDA jda = event.getJDA();
@@ -278,7 +278,7 @@ public class CommandClient extends ListenerAdapter {
             return;
 
         if (!Config.getConfig().getBlockedUsers().containsKey(event.getGuild().getOwner().getUser().getId()) || (Config.getConfig().getBlockedUsers().containsKey(event.getGuild().getOwner().getUser().getId()) && Config.getConfig().getBlockedUsers().get(event.getGuild().getOwner().getUser().getId()) < 2)) {
-            joinLogChannel.sendMessage("Joined server: \"" + event.getGuild().getName() + "\" (ID: " + event.getGuild().getId() + ")").queue();
+            getJoinLogChannel().sendMessage("Joined server: \"" + event.getGuild().getName() + "\" (ID: " + event.getGuild().getId() + ")").queue();
             Settings settings = new Settings(event.getGuild().getId());
             settings.save();
 
@@ -302,10 +302,18 @@ public class CommandClient extends ListenerAdapter {
     public void onGuildLeave(GuildLeaveEvent event) {
         //todo probably make it so it deletes table entries on rethinkdb too...
         if (!Config.getConfig().getBlockedUsers().containsKey(event.getGuild().getOwner().getUser().getId())) {
-            joinLogChannel.sendMessage("Left/Kicked from server: \"" + event.getGuild().getName() + "\" (ID: " + event.getGuild().getId() + ")").queue();
+            getJoinLogChannel().sendMessage("Left/Kicked from server: \"" + event.getGuild().getName() + "\" (ID: " + event.getGuild().getId() + ")").queue();
             //File folder = new File("settings/" + event.getGuild().getId());
             //Utils.deleteDirectory(folder);
             Utils.sendStats(event.getJDA());
         }
+    }
+
+    public TextChannel getTicketChannel() {
+        return KekBot.jda.getTextChannelById(ticketChannel);
+    }
+
+    public TextChannel getJoinLogChannel() {
+        return KekBot.jda.getTextChannelById(joinLogChannel);
     }
 }

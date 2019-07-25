@@ -155,7 +155,7 @@ public class MyPlaylist extends Command {
                         case 0:
                             Paginator.Builder list = new Paginator.Builder();
                             list.addItems(playlistNames.toArray(new String[playlistNames.size()]));
-                            list.setUsers(results.getUser());
+                            list.setUsers(results1.getUser());
                             list.setEventWaiter(KekBot.waiter);
                             list.waitOnSinglePage(true);
                             list.showPageNumbers(true);

@@ -23,7 +23,7 @@ public class GuildMusicManager {
     public final TrackScheduler scheduler;
     public final MemeScheduler memeScheduler;
     public final ErrorScheduler errorScheduler;
-    public final MessageChannel channel;
+    public final long channelID;
     public final int status;
     public User host;
     public boolean queueing = false;
@@ -38,7 +38,7 @@ public class GuildMusicManager {
         scheduler = new TrackScheduler(player, event);
         memeScheduler = new MemeScheduler(player, event.getGuild());
         errorScheduler = new ErrorScheduler(player, event.getGuild());
-        channel = event.getChannel();
+        channelID = event.getChannel().getIdLong();
         this.status = status;
         switch (status) {
             case 0: player.addListener(scheduler);
