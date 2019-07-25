@@ -517,7 +517,7 @@ public class MusicPlayer extends ListenerAdapter {
     }
 
     public void announceToMusicSession(Guild guild, String message) {
-        musicManagers.get(Long.parseLong(guild.getId())).channel.sendMessage(message).queue();
+        guild.getTextChannelById(musicManagers.get(Long.parseLong(guild.getId())).channelID).sendMessage(message).queue();
     }
 
     public boolean isMusic(Guild guild) {
@@ -712,12 +712,18 @@ public class MusicPlayer extends ListenerAdapter {
 
     @Override
     public void onGuildVoiceLeave(GuildVoiceLeaveEvent event) {
+        //New line of code to check if the user who left the VC is actually the bot.
+        //This is to compensate for Discord allowing users to forcibly disconnect other users.
+        if (event.getMember().equals(event.getGuild().getSelfMember())) {
+            closeConnection(event.getGuild());
+        }
+
         if (!event.getGuild().getAudioManager().isConnected() || !isMusic(event.getGuild()) || !event.getChannelLeft().equals(event.getGuild().getAudioManager().getConnectedChannel())) return;
         List<User> users = event.getChannelLeft().getMembers().stream().map(Member::getUser).filter(user -> !user.isBot()).collect(Collectors.toList());
         GuildMusicManager musicManager = musicManagers.get(Long.parseLong(event.getGuild().getId()));
         if (users.size() > 0) {
             if (getHost(event.getGuild()).equals(event.getMember().getUser())) {
-                if (!musicManager.waiting) musicManager.channel.sendMessage(LocaleUtils.getString("music.awaithost", KekBot.getGuildLocale(event.getGuild()))).queue(m -> {
+                if (!musicManager.waiting) event.getGuild().getTextChannelById(musicManager.channelID).sendMessage(LocaleUtils.getString("music.awaithost", KekBot.getGuildLocale(event.getGuild()))).queue(m -> {
                     musicManager.waiting = true;
                     KekBot.waiter.waitForEvent(GenericGuildVoiceEvent.class, event1 -> {
                                 VoiceChannel channelJoined = null;
@@ -768,7 +774,7 @@ public class MusicPlayer extends ListenerAdapter {
                 });
             }
         } else {
-            if (!musicManager.waiting) musicManager.channel.sendMessage(LocaleUtils.getString("music.awaituser", KekBot.getGuildLocale(event.getGuild()))).queue(m -> {
+            if (!musicManager.waiting) event.getGuild().getTextChannelById(musicManager.channelID).sendMessage(LocaleUtils.getString("music.awaituser", KekBot.getGuildLocale(event.getGuild()))).queue(m -> {
                 if (!musicManager.player.isPaused()) musicManager.player.setPaused(true);
                 musicManager.waiting = true;
                 KekBot.waiter.waitForEvent(GenericGuildVoiceEvent.class, event1 -> {
@@ -885,7 +891,7 @@ public class MusicPlayer extends ListenerAdapter {
             announceToMusicSession(event.getGuild(), message + " " + LocaleUtils.getString("music.moved.hostnotfound", KekBot.getGuildLocale(event.getGuild())) + "\n\n" +
                     LocaleUtils.getString("music.newhost", KekBot.getGuildLocale(event.getGuild()), newHost.getName()));
         } else {
-            musicManager.channel.sendMessage(LocaleUtils.getString("music.awaituser", KekBot.getGuildLocale(event.getGuild()))).queue(m -> {
+            event.getGuild().getTextChannelById(musicManager.channelID).sendMessage(LocaleUtils.getString("music.awaituser", KekBot.getGuildLocale(event.getGuild()))).queue(m -> {
                 if (!musicManager.player.isPaused()) musicManager.player.setPaused(true);
                 musicManager.waiting = true;
                 KekBot.waiter.waitForEvent(GenericGuildVoiceEvent.class, event1 -> {
