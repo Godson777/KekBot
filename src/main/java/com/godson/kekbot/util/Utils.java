@@ -299,10 +299,10 @@ public class Utils {
                 TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis));
         long seconds = TimeUnit.MILLISECONDS.toSeconds(millis) -
                 TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis));
-        return (days != 0 ? days + " " + LocaleUtils.getPluralString(days, "amount.time.days", locale) + ", " : "")
-                + (hours != 0 ? hours + " " + LocaleUtils.getPluralString(hours, "amount.time.hours", locale) + ", " : "") +
-                minutes + " " + LocaleUtils.getPluralString(minutes, "amount.time.minutes", locale) + " "
-                + seconds + " " + LocaleUtils.getPluralString(hours, "amount.time.seconds", locale) + "." ;
+        return (days != 0 ? days + " " + LocaleUtils.getPluralString(days, "amount.time.days", locale) + ", " : "") +
+                (hours != 0 ? hours + " " + LocaleUtils.getPluralString(hours, "amount.time.hours", locale) + ", " : "") +
+                minutes + " " + LocaleUtils.getPluralString(minutes, "amount.time.minutes", locale) + " " +
+                seconds + " " + LocaleUtils.getPluralString(seconds, "amount.time.seconds", locale) + "." ;
     }
 
     /**
