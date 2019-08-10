@@ -119,6 +119,9 @@ public class KekBot {
     }
 
     public static void main(String[] args) throws LoginException {
+        //Fuck you Linux, we're using UTF-8 whether you like it or not.
+        System.setProperty("file.encoding", "UTF-8");
+
         int mode = 0;
         for (String arg : args) {
             if (arg.equalsIgnoreCase("--beta")) mode = 1;
