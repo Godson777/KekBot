@@ -218,24 +218,6 @@ public class SettingsCommand extends Command {
                     settings.save();
                     event.getChannel().sendMessage(event.getString("settings.updates.success", wChannel.getAsMention())).queue();
                 }, "`reset`"));
-        if (Config.getConfig().usingTwitter()) {
-            settings.put("tweetfinish", new Setting("settings.tweetfinish.description", "settings.tweetfinish.noargs",
-                    (event, settings, state) -> {
-                        if (state.equalsIgnoreCase("on")) {
-                            settings.setTweetFinish(true).save();
-                            event.getChannel().sendMessage(event.getString("settings.tweetfinish.on")).queue();
-                            return;
-                        }
-
-                        if (state.equalsIgnoreCase("off")) {
-                            settings.setTweetFinish(false).save();
-                            event.getChannel().sendMessage(event.getString("settings.tweetfinish.off")).queue();
-                            return;
-                        }
-
-                        event.getChannel().sendMessage(event.getString("settings.antiad.invalid")).queue();
-                    }, "`on`", "`off`"));
-        }
     }
 
     @Override
@@ -266,9 +248,7 @@ public class SettingsCommand extends Command {
                                 "`welcomechannel` - " + (welcomeChannel == null ? event.getString("command.admin.settings.nochannel") : welcomeChannel.getAsMention()) + "\n" +
                                 "`welcomemessage` - " + (welcomeMessage == null ? event.getString("command.admin.settings.nomessage") : "`" + welcomeMessage + "`") + "\n" +
                                 "`farewellmessage` - " + (farewellMessage == null ? event.getString("command.admin.settings.nomessage") : "`" + farewellMessage + "`") + "\n" +
-                                "`antiad` - " + (settings.isAntiAdEnabled() ? event.getString("command.admin.settings.on") : event.getString("command.admin.settings.off")) + "\n" +
-                                (Config.getConfig().usingTwitter() ?
-                                        "`tweetfinish` - " + (settings.isTweetFinishEnabled() ? event.getString("command.admin.settings.on") : event.getString("command.admin.settings.off")) : ""))
+                                "`antiad` - " + (settings.isAntiAdEnabled() ? event.getString("command.admin.settings.on") : event.getString("command.admin.settings.off")))
                         .queue();
                 return;
             }

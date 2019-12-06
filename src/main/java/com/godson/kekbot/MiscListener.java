@@ -28,9 +28,6 @@ public class MiscListener extends ListenerAdapter {
     private Timer timer;
     public GameStatus gameStatus = new GameStatus();
 
-    private Twitter twitter;
-    private Pattern twitterPattern = Pattern.compile("twitter.com/\\w+/status/(\\d+)");
-
     @Override
     public void onReady(ReadyEvent event) {
         if (event.getJDA().getShardInfo().getShardId() == KekBot.shards-1) {
@@ -38,11 +35,6 @@ public class MiscListener extends ListenerAdapter {
             if (timer == null) {
                 timer = new Timer();
                 timer.schedule(gameStatus, 0, TimeUnit.MINUTES.toMillis(10));
-            }
-
-            //Get our local Twitter instance ready:
-            if (Config.getConfig().usingTwitter()) {
-                twitter = new TwitterFactory(KekBot.twitterConfig.build()).getInstance();
             }
 
             //Announce Ready
@@ -57,7 +49,6 @@ public class MiscListener extends ListenerAdapter {
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
         KekBot.chain.addDictionary(event.getMessage().getContentStripped());
         advertiseCheck(event.getMessage(), event.getGuild(), event.getMember(), event.getChannel());
-        if (twitter != null) twitterCheck(event);
     }
 
     private void advertiseCheck(Message message, Guild guild, Member member, TextChannel channel) {
@@ -75,41 +66,6 @@ public class MiscListener extends ListenerAdapter {
                 channel.sendMessage(LocaleUtils.getString("antiad.caught", KekBot.getGuildLocale(guild), message.getAuthor().getAsMention())).queue();
             }
         }
-    }
-
-    private void twitterCheck(GuildMessageReceivedEvent event) {
-        //Are we allowed to start?
-        if (!Settings.getSettings(event.getGuild()).isTweetFinishEnabled()) return;
-
-        //Get our matches.
-        List<String> links = findMatches(twitterPattern, event.getMessage().getContentRaw());
-        //Do we have any matches?
-        if (links.isEmpty()) return;
-
-        //Process the matches and post the remaining images in chat.
-        StringBuilder builder = new StringBuilder();
-        for (String link : links) {
-            try {
-                Status status = twitter.showStatus(Long.valueOf(link.substring(link.lastIndexOf("/") + 1)));
-                MediaEntity[] images = status.getMediaEntities();
-
-                //Do we have more than one image?
-                if (images.length < 2) return;
-
-                //Iterate through every image, and add them to the StringBuilder.
-                for (int i = 1; i < images.length; i++) {
-                    if (images[i].getType().equals("photo")) {
-                        builder.append("\n");
-                        builder.append(images[i].getMediaURLHttps());
-                    }
-                }
-            } catch (TwitterException e) {
-                e.printStackTrace();
-            }
-        }
-
-        //Finally, send the message.
-        event.getChannel().sendMessage(builder).queue();
     }
 
     private List<String> findMatches(Pattern pattern, String string) {
