@@ -5,6 +5,7 @@ import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.questionaire.QuestionType;
 import com.godson.kekbot.questionaire.Questionnaire;
+import com.godson.kekbot.responses.Action;
 import com.godson.kekbot.settings.Settings;
 import com.godson.kekbot.settings.Tag;
 import com.jagrosh.jdautilities.menu.Paginator;
@@ -35,6 +36,11 @@ public class TagCommand extends Command {
             Settings settings = Settings.getSettings(event.getGuild());
             switch (event.getArgs()[0].toLowerCase()) {
                 case "add":
+                    if (!event.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
+                        event.getChannel().sendMessage(KekBot.respond(Action.NOPERM_USER, event.getLocale(), "Manage Messages")).queue();
+                        return;
+                    }
+
                     if (event.getGuild().getSelfMember().hasPermission(event.getTextChannel(), Permission.MESSAGE_WRITE)) {
                         if (event.getArgs().length > 1) {
                             String[] invalidWords = {"add", "remove", "list", "info", "list"};
@@ -55,6 +61,11 @@ public class TagCommand extends Command {
                     }
                     break;
                 case "remove":
+                    if (!event.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
+                        event.getChannel().sendMessage(KekBot.respond(Action.NOPERM_USER, event.getLocale(), "Manage Messages")).queue();
+                        return;
+                    }
+
                     if (settings.getTags() == null || settings.getTags().hasNoTags())
                         event.getChannel().sendMessage(event.getString("command.general.tag.notags")).queue();
                     else {
@@ -76,6 +87,7 @@ public class TagCommand extends Command {
                         builder.setEventWaiter(KekBot.waiter);
                         builder.showPageNumbers(true);
                         builder.waitOnSinglePage(true);
+                        builder.wrapPageEnds(true);
                         builder.setColor(event.getMember().getColor());
                         builder.build().display(event.getChannel());
                     }
@@ -90,6 +102,11 @@ public class TagCommand extends Command {
                     }
                     break;
                 case "edit":
+                    if (!event.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
+                        event.getChannel().sendMessage(KekBot.respond(Action.NOPERM_USER, event.getLocale(), "Manage Messages")).queue();
+                        return;
+                    }
+
                     if (event.getArgs().length > 1) {
                         if (event.getArgs().length > 2)
                             editTag(settings, event, event.getArgs()[1], event.combineArgs(2));
@@ -157,11 +174,9 @@ public class TagCommand extends Command {
     private void removeTag(Settings settings, CommandEvent event, String name) {
         Optional<Tag> tag = settings.getTags().getTagByName(name);
         if (tag.isPresent()) {
-            if (tag.get().getCreatorID().equals(event.getAuthor().getId()) || event.getMember().hasPermission(event.getTextChannel(), Permission.ADMINISTRATOR)) {
-                settings.getTags().removeTag(tag.get());
-                settings.save();
-                event.getChannel().sendMessage(event.getString("command.general.tag.remove.success", "`" + name + "`")).queue();
-            } else event.getChannel().sendMessage(event.getString("command.general.tag.remove.noperms")).queue();
+            settings.getTags().removeTag(tag.get());
+            settings.save();
+            event.getChannel().sendMessage(event.getString("command.general.tag.remove.success", "`" + name + "`")).queue();
         } else event.getChannel().sendMessage(event.getString("command.general.tag.tagnotfound")).queue();
     }
 
@@ -185,8 +200,7 @@ public class TagCommand extends Command {
                 .execute(results -> {
                     Optional<Tag> tag = settings.getTags().getTagByName(results.getAnswer(0).toString());
                     if (tag.isPresent()) {
-                        if (tag.get().getCreatorID().equals(event.getAuthor().getId()) || event.getMember().hasPermission(event.getTextChannel(), Permission.ADMINISTRATOR)) editTagContents(settings, event, results.getAnswer(0).toString());
-                        else event.getChannel().sendMessage(event.getString("command.general.tag.edit.noperms")).queue();
+                        editTagContents(settings, event, results.getAnswer(0).toString());
                     } else event.getChannel().sendMessage(event.getString("command.general.tag.tagnotfound")).queue();
                 });
     }
@@ -202,10 +216,8 @@ public class TagCommand extends Command {
         SimpleDateFormat format = new SimpleDateFormat("EEEE, MMMM dd, hh:mma ('EST')");
         Optional<Tag> tag = settings.getTags().getTagByName(name);
         if (tag.isPresent()) {
-            if (tag.get().getCreatorID().equals(event.getAuthor().getId()) || event.getMember().hasPermission(event.getTextChannel(), Permission.ADMINISTRATOR)) {
-                settings.getTags().editTag(tag.get(), contents, format.format(edit));
-                settings.save();
-            } else event.getChannel().sendMessage(event.getString("command.general.tag.edit.noperms")).queue();
+            settings.getTags().editTag(tag.get(), contents, format.format(edit));
+            settings.save();
         } else event.getChannel().sendMessage(event.getString("command.general.tag.tagnotfound")).queue();
     }
 }
