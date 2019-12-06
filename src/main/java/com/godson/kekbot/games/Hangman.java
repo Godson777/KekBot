@@ -1,9 +1,9 @@
 package com.godson.kekbot.games;
 
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -53,7 +53,7 @@ public class Hangman extends Game {
         if (word.contains(" ")) for (int i = 0; i < board.length; i++) if (letters[i] == ' ') board[i] = ' ';
         turn = random.nextInt(players.size()) + 1;
         channel.sendTyping().queue();
-        channel.sendFile(drawBoard(), "hangman.png", new MessageBuilder().append("**").append(players.get(turn - 1).getName()).append(", you're first!**").build()).queue();
+        channel.sendFile(drawBoard(), "hangman.png").content("**" + players.get(turn - 1).getName() + ", you're first!**").queue();
     }
 
     @Override
@@ -231,7 +231,7 @@ public class Hangman extends Game {
 
     @Override
     public void acceptInputFromMessage(Message message) {
-        Message result = null;
+        String result = null;
         if (eliminatedPlayers.contains(message.getAuthor()) || turn != getPlayerNumber(message.getAuthor())) {
             return;
         }
@@ -245,8 +245,8 @@ public class Hangman extends Game {
                 }
                 if (!guessLetter(letter, getPlayerNumber(message.getAuthor()))) {
                     addPenalty();
-                    result = new MessageBuilder().append("There are no `").append(letter).append("`s in this word/phrase.").build();
-                } else result = new MessageBuilder().append("Looks like there are ").append(StringUtils.countMatches(word, letter)).append("`").append(letter).append("`s in this word/phrase.").build();
+                    result = "There are no `" + letter + "`s in this word/phrase.";
+                } else result = "Looks like there are " + StringUtils.countMatches(word, letter) + "`" + letter + "`s in this word/phrase.";
             } else {
                 channel.sendMessage("That isn't a letter.").queue();
                 return;
@@ -282,13 +282,13 @@ public class Hangman extends Game {
         }
         endTurn();
         channel.sendTyping().queue();
-        channel.sendFile(drawBoard(), "hangman.png", result).queue();
+        channel.sendFile(drawBoard(), "hangman.png").content(result).queue();
         channel.sendMessage(players.get(turn-1).getAsMention() + ", it's your turn!").queue();
     }
 
     private void endGame(String reason) {
         if (board != letters) board = letters;
-        channel.sendFile(drawBoard(), "hangman.png", new MessageBuilder().append(reason).build()).queue();
+        channel.sendFile(drawBoard(), "hangman.png").content(reason).queue();
         List<User> winners = new ArrayList<>(playerPoints.keySet());
         winners.sort(Comparator.comparingInt(playerPoints::get).reversed());
         winners = winners.subList(0, (winners.size() > 3 ? 2 : winners.size() - 1));

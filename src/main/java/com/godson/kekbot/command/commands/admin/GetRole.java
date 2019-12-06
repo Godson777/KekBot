@@ -7,8 +7,8 @@ import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.settings.Settings;
 import com.jagrosh.jdautilities.menu.Paginator;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Role;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -46,7 +46,7 @@ public class GetRole extends Command {
 
         if (role.equalsIgnoreCase("list")) {
             Paginator.Builder builder = new Paginator.Builder();
-            List<net.dv8tion.jda.core.entities.Role> roles = settings.getFreeRoles().stream().map(r -> event.getGuild().getRoleById(r)).collect(Collectors.toList());
+            List<Role> roles = settings.getFreeRoles().stream().map(r -> event.getGuild().getRoleById(r)).collect(Collectors.toList());
             roles.forEach(r -> builder.addItems(r.getName()));
             builder.setEventWaiter(KekBot.waiter);
             builder.setFinalAction(m -> m.clearReactions().queue());
@@ -75,12 +75,12 @@ public class GetRole extends Command {
         }
 
         if (event.getMember().getRoles().contains(check.get(0))) {
-            event.getGuild().getController().removeRolesFromMember(event.getMember(), check.get(0)).reason("getrole command").queue();
+            event.getGuild().removeRoleFromMember(event.getMember(), check.get(0)).reason("getrole command").queue();
             event.getChannel().sendMessage(LocaleUtils.getString("command.admin.getrole.roleremoved", event.getLocale(), "`" + role + "`")).queue();
             return;
         }
 
-        event.getGuild().getController().addRolesToMember(event.getMember(), check.get(0)).reason("getrole command").queue();
+        event.getGuild().addRoleToMember(event.getMember(), check.get(0)).reason("getrole command").queue();
         event.getChannel().sendMessage(LocaleUtils.getString("command.admin.getrole.roleadded", event.getLocale(), "`" + role + "`")).queue();
     }
 }

@@ -6,7 +6,7 @@ import com.godson.kekbot.menu.EmbedPaginator;
 import com.godson.kekbot.objects.UDictionary;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
-import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 public class UDCommand extends Command {
 

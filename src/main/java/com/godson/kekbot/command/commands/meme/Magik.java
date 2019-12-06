@@ -5,7 +5,7 @@ import com.godson.kekbot.KekBot;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandCategories;
 import com.godson.kekbot.command.CommandEvent;
-import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.api.entities.Message;
 import org.im4java.core.ConvertCmd;
 import org.im4java.core.IM4JavaException;
 import org.im4java.core.IMOperation;
@@ -19,6 +19,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.*;
+import java.util.concurrent.ExecutionException;
 
 public class Magik extends Command {
 
@@ -38,8 +39,8 @@ public class Magik extends Command {
             if (event.getMessage().getAttachments().get(0).isImage()) {
                 event.getChannel().sendMessage(event.getString("command.meme.magik.generating") + CustomEmote.load()).queue(m -> {
                     try {
-                        event.getChannel().sendFile(generate(event.getMessage().getAttachments().get(0).getInputStream()), "magik.png", null).queue(h -> m.delete().queue());
-                    } catch (IOException | InterruptedException | IM4JavaException e) {
+                        event.getChannel().sendFile(generate(event.getMessage().getAttachments().get(0).retrieveInputStream().get()), "magik.png").queue(h -> m.delete().queue());
+                    } catch (IOException | InterruptedException | IM4JavaException | ExecutionException e) {
                         throwException(e, event, "Image Generation Problem");
                     }
                 });
@@ -83,8 +84,8 @@ public class Magik extends Command {
 
                                 event.getChannel().sendMessage(event.getString("command.meme.magik.generating") + CustomEmote.load()).queue(m -> {
                                     try {
-                                    event.getChannel().sendFile(generate(message.getAttachments().get(0).getInputStream()), "magik.png", null).queue(h -> m.delete().queue());
-                                    } catch (IOException | InterruptedException | IM4JavaException e) {
+                                    event.getChannel().sendFile(generate(message.getAttachments().get(0).retrieveInputStream().get()), "magik.png").queue(h -> m.delete().queue());
+                                    } catch (IOException | InterruptedException | IM4JavaException | ExecutionException e) {
                                         throwException(e, event, "Image Generation Problem");
                                     }
                                 });

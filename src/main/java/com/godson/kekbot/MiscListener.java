@@ -4,14 +4,17 @@ import com.godson.kekbot.settings.Config;
 import com.godson.kekbot.settings.Settings;
 import com.godson.kekbot.util.LocaleUtils;
 import com.godson.kekbot.util.Utils;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.*;
-import net.dv8tion.jda.core.events.ReadyEvent;
-import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
-import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageUpdateEvent;
-import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.ReadyEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberLeaveEvent;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import twitter4j.*;
 
 import java.util.*;
@@ -142,7 +145,7 @@ public class MiscListener extends ListenerAdapter {
                     //Check if the role is lower than the bot's highest role in the hierarchy.
                     if (Utils.checkHierarchy(event.getGuild().getRoleById(settings.getAutoRoleID()), event.getGuild().getSelfMember())) {
                         //Finally, we give the role to the user.
-                        event.getGuild().getController().addRolesToMember(event.getMember(), event.getGuild().getRoleById(settings.getAutoRoleID())).reason("Auto-Role").queue();
+                        event.getGuild().addRoleToMember(event.getMember(), event.getGuild().getRoleById(settings.getAutoRoleID())).reason("Auto-Role").queue();
                     } else {
                         //We can't touch the role, so we'll turn off auto role.
                         settings.setAutoRoleID(null);

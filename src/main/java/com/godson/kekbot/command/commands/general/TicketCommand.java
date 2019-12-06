@@ -8,8 +8,9 @@ import com.godson.kekbot.menu.EmbedPaginator;
 import com.godson.kekbot.settings.Ticket;
 import com.godson.kekbot.settings.TicketManager;
 import com.jagrosh.jdautilities.menu.Paginator;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.User;
 import org.apache.commons.lang3.StringUtils;
 
 import java.awt.*;

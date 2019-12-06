@@ -6,8 +6,6 @@ import com.godson.kekbot.responses.Action;
 import com.godson.kekbot.settings.CustomCommand;
 import com.godson.kekbot.questionaire.QuestionType;
 import com.godson.kekbot.questionaire.Questionnaire;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.TextChannel;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.imageio.ImageIO;

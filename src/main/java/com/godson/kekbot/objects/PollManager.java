@@ -1,9 +1,9 @@
 package com.godson.kekbot.objects;
 
 import com.godson.kekbot.command.CommandEvent;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.MessageChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.User;
 
 import java.util.HashMap;
 import java.util.Map;

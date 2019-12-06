@@ -5,7 +5,7 @@ import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.responses.Action;
 import com.jagrosh.jdautilities.menu.Paginator;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.api.entities.TextChannel;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;

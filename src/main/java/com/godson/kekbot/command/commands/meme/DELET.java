@@ -6,8 +6,8 @@ import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandCategories;
 import com.godson.kekbot.command.CommandEvent;
 import me.duncte123.weebJava.types.NSFWMode;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Member;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -66,7 +66,7 @@ public class DELET extends Command {
             stream.flush();
             ImageIO.setUseCache(false);
             ImageIO.write(bg, "png", stream);
-            event.getChannel().sendFile(stream.toByteArray(), "delet.png", null).queue();
+            event.getChannel().sendFile(stream.toByteArray(), "delet.png").queue();
             stream.close();
         } catch (IOException e) {
             throwException(e, event, "Image generation problem.");

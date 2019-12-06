@@ -54,7 +54,7 @@ public class DSXSays extends Command {
                 byte[] finished = stream.toByteArray();
                 stream.close();
 
-                event.getChannel().sendFile(finished, "dsxsays.png", null).queue();
+                event.getChannel().sendFile(finished, "dsxsays.png").queue();
             } catch (IOException e) {
                 throwException(e, event, "Image Generation Problem");
             }

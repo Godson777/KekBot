@@ -3,8 +3,6 @@ package com.godson.kekbot.command.commands.weeb;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
 import me.duncte123.weebJava.models.WeebApi;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.MessageBuilder;
 
 import java.io.File;
 import java.util.Random;

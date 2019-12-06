@@ -12,9 +12,9 @@ import com.godson.kekbot.questionaire.Questionnaire;
 import com.godson.kekbot.settings.Settings;
 import com.jagrosh.jdautilities.menu.Paginator;
 import com.jagrosh.jdautilities.menu.SelectionDialog;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.Role;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;

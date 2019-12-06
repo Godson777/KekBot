@@ -5,7 +5,7 @@ import com.godson.kekbot.command.CommandCategories;
 import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.command.ImageCommand;
 import com.godson.kekbot.util.Utils;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.entities.User;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

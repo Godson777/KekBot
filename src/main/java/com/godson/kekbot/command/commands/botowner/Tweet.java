@@ -6,7 +6,7 @@ import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.questionaire.QuestionType;
 import com.godson.kekbot.questionaire.Questionnaire;
 import com.godson.kekbot.responses.Action;
-import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.api.entities.Message;
 import twitter4j.StatusUpdate;
 
 import java.io.IOException;
@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.TimeZone;
+import java.util.concurrent.ExecutionException;
 
 public class Tweet extends Command {
 
@@ -24,7 +25,7 @@ public class Tweet extends Command {
     }
 
     @Override
-    public void onExecuted(CommandEvent event) throws IOException {
+    public void onExecuted(CommandEvent event) throws IOException, ExecutionException, InterruptedException {
         //If there aren't any arguments.
         if (event.getArgs().length < 1) {
             event.getChannel().sendMessage("Not enough args.").queue();
@@ -47,7 +48,7 @@ public class Tweet extends Command {
         if (event.getMessage().getAttachments().size() > 0) {
             if (event.getMessage().getAttachments().get(0).isImage()) {
                 Message.Attachment attachment = event.getMessage().getAttachments().get(0);
-                status.setMedia(attachment.getFileName(), attachment.getInputStream());
+                status.setMedia(attachment.getFileName(), attachment.retrieveInputStream().get());
             }
         }
 
@@ -56,7 +57,7 @@ public class Tweet extends Command {
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE, MMM dd, 'at' hh:mma").withZone(ZoneId.systemDefault());
 
-        String time = estimate.atOffset(event.getMessage().getCreationTime().getOffset()).format(formatter);
+        String time = estimate.atOffset(event.getMessage().getTimeCreated().getOffset()).format(formatter);
 
         if (KekBot.twitterManager.isOverriden(estimate.minusSeconds(10))) {
             event.getChannel().sendMessage("There is already a tweet scheduled for this time. (" + time + ")").queue();

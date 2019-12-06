@@ -22,7 +22,7 @@ public class Ping extends Command {
 
     @Override
     public void onExecuted(CommandEvent event) throws Throwable {
-        event.getChannel().sendMessage("Pinging... ").queue(m -> m.editMessage("\uD83C\uDFD3 Pong! `" + event.getMessage().getCreationTime().until(m.getCreationTime(), ChronoUnit.MILLIS)+ "ms`" +
-                "\n\uD83D\uDC93 Heartbeat: `" + event.getJDA().getPing() + "ms`").queue());
+        event.getChannel().sendMessage("Pinging... ").queue(m -> m.editMessage("\uD83C\uDFD3 Pong! `" + event.getMessage().getTimeCreated().until(m.getTimeCreated(), ChronoUnit.MILLIS)+ "ms`" +
+                "\n\uD83D\uDC93 Heartbeat: `" + event.getJDA().getGatewayPing() + "ms`").queue());
     }
 }

@@ -5,8 +5,8 @@ import com.godson.kekbot.util.Utils;
 import com.google.gson.Gson;
 import com.rethinkdb.model.MapObject;
 import com.rethinkdb.net.Cursor;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.User;
 
 import java.awt.*;
 import java.time.Instant;

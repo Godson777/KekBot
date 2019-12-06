@@ -8,10 +8,9 @@ import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.music.Playlist;
 import com.godson.kekbot.profile.Profile;
 import com.godson.kekbot.responses.Action;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
 
 import java.util.Arrays;
 import java.util.List;

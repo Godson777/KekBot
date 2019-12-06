@@ -4,9 +4,9 @@ import com.godson.kekbot.KekBot;
 import com.godson.kekbot.util.LocaleUtils;
 import com.godson.kekbot.profile.Profile;
 import com.godson.kekbot.profile.item.Token;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

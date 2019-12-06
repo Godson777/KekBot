@@ -1,8 +1,8 @@
 package com.godson.kekbot.settings;
 
 import com.google.gson.annotations.SerializedName;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.User;
 
 import java.text.SimpleDateFormat;
 import java.time.OffsetDateTime;

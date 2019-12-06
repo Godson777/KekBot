@@ -7,7 +7,7 @@ import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandClient;
 import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.responses.Action;
-import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.api.Permission;
 
 import java.util.ArrayList;
 import java.util.List;

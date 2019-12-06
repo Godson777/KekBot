@@ -5,7 +5,7 @@ import com.godson.discoin4j.exceptions.*;
 import com.godson.kekbot.CustomEmote;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.profile.Profile;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.entities.User;
 
 import java.io.IOException;
 import java.util.List;

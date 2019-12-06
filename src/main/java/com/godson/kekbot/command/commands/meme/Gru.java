@@ -48,7 +48,7 @@ public class Gru extends Command {
             if (event.getMessage().getAttachments().get(0).isImage()) {
                 try {
                     event.getChannel().sendTyping().queue();
-                    event.getChannel().sendFile(generate(ImageIO.read(event.getMessage().getAttachments().get(0).getInputStream()), hyper, egg),  filename + ".png", null).queue();
+                    event.getChannel().sendFile(generate(ImageIO.read(event.getMessage().getAttachments().get(0).retrieveInputStream().get()), hyper, egg),  filename + ".png").queue();
                 } catch (IOException e) {
                     throwException(e, event, "Image Generation Problem");
                 }

@@ -1,6 +1,6 @@
 package com.godson.kekbot.command;
 
-import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.api.entities.Message;
 
 import javax.imageio.ImageIO;
 import javax.net.ssl.SSLHandshakeException;
@@ -8,6 +8,7 @@ import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.*;
+import java.util.concurrent.ExecutionException;
 
 public abstract class ImageCommand extends Command {
 
@@ -19,8 +20,8 @@ public abstract class ImageCommand extends Command {
             if (event.getMessage().getAttachments().get(0).isImage()) {
                 try {
                     event.getChannel().sendTyping().queue();
-                    event.getChannel().sendFile(generate(ImageIO.read(event.getMessage().getAttachments().get(0).getInputStream())),  filename + ".png", null).queue();
-                } catch (IOException e) {
+                    event.getChannel().sendFile(generate(ImageIO.read(event.getMessage().getAttachments().get(0).retrieveInputStream().get())),  filename + ".png").queue();
+                } catch (IOException | InterruptedException | ExecutionException e) {
                     throwException(e, event, "Image Generation Problem");
                 }
             } else event.getChannel().sendMessage(event.getString("command.textimage.imagenotvalid")).queue();
@@ -38,7 +39,7 @@ public abstract class ImageCommand extends Command {
                         return;
                     }
 
-                    event.getChannel().sendFile(generate(check), filename + ".png", null).queue();
+                    event.getChannel().sendFile(generate(check), filename + ".png").queue();
                 } catch (MalformedURLException | UnknownHostException | IllegalArgumentException | FileNotFoundException e) {
                     event.getChannel().sendMessage(event.getString("command.textimage.invalidurl", "`" + event.getArgs()[0] + "`")).queue();
                 } catch (SSLHandshakeException | SocketException e) {
@@ -56,9 +57,9 @@ public abstract class ImageCommand extends Command {
                         if (message.getAttachments().get(0).isImage()) {
                             try {
                                 event.getChannel().sendTyping().queue();
-                                event.getChannel().sendFile(generate(ImageIO.read(message.getAttachments().get(0).getInputStream())), filename + ".png", null).queue();
+                                event.getChannel().sendFile(generate(ImageIO.read(message.getAttachments().get(0).retrieveInputStream().get())), filename + ".png").queue();
                                 return;
-                            } catch (IOException e) {
+                            } catch (IOException | InterruptedException | ExecutionException e) {
                                 throwException(e, event, "Image Generation Problem");
                             }
                         }
