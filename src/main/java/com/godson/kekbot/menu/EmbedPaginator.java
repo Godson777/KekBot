@@ -24,6 +24,7 @@ public class EmbedPaginator extends Menu {
     private final Consumer<Message> finalAction;
     private final boolean showPageNumbers;
     private final boolean waitOnSinglePage;
+    private final boolean wrapPageEnds;
     private final int pages;
     private final List<MessageEmbed> embeds;
 
@@ -32,7 +33,7 @@ public class EmbedPaginator extends Menu {
     public static final String RIGHT = "\u25B6";
 
 
-    protected EmbedPaginator(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit, Color color, Consumer<Message> finalAction, boolean showPageNumbers, boolean waitOnSinglePage, List<MessageEmbed> embeds) {
+    protected EmbedPaginator(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit, Color color, Consumer<Message> finalAction, boolean showPageNumbers, boolean waitOnSinglePage, boolean wrapPageEnds, List<MessageEmbed> embeds) {
         super(waiter, users, roles, timeout, unit);
         this.color = color;
         this.finalAction = finalAction;
@@ -40,6 +41,7 @@ public class EmbedPaginator extends Menu {
         this.waitOnSinglePage = waitOnSinglePage;
         this.embeds = embeds;
         this.pages = embeds.size();
+        this.wrapPageEnds = wrapPageEnds;
     }
 
     @Override
@@ -98,9 +100,17 @@ public class EmbedPaginator extends Menu {
             int newPageNum = pageNum;
             switch(event.getReactionEmote().getName())
             {
-                case LEFT:  if(newPageNum>1) newPageNum--; break;
-                case RIGHT: if(newPageNum<pages) newPageNum++; break;
-                case STOP: finalAction.accept(message); return;
+                case LEFT:
+                    if (pageNum==1 && this.wrapPageEnds) newPageNum = this.pages + 1;
+                    if(newPageNum>1) newPageNum--;
+                    break;
+                case RIGHT:
+                    if (pageNum == this.pages && this.wrapPageEnds) newPageNum = 0;
+                    if(newPageNum<pages) newPageNum++;
+                    break;
+                case STOP:
+                    finalAction.accept(message);
+                    return;
             }
             try { event.getReaction().removeReaction(event.getUser()).queue(); } catch(PermissionException ignored) {}
             int n = newPageNum;
@@ -134,6 +144,7 @@ public class EmbedPaginator extends Menu {
         private Consumer<Message> finalAction = m -> m.delete().queue();
         private boolean showPageNumbers = true;
         private boolean waitOnSinglePage = true;
+        private boolean wrapPageEnds = false;
 
         private final List<MessageEmbed> embeds = new LinkedList<>();
 
@@ -142,11 +153,16 @@ public class EmbedPaginator extends Menu {
         public EmbedPaginator build() {
             if (waiter == null) throw new IllegalArgumentException("Must set an EventWaiter.");
             if (embeds.isEmpty()) throw new IllegalArgumentException("Must include at least one item to paginate.");
-            return new EmbedPaginator(waiter, users, roles, timeout, unit, color, finalAction, showPageNumbers, waitOnSinglePage, embeds);
+            return new EmbedPaginator(waiter, users, roles, timeout, unit, color, finalAction, showPageNumbers, waitOnSinglePage, wrapPageEnds, embeds);
         }
 
         public Builder setColor(Color color) {
             this.color = color;
+            return this;
+        }
+
+        public Builder wrapPageEnds(boolean wrapPageEnds) {
+            this.wrapPageEnds = wrapPageEnds;
             return this;
         }
 

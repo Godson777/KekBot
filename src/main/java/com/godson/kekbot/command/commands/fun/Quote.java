@@ -105,6 +105,7 @@ public class Quote extends Command {
                                 .waitOnSinglePage(true)
                                 .showPageNumbers(true)
                                 .useNumberedItems(true)
+                                .wrapPageEnds(true)
                                 .setTimeout(5, TimeUnit.MINUTES)
                                 .setUsers(event.getAuthor());
 

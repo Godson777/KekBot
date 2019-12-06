@@ -43,6 +43,7 @@ public class Help extends Command {
         builder.setFinalAction(m -> m.clearReactions().queue());
         builder.waitOnSinglePage(true);
         builder.showPageNumbers(true);
+        builder.wrapPageEnds(true);
 
         categories.forEach(c -> {
             if (c.getName().equalsIgnoreCase("bot owner") && !event.isBotOwner()) return;
