@@ -24,6 +24,6 @@ public class Gril extends Command {
         boolean reboot = (Arrays.stream(event.getArgs()).anyMatch(s -> s.equalsIgnoreCase("--reboot")));
 
         event.getChannel().sendTyping().queue();
-        event.getChannel().sendFile(new File(reboot ? "resources/memegen/topless_grill-reboot.png" : "resources/memegen/topless_grill.png"), "topless_gril.png", null).queue();
+        event.getChannel().sendFile(new File(reboot ? "resources/memegen/topless_grill-reboot.png" : "resources/memegen/topless_grill.png"), "topless_gril.png").queue();
     }
 }

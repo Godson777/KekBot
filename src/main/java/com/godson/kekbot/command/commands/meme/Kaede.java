@@ -60,17 +60,17 @@ public class Kaede extends Command {
                     BufferedImage check = ImageIO.read(connection.getInputStream());
                     if (check == null) {
                         try {
-                            event.getChannel().sendFile(generate(event.combineArgs().replace("--reboot", ""), reboot), filename + ".png", null).queue();
+                            event.getChannel().sendFile(generate(event.combineArgs().replace("--reboot", ""), reboot), filename + ".png").queue();
                         } catch (IllegalArgumentException e) {
                             event.getChannel().sendMessage(event.getString("command.textimage.texttoolong")).queue();
                         }
                         return;
                     }
 
-                    event.getChannel().sendFile(generate(check, reboot), filename + ".png", null).queue();
+                    event.getChannel().sendFile(generate(check, reboot), filename + ".png").queue();
                 } catch (MalformedURLException | UnknownHostException | IllegalArgumentException | FileNotFoundException e) {
                     try {
-                        event.getChannel().sendFile(generate(event.combineArgs().replace("--reboot", ""), reboot), filename + ".png", null).queue();
+                        event.getChannel().sendFile(generate(event.combineArgs().replace("--reboot", ""), reboot), filename + ".png").queue();
                     } catch (IllegalArgumentException e1) {
                         event.getChannel().sendMessage(event.getString("command.textimage.texttoolong")).queue();
                     }
@@ -78,7 +78,7 @@ public class Kaede extends Command {
                     event.getChannel().sendMessage(event.getString("command.textimage.unabletoconnect")).queue();
                 } catch (IOException e) {
                     try {
-                        event.getChannel().sendFile(generate(event.combineArgs().replace("--reboot", ""), reboot), filename + ".png", null).queue();
+                        event.getChannel().sendFile(generate(event.combineArgs().replace("--reboot", ""), reboot), filename + ".png").queue();
                     } catch (IllegalArgumentException e1) {
                         event.getChannel().sendMessage(event.getString("command.textimage.texttoolong")).queue();
                     }

@@ -61,7 +61,7 @@ public class Magik extends Command {
 
                     event.getChannel().sendMessage(event.getString("command.meme.magik.generating") + CustomEmote.load()).queue(m -> {
                         try {
-                            event.getChannel().sendFile(generate(check), "magik.png", null).queue(h -> m.delete().queue());
+                            event.getChannel().sendFile(generate(check), "magik.png").queue(h -> m.delete().queue());
                         } catch (IOException | InterruptedException | IM4JavaException e) {
                             throwException(e, event, "Image Generation Problem");
                         }

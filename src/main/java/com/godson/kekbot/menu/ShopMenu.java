@@ -63,7 +63,7 @@ public class ShopMenu extends Menu {
             pageNum = 1;
         else if (pageNum > pages)
             pageNum = pages;
-        initialize(channel.sendFile(images.get(pageNum-1), "shop.png", null), pageNum);
+        initialize(channel.sendFile(images.get(pageNum-1), "shop.png"), pageNum);
     }
 
     private void paginate(Message message, int pageNum) {
@@ -71,7 +71,7 @@ public class ShopMenu extends Menu {
             pageNum = 1;
         else if (pageNum > pages)
             pageNum = pages;
-        initialize(message.getChannel().sendFile(images.get(pageNum-1), "shop.png", null), pageNum);
+        initialize(message.getChannel().sendFile(images.get(pageNum-1), "shop.png"), pageNum);
         message.delete().queue();
     }
 

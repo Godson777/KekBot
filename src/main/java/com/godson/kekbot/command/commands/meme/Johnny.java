@@ -50,7 +50,7 @@ public class Johnny extends Command {
             stream.flush();
             ImageIO.setUseCache(false);
             ImageIO.write(bg, "png", stream);
-            event.getChannel().sendFile(stream.toByteArray(), "jahnny.png", null).queue();
+            event.getChannel().sendFile(stream.toByteArray(), "jahnny.png").queue();
             stream.close();
         } catch (IOException e) {
             throwException(e, event, "Image generation problem.");

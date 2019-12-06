@@ -22,6 +22,6 @@ public class Lean extends Command {
         Random random = new Random();
         int index = random.nextInt(leans.length);
         event.getChannel().sendTyping().queue();
-        event.getChannel().sendFile(leans[index], leans[index].getName(), null).queue();
+        event.getChannel().sendFile(leans[index], leans[index].getName()).queue();
     }
 }

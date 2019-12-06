@@ -67,7 +67,7 @@ public class GayBabyJail extends Command {
             stream.flush();
             ImageIO.setUseCache(false);
             ImageIO.write(template, "png", stream);
-            event.getChannel().sendFile(stream.toByteArray(), "gbj.png", null).queue();
+            event.getChannel().sendFile(stream.toByteArray(), "gbj.png").queue();
             stream.close();
         } catch (IOException e) {
             throwException(e, event, "Image generation problem.");
