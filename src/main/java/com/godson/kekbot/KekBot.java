@@ -49,7 +49,6 @@ import twitter4j.conf.ConfigurationBuilder;
 
 import javax.imageio.ImageIO;
 import javax.security.auth.login.LoginException;
-import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -276,7 +275,6 @@ public class KekBot {
         client.addCommand(new EightBall());
         client.addCommand(new FullWidth());
         client.addCommand(new Balance());
-        client.addCommand(new Lenny());
         client.addCommand(new LotteryCommand());
         client.addCommand(new GameCommand());
         client.addCommand(new RateWaifu());
@@ -313,7 +311,7 @@ public class KekBot {
             client.addCommand(new OwO(weebApi));
             client.addCommand(new Sleepy(weebApi));
             client.addCommand(new Smug(weebApi));
-            client.addCommand(new SRS(weebApi));
+            client.addCommand(new Stare(weebApi));
             client.addCommand(new ThumbsUp(weebApi));
             client.addCommand(new Wag(weebApi));
             client.addCommand(new Dab(weebApi));
