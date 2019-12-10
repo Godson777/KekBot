@@ -88,6 +88,7 @@ public class ProfileCommand extends Command {
 
                             PagedSelectionMenu.Builder tokenView = new PagedSelectionMenu.Builder();
 
+                            tokenView.wrapPageEnds(true);
                             tokenView.setEventWaiter(KekBot.waiter);
                             tokenView.addChoices(tokens.stream().map(token -> token.getName() + (profile.getToken() != null && profile.getToken() == token ? " **" + event.getString("command.fun.profile.equipped") + "**" : "")).collect(Collectors.toList()).toArray(new String[tokens.size()]));
                             tokenView.setItemsPerPage(5);
@@ -118,6 +119,7 @@ public class ProfileCommand extends Command {
 
                             PagedSelectionMenu.Builder backgroundView = new PagedSelectionMenu.Builder();
 
+                            backgroundView.wrapPageEnds(true);
                             backgroundView.setEventWaiter(KekBot.waiter);
                             backgroundView.addChoices(backgrounds.stream().map(background -> background.getName() + (profile.getCurrentBackground() != null && profile.getCurrentBackground() == background ? " **" + event.getString("command.fun.profile.equipped") + "**" : "")).collect(Collectors.toList()).toArray(new String[backgrounds.size()]));
                             backgroundView.setItemsPerPage(5);

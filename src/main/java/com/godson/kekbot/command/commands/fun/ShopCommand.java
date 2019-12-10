@@ -63,6 +63,7 @@ public class ShopCommand extends Command {
                     ShopMenu.Builder tokenShop = new ShopMenu.Builder();
 
                     tokenShop.setEventWaiter(KekBot.waiter);
+                    tokenShop.wrapPageEnds(true);
 
                     //Make sure only the user calling the command can mess with this menu.
                     tokenShop.setUsers(event.getAuthor());
@@ -134,6 +135,7 @@ public class ShopCommand extends Command {
                     //Background Shop
                     ShopMenu.Builder backgroundShop = new ShopMenu.Builder();
                     backgroundShop.setEventWaiter(KekBot.waiter);
+                    backgroundShop.wrapPageEnds(true);
 
                     //Make sure only the user calling the command can mess with this menu.
                     backgroundShop.setUsers(event.getAuthor());

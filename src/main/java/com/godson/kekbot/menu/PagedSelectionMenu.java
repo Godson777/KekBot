@@ -31,6 +31,7 @@ public class PagedSelectionMenu extends Menu {
     private final Consumer<Message> finalAction;
     private final int pages;
     private final boolean showPageNumbers;
+    private final boolean wrapPageEnds;
     private final List<String> choices;
     private final int numberOfItems;
     private final int itemsPerPage;
@@ -46,7 +47,7 @@ public class PagedSelectionMenu extends Menu {
 
 
     protected PagedSelectionMenu(EventWaiter waiter, Set<User> users, Set<Role> roles, BiFunction<Integer, Integer, String> text, long timeout, TimeUnit unit, Consumer<Message> finalAction,
-                                 List<String> choices, int itemsPerPage, BiConsumer<Message, Integer> selectionAction, Color color, boolean showPageNumbers) {
+                                 List<String> choices, int itemsPerPage, BiConsumer<Message, Integer> selectionAction, Color color, boolean showPageNumbers, boolean wrapPageEnds) {
         super(waiter, users, roles, timeout, unit);
         this.finalAction = finalAction;
         this.choices = choices;
@@ -57,6 +58,7 @@ public class PagedSelectionMenu extends Menu {
         this.selectionAction = selectionAction;
         this.color = color;
         this.showPageNumbers = showPageNumbers;
+        this.wrapPageEnds = wrapPageEnds;
     }
 
     @Override
@@ -137,10 +139,12 @@ public class PagedSelectionMenu extends Menu {
             int newPageNum = pageNum;
             switch (event.getReactionEmote().getName()) {
                 case LEFT:
-                    if (newPageNum > 1) newPageNum--;
+                    if (pageNum==1 && this.wrapPageEnds) newPageNum = this.pages + 1;
+                    if(newPageNum>1) newPageNum--;
                     break;
                 case RIGHT:
-                    if (newPageNum < pages) newPageNum++;
+                    if (pageNum == this.pages && this.wrapPageEnds) newPageNum = 0;
+                    if(newPageNum<pages) newPageNum++;
                     break;
                 case CHOOSE:
                     initializeSelection(message, pageNum);
@@ -229,6 +233,7 @@ public class PagedSelectionMenu extends Menu {
         private Color color;
         private BiFunction<Integer, Integer, String> text = (page, pages) -> "";
         private boolean showPageNumbers;
+        private boolean wrapPageEnds;
 
         private final List<String> choices = new LinkedList<>();
 
@@ -239,7 +244,7 @@ public class PagedSelectionMenu extends Menu {
             Checks.check(this.itemsPerPage <= 10, "Must have no more than ten choices per page.");
             Checks.check(this.selectionAction != null, "Must provide an selection consumer.");
             Checks.check(!this.choices.isEmpty(), "Must include at least one item to paginate.");
-            return new PagedSelectionMenu(waiter, users, roles, text, timeout, unit, finalAction, choices, itemsPerPage, selectionAction, color, showPageNumbers);
+            return new PagedSelectionMenu(waiter, users, roles, text, timeout, unit, finalAction, choices, itemsPerPage, selectionAction, color, showPageNumbers, wrapPageEnds);
         }
 
         public PagedSelectionMenu.Builder setSelectionAction(BiConsumer<Message, Integer> selectionAction) {
@@ -269,6 +274,11 @@ public class PagedSelectionMenu extends Menu {
 
         public PagedSelectionMenu.Builder showPageNumbers(boolean show) {
             showPageNumbers = show;
+            return this;
+        }
+
+        public PagedSelectionMenu.Builder wrapPageEnds(boolean wrapPageEnds) {
+            this.wrapPageEnds = wrapPageEnds;
             return this;
         }
 
