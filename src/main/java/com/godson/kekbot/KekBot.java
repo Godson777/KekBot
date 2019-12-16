@@ -328,7 +328,6 @@ public class KekBot {
         client.addCommand(new GoogleSearch());
         client.addCommand(new LMGTFY());
         client.addCommand(new Changelog());
-        client.addCommand(new Credits());
         client.addCommand(new Invite());
         client.addCommand(new TicketCommand());
         client.addCommand(new TagCommand());
