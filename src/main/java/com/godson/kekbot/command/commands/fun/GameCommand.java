@@ -34,7 +34,8 @@ public class GameCommand extends Command {
                 "\nTic-Tac-Toe (or \"ttt\" for short.)" +
                 "\nSnail Race (or \"sr\" for short.)" +
                 "\nHangman" +
-                "\nTrivia";
+                "\nTrivia" +
+                "\nRussian Roulette (or \"rr\" for short.)";
         exDescPos = ExtendedPosition.AFTER;
         category = new Category("Fun");
     }
