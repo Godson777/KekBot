@@ -21,6 +21,7 @@ public abstract class Game {
     private boolean isReady = false;
     private boolean reachedMinimum = false;
     boolean isTranslatable = true;
+    boolean canQuit = true;
     private boolean betsEnabled;
     public List<User> players = new ArrayList<>();
     private List<Integer> winnerIDs = new ArrayList<>();
@@ -230,6 +231,10 @@ public abstract class Game {
 
     public boolean isReady() {
         return isReady;
+    }
+
+    public boolean canQuit() {
+        return canQuit;
     }
 
     public void ready() {

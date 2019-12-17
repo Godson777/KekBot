@@ -115,6 +115,11 @@ public class GameCommand extends Command {
                         Game game = KekBot.gamesManager.getGame(channel);
                         if (game.isReady()) {
                             if (game.players.contains(event.getAuthor())) {
+                                if (!game.canQuit()) {
+                                    event.getChannel().sendMessage("You're not allowed to quit this game!").queue();
+                                    return;
+                                }
+
                                 Profile profile = Profile.getProfile(event.getAuthor());
                                 profile.spendTopKeks(ThreadLocalRandom.current().nextInt(1, 15));
                                 profile.takeKXP(ThreadLocalRandom.current().nextInt(5, 20));
