@@ -21,7 +21,7 @@ public class TicketManager {
 
     public static void addTicket(Ticket ticket) {
         User user = KekBot.jda.getUserById(ticket.getAuthorID());
-        KekBot.getCommandClient().getTicketChannel().sendMessage("New ticket made by: **" + user.getName() + "** (ID: **" + user.getId() + "**)").queue();
+        KekBot.getCommandClient().getTicketChannel().sendMessage("New ticket made by: **" + user.getName() + "** (Ticket ID: **" + ticket.getID() + "**)").queue();
         while (KekBot.r.table("Tickets").get(ticket.getID()).run(KekBot.conn) != null) {
             ticket.resetID();
         }
