@@ -5,8 +5,10 @@ import com.godson.discoin4j.exceptions.*;
 import com.godson.kekbot.CustomEmote;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.profile.Profile;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -16,30 +18,33 @@ import java.util.concurrent.TimeUnit;
 
 public class DiscoinManager {
     private ScheduledExecutorService service = Executors.newScheduledThreadPool(5);
+    String url = "https://dash.discoin.zws.im/#/";
     private Runnable completeTransactions = () -> {
         try {
-            List<Discoin4J.PendingTransaction> transactions = KekBot.discoin.getPendingTransactions();
-            for (Discoin4J.PendingTransaction transaction : transactions) {
+            List<Discoin4J.Transaction> transactions = KekBot.discoin.getPendingTransactions("KEK");
+            for (Discoin4J.Transaction transaction : transactions) {
                 try {
-                    User user = KekBot.jda.getUserById(transaction.getUserID());
+                    User user = KekBot.jda.getUserById(transaction.getUser());
                     Profile profile = Profile.getProfile(user);
-                    if (transaction.getType() != null)
-                        user.openPrivateChannel().queue(c -> c.sendMessage("One of your transactions from Discoin could not be completed entirely. Your " + CustomEmote.printPrice(transaction.getAmount()) + " have been returned. (Transaction ID: " + transaction.getReceipt() + ")").queue());
-                    else
-                        user.openPrivateChannel().queue(c -> c.sendMessage("Woohoo! You just got paid " + CustomEmote.printPrice(transaction.getAmount()) + " from Discoin! (Transaction ID: " + transaction.getReceipt() + ")").queue());
-                    profile.addTopKeks(transaction.getAmount());
+                    KekBot.discoin.handleTransaction(transaction);
+                    user.openPrivateChannel().queue(c -> {
+                        EmbedBuilder builder = new EmbedBuilder();
+                        builder.setColor(Color.GREEN);
+                        builder.setTitle("Discoin Transaction Recieved!");
+                        builder.addField("Amount", transaction.getAmount() + " " + transaction.getFrom().getId() + " -> " + transaction.getPayout() + CustomEmote.printTopKek(), false);
+                        builder.addField("Transaction ID", "[" + transaction.getId() + "](" + url + "transactions/" + transaction.getId() + ")", false);
+                        c.sendMessage(builder.build()).queue();
+                    });
+                    //user.openPrivateChannel().queue(c -> c.sendMessage("Woohoo! You just got paid " + CustomEmote.printPrice(transaction.getPayout()) + " from Discoin! (Transaction ID: " + transaction.getId() + ")").queue());
+                    profile.addTopKeks(transaction.getPayout());
                     profile.save();
-
                 } catch (NullPointerException e) {
-                    //Since the user wasn't found, we're just going to keep going.
-                    try {
-                        KekBot.discoin.reverseTransaction(transaction.getReceipt());
-                    } catch (TransactionNotFoundException ignored) {
-                        //This is nearly impossible to be thrown.
-                    }
+                    //Since the user wasn't found, we're just going to make a reverse transaction that way the user gets their money back.
+                    KekBot.discoin.handleTransaction(transaction);
+                    KekBot.discoin.makeTransaction(transaction.getUser(), transaction.getPayout(), transaction.getFrom().getId());
                 }
             }
-        } catch (IOException | UnknownErrorException | RejectedException | DiscoinErrorException | UnauthorizedException e) {
+        } catch (IOException | UnauthorizedException | GenericErrorException e) {
             e.printStackTrace();
         }
     };

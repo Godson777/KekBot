@@ -195,6 +195,16 @@ public class Questionnaire {
                                 return;
                             }
                             break;
+                        case DOUBLE:
+                            try {
+                                answers.add(Double.valueOf(message));
+                            } catch (NumberFormatException e1) {
+                                if (skipOnRepeat) skipQuestionMessage = true;
+                                errorMessage.queue();
+                                execute(i);
+                                return;
+                            }
+                            break;
                         case CHOICE_STRING:
                             Optional<String> choice = choices.get(question).stream().filter(c -> c.equalsIgnoreCase(((GuildMessageReceivedEvent) e).getMessage().getContentDisplay())).findFirst();
                             if (!choice.isPresent()) {
