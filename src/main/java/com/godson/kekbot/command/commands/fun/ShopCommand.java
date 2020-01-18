@@ -44,7 +44,7 @@ public class ShopCommand extends Command {
     }
 
     @Override
-    public void onExecuted(CommandEvent event) {
+    public void onExecuted(CommandEvent event) throws Throwable {
         OrderedMenu.Builder builder = new OrderedMenu.Builder();
         builder.addChoices("Tokens","Backgrounds");
         if (Config.getConfig().getDcoinToken() != null) builder.addChoices("Convert Topkeks");
@@ -253,7 +253,7 @@ public class ShopCommand extends Command {
                             });
                             discoinBuilder.build().display(event.getChannel());
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            throwException(e, event);
                         } catch (UnauthorizedException e) {
                             event.getChannel().sendMessage(unauthorized).queue();
                         } catch (GenericErrorException e) {
