@@ -78,7 +78,6 @@
             <groupId>com.sedmelluq</groupId>
             <artifactId>lavaplayer</artifactId>
             <version>1.3.33</version>
-            <type>pom</type>
         </dependency>
 
         <dependency>
