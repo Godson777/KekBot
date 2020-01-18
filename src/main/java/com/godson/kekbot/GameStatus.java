@@ -1,6 +1,6 @@
 package com.godson.kekbot;
 
-import net.dv8tion.jda.core.entities.Game;
+import net.dv8tion.jda.api.entities.Activity;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -30,7 +30,7 @@ public class GameStatus extends TimerTask {
     public void run() {
         Random random = new Random();
         int index = random.nextInt(games.size());
-        KekBot.jda.getShards().forEach(jda -> jda.getPresence().setGame(Game.playing(games.get(index))));
+        KekBot.jda.getShards().forEach(jda -> jda.getPresence().setActivity(Activity.playing(games.get(index))));
         System.out.println("Playing: " + games.get(index));
     }
 

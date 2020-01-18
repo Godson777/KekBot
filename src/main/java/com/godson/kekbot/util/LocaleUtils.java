@@ -1,6 +1,6 @@
 package com.godson.kekbot.util;
 
-import net.dv8tion.jda.core.utils.tuple.Pair;
+import net.dv8tion.jda.internal.utils.tuple.Pair;
 
 import java.io.UnsupportedEncodingException;
 import java.util.*;

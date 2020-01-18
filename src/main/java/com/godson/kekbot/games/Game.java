@@ -4,9 +4,9 @@ import com.godson.kekbot.CustomEmote;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.util.LocaleUtils;
 import com.godson.kekbot.profile.Profile;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,6 +21,7 @@ public abstract class Game {
     private boolean isReady = false;
     private boolean reachedMinimum = false;
     boolean isTranslatable = true;
+    boolean canQuit = true;
     private boolean betsEnabled;
     public List<User> players = new ArrayList<>();
     private List<Integer> winnerIDs = new ArrayList<>();
@@ -230,6 +231,10 @@ public abstract class Game {
 
     public boolean isReady() {
         return isReady;
+    }
+
+    public boolean canQuit() {
+        return canQuit;
     }
 
     public void ready() {

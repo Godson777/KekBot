@@ -2,13 +2,12 @@ package com.godson.kekbot.command;
 
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.responses.Action;
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.ChannelType;
-import net.dv8tion.jda.core.entities.VoiceChannel;
-import net.dv8tion.jda.core.utils.PermissionUtil;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.internal.utils.PermissionUtil;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
@@ -215,7 +214,7 @@ public abstract class Command {
         String s = KekBot.respond(Action.EXCEPTION_THROWN, event.getLocale()) + endl + endl + "Description: " + description + endl + "Command: " + this.name + endl + endl + ExceptionUtils.getStackTrace(t);
         try {
             byte[] b = s.getBytes("UTF-8");
-            event.getChannel().sendFile(b, "traceback.txt", new MessageBuilder("An error has occurred! This should be reported to the dev right away! Use the `" + event.getPrefix() + "ticket` command to do so, don't forget to show this file, too.").build()).queue();
+            event.getChannel().sendFile(b, "traceback.txt").content("An error has occurred! This should be reported to the dev right away! Use the `" + event.getPrefix() + "ticket` command to do so, don't forget to show this file, too.").queue();
         } catch (UnsupportedEncodingException e1) {
             e1.printStackTrace();
         }

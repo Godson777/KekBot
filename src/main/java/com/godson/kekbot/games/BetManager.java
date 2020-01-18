@@ -4,7 +4,7 @@ import com.godson.kekbot.CustomEmote;
 import com.godson.kekbot.util.LocaleUtils;
 import com.godson.kekbot.profile.Profile;
 import javafx.util.Pair;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.entities.User;
 
 import java.util.HashMap;
 import java.util.List;

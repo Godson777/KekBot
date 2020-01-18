@@ -20,7 +20,7 @@ public class Strawpoll extends Command {
         name = "strawpoll";
         aliases = new String[]{"spoll"};
         description = "Creates a poll in Strawpoll for you.";
-        usage.add("strawpoll <Title of Poll> | <option>");
+        usage.add("strawpoll <Title of Poll> | <option> | <option> | {option...}");
         extendedDescription = "Use the | symbol to separate options, you can have up to 30 different options.";
         exDescPos = ExtendedPosition.AFTER;
         category = new Category("General");

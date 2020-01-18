@@ -1,14 +1,13 @@
 package com.godson.kekbot.command.commands.fun;
 
 import com.godson.discoin4j.Discoin4J;
-import com.godson.discoin4j.exceptions.DiscoinErrorException;
-import com.godson.discoin4j.exceptions.RejectedException;
+import com.godson.discoin4j.exceptions.GenericErrorException;
 import com.godson.discoin4j.exceptions.UnauthorizedException;
-import com.godson.discoin4j.exceptions.UnknownErrorException;
 import com.godson.kekbot.CustomEmote;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
+import com.godson.kekbot.menu.PagedSelectionMenu;
 import com.godson.kekbot.menu.ShopMenu;
 import com.godson.kekbot.profile.item.Background;
 import com.godson.kekbot.profile.Profile;
@@ -18,8 +17,15 @@ import com.godson.kekbot.questionaire.Questionnaire;
 import com.godson.kekbot.settings.Config;
 import com.jagrosh.jdautilities.menu.ButtonMenu;
 import com.jagrosh.jdautilities.menu.OrderedMenu;
+import net.dv8tion.jda.api.EmbedBuilder;
+import org.apache.commons.math3.util.Precision;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ShopCommand extends Command {
 
@@ -63,6 +69,7 @@ public class ShopCommand extends Command {
                     ShopMenu.Builder tokenShop = new ShopMenu.Builder();
 
                     tokenShop.setEventWaiter(KekBot.waiter);
+                    tokenShop.wrapPageEnds(true);
 
                     //Make sure only the user calling the command can mess with this menu.
                     tokenShop.setUsers(event.getAuthor());
@@ -134,6 +141,7 @@ public class ShopCommand extends Command {
                     //Background Shop
                     ShopMenu.Builder backgroundShop = new ShopMenu.Builder();
                     backgroundShop.setEventWaiter(KekBot.waiter);
+                    backgroundShop.wrapPageEnds(true);
 
                     //Make sure only the user calling the command can mess with this menu.
                     backgroundShop.setUsers(event.getAuthor());
@@ -201,60 +209,56 @@ public class ShopCommand extends Command {
                     backgroundShop.build().display(event.getChannel());
                     break;
                 case 3:
-                    String url = "https://discoin.sidetrip.xyz";
+                    String url = "https://dash.discoin.zws.im/#/";
                     String unauthorized = "An error has occurred. This likely is because the bot owner screwed up somewhere...\n\nTranaction Canceled.";
                     if (Config.getConfig().getDcoinToken() != null) {
-                        Questionnaire.newQuestionnaire(event)
-                                .addQuestion("Welcome to the Discoin Association's currency converter! You can convert all of your topkeks to currencies from other bots here!\n\nType the currency you want to convert to. (For the list of currencies, and their conversion rates, use the following link: " + url + "/rates" + ")\nYou can say `cancel` at any time to back out.", QuestionType.STRING)
-                                .execute(results -> {
-                                    String to = results.getAnswer(0).toString();
-                                    if (to.length() == 3) {
-                                        Questionnaire.newQuestionnaire(results)
-                                                .addQuestion("How many topkeks do you want to convert?", QuestionType.INT)
-                                                .execute(results1 -> {
-                                                    int amount = (int) results1.getAnswer(0);
-                                                    Profile profile = Profile.getProfile(event.getAuthor());
-                                                    if (!profile.canSpend(amount)) {
-                                                        event.getChannel().sendMessage("You don't have that many topkeks.\n\nTransaction Canceled.").queue();
-                                                        return;
-                                                    }
-                                                    try {
-                                                        Discoin4J.Confirmation confirmation = KekBot.discoin.makeTransaction(event.getAuthor().getId(), amount, to);
-                                                        profile.spendTopKeks(amount);
-                                                        profile.save();
-                                                        event.getChannel().sendMessage("Done! You should be receiving `" + confirmation.getResultAmount() + "` in the currency you selected shortly." +
-                                                                "\nYour reciept ID is: `" + confirmation.getReceiptCode() + "`." +
-                                                                "\nToday's remaining Discoin limit for currency `" + to + "`: " + confirmation.getLimitNow()).queue();
-                                                    } catch (IOException e) {
-                                                        e.printStackTrace();
-                                                    } catch (RejectedException e) {
-                                                        switch (e.getStatus().getReason()) {
-                                                            case "verify required":
-                                                                event.getChannel().sendMessage("Hm, you're not verified on Discoin. You'll need to verify yourself before you can convert topkeks. You can do so here: " + url + "/verify\n\nTranaction Canceled.").queue();
-                                                                break;
-                                                            case "per-user limit exceeded":
-                                                                event.getChannel().sendMessage("You've already converted the maximum amount of coins for today! Try again tomorrow.\n\nTranaction Canceled.").queue();
-                                                                break;
-                                                            case "total limit exceeded":
-                                                                event.getChannel().sendMessage("Woah, this feature's been used so much, I've already transferred " + e.getStatus().getLimit() + " Discoins! I can't transfer anymore today! Check back tomorrow.\n\nTranaction Canceled.").queue();
-                                                                break;
-                                                            default:
-                                                                e.printStackTrace();
-                                                                break;
-                                                        }
-                                                    } catch (DiscoinErrorException e) {
-                                                        event.getChannel().sendMessage("Hm, that doesn't seem like a valid currency.\n\nTranaction Canceled.").queue();
-                                                    } catch (UnauthorizedException e) {
-                                                        event.getChannel().sendMessage(unauthorized).queue();
-                                                    } catch (UnknownErrorException e) {
-                                                        event.getChannel().sendMessage("Yikes! I've found an error that shouldn't exist! Report this to the bot owner with the `ticket` command right away! `" + e.getMessage() + "`").queue();
-                                                    }
-                                                });
-                                    } else {
-                                        event.getChannel().sendMessage("That's too " + (to.length() < 3 ? "short" : "long") + ", currency IDs are 3 characters long. Try again.").queue();
-                                        results.reExecuteWithoutMessage();
-                                    }
-                                });
+                        try {
+                            PagedSelectionMenu.Builder discoinBuilder = new PagedSelectionMenu.Builder();
+                            discoinBuilder.setEventWaiter(KekBot.waiter);
+                            List<Discoin4J.Currency> currencies = KekBot.discoin.getCurrencies();
+                            double kekValue = currencies.stream().filter(c -> c.getId().equals("KEK")).findFirst().get().getValue();
+                            discoinBuilder.addChoices(currencies.stream().filter(c -> !c.getId().equals("KEK")).sorted(Comparator.comparing(Discoin4J.Currency::getId)).map(currency -> currency.getId() + " - " + currency.getName() + " - 1 " + CustomEmote.printTopKek() + " = " + Precision.round(kekValue / currency.getValue(), 2)).toArray(String[]::new));
+                            discoinBuilder.wrapPageEnds(true);
+                            discoinBuilder.setItemsPerPage(10);
+                            discoinBuilder.setText("Welcome to the Discoin Association's currency converter! You can convert your topkeks to another bot's currency, and vice versa!\n\nSelect the currency you wish to convert to.");
+                            discoinBuilder.addUsers(event.getAuthor());
+                            discoinBuilder.setSelectionAction((me, currency) -> {
+                                Questionnaire.newQuestionnaire(event)
+                                        .addQuestion("How many topkeks do you want to convert?", QuestionType.DOUBLE)
+                                        .includeCancel(true)
+                                        .execute(results -> {
+                                            double amount = results.getAnswerAsType(0, double.class);
+                                            Profile profile = Profile.getProfile(event.getAuthor());
+                                            if (!profile.canSpend(amount)) {
+                                                event.getChannel().sendMessage("You don't have that many topkeks.\n\nTransaction Canceled.").queue();
+                                                return;
+                                            }
+                                            try {
+                                                Discoin4J.Transaction transaction = KekBot.discoin.makeTransaction(event.getAuthor().getId(), amount, currencies.stream().filter(c -> !c.getId().equals("KEK")).sorted(Comparator.comparing(Discoin4J.Currency::getId)).collect(Collectors.toList()).get(currency - 1).getId());
+                                                profile.spendTopKeks(amount);
+                                                profile.save();
+                                                EmbedBuilder embedBuilder = new EmbedBuilder();
+                                                embedBuilder.setDescription("Done! You should be receiving `" + transaction.getId() + "` in the currency you selected shortly." +
+                                                        "\n[You can check your receipt by clicking on me!](" + url + "transactions/" + transaction.getId() + ")");
+                                                event.getChannel().sendMessage(embedBuilder.build()).queue();
+                                            } catch (IOException e) {
+                                                e.printStackTrace();
+                                            } catch (UnauthorizedException e) {
+                                                event.getChannel().sendMessage(unauthorized).queue();
+                                            } catch (GenericErrorException e) {
+                                                event.getChannel().sendMessage("Yikes! I've found an error that shouldn't exist! Report this to the bot owner with the `ticket` command right away! `" + e.getMessage() + "`").queue();
+                                                throwException(e, event);
+                                            }
+                                        });
+                            });
+                            discoinBuilder.build().display(event.getChannel());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (UnauthorizedException e) {
+                            event.getChannel().sendMessage(unauthorized).queue();
+                        } catch (GenericErrorException e) {
+                            event.getChannel().sendMessage("Yikes! I've found an error that shouldn't exist! Report this to the bot owner with the `ticket` command right away! `" + e.getMessage() + "`").queue();
+                        }
                     }
                     break;
             }

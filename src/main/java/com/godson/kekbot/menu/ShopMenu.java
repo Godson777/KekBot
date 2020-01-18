@@ -2,12 +2,14 @@ package com.godson.kekbot.menu;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.menu.Menu;
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.*;
-import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent;
-import net.dv8tion.jda.core.exceptions.PermissionException;
-import net.dv8tion.jda.core.requests.RestAction;
-import net.dv8tion.jda.core.utils.Checks;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.exceptions.PermissionException;
+import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.internal.utils.Checks;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -25,6 +27,7 @@ public class ShopMenu extends Menu {
     private final int numberOfItems;
     private final int itemsPerPage;
     private final BiConsumer<Message, Integer> selectionAction;
+    private final boolean wrapPageEnds;
 
     public static final String LEFT = "\u25C0";
     public static final String CANCEL = "❌";
@@ -36,7 +39,7 @@ public class ShopMenu extends Menu {
 
 
     protected ShopMenu(EventWaiter waiter, Set<User> users, Set<Role> roles, long timeout, TimeUnit unit, Consumer<Message> finalAction,
-                       List<byte[]> images, int numberOfItems, int itemsPerPage, BiConsumer<Message, Integer> selectionAction) {
+                       List<byte[]> images, int numberOfItems, int itemsPerPage, BiConsumer<Message, Integer> selectionAction, boolean wrapPageEnds) {
         super(waiter, users, roles, timeout, unit);
         this.finalAction = finalAction;
         this.pages = images.size();
@@ -44,6 +47,7 @@ public class ShopMenu extends Menu {
         this.numberOfItems = numberOfItems;
         this.itemsPerPage = itemsPerPage;
         this.selectionAction = selectionAction;
+        this.wrapPageEnds = wrapPageEnds;
     }
 
     @Override
@@ -61,7 +65,7 @@ public class ShopMenu extends Menu {
             pageNum = 1;
         else if (pageNum > pages)
             pageNum = pages;
-        initialize(channel.sendFile(images.get(pageNum-1), "shop.png", null), pageNum);
+        initialize(channel.sendFile(images.get(pageNum-1), "shop.png"), pageNum);
     }
 
     private void paginate(Message message, int pageNum) {
@@ -69,7 +73,7 @@ public class ShopMenu extends Menu {
             pageNum = 1;
         else if (pageNum > pages)
             pageNum = pages;
-        initialize(message.getChannel().sendFile(images.get(pageNum-1), "shop.png", null), pageNum);
+        initialize(message.getChannel().sendFile(images.get(pageNum-1), "shop.png"), pageNum);
         message.delete().queue();
     }
 
@@ -96,10 +100,12 @@ public class ShopMenu extends Menu {
             int newPageNum = pageNum;
             switch (event.getReactionEmote().getName()) {
                 case LEFT:
-                    if (newPageNum > 1) newPageNum--;
+                    if (pageNum==1 && this.wrapPageEnds) newPageNum = this.pages + 1;
+                    if(newPageNum>1) newPageNum--;
                     break;
                 case RIGHT:
-                    if (newPageNum < pages) newPageNum++;
+                    if (pageNum == this.pages && this.wrapPageEnds) newPageNum = 0;
+                    if(newPageNum<pages) newPageNum++;
                     break;
                 case CHOOSE:
                     initializeSelection(message, pageNum);
@@ -187,6 +193,7 @@ public class ShopMenu extends Menu {
         private int numberOfItems;
         private int itemsPerPage;
         private BiConsumer<Message, Integer> selectionAction;
+        private boolean wrapPageEnds;
 
         private final List<byte[]> images = new LinkedList<>();
 
@@ -198,7 +205,7 @@ public class ShopMenu extends Menu {
             Checks.check(this.itemsPerPage <= 10, "Must have no more than ten choices per page.");
             Checks.check(this.selectionAction != null, "Must provide an selection consumer.");
             Checks.check(!this.images.isEmpty(), "Must include at least one item to paginate.");
-            return new ShopMenu(waiter, users, roles, timeout, unit, finalAction, images, numberOfItems, itemsPerPage, selectionAction);
+            return new ShopMenu(waiter, users, roles, timeout, unit, finalAction, images, numberOfItems, itemsPerPage, selectionAction, wrapPageEnds);
         }
 
         public ShopMenu.Builder setSelectionAction(BiConsumer<Message, Integer> selectionAction) {
@@ -224,6 +231,11 @@ public class ShopMenu extends Menu {
         public ShopMenu.Builder setImages(List<byte[]> images) {
             this.images.clear();
             this.images.addAll(images);
+            return this;
+        }
+
+        public ShopMenu.Builder wrapPageEnds(boolean wrapPageEnds) {
+            this.wrapPageEnds = wrapPageEnds;
             return this;
         }
 

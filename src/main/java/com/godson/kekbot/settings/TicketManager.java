@@ -5,8 +5,8 @@ import com.godson.kekbot.util.Utils;
 import com.google.gson.Gson;
 import com.rethinkdb.model.MapObject;
 import com.rethinkdb.net.Cursor;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.User;
 
 import java.awt.*;
 import java.time.Instant;
@@ -21,7 +21,7 @@ public class TicketManager {
 
     public static void addTicket(Ticket ticket) {
         User user = KekBot.jda.getUserById(ticket.getAuthorID());
-        KekBot.getCommandClient().getTicketChannel().sendMessage("New ticket made by: **" + user.getName() + "** (ID: **" + user.getId() + "**)").queue();
+        KekBot.getCommandClient().getTicketChannel().sendMessage("New ticket made by: **" + user.getName() + "** (Ticket ID: **" + ticket.getID() + "**)").queue();
         while (KekBot.r.table("Tickets").get(ticket.getID()).run(KekBot.conn) != null) {
             ticket.resetID();
         }

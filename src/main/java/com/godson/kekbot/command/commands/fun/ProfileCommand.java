@@ -12,10 +12,9 @@ import com.godson.kekbot.questionaire.Questionnaire;
 import com.godson.kekbot.responses.Action;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.requests.RestAction;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.requests.RestAction;
 
 import java.io.IOException;
 import java.util.List;
@@ -37,7 +36,7 @@ public class ProfileCommand extends Command {
         if (event.getArgs().length == 0) {
             try {
                 event.getChannel().sendTyping().queue();
-                event.getChannel().sendFile(Profile.getProfile(event.getAuthor()).drawCard(), "profile.png", null).queue();
+                event.getChannel().sendFile(Profile.getProfile(event.getAuthor()).drawCard(), "profile.png").queue();
             } catch (IOException e) {
                 throwException(e, event, "Profile Image Generation Problem.");
             }
@@ -89,6 +88,7 @@ public class ProfileCommand extends Command {
 
                             PagedSelectionMenu.Builder tokenView = new PagedSelectionMenu.Builder();
 
+                            tokenView.wrapPageEnds(true);
                             tokenView.setEventWaiter(KekBot.waiter);
                             tokenView.addChoices(tokens.stream().map(token -> token.getName() + (profile.getToken() != null && profile.getToken() == token ? " **" + event.getString("command.fun.profile.equipped") + "**" : "")).collect(Collectors.toList()).toArray(new String[tokens.size()]));
                             tokenView.setItemsPerPage(5);
@@ -119,6 +119,7 @@ public class ProfileCommand extends Command {
 
                             PagedSelectionMenu.Builder backgroundView = new PagedSelectionMenu.Builder();
 
+                            backgroundView.wrapPageEnds(true);
                             backgroundView.setEventWaiter(KekBot.waiter);
                             backgroundView.addChoices(backgrounds.stream().map(background -> background.getName() + (profile.getCurrentBackground() != null && profile.getCurrentBackground() == background ? " **" + event.getString("command.fun.profile.equipped") + "**" : "")).collect(Collectors.toList()).toArray(new String[backgrounds.size()]));
                             backgroundView.setItemsPerPage(5);
@@ -155,7 +156,7 @@ public class ProfileCommand extends Command {
                                         return;
                                     }
 
-                                    event.getChannel().sendFile(Profile.getProfile(user).drawCard(), "profile.png", new MessageBuilder().append("Here is " + user.getName() + "#" + user.getDiscriminator() + "'s profile card.").build()).queue();
+                                    event.getChannel().sendFile(Profile.getProfile(user).drawCard(), "profile.png").content("Here is " + user.getName() + "#" + user.getDiscriminator() + "'s profile card.").queue();
                                 } catch (IOException e) {
                                     e.printStackTrace();
                                 }
@@ -518,7 +519,7 @@ public class ProfileCommand extends Command {
                     event.getChannel().sendTyping().queue();
                     User user = event.getMentionedUsers().get(0);
                     Profile profile = Profile.getProfile(user);
-                    event.getChannel().sendFile(profile.drawCard(), "profile.png", new MessageBuilder().append(event.getString("command.fun.profile.otheruser", user.getName())).build()).queue();
+                    event.getChannel().sendFile(profile.drawCard(), "profile.png").content(event.getString("command.fun.profile.otheruser", user.getName())).queue();
                 } catch (IOException e) {
                     throwException(e, event, "Profile Image Generation Problem.");
                 }

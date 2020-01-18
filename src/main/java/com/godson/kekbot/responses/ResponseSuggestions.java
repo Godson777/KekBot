@@ -2,7 +2,7 @@ package com.godson.kekbot.responses;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.entities.User;
 
 import java.io.File;
 import java.io.FileWriter;

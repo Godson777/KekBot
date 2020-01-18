@@ -2,9 +2,9 @@ package com.godson.kekbot.games;
 
 import com.godson.kekbot.CustomEmote;
 import com.godson.kekbot.util.Utils;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 
 import java.util.*;
 import java.util.concurrent.*;

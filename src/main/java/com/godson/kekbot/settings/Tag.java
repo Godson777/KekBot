@@ -1,6 +1,7 @@
 package com.godson.kekbot.settings;
 
-import net.dv8tion.jda.core.entities.User;
+
+import net.dv8tion.jda.api.entities.User;
 
 public class Tag {
     private String name;

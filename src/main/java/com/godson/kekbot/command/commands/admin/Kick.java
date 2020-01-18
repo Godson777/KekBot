@@ -6,9 +6,10 @@ import com.godson.kekbot.util.Utils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.responses.Action;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.*;
-import net.dv8tion.jda.core.exceptions.PermissionException;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.exceptions.PermissionException;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -47,7 +48,7 @@ public class Kick extends Command {
                 }
 
                 try {
-                    event.getGuild().getController().kick(event.getGuild().getMember(event.getMentionedUsers().get(0))).reason("Kicked by: " + event.getAuthor().getName() + "#" + event.getAuthor().getDiscriminator() + " (" + event.getAuthor().getId() + ")").queue();
+                    event.getGuild().kick(event.getGuild().getMember(event.getMentionedUsers().get(0))).reason("Kicked by: " + event.getAuthor().getName() + "#" + event.getAuthor().getDiscriminator() + " (" + event.getAuthor().getId() + ")").queue();
                     event.getChannel().sendMessage(KekBot.respond(Action.KICK_SUCCESS, event.getLocale(), "`" + event.getMentionedUsers().get(0).getName() + "`")).queue();
                 } catch (PermissionException e) {
                     event.getChannel().sendMessage(LocaleUtils.getString("command.admin.kick.hierarchyboterror", event.getLocale())).queue();
@@ -64,7 +65,7 @@ public class Kick extends Command {
                         failed.add(event.getMentionedUsers().get(i).getName());
                     } else {
                         try {
-                            event.getGuild().getController().kick(member).reason("Mass Kicked by: " + event.getAuthor().getName() + "#" + event.getAuthor().getDiscriminator() + " (" + event.getAuthor().getId() + ")").queue();
+                            event.getGuild().kick(member).reason("Mass Kicked by: " + event.getAuthor().getName() + "#" + event.getAuthor().getDiscriminator() + " (" + event.getAuthor().getId() + ")").queue();
                             users.add(user.getName());
                         } catch (PermissionException e) {
                             failed.add(user.getName());

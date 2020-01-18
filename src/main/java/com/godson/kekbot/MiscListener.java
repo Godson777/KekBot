@@ -4,14 +4,17 @@ import com.godson.kekbot.settings.Config;
 import com.godson.kekbot.settings.Settings;
 import com.godson.kekbot.util.LocaleUtils;
 import com.godson.kekbot.util.Utils;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.*;
-import net.dv8tion.jda.core.events.ReadyEvent;
-import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
-import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageUpdateEvent;
-import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.ReadyEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberLeaveEvent;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import twitter4j.*;
 
 import java.util.*;
@@ -25,9 +28,6 @@ public class MiscListener extends ListenerAdapter {
     private Timer timer;
     public GameStatus gameStatus = new GameStatus();
 
-    private Twitter twitter;
-    private Pattern twitterPattern = Pattern.compile("twitter.com/\\w+/status/(\\d+)");
-
     @Override
     public void onReady(ReadyEvent event) {
         if (event.getJDA().getShardInfo().getShardId() == KekBot.shards-1) {
@@ -35,11 +35,6 @@ public class MiscListener extends ListenerAdapter {
             if (timer == null) {
                 timer = new Timer();
                 timer.schedule(gameStatus, 0, TimeUnit.MINUTES.toMillis(10));
-            }
-
-            //Get our local Twitter instance ready:
-            if (Config.getConfig().usingTwitter()) {
-                twitter = new TwitterFactory(KekBot.twitterConfig.build()).getInstance();
             }
 
             //Announce Ready
@@ -54,7 +49,6 @@ public class MiscListener extends ListenerAdapter {
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
         KekBot.chain.addDictionary(event.getMessage().getContentStripped());
         advertiseCheck(event.getMessage(), event.getGuild(), event.getMember(), event.getChannel());
-        if (twitter != null) twitterCheck(event);
     }
 
     private void advertiseCheck(Message message, Guild guild, Member member, TextChannel channel) {
@@ -72,41 +66,6 @@ public class MiscListener extends ListenerAdapter {
                 channel.sendMessage(LocaleUtils.getString("antiad.caught", KekBot.getGuildLocale(guild), message.getAuthor().getAsMention())).queue();
             }
         }
-    }
-
-    private void twitterCheck(GuildMessageReceivedEvent event) {
-        //Are we allowed to start?
-        if (!Settings.getSettings(event.getGuild()).isTweetFinishEnabled()) return;
-
-        //Get our matches.
-        List<String> links = findMatches(twitterPattern, event.getMessage().getContentRaw());
-        //Do we have any matches?
-        if (links.isEmpty()) return;
-
-        //Process the matches and post the remaining images in chat.
-        StringBuilder builder = new StringBuilder();
-        for (String link : links) {
-            try {
-                Status status = twitter.showStatus(Long.valueOf(link.substring(link.lastIndexOf("/") + 1)));
-                MediaEntity[] images = status.getMediaEntities();
-
-                //Do we have more than one image?
-                if (images.length < 2) return;
-
-                //Iterate through every image, and add them to the StringBuilder.
-                for (int i = 1; i < images.length; i++) {
-                    if (images[i].getType().equals("photo")) {
-                        builder.append("\n");
-                        builder.append(images[i].getMediaURLHttps());
-                    }
-                }
-            } catch (TwitterException e) {
-                e.printStackTrace();
-            }
-        }
-
-        //Finally, send the message.
-        event.getChannel().sendMessage(builder).queue();
     }
 
     private List<String> findMatches(Pattern pattern, String string) {
@@ -142,7 +101,7 @@ public class MiscListener extends ListenerAdapter {
                     //Check if the role is lower than the bot's highest role in the hierarchy.
                     if (Utils.checkHierarchy(event.getGuild().getRoleById(settings.getAutoRoleID()), event.getGuild().getSelfMember())) {
                         //Finally, we give the role to the user.
-                        event.getGuild().getController().addRolesToMember(event.getMember(), event.getGuild().getRoleById(settings.getAutoRoleID())).reason("Auto-Role").queue();
+                        event.getGuild().addRoleToMember(event.getMember(), event.getGuild().getRoleById(settings.getAutoRoleID())).reason("Auto-Role").queue();
                     } else {
                         //We can't touch the role, so we'll turn off auto role.
                         settings.setAutoRoleID(null);

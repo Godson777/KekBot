@@ -10,9 +10,8 @@ import com.godson.kekbot.profile.item.Token;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import com.rethinkdb.model.MapObject;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.utils.AttachmentOption;
 import org.apache.commons.lang3.SystemUtils;
 
 import javax.imageio.ImageIO;
@@ -164,7 +163,7 @@ public class Profile {
 
     /**
      * Draws the user's card.
-     * @return The byte array of the card. This is mostly meant to be used with {@link TextChannel#sendFile(File, String, Message) TextChannel#sendFile}.
+     * @return The byte array of the card. This is mostly meant to be used with {@link net.dv8tion.jda.api.entities.TextChannel#sendFile(File, String, AttachmentOption...)}  TextChannel#sendFile}.
      * @throws IOException If for some reason, the files are missing, this exception is thrown.
      */
     public byte[] drawCard() throws IOException {
@@ -234,7 +233,7 @@ public class Profile {
     /**
      * Draws a copy of a user's profile card, but with a different background applied.
      * @param background The background to apply to this card.
-     * @return The byte array of the card. This is mostly meant to be used with {@link TextChannel#sendFile(File, String, Message) TextChannel#sendFile}.
+     * @return The byte array of the card. This is mostly meant to be used with {@link net.dv8tion.jda.api.entities.TextChannel#sendFile(File, String, AttachmentOption...)}  TextChannel#sendFile}.
      * @throws IOException If for some reason, the files are missing, this exception is thrown.
      */
     public byte[] previewBackground(Background background) throws IOException {

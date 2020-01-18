@@ -24,6 +24,6 @@ public class JustRight extends Command {
         Random random = new Random();
         int index = random.nextInt(justRights.length);
         event.getChannel().sendTyping().queue();
-        event.getChannel().sendFile(justRights[index], justRights[index].getName(), null).queue();
+        event.getChannel().sendFile(justRights[index], justRights[index].getName()).queue();
     }
 }

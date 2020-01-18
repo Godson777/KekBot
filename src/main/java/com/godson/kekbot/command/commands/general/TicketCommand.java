@@ -8,12 +8,14 @@ import com.godson.kekbot.menu.EmbedPaginator;
 import com.godson.kekbot.settings.Ticket;
 import com.godson.kekbot.settings.TicketManager;
 import com.jagrosh.jdautilities.menu.Paginator;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.User;
 import org.apache.commons.lang3.StringUtils;
 
 import java.awt.*;
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,12 +43,13 @@ public class TicketCommand extends Command {
                     List<Ticket> tickets = TicketManager.getTickets();
                     if (tickets.size() > 0) {
                         Paginator.Builder builder = new Paginator.Builder();
-                        List<String> list = TicketManager.getTickets().stream().map(ticket -> ticket.getID() + " - " + "\"" + (ticket.getTitle().length() >= 24 ? ticket.getTitle().substring(0, 25) + "..." : ticket.getTitle()) + "\"" + StringUtils.repeat(" ", 30-(ticket.getTitle().length() >= 20 ? 28 : ticket.getTitle().length())) + "**" + ticket.getStatus().getName() + "**").collect(Collectors.toList());
+                        List<String> list = TicketManager.getTickets().stream().sorted(Comparator.comparing(Ticket::getTimeCreated)).map(ticket -> ticket.getID() + " - " + "\"" + (ticket.getTitle().length() >= 24 ? ticket.getTitle().substring(0, 25) + "..." : ticket.getTitle()) + "\"" + StringUtils.repeat(" ", 30-(ticket.getTitle().length() >= 20 ? 28 : ticket.getTitle().length())) + "-" + (KekBot.jda.getUserById(ticket.getAuthorID()) == null ? "Unknown Author" : KekBot.jda.getUserById(ticket.getAuthorID()).getName()) + "- **" + ticket.getStatus().getName() + "**").collect(Collectors.toList());
                         builder.addItems(list.toArray(new String[list.size()]));
                         builder.setEventWaiter(KekBot.waiter);
                         builder.addUsers(event.getAuthor());
                         builder.setText("List of Tickets:");
                         builder.waitOnSinglePage(true);
+                        builder.setFinalAction(null);
                         builder.setItemsPerPage(10);
                         builder.build().display(event.getChannel());
                     } else {
@@ -125,6 +128,7 @@ public class TicketCommand extends Command {
                             }
 
                             builder.setUsers(event.getAuthor());
+                            builder.setFinalAction(null);
                             builder.build().display(event.getChannel());
                         }
                     } else event.getChannel().sendMessage("No ticket specified.").queue();

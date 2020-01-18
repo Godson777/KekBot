@@ -7,9 +7,9 @@ import com.godson.kekbot.profile.Profile;
 import com.godson.kekbot.responses.Action;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.TextChannel;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -34,7 +34,8 @@ public class GameCommand extends Command {
                 "\nTic-Tac-Toe (or \"ttt\" for short.)" +
                 "\nSnail Race (or \"sr\" for short.)" +
                 "\nHangman" +
-                "\nTrivia";
+                "\nTrivia" +
+                "\nRussian Roulette (or \"rr\" for short.)";
         exDescPos = ExtendedPosition.AFTER;
         category = new Category("Fun");
     }
@@ -115,6 +116,11 @@ public class GameCommand extends Command {
                         Game game = KekBot.gamesManager.getGame(channel);
                         if (game.isReady()) {
                             if (game.players.contains(event.getAuthor())) {
+                                if (!game.canQuit()) {
+                                    event.getChannel().sendMessage("You're not allowed to quit this game!").queue();
+                                    return;
+                                }
+
                                 Profile profile = Profile.getProfile(event.getAuthor());
                                 profile.spendTopKeks(ThreadLocalRandom.current().nextInt(1, 15));
                                 profile.takeKXP(ThreadLocalRandom.current().nextInt(5, 20));

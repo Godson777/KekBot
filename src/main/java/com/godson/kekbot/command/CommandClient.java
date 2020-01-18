@@ -4,14 +4,14 @@ import com.godson.kekbot.KekBot;
 import com.godson.kekbot.util.Utils;
 import com.godson.kekbot.settings.Config;
 import com.godson.kekbot.settings.Settings;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.entities.ChannelType;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.events.ReadyEvent;
-import net.dv8tion.jda.core.events.guild.GuildJoinEvent;
-import net.dv8tion.jda.core.events.guild.GuildLeaveEvent;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.ChannelType;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.ReadyEvent;
+import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
+import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
@@ -274,7 +274,7 @@ public class CommandClient extends ListenerAdapter {
 
     @Override
     public void onGuildJoin(GuildJoinEvent event) {
-        if(event.getGuild().getSelfMember().getJoinDate().plusMinutes(10).isBefore(OffsetDateTime.now()))
+        if(event.getGuild().getSelfMember().getTimeJoined().plusMinutes(10).isBefore(OffsetDateTime.now()))
             return;
 
         if (!Config.getConfig().getBlockedUsers().containsKey(event.getGuild().getOwner().getUser().getId()) || (Config.getConfig().getBlockedUsers().containsKey(event.getGuild().getOwner().getUser().getId()) && Config.getConfig().getBlockedUsers().get(event.getGuild().getOwner().getUser().getId()) < 2)) {

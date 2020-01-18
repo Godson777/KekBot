@@ -5,7 +5,6 @@ import com.godson.kekbot.KekBot;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandCategories;
 import com.godson.kekbot.command.CommandEvent;
-import net.dv8tion.jda.core.JDA;
 
 public class Shutdown extends Command {
 
