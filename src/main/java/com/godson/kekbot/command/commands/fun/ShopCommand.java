@@ -47,7 +47,7 @@ public class ShopCommand extends Command {
     public void onExecuted(CommandEvent event) throws Throwable {
         OrderedMenu.Builder builder = new OrderedMenu.Builder();
         builder.addChoices("Tokens","Backgrounds");
-        if (Config.getConfig().getDcoinToken() != null) builder.addChoices("Convert Topkeks");
+        if (Config.getConfig().getDcoinToken() != null && KekBot.discoin != null) builder.addChoices("Convert Topkeks");
         builder.setDescription(event.getString("command.fun.shop.intro") + "\n");
 
         //Make sure there's a cancel button.

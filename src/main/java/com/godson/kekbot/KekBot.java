@@ -171,7 +171,7 @@ public class KekBot {
                     .setOAuthAccessTokenSecret(config.getTwAccessTokenSecret());
         }
 
-        if (config.getDcoinToken() != null && mode > 0) {
+        if (config.getDcoinToken() != null && mode == 0) {
             discoin = new Discoin4J(config.getDcoinToken());
             discoinManager = new DiscoinManager();
         }
