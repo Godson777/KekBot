@@ -24,6 +24,6 @@ public class YouTried extends Command {
         Random random = new Random();
         int index = random.nextInt(stars.length);
         event.getChannel().sendTyping().queue();
-        event.getChannel().sendFile(stars[index], stars[index].getName(), null).queue();
+        event.getChannel().sendFile(stars[index], stars[index].getName()).queue();
     }
 }

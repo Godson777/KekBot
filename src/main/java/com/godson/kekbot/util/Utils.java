@@ -6,10 +6,10 @@ import com.godson.kekbot.profile.item.BackgroundManager;
 import com.godson.kekbot.settings.Config;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.entities.*;
-import net.dv8tion.jda.core.entities.impl.JDAImpl;
-import net.dv8tion.jda.core.requests.Requester;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.internal.JDAImpl;
+import net.dv8tion.jda.internal.requests.Requester;
 import okhttp3.*;
 import org.json.JSONObject;
 
@@ -299,10 +299,10 @@ public class Utils {
                 TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(millis));
         long seconds = TimeUnit.MILLISECONDS.toSeconds(millis) -
                 TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis));
-        return (days != 0 ? days + " " + LocaleUtils.getPluralString(days, "amount.time.days", locale) + ", " : "")
-                + (hours != 0 ? hours + " " + LocaleUtils.getPluralString(hours, "amount.time.hours", locale) + ", " : "") +
-                minutes + " " + LocaleUtils.getPluralString(minutes, "amount.time.minutes", locale) + " "
-                + seconds + " " + LocaleUtils.getPluralString(hours, "amount.time.seconds", locale) + "." ;
+        return (days != 0 ? days + " " + LocaleUtils.getPluralString(days, "amount.time.days", locale) + ", " : "") +
+                (hours != 0 ? hours + " " + LocaleUtils.getPluralString(hours, "amount.time.hours", locale) + ", " : "") +
+                minutes + " " + LocaleUtils.getPluralString(minutes, "amount.time.minutes", locale) + " " +
+                seconds + " " + LocaleUtils.getPluralString(seconds, "amount.time.seconds", locale) + "." ;
     }
 
     /**

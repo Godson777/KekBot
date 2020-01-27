@@ -7,7 +7,7 @@ import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandClient;
 import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.responses.Action;
-import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.api.Permission;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +21,7 @@ public class Poll extends Command {
     public Poll(CommandClient client) {
         name = "poll";
         description = "Creates a poll.";
-        usage.add("poll <title> | <MM:SS> | <option...>");
+        usage.add("poll <title> | <MM:SS> | <option> | <option> | {option...}");
         extendedDescription = "You can continue adding more options by seperating them with the | symbol." +
                 "\n(If a poll is open, you can also say \"{p}poll stop\" to end it early, or \"{p}poll cancel\" to cancel it altogether.)";
         exDescPos = ExtendedPosition.AFTER;

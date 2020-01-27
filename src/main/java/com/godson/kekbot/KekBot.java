@@ -34,12 +34,12 @@ import com.rethinkdb.net.Connection;
 import me.duncte123.weebJava.WeebApiBuilder;
 import me.duncte123.weebJava.models.WeebApi;
 import me.duncte123.weebJava.types.TokenType;
-import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder;
-import net.dv8tion.jda.bot.sharding.ShardManager;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Icon;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
+import net.dv8tion.jda.api.sharding.ShardManager;
+import net.dv8tion.jda.api.entities.Icon;
 import org.apache.commons.lang3.StringUtils;
 import org.discordbots.api.client.DiscordBotListAPI;
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -60,7 +60,7 @@ public class KekBot {
     //Seting configs, and resources.
     public static int shards = Config.getConfig().getShards();
     public static ShardManager jda;
-    public static final Version version = new Version(1, 5, 5);
+    public static final Version version = new Version(1, 6);
     public static final long startTime = System.currentTimeMillis();
     public static BufferedImage genericAvatar;
     private static final Map<Action, List<String>> responses = new HashMap<>();
@@ -119,6 +119,9 @@ public class KekBot {
     }
 
     public static void main(String[] args) throws LoginException {
+        //Fuck you Linux, we're using UTF-8 whether you like it or not.
+        System.setProperty("file.encoding", "UTF-8");
+
         int mode = 0;
         for (String arg : args) {
             if (arg.equalsIgnoreCase("--beta")) mode = 1;
@@ -168,7 +171,7 @@ public class KekBot {
                     .setOAuthAccessTokenSecret(config.getTwAccessTokenSecret());
         }
 
-        if (config.getDcoinToken() != null && mode > 0) {
+        if (config.getDcoinToken() != null && mode == 0) {
             discoin = new Discoin4J(config.getDcoinToken());
             discoinManager = new DiscoinManager();
         }
@@ -272,7 +275,6 @@ public class KekBot {
         client.addCommand(new EightBall());
         client.addCommand(new FullWidth());
         client.addCommand(new Balance());
-        client.addCommand(new Lenny());
         client.addCommand(new LotteryCommand());
         client.addCommand(new GameCommand());
         client.addCommand(new RateWaifu());
@@ -309,7 +311,7 @@ public class KekBot {
             client.addCommand(new OwO(weebApi));
             client.addCommand(new Sleepy(weebApi));
             client.addCommand(new Smug(weebApi));
-            client.addCommand(new SRS(weebApi));
+            client.addCommand(new Stare(weebApi));
             client.addCommand(new ThumbsUp(weebApi));
             client.addCommand(new Wag(weebApi));
             client.addCommand(new Dab(weebApi));
@@ -326,7 +328,6 @@ public class KekBot {
         client.addCommand(new GoogleSearch());
         client.addCommand(new LMGTFY());
         client.addCommand(new Changelog());
-        client.addCommand(new Credits());
         client.addCommand(new Invite());
         client.addCommand(new TicketCommand());
         client.addCommand(new TagCommand());

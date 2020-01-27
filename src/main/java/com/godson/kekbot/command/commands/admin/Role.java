@@ -6,10 +6,9 @@ import com.godson.kekbot.util.Utils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.responses.Action;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.managers.GuildController;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -57,11 +56,11 @@ public class Role extends Command {
                     event.getChannel().sendMessage(LocaleUtils.getString("command.admin.role.add.nomention", event.getLocale())).queue();
                 } else if (event.getMentionedUsers().size() == 1) {
                     Member member = event.getGuild().getMember(event.getMentionedUsers().get(0));
-                    net.dv8tion.jda.core.entities.Role role = event.getGuild().getRolesByName(args[0], true).get(0);
+                    net.dv8tion.jda.api.entities.Role role = event.getGuild().getRolesByName(args[0], true).get(0);
                     if (!member.getRoles().contains(role)) {
                         if (Utils.checkHierarchy(role, event.getMember())) {
                             if (Utils.checkHierarchy(role, event.getSelfMember())) {
-                                event.getGuild().getController().addRolesToMember(member, role).reason("Role Given by: " + event.getAuthor().getName() + "#" + event.getAuthor().getDiscriminator() + " (" + event.getAuthor().getId() + ")").queue();
+                                event.getGuild().addRoleToMember(member, role).reason("Role Given by: " + event.getAuthor().getName() + "#" + event.getAuthor().getDiscriminator() + " (" + event.getAuthor().getId() + ")").queue();
                                 event.getChannel().sendMessage(KekBot.respond(Action.ROLE_ADDED, event.getLocale(), event.getMentionedUsers().get(0).getName() + "#" + event.getMentionedUsers().get(0).getDiscriminator())).queue();
                             } else
                                 event.getChannel().sendMessage(LocaleUtils.getString("command.admin.role.add.hierarchyboterror", event.getLocale())).queue();
@@ -70,8 +69,7 @@ public class Role extends Command {
                     } else event.getChannel().sendMessage(LocaleUtils.getString("command.admin.role.add.exists", event.getLocale())).queue();
                 } else {
                     List<User> users = event.getMentionedUsers();
-                    GuildController controller = event.getGuild().getController();
-                    net.dv8tion.jda.core.entities.Role role = event.getGuild().getRolesByName(args[0], true).get(0);
+                    net.dv8tion.jda.api.entities.Role role = event.getGuild().getRolesByName(args[0], true).get(0);
                     List<String> success = new ArrayList<String>();
                     List<String> exist = new ArrayList<String>();
                     for (User user : users) {
@@ -79,7 +77,7 @@ public class Role extends Command {
                         if (!member.getRoles().contains(role)) {
                             if (Utils.checkHierarchy(role, event.getMember())) {
                                 if (Utils.checkHierarchy(role, event.getGuild().getSelfMember())) {
-                                    controller.addRolesToMember(member, role).reason("Mass Role Given by: " + event.getAuthor().getName() + "#" + event.getAuthor().getDiscriminator() + " (" + event.getAuthor().getId() + ")").queue();
+                                    event.getGuild().addRoleToMember(member, role).reason("Mass Role Given by: " + event.getAuthor().getName() + "#" + event.getAuthor().getDiscriminator() + " (" + event.getAuthor().getId() + ")").queue();
                                     success.add(user.getName() + "#" + user.getDiscriminator());
                                 } else {
                                     event.getChannel().sendMessage(LocaleUtils.getString("command.admin.role.add.hierarchyboterror", event.getLocale())).queue();
@@ -123,11 +121,11 @@ public class Role extends Command {
                     event.getChannel().sendMessage(LocaleUtils.getString("command.admin.role.remove.nomention", event.getLocale())).queue();
                 } else if (event.getMentionedUsers().size() == 1) {
                     Member member = event.getGuild().getMember(event.getMentionedUsers().get(0));
-                    net.dv8tion.jda.core.entities.Role role = event.getGuild().getRolesByName(args[0], true).get(0);
+                    net.dv8tion.jda.api.entities.Role role = event.getGuild().getRolesByName(args[0], true).get(0);
                     if (member.getRoles().contains(role)) {
                         if (Utils.checkHierarchy(role, event.getMember())) {
                             if (Utils.checkHierarchy(role, event.getSelfMember())) {
-                                event.getGuild().getController().removeRolesFromMember(member, event.getGuild().getRolesByName(args[0], true).get(0)).reason("Role Removed by: " + event.getAuthor().getName() + "#" + event.getAuthor().getDiscriminator() + " (" + event.getAuthor().getId() + ")").queue();
+                                event.getGuild().removeRoleFromMember(member, event.getGuild().getRolesByName(args[0], true).get(0)).reason("Role Removed by: " + event.getAuthor().getName() + "#" + event.getAuthor().getDiscriminator() + " (" + event.getAuthor().getId() + ")").queue();
                                 event.getChannel().sendMessage(KekBot.respond(Action.ROLE_TAKEN, event.getLocale(), member.getUser().getName() + "#" + member.getUser().getDiscriminator())).queue();
                             } else
                                 event.getChannel().sendMessage(LocaleUtils.getString("command.admin.role.remove.hierarchyboterror", event.getLocale())).queue();
@@ -136,8 +134,7 @@ public class Role extends Command {
                     } else event.getChannel().sendMessage(LocaleUtils.getString("command.admin.role.remove.exists", event.getLocale())).queue();
                 } else {
                     List<User> users = event.getMentionedUsers();
-                    GuildController controller = event.getGuild().getController();
-                    net.dv8tion.jda.core.entities.Role role = event.getGuild().getRolesByName(args[0], true).get(0);
+                    net.dv8tion.jda.api.entities.Role role = event.getGuild().getRolesByName(args[0], true).get(0);
                     List<String> success = new ArrayList<String>();
                     List<String> exist = new ArrayList<String>();
                     //Iterate through every user pinged.
@@ -149,7 +146,7 @@ public class Role extends Command {
                             if (Utils.checkHierarchy(role, event.getMember())) {
                                 //Check if the role is lower than the bot's.
                                 if (Utils.checkHierarchy(role, event.getGuild().getSelfMember())) {
-                                    controller.removeRolesFromMember(member, role).reason("Mass Role Removed by: " + event.getAuthor().getName() + "#" + event.getAuthor().getDiscriminator() + " (" + event.getAuthor().getId() + ")").queue();
+                                    event.getGuild().removeRoleFromMember(member, role).reason("Mass Role Removed by: " + event.getAuthor().getName() + "#" + event.getAuthor().getDiscriminator() + " (" + event.getAuthor().getId() + ")").queue();
                                     success.add(user.getName() + "#" + user.getDiscriminator());
                                 } else {
                                     event.getChannel().sendMessage(LocaleUtils.getString("command.admin.role.remove.hierarchyboterror", event.getLocale())).queue();

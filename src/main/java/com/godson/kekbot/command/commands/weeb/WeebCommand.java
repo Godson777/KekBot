@@ -4,7 +4,7 @@ import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
 import me.duncte123.weebJava.models.WeebApi;
 import me.duncte123.weebJava.types.NSFWMode;
-import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.api.EmbedBuilder;
 
 public class WeebCommand extends Command {
 

@@ -6,7 +6,7 @@ import com.godson.kekbot.command.CommandCategories;
 import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.settings.Config;
 import com.jagrosh.jdautilities.menu.Paginator;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.entities.User;
 
 import java.util.stream.Collectors;
 

@@ -48,7 +48,7 @@ public class Gru extends Command {
             if (event.getMessage().getAttachments().get(0).isImage()) {
                 try {
                     event.getChannel().sendTyping().queue();
-                    event.getChannel().sendFile(generate(ImageIO.read(event.getMessage().getAttachments().get(0).getInputStream()), hyper, egg),  filename + ".png", null).queue();
+                    event.getChannel().sendFile(generate(ImageIO.read(event.getMessage().getAttachments().get(0).retrieveInputStream().get()), hyper, egg),  filename + ".png").queue();
                 } catch (IOException e) {
                     throwException(e, event, "Image Generation Problem");
                 }
@@ -64,17 +64,17 @@ public class Gru extends Command {
                     BufferedImage check = ImageIO.read(connection.getInputStream());
                     if (check == null) {
                         try {
-                            event.getChannel().sendFile(generate(event.combineArgs().replaceAll("--hyper", "").replace("--egg", ""), hyper, egg), filename + ".png", null).queue();
+                            event.getChannel().sendFile(generate(event.combineArgs().replaceAll("--hyper", "").replace("--egg", ""), hyper, egg), filename + ".png").queue();
                         } catch (IllegalArgumentException e1) {
                             event.getChannel().sendMessage("The text you have provided is too long for one of the panels. Please try something else.").queue();
                         }
                         return;
                     }
 
-                    event.getChannel().sendFile(generate(check, hyper, egg), filename + ".png", null).queue();
+                    event.getChannel().sendFile(generate(check, hyper, egg), filename + ".png").queue();
                 } catch (MalformedURLException | UnknownHostException | IllegalArgumentException | FileNotFoundException e) {
                     try {
-                        event.getChannel().sendFile(generate(event.combineArgs().replaceAll("--hyper", "").replace("--egg", ""), hyper, egg), filename + ".png", null).queue();
+                        event.getChannel().sendFile(generate(event.combineArgs().replaceAll("--hyper", "").replace("--egg", ""), hyper, egg), filename + ".png").queue();
                     } catch (IllegalArgumentException e1) {
                         event.getChannel().sendMessage("The text you have provided is too long for one of the panels. Please try something else.").queue();
                     }
@@ -82,7 +82,7 @@ public class Gru extends Command {
                     event.getChannel().sendMessage("Unable to connect to URL.").queue();
                 } catch (IOException e) {
                     try {
-                        event.getChannel().sendFile(generate(event.combineArgs().replaceAll("--hyper", "").replace("--egg", ""), hyper, egg), filename + ".png", null).queue();
+                        event.getChannel().sendFile(generate(event.combineArgs().replaceAll("--hyper", "").replace("--egg", ""), hyper, egg), filename + ".png").queue();
                     } catch (IllegalArgumentException e1) {
                         event.getChannel().sendMessage("The text you have provided is too long for one or more of the panels. Please try something else.").queue();
                     }

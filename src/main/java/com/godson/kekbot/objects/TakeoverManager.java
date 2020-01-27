@@ -9,7 +9,7 @@ import com.rethinkdb.gen.ast.ReqlObject;
 import com.rethinkdb.gen.ast.Table;
 import com.rethinkdb.model.MapObject;
 import com.rethinkdb.net.Cursor;
-import net.dv8tion.jda.core.entities.Icon;
+import net.dv8tion.jda.api.entities.Icon;
 import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONObject;
 

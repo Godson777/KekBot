@@ -3,10 +3,10 @@ package com.godson.kekbot.command;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.questionaire.Questionnaire;
 import com.godson.kekbot.responses.Action;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.events.guild.member.GuildMemberRoleAddEvent;
-import net.dv8tion.jda.core.events.role.RoleCreateEvent;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
+import net.dv8tion.jda.api.events.role.RoleCreateEvent;
 
 import java.util.List;
 
@@ -34,7 +34,7 @@ public class CommandCategories {
                                 //Now do the thing with the thing.
                                 .execute(results -> {
                                     if (results.getAnswer(0).equals(true)) {
-                                        event.getGuild().getController().addRolesToMember(event.getGuild().getSelfMember(), meme).queue();
+                                        event.getGuild().addRoleToMember(event.getGuild().getSelfMember(), meme).queue();
                                         event.getChannel().sendMessage(event.getString("livingmeme.autoaddsuccess")).queue();
                                     } else {
                                         event.getChannel().sendMessage(event.getString("questionnaire.cancelled")).queue();
@@ -59,8 +59,8 @@ public class CommandCategories {
                         //Now let's do the thing with the thing.
                         .execute(results -> {
                             if (results.getAnswer(0).equals(true)) {
-                                event.getGuild().getController().createRole().setName("Living Meme").queue(role -> {
-                                    event.getGuild().getController().addRolesToMember(event.getGuild().getSelfMember(), role).queue();
+                                event.getGuild().createRole().setName("Living Meme").queue(role -> {
+                                    event.getGuild().addRoleToMember(event.getGuild().getSelfMember(), role).queue();
                                 });
                                 event.getChannel().sendMessage(event.getString("livingmeme.autoaddsuccess")).queue();
                             } else {

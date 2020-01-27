@@ -4,9 +4,9 @@ import com.godson.kekbot.KekBot;
 import com.godson.kekbot.util.LocaleUtils;
 import com.godson.kekbot.profile.Profile;
 import com.godson.kekbot.profile.item.Token;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -133,7 +133,7 @@ public class TicTacToe extends Game {
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             ImageIO.setUseCache(false);
             ImageIO.write(base, "png", stream);
-            channel.sendFile(stream.toByteArray(), "tictactoe.png", null).queue();
+            channel.sendFile(stream.toByteArray(), "tictactoe.png").queue();
             stream.close();
         } catch (IOException e) {
             e.printStackTrace();

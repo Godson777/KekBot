@@ -5,8 +5,8 @@ import com.godson.kekbot.util.LocaleUtils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.responses.Action;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Message;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.OffsetDateTime;
@@ -44,7 +44,7 @@ public class Purge extends Command {
             } else {
                 event.getMessage().delete().queue(useless -> {
                     event.getTextChannel().getHistory().retrievePast(purge).queue(msgsRaw -> {
-                        List<Message> msgs = msgsRaw.stream().filter(message -> !message.getCreationTime().plusWeeks(2).isBefore(OffsetDateTime.now())).collect(Collectors.toList());
+                        List<Message> msgs = msgsRaw.stream().filter(message -> !message.getTimeCreated().plusWeeks(2).isBefore(OffsetDateTime.now())).collect(Collectors.toList());
                         event.getTextChannel().sendMessage(LocaleUtils.getString("command.admin.purge.purging", event.getLocale())).queue(msg -> {
                             if (msgs.size() > 0) {
                                 if (event.getArgs().length >= 2) {

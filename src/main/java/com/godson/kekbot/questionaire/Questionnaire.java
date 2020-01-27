@@ -5,14 +5,14 @@ import com.godson.kekbot.util.LocaleUtils;
 import com.godson.kekbot.command.CommandEvent;
 import com.google.gson.internal.Primitives;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.events.Event;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.core.requests.RestAction;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.Event;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.requests.RestAction;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -188,6 +188,16 @@ public class Questionnaire {
                         case INT:
                             try {
                                 answers.add(Integer.valueOf(message));
+                            } catch (NumberFormatException e1) {
+                                if (skipOnRepeat) skipQuestionMessage = true;
+                                errorMessage.queue();
+                                execute(i);
+                                return;
+                            }
+                            break;
+                        case DOUBLE:
+                            try {
+                                answers.add(Double.valueOf(message));
                             } catch (NumberFormatException e1) {
                                 if (skipOnRepeat) skipQuestionMessage = true;
                                 errorMessage.queue();

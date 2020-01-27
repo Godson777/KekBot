@@ -8,9 +8,9 @@ import com.godson.kekbot.settings.Settings;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
 import com.jagrosh.jdautilities.menu.Paginator;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.MessageChannel;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.MessageChannel;
 
 import java.util.concurrent.TimeUnit;
 
@@ -105,6 +105,7 @@ public class Quote extends Command {
                                 .waitOnSinglePage(true)
                                 .showPageNumbers(true)
                                 .useNumberedItems(true)
+                                .wrapPageEnds(true)
                                 .setTimeout(5, TimeUnit.MINUTES)
                                 .setUsers(event.getAuthor());
 

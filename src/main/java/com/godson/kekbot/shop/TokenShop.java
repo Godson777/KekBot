@@ -3,7 +3,7 @@ package com.godson.kekbot.shop;
 import com.godson.kekbot.CustomEmote;
 import com.godson.kekbot.profile.Profile;
 import com.godson.kekbot.profile.item.Token;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.entities.User;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

@@ -2,8 +2,7 @@ package com.godson.kekbot.command.commands.fun;
 
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.entities.Member;
 
 import java.util.List;
 

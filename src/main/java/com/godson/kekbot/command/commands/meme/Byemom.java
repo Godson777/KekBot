@@ -50,7 +50,7 @@ public class Byemom extends Command {
             stream.flush();
             ImageIO.setUseCache(false);
             ImageIO.write(template, "png", stream);
-            event.getChannel().sendFile(stream.toByteArray(), "byemom.png", null).queue();
+            event.getChannel().sendFile(stream.toByteArray(), "byemom.png").queue();
             stream.close();
         } catch (IOException e) {
             throwException(e, event, "Image generation problem.");

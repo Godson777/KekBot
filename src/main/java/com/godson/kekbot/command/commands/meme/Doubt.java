@@ -37,7 +37,7 @@ public class Doubt extends Command {
             stream.flush();
             ImageIO.setUseCache(false);
             ImageIO.write(template, "png", stream);
-            event.getChannel().sendFile(stream.toByteArray(), "doubt.png", null).queue();
+            event.getChannel().sendFile(stream.toByteArray(), "doubt.png").queue();
             stream.close();
         } catch (IOException e) {
             throwException(e, event, "Image Generation Problem");

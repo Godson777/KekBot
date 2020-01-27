@@ -22,7 +22,7 @@ public class Version {
         this.betaVersion = 0;
     }
 
-    private Version(int majorVersion, int minorVersion) {
+    public Version(int majorVersion, int minorVersion) {
         this.majorVersion = majorVersion;
         this.minorVersion = minorVersion;
         this.patchVersion = 0;

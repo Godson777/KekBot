@@ -4,7 +4,7 @@ import com.godson.kekbot.util.Utils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandCategories;
 import com.godson.kekbot.command.CommandEvent;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.entities.User;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -50,7 +50,7 @@ public class Johnny extends Command {
             stream.flush();
             ImageIO.setUseCache(false);
             ImageIO.write(bg, "png", stream);
-            event.getChannel().sendFile(stream.toByteArray(), "jahnny.png", null).queue();
+            event.getChannel().sendFile(stream.toByteArray(), "jahnny.png").queue();
             stream.close();
         } catch (IOException e) {
             throwException(e, event, "Image generation problem.");

@@ -6,8 +6,7 @@ import com.godson.kekbot.profile.Profile;
 import com.godson.kekbot.responses.Action;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
-import javafx.scene.control.DatePicker;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.entities.User;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

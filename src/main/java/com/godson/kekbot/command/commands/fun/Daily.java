@@ -29,8 +29,8 @@ public class Daily extends Command {
     @Override
     public void onExecuted(CommandEvent event) {
         Profile profile = Profile.getProfile(event.getAuthor());
-        if (profile.getDaily() != null && profile.getDaily().isAfter(event.getMessage().getCreationTime().toInstant())) {
-            event.getChannel().sendMessage(event.getString("command.fun.daily.alreadyclaimed", Utils.convertMillisToTime(event.getMessage().getCreationTime().toInstant().until(profile.getDaily(), ChronoUnit.MILLIS)))).queue();
+        if (profile.getDaily() != null && profile.getDaily().isAfter(event.getMessage().getTimeCreated().toInstant())) {
+            event.getChannel().sendMessage(event.getString("command.fun.daily.alreadyclaimed", Utils.convertMillisToTime(event.getMessage().getTimeCreated().toInstant().until(profile.getDaily(), ChronoUnit.MILLIS)))).queue();
             return;
         }
         //Temporarily outdated, will remake the daily bonus feature in a later update.
@@ -68,7 +68,7 @@ public class Daily extends Command {
     }
 
     private void claimDaily(boolean voted, Profile profile, CommandEvent event) {
-        profile.setDaily(event.getMessage().getCreationTime().plusDays(1));
+        profile.setDaily(event.getMessage().getTimeCreated().plusDays(1));
         int reward = random.nextInt(20) * (voted ? 2 : 1);
         if (reward != 0) profile.addTopKeks(reward);
         else profile.addKXP(10);

@@ -25,6 +25,6 @@ public class Kirb extends Command {
         Random random = new Random();
         int index = random.nextInt(kirbs.length);
         event.getChannel().sendTyping().queue();
-        event.getChannel().sendFile(kirbs[index], kirbs[index].getName(), null).queue();
+        event.getChannel().sendFile(kirbs[index], kirbs[index].getName()).queue();
     }
 }

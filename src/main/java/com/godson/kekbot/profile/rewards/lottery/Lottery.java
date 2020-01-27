@@ -6,8 +6,9 @@ import com.godson.kekbot.util.LocaleUtils;
 import com.godson.kekbot.profile.Profile;
 import com.godson.kekbot.util.Utils;
 import javafx.util.Pair;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.User;
+
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
