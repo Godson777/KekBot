@@ -24,6 +24,8 @@ public class BetManager {
     }
 
     public String addPlayerBet(User user, double bet, String locale) {
+        if (bet < 0) return LocaleUtils.getString("game.bet.invalid", locale);
+
         Profile profile = Profile.getProfile(user);
         if (playersEnabled) {
             if (!players.containsKey(user)) {
@@ -51,6 +53,8 @@ public class BetManager {
     }
 
     public String addSpectatorBet(User user, int player, double bet, String locale) {
+        if (bet < 0) return LocaleUtils.getString("game.bet.invalid", locale);
+
         Profile profile = Profile.getProfile(user);
         if (spectatorsEnabled) {
             if (!spectators.containsKey(user)) {
