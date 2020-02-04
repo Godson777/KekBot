@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 
 public class Hangman extends Game {
@@ -292,7 +293,7 @@ public class Hangman extends Game {
         List<User> winners = new ArrayList<>(playerPoints.keySet());
         winners.sort(Comparator.comparingInt(playerPoints::get).reversed());
         winners = winners.subList(0, (winners.size() > 3 ? 2 : winners.size() - 1));
-        endGame(winners, random.nextInt(5), random.nextInt(4));
+        endGame(winners, ThreadLocalRandom.current().nextInt(7, 15), ThreadLocalRandom.current().nextInt(4, 8));
     }
 
 }

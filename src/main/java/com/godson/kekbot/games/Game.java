@@ -7,6 +7,7 @@ import com.godson.kekbot.profile.Profile;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import org.apache.commons.math3.util.Precision;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,6 +29,8 @@ public abstract class Game {
     private Map<User, Integer> playerNumber = new HashMap<>();
     public TextChannel channel;
     private BetManager bets;
+    //This'll only be used in games that require the multiplier. See Snail Race and Russian Roulette as good examples.
+    double multiplier = 1;
 
     public Game(int minNumberOfPlayers, int maxNumberOfPlayers, boolean hasAI, TextChannel channel, String gameName, boolean betsEnabled) {
         this.minNumberOfPlayers = minNumberOfPlayers;
@@ -120,19 +123,19 @@ public abstract class Game {
         KekBot.gamesManager.closeGame(channel);
     }
 
-    public void endGame(User winner, int topkeks, int KXP) {
+    public void endGame(User winner, double topkeks, int KXP) {
         StringBuilder builder = new StringBuilder();
         for (User player : players) {
             Profile profile = Profile.getProfile(player);
             if (player.equals(winner)) {
                 if (!betsEnabled) {
-                    profile.wonGame(topkeks, KXP);
-                    if (topkeks > 0 && KXP > 0) builder.append(stateEarnings(winner, topkeks, KXP)).append("\n");
+                    profile.wonGame(topkeks * multiplier, KXP);
+                    if (topkeks > 0 && KXP > 0) builder.append(stateEarnings(winner, topkeks, KXP, (multiplier > 1 ? new Bonus(Precision.round(topkeks * multiplier - 1, 2), multiplier + "x Multiplier") : null))).append("\n");
                 } else {
                     double betEarnings = bets.declareWinners(this, winnerIDs);
-                    profile.wonGame(topkeks + betEarnings, KXP);
-                    if (bets.hasPlayerBets()) builder.append(stateEarnings(winner, topkeks, KXP, betEarnings, "Won Bet")).append("\n");
-                    else builder.append(stateEarnings(winner, topkeks, KXP)).append("\n");
+                    profile.wonGame((topkeks + betEarnings) * multiplier, KXP);
+                    //if (bets.hasPlayerBets() || multiplier > 1) builder.append(stateEarnings(winner, topkeks, KXP, )).append("\n");
+                    builder.append(stateEarnings(winner, topkeks * multiplier, KXP, (bets.hasPlayerBets() ? new Bonus(betEarnings, "Won Bet") : null), (multiplier > 1 ? new Bonus(Precision.round(topkeks * multiplier - 1, 2), multiplier + "x Multiplier") : null))).append("\n");
                 }
                 profile.save();
             } else {
@@ -152,7 +155,7 @@ public abstract class Game {
      * @param baseTopkeks The base amount of topkeks to give.
      * @param baseKXP The base amount of KXP to give.
      */
-    public void endGame(List<User> winners, int baseTopkeks, int baseKXP) {
+    public void endGame(List<User> winners, double baseTopkeks, int baseKXP) {
         StringBuilder builder = new StringBuilder();
         //Setting this up for the "lose count" later.
         for (User player : players) {
@@ -166,17 +169,19 @@ public abstract class Game {
             int KXP = baseKXP + (players.size() - i);
             if (winners.get(i).equals(winners.get(0))) {
                 if (!betsEnabled) {
-                    profile.wonGame(topkeks, KXP);
-                    if (!(topkeks == 0 && KXP == 0)) builder.append(stateEarnings(winners.get(i), topkeks, KXP)).append("\n");
+                    profile.wonGame(topkeks * multiplier, KXP);
+                    if (!(topkeks == 0 && KXP == 0)) builder.append(stateEarnings(winners.get(i), topkeks, KXP, (multiplier > 1 ? new Bonus(Precision.round(topkeks * multiplier - 1, 2), multiplier + "x Multiplier") : null))).append("\n");
                 } else {
                     double betEarnings = bets.declareWinners(this, winnerIDs);
-                    profile.wonGame(baseTopkeks + (players.size() - i) + betEarnings, baseKXP + (players.size() - i));
-                    if (bets.hasPlayerBets()) builder.append(stateEarnings(winners.get(i), topkeks, KXP, betEarnings, "Won Bet")).append("\n");
-                    else builder.append(stateEarnings(winners.get(i), topkeks, KXP)).append("\n");
+                    profile.wonGame((baseTopkeks + (players.size() - i) + betEarnings) * multiplier, baseKXP + (players.size() - i));
+                    //if (bets.hasPlayerBets()) builder.append(stateEarnings(winners.get(i), topkeks, KXP, betEarnings, "Won Bet")).append("\n");
+                    //else builder.append(stateEarnings(winners.get(i), topkeks, KXP)).append("\n");
+                    builder.append(stateEarnings(winners.get(i), topkeks, KXP, (bets.hasPlayerBets() ? new Bonus(betEarnings, "Won Bet") : null), (multiplier > 1 ? new Bonus(Precision.round(topkeks * (multiplier - 1), 2), multiplier + "x Multiplier") : null))).append("\n");
+
                 }
             } else {
-                profile.wonGame(topkeks, KXP);
-                builder.append(stateEarnings(winners.get(i), topkeks, KXP)).append("\n");
+                profile.wonGame(topkeks * multiplier, KXP);
+                builder.append(stateEarnings(winners.get(i), topkeks, KXP, (multiplier > 1 ? new Bonus(Precision.round(topkeks * multiplier - 1, 2), multiplier + "x Multiplier") : null))).append("\n");
             }
             profile.save();
         }
@@ -188,13 +193,13 @@ public abstract class Game {
         endTie(0, 0);
     }
 
-    public void endTie(int topkeks, int KXP) {
+    public void endTie(double topkeks, int KXP) {
         StringBuilder builder = new StringBuilder();
         if (topkeks > 0 && KXP > 0) {
             for (User player : players) {
                 Profile profile = Profile.getProfile(player);
-                profile.tieGame(topkeks, KXP);
-                builder.append(stateEarnings(player, topkeks, KXP)).append("\n");
+                profile.tieGame(topkeks * multiplier, KXP);
+                builder.append(stateEarnings(player, topkeks, KXP, (multiplier > 1 ? new Bonus(Precision.round(topkeks * multiplier - 1, 2), multiplier + "x Multiplier") : null))).append("\n");
                 profile.save();
             }
             channel.sendMessage(builder.toString()).queue();
@@ -211,14 +216,22 @@ public abstract class Game {
                 (KXP <= 0 && topkeks <= 0 ? "nothing" : "") + "!";
     }
 
-    private String stateEarnings(User user, double topkeks, int KXP, double bonusAmount, String bonusReason) {
-        return user.getAsMention() + ", you've earned " +
+    private String stateEarnings(User user, double topkeks, int KXP, Bonus... bonuses) {
+        StringBuilder builder = new StringBuilder();
+        double total = 0;
+        builder.append(user.getAsMention() + ", you've earned " +
                 (topkeks > 0 ? CustomEmote.printPrice(topkeks) : "") +
                 (topkeks > 0 && KXP > 0 ? ", and " : "") +
                 (KXP > 0 ? KXP + " KXP" : "") +
-                (KXP <= 0 && topkeks <= 0 ? "nothing" : "") + "!"
-                + "(" + bonusReason + "! +" + CustomEmote.printPrice(bonusAmount) + ")" +
-                "\nTotal Earnings: " + CustomEmote.printPrice(topkeks + bonusAmount);
+                (KXP <= 0 && topkeks <= 0 ? "nothing" : "") + "!");
+        for (Bonus bonus : bonuses) {
+            if (bonus == null) continue;
+            builder.append(" (" + bonus.reason + "! +" + CustomEmote.printPrice(bonus.amount) + ") ");
+            total += bonus.amount;
+        }
+        if (total > 0) builder.append("\nTotal Earnings: " + CustomEmote.printPrice(topkeks + total));
+
+        return builder.toString();
     }
 
     public void endGame() {
@@ -319,5 +332,15 @@ public abstract class Game {
 
     public String getString(String unlocalizedMessage, Object... objects) {
         return LocaleUtils.getString(unlocalizedMessage, KekBot.getCommandClient().getLocale(channel.getGuild().getId()), objects);
+    }
+
+    protected class Bonus {
+        private double amount;
+        private String reason;
+
+        Bonus(double amount, String reason) {
+            this.amount = amount;
+            this.reason = reason;
+        }
     }
 }
