@@ -5,6 +5,7 @@ import com.godson.kekbot.util.LocaleUtils;
 import com.godson.kekbot.profile.Profile;
 import javafx.util.Pair;
 import net.dv8tion.jda.api.entities.User;
+import org.apache.commons.math3.util.Precision;
 
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +26,7 @@ public class BetManager {
 
     public String addPlayerBet(User user, double bet, String locale) {
         if (bet < 0) return LocaleUtils.getString("game.bet.invalid", locale);
+        bet = Precision.round(bet, 2);
 
         Profile profile = Profile.getProfile(user);
         if (playersEnabled) {
@@ -35,7 +37,7 @@ public class BetManager {
                 profile.spendTopKeks(bet);
                 profile.save();
                 players.put(user, bet);
-                playerPot += bet;
+                playerPot = Precision.round(playerPot + bet, 2);
                 return LocaleUtils.getString("game.bet.player.success", locale);
             } else {
                 if (bet > players.get(user)) {
@@ -47,13 +49,27 @@ public class BetManager {
                     playerPot += (bet - players.get(user));
                     players.replace(user, bet);
                     return LocaleUtils.getString("game.bet.player.increased", locale);
-                } else return LocaleUtils.getString("game.bet.player.decrease", locale);
+                } else {
+                    if (bet == 0) {
+                        profile.addTopKeks(players.get(user));
+                        profile.save();
+                        playerPot -= (players.get(user));
+                        players.remove(user);
+                    } else {
+                        profile.addTopKeks(players.get(user) - bet);
+                        profile.save();
+                        playerPot -= (players.get(user) - bet);
+                        players.replace(user, bet);
+                    }
+                    return LocaleUtils.getString("game.bet.player.decrease", locale);
+                }
             }
         } else return LocaleUtils.getString("game.bet.player.error", locale);
     }
 
     public String addSpectatorBet(User user, int player, double bet, String locale) {
         if (bet < 0) return LocaleUtils.getString("game.bet.invalid", locale);
+        bet = Precision.round(bet, 2);
 
         Profile profile = Profile.getProfile(user);
         if (spectatorsEnabled) {
