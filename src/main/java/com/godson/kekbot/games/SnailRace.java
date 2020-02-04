@@ -147,9 +147,9 @@ public class SnailRace extends Game {
     }
 
     private void endGame(boolean tie) {
-        //Ties are super rare to get, thus we up the rewards.
-        if (!tie) endGame(winners, Precision.round(ThreadLocalRandom.current().nextInt(6, 8), 2), ThreadLocalRandom.current().nextInt(4, 8));
-        else endTie(Precision.round(ThreadLocalRandom.current().nextInt(4, 7), 2), ThreadLocalRandom.current().nextInt(5, 8));
+        if (!tie) endGame(winners, Precision.round(ThreadLocalRandom.current().nextInt(1, 4), 2), ThreadLocalRandom.current().nextInt(4, 8));
+            //Ties are super rare to get, thus we up the rewards.
+        else endTie(Precision.round(ThreadLocalRandom.current().nextInt(6, 8), 2), ThreadLocalRandom.current().nextInt(5, 8));
         timer.cancel();
         finished = true;
         race.editMessage(drawRace()).queue();
