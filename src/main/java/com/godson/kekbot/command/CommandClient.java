@@ -240,7 +240,7 @@ public class CommandClient extends ListenerAdapter {
         String parts[] = null;
         String rawContent = event.getMessage().getContentRaw().replace("@everyone", "@\u200Beveryone").replace("@here", "@\u200Bhere");
         if (event.isFromType(ChannelType.TEXT)) {
-            if (rawContent.startsWith(event.getGuild().getSelfMember().getAsMention()))
+            if (rawContent.startsWith(event.getGuild().getSelfMember().getAsMention()) || rawContent.startsWith("<@!" + event.getJDA().getSelfUser().getId() + ">"))
                 parts = Arrays.copyOf(rawContent.substring(rawContent.indexOf(">")+1).trim().split("\\s+", 2), 2);
         }
         if (event.isFromType(ChannelType.PRIVATE)) {
