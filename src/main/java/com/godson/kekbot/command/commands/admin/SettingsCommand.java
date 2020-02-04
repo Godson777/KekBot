@@ -86,20 +86,46 @@ public class SettingsCommand extends Command {
                         return;
                     }
 
-                    List<Role> check = event.getGuild().getRolesByName(role, false);
-                    if (check.size() == 0) {
-                        event.getChannel().sendMessage(event.getString("command.norolefound", role)).queue();
-                        return;
-                    }
+                    String roles[] = role.split("\\u007c", 2);
 
-                    if (settings.getFreeRoles().contains(check.get(0).getId())) {
-                        settings.removeFreeRole(check.get(0).getId()).save();
-                        event.getChannel().sendMessage(event.getString("settings.getrole.removed")).queue();
-                        return;
-                    }
+                    if (roles.length > 1) {
+                        int added = 0;
+                        int removed = 0;
+                        for (String r : roles) {
+                            String r_ = Utils.removeWhitespaceEdges(r);
+                            List<Role> check = event.getGuild().getRolesByName(r_, false);
+                            if (check.size() > 1) {
+                                if (settings.getFreeRoles().contains(check.get(0).getId())) {
+                                    settings.removeFreeRole(check.get(0).getId()).save();
+                                    removed++;
+                                }
 
-                    settings.addFreeRole(check.get(0).getId()).save();
-                    event.getChannel().sendMessage(event.getString("settings.getrole.added")).queue();
+                                settings.addFreeRole(check.get(0).getId()).save();
+                                added++;
+                            }
+                        }
+                        int successes = added + removed;
+                        if (successes == 0) event.getChannel().sendMessage(event.getString("command.norolesfound")).queue();
+                        else event.getChannel().sendMessage(
+                                (added > 0 ? event.getString("settings.getrole.added.multi", added) : "")
+                                        + " " +
+                                (removed > 0 ? event.getString("settings.getrole.removed.multi", removed) : "")).queue();
+                    } else {
+                        List<Role> check = event.getGuild().getRolesByName(role, false);
+                        if (check.size() == 0) {
+                            event.getChannel().sendMessage(event.getString("command.norolefound", role)).queue();
+                            return;
+                        }
+
+                        if (settings.getFreeRoles().contains(check.get(0).getId())) {
+                            settings.removeFreeRole(check.get(0).getId()).save();
+                            event.getChannel().sendMessage(event.getString("settings.getrole.removed.single")).queue();
+                            return;
+                        }
+
+                        settings.addFreeRole(check.get(0).getId()).save();
+                        event.getChannel().sendMessage(event.getString("settings.getrole.added.single")).queue();
+                    }
                 }), "`list`"));
         settings.put("welcomechannel", new Setting("settings.welcomechannel.description",
                 "settings.welcomechannel.noargs",

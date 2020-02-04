@@ -1,10 +1,10 @@
 package com.godson.kekbot.games;
 
-import net.dv8tion.jda.api.entities.IMentionable;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.math3.util.Precision;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,12 +17,12 @@ import java.util.stream.Collectors;
 
 public class RussianRoulette extends Game {
 
-    List<User> alive = new ArrayList<>();
-    List<Boolean> bullets = new ArrayList<>();
-    Random random = new Random();
-    ScheduledExecutorService timer = new ScheduledThreadPoolExecutor(1);
-    int round = 0;
-    int noDeaths = 0;
+    private List<User> alive = new ArrayList<>();
+    private List<Boolean> bullets = new ArrayList<>();
+    private Random random = new Random();
+    private ScheduledExecutorService timer = new ScheduledThreadPoolExecutor(1);
+    private int round = 0;
+    private int noDeaths = 0;
 
 
     String[] preps = {"It's high noon...", "Say your prayers...", "Say hello to my little friend!", "It's over...", "You're mine...",
@@ -89,12 +89,13 @@ public class RussianRoulette extends Game {
         //Check if there's only one person alive.
         if (alive.size() == 1) {
             //That person wins.
-            endGame(alive.get(0), players.size(), players.size());
+            endGame(alive.get(0), players.size() * 2, players.size() * 2);
             return;
         }
 
         round++;
         loadGun();
+        if (round % players.size() == 0) Precision.round(multiplier += (players.size() > 5 ? .4 : .2), 2);
         //Let's list our remaining players, and start the round.
         channel.sendMessage("Round " + round + "!\nPlayers remaining:\n\n" + StringUtils.join(alive.stream().map(User::getAsMention).collect(Collectors.toList()), ", ") + "\n\nRound starting in 5 seconds...")
                 .queue(s -> {
@@ -103,7 +104,8 @@ public class RussianRoulette extends Game {
     }
 
     private void startRound() {
-        channel.sendMessage((noDeaths > 0 ? "We've gone " + noDeaths + (noDeaths > 1 ? " rounds" : " round") + " without a death.\n\n" : "") + starts[random.nextInt(starts.length)] + "\n\n" + getPrepMessage(0)).queue(m -> {
+        channel.sendMessage((noDeaths > 0 ? "We've gone " + noDeaths + (noDeaths > 1 ? " rounds" : " round") + " without a death.\n\n" : "") + starts[random.nextInt(starts.length)] + (multiplier > 1 ? " **" + getString("game.multiplier", multiplier) + "**" : "")
+                + "\n\n" + getPrepMessage(0)).queue(m -> {
             timer.schedule(() -> {
                 shoot(0, m);
             }, 3, TimeUnit.SECONDS);

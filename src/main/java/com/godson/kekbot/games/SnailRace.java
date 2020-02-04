@@ -1,10 +1,12 @@
 package com.godson.kekbot.games;
 
 import com.godson.kekbot.CustomEmote;
+import com.godson.kekbot.util.LocaleUtils;
 import com.godson.kekbot.util.Utils;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
+import org.apache.commons.math3.util.Precision;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -47,6 +49,12 @@ public class SnailRace extends Game {
                 race();
             }
         }, TimeUnit.SECONDS.toMillis(2), TimeUnit.SECONDS.toMillis(2));
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                multiplier = Precision.round(multiplier + .1, 2);
+            }
+            }, TimeUnit.MINUTES.toMillis(1), TimeUnit.MINUTES.toMillis(1));
     }
 
     private String positionSnail(int pos, int placement) {
@@ -84,6 +92,10 @@ public class SnailRace extends Game {
                 else builder.append("***+").append(move[i]).append("***");
             }
             builder.append("\n");
+        }
+        if (multiplier > 1) {
+            builder.append("\n");
+            builder.append("**" + getString("game.multiplier", multiplier) + "**");
         }
         return builder.toString();
     }
@@ -135,8 +147,9 @@ public class SnailRace extends Game {
     }
 
     private void endGame(boolean tie) {
-        if (!tie) endGame(winners, ThreadLocalRandom.current().nextInt(1, 3), ThreadLocalRandom.current().nextInt(2, 4));
-        else endTie(ThreadLocalRandom.current().nextInt(4, 7), ThreadLocalRandom.current().nextInt(5, 8));
+        //Ties are super rare to get, thus we up the rewards.
+        if (!tie) endGame(winners, Precision.round(ThreadLocalRandom.current().nextInt(6, 8), 2), ThreadLocalRandom.current().nextInt(4, 8));
+        else endTie(Precision.round(ThreadLocalRandom.current().nextInt(4, 7), 2), ThreadLocalRandom.current().nextInt(5, 8));
         timer.cancel();
         finished = true;
         race.editMessage(drawRace()).queue();
