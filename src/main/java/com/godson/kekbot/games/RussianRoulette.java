@@ -76,7 +76,6 @@ public class RussianRoulette extends Game {
     public void startGame() {
         channel.sendMessage("Alright! Let's start the game!").queue();
         alive.addAll(players);
-        Collections.shuffle(alive);
         prepareRound();
     }
 
@@ -93,6 +92,7 @@ public class RussianRoulette extends Game {
             return;
         }
 
+        Collections.shuffle(alive);
         round++;
         loadGun();
         if (round % players.size() == 0) Precision.round(multiplier += (players.size() > 5 ? .4 : .2), 2);
