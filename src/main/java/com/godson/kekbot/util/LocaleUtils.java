@@ -24,7 +24,7 @@ public class LocaleUtils {
             if (parts.length > 2) builder.setVariant(parts[2]);
 
             ResourceBundle bundle = ResourceBundle.getBundle(LocaleUtils.bundle, builder.build());
-            return new String(String.format(bundle.getString(unlocalizedMessage), objects).getBytes("ISO-8859-1"), "UTF-8");
+            return String.format(new String(bundle.getString(unlocalizedMessage).getBytes("ISO-8859-1"), "UTF-8"), objects);
         } catch (MissingResourceException | UnsupportedEncodingException e) {
             //In case of the event that there's a localized message missing in both the locale and default properties file, throw the unlocalized message at chat instead.
             //This'll also happen is an error happens.
@@ -41,7 +41,7 @@ public class LocaleUtils {
             if (parts.length > 2) builder.setVariant(parts[2]);
 
             ResourceBundle bundle = ResourceBundle.getBundle(LocaleUtils.bundle, builder.build());
-            return new String(String.format(bundle.getString(unlocalizedMessage + (amount != 1 ? ".plural" : ".single")), objects).getBytes("ISO-8859-1"), "UTF-8");
+            return String.format(new String(bundle.getString(unlocalizedMessage + (amount != 1 ? ".plural" : ".single")).getBytes("ISO-8859-1"), "UTF-8"), objects);
         } catch (MissingResourceException | UnsupportedEncodingException e) {
             //In case of the event that there's a localized message missing in both the locale and default properties file, throw the unlocalized message at chat instead.
             //This'll also happen is an error happens.
