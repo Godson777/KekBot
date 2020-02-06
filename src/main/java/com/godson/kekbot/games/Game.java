@@ -130,12 +130,12 @@ public abstract class Game {
             if (player.equals(winner)) {
                 if (!betsEnabled) {
                     profile.wonGame(topkeks * multiplier, KXP);
-                    if (topkeks > 0 && KXP > 0) builder.append(stateEarnings(winner, topkeks, KXP, (multiplier > 1 ? new Bonus(Precision.round(topkeks * multiplier - 1, 2), multiplier + "x Multiplier") : null))).append("\n");
+                    if (topkeks > 0 && KXP > 0) builder.append(stateEarnings(winner, topkeks, KXP, (multiplier > 1 ? new Bonus(Precision.round(topkeks * (multiplier - 1), 2), multiplier + "x Multiplier") : null))).append("\n");
                 } else {
                     double betEarnings = bets.declareWinners(this, winnerIDs);
                     profile.wonGame((topkeks + betEarnings) * multiplier, KXP);
                     //if (bets.hasPlayerBets() || multiplier > 1) builder.append(stateEarnings(winner, topkeks, KXP, )).append("\n");
-                    builder.append(stateEarnings(winner, topkeks * multiplier, KXP, (bets.hasPlayerBets() ? new Bonus(betEarnings, "Won Bet") : null), (multiplier > 1 ? new Bonus(Precision.round(topkeks * multiplier - 1, 2), multiplier + "x Multiplier") : null))).append("\n");
+                    builder.append(stateEarnings(winner, topkeks * multiplier, KXP, (bets.hasPlayerBets() ? new Bonus(betEarnings, "Won Bet") : null), (multiplier > 1 ? new Bonus(Precision.round(topkeks * (multiplier - 1), 2), multiplier + "x Multiplier") : null))).append("\n");
                 }
                 profile.save();
             } else {
@@ -170,10 +170,10 @@ public abstract class Game {
             if (winners.get(i).equals(winners.get(0))) {
                 if (!betsEnabled) {
                     profile.wonGame(topkeks * multiplier, KXP);
-                    if (!(topkeks == 0 && KXP == 0)) builder.append(stateEarnings(winners.get(i), topkeks, KXP, (multiplier > 1 ? new Bonus(Precision.round(topkeks * multiplier - 1, 2), multiplier + "x Multiplier") : null))).append("\n");
+                    if (!(topkeks == 0 && KXP == 0)) builder.append(stateEarnings(winners.get(i), topkeks, KXP, (multiplier > 1 ? new Bonus(Precision.round(topkeks * (multiplier - 1), 2), multiplier + "x Multiplier") : null))).append("\n");
                 } else {
                     double betEarnings = bets.declareWinners(this, winnerIDs);
-                    profile.wonGame((baseTopkeks + (players.size() - i) + betEarnings) * multiplier, baseKXP + (players.size() - i));
+                    profile.wonGame((baseTopkeks * multiplier) + (players.size() - i) + betEarnings, KXP);
                     //if (bets.hasPlayerBets()) builder.append(stateEarnings(winners.get(i), topkeks, KXP, betEarnings, "Won Bet")).append("\n");
                     //else builder.append(stateEarnings(winners.get(i), topkeks, KXP)).append("\n");
                     builder.append(stateEarnings(winners.get(i), topkeks, KXP, (bets.hasPlayerBets() ? new Bonus(betEarnings, "Won Bet") : null), (multiplier > 1 ? new Bonus(Precision.round(topkeks * (multiplier - 1), 2), multiplier + "x Multiplier") : null))).append("\n");
@@ -181,7 +181,7 @@ public abstract class Game {
                 }
             } else {
                 profile.wonGame(topkeks * multiplier, KXP);
-                builder.append(stateEarnings(winners.get(i), topkeks, KXP, (multiplier > 1 ? new Bonus(Precision.round(topkeks * multiplier - 1, 2), multiplier + "x Multiplier") : null))).append("\n");
+                builder.append(stateEarnings(winners.get(i), topkeks, KXP, (multiplier > 1 ? new Bonus(Precision.round(topkeks * (multiplier - 1), 2), multiplier + "x Multiplier") : null))).append("\n");
             }
             profile.save();
         }
@@ -199,7 +199,7 @@ public abstract class Game {
             for (User player : players) {
                 Profile profile = Profile.getProfile(player);
                 profile.tieGame(topkeks * multiplier, KXP);
-                builder.append(stateEarnings(player, topkeks, KXP, (multiplier > 1 ? new Bonus(Precision.round(topkeks * multiplier - 1, 2), multiplier + "x Multiplier") : null))).append("\n");
+                builder.append(stateEarnings(player, topkeks, KXP, (multiplier > 1 ? new Bonus(Precision.round(topkeks * (multiplier - 1), 2), multiplier + "x Multiplier") : null))).append("\n");
                 profile.save();
             }
             channel.sendMessage(builder.toString()).queue();
