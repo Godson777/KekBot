@@ -26,6 +26,7 @@ public class Quote extends Command {
         usage.add("quote remove <quote number>");
         usage.add("quote list");
         usage.add("quote search <quote>");
+        usage.add("quote edit <quote number>");
         category = new Category("Fun");
         extendedDescription = "Note: Adding and removing quotes requires the \"Manage Messages\" permission.";
         exDescPos = ExtendedPosition.AFTER;
@@ -82,6 +83,30 @@ public class Quote extends Command {
                                     settings.getQuotes().removeQuote(quoteNumber - 1);
                                     settings.save();
                                     channel.sendMessage(event.getString("command.fun.quote.removesuccess", "`" + quote + "`")).queue();
+                                }
+                            } catch (NumberFormatException e) {
+                                channel.sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getLocale(), "`" + event.getArgs()[1] + "`")).queue();
+                            }
+                        } else channel.sendMessage(event.getString("command.fun.quote.removenoargs")).queue();
+                    } else channel.sendMessage(KekBot.respond(Action.NOPERM_USER, event.getLocale(), "`Manage Messages`")).queue();
+                    break;
+                case "edit":
+                    if (event.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
+                        if (event.getArgs().length > 1) {
+                            try {
+                                int quoteNumber = Integer.valueOf(event.getArgs()[1]);
+                                if (settings.getQuotes().getList().size() >= quoteNumber && quoteNumber > 0) {
+                                    String old_quote = settings.getQuotes().getQuote(quoteNumber - 1);
+                                    Questionnaire.newQuestionnaire(event)
+                                    .addQuestion(event.getString("command.fun.quote.edit", old_quote), QuestionType.STRING)
+                                    .execute(results -> {
+                                        settings.getQuotes().editQuote(quoteNumber - 1,results.getAnswer(0).toString());
+                                        settings.save();
+                                        channel.sendMessage(event.getString("command.fun.quote.editsuccess", quoteNumber)).queue();
+                                    });
+                                }
+                                else {
+                                    channel.sendMessage(event.getString("command.fun.quote.numbertoohigh", Integer.toString(quoteNumber))).queue();
                                 }
                             } catch (NumberFormatException e) {
                                 channel.sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getLocale(), "`" + event.getArgs()[1] + "`")).queue();

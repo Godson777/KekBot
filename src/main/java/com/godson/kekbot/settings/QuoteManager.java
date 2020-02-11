@@ -48,6 +48,10 @@ public class QuoteManager {
         return quotes.get(quoteNumber);
     }
 
+    public void editQuote(int quoteNumber, String quote){
+        quotes.set(quoteNumber, quote);
+    }
+
     public void removeQuote(int quoteNumber) {
         quotes.remove(quoteNumber);
     }
