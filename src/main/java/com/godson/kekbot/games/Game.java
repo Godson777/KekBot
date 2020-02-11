@@ -135,7 +135,7 @@ public abstract class Game {
                     double betEarnings = bets.declareWinners(this, winnerIDs);
                     profile.wonGame(Precision.round((topkeks * multiplier) + betEarnings, 2), KXP);
                     //if (bets.hasPlayerBets() || multiplier > 1) builder.append(stateEarnings(winner, topkeks, KXP, )).append("\n");
-                    builder.append(stateEarnings(winner, topkeks * multiplier, KXP, (bets.hasPlayerBets() ? new Bonus(betEarnings, "Won Bet") : null), (multiplier > 1 ? new Bonus(Precision.round(topkeks * (multiplier - 1), 2), multiplier + "x Multiplier") : null))).append("\n");
+                    builder.append(stateEarnings(winner, topkeks, KXP, (bets.hasPlayerBets() ? new Bonus(betEarnings, "Won Bet") : null), (multiplier > 1 ? new Bonus(Precision.round(topkeks * (multiplier - 1), 2), multiplier + "x Multiplier") : null))).append("\n");
                 }
                 profile.save();
             } else {
