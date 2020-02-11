@@ -25,6 +25,8 @@ public class Quote extends Command {
         usage.add("quote add <quote>");
         usage.add("quote remove <quote number>");
         usage.add("quote list");
+        usage.add("quote search <quote>");
+        usage.add("quote edit <quote number>");
         category = new Category("Fun");
         extendedDescription = "Note: Adding and removing quotes requires the \"Manage Messages\" permission.";
         exDescPos = ExtendedPosition.AFTER;
@@ -88,6 +90,30 @@ public class Quote extends Command {
                         } else channel.sendMessage(event.getString("command.fun.quote.removenoargs")).queue();
                     } else channel.sendMessage(KekBot.respond(Action.NOPERM_USER, event.getLocale(), "`Manage Messages`")).queue();
                     break;
+                case "edit":
+                    if (event.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
+                        if (event.getArgs().length > 1) {
+                            try {
+                                int quoteNumber = Integer.valueOf(event.getArgs()[1]);
+                                if (settings.getQuotes().getList().size() >= quoteNumber && quoteNumber > 0) {
+                                    String old_quote = settings.getQuotes().getQuote(quoteNumber - 1);
+                                    Questionnaire.newQuestionnaire(event)
+                                    .addQuestion(event.getString("command.fun.quote.edit", old_quote), QuestionType.STRING)
+                                    .execute(results -> {
+                                        settings.getQuotes().editQuote(quoteNumber - 1,results.getAnswer(0).toString());
+                                        settings.save();
+                                        channel.sendMessage(event.getString("command.fun.quote.editsuccess", quoteNumber)).queue();
+                                    });
+                                }
+                                else {
+                                    channel.sendMessage(event.getString("command.fun.quote.numbertoohigh", Integer.toString(quoteNumber))).queue();
+                                }
+                            } catch (NumberFormatException e) {
+                                channel.sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getLocale(), "`" + event.getArgs()[1] + "`")).queue();
+                            }
+                        } else channel.sendMessage(event.getString("command.fun.quote.removenoargs")).queue();
+                    } else channel.sendMessage(KekBot.respond(Action.NOPERM_USER, event.getLocale(), "`Manage Messages`")).queue();
+                    break;
                 case "list":
                     int size = (settings.getQuotes() == null ? 0 : settings.getQuotes().getList().size());
 
@@ -114,6 +140,38 @@ public class Quote extends Command {
                         channel.sendMessage(event.getString("command.fun.quote.noquotes")).queue();
                     }
                     break;
+                case "search":
+                    if (event.getArgs().length > 1) {
+                        String searchString = event.combineArgs(1);
+                        size = (settings.getQuotes() == null ? 0 : settings.getQuotes().search(searchString).size());
+                        if (size != 0) {
+                            Paginator.Builder builder = new Paginator.Builder();
+                            for (int i = 0; i < size; i++) {
+                                String quote = settings.getQuotes().search(searchString).get(i);
+                                builder.addItems(quote.length() > 200 ? quote.substring(0, 200) + "..." : quote);
+                            }
+
+                            builder.setText(event.getString("command.fun.quote.matches", "`" + searchString + "`"))
+                                    .setEventWaiter(KekBot.waiter)
+                                    .setColor(event.getGuild().getSelfMember().getColor())
+                                    .setItemsPerPage(10)
+                                    .waitOnSinglePage(true)
+                                    .showPageNumbers(true)
+                                    .useNumberedItems(false)
+                                    .wrapPageEnds(true)
+                                    .setTimeout(5, TimeUnit.MINUTES)
+                                    .setUsers(event.getAuthor());
+
+                            builder.build().display(event.getChannel());
+                        } else {
+                            channel.sendMessage(event.getString("command.fun.quote.nomatches", "`" + searchString + "`")).queue();
+                        }
+                    }
+                    else {
+                        channel.sendMessage(event.getString("command.fun.quote.matchnoargs")).queue();
+                    }
+                    break;
+                    
                 default:
                     int toGet;
                     try {
