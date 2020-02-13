@@ -27,12 +27,12 @@ public class QuoteManager {
     }
 
     public List<String> search(String quote) {
-        List <String> retList = new ArrayList<>();
+        List<String> retList = new ArrayList<>();
         String reg = "(?i).*(" + quote + ").*";
 
         for(int i = 0; i < quotes.size(); i++){
-            if(quotes.get(i).toString().matches(reg)){
-                retList.add("`" + Integer.toString(i + 1) + ".` " + quotes.get(i).toString());
+            if(quotes.get(i).matches(reg)){
+                retList.add("`" + Integer.toString(i + 1) + ".` " + quotes.get(i));
             }
         }
         return retList;

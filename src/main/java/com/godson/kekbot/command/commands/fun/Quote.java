@@ -4,6 +4,7 @@ import com.godson.kekbot.KekBot;
 import com.godson.kekbot.questionaire.QuestionType;
 import com.godson.kekbot.questionaire.Questionnaire;
 import com.godson.kekbot.responses.Action;
+import com.godson.kekbot.settings.QuoteManager;
 import com.godson.kekbot.settings.Settings;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
@@ -12,6 +13,8 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.MessageChannel;
 
+import java.io.UnsupportedEncodingException;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class Quote extends Command {
@@ -27,8 +30,9 @@ public class Quote extends Command {
         usage.add("quote list");
         usage.add("quote search <quote>");
         usage.add("quote edit <quote number>");
+        usage.add("quote dump");
         category = new Category("Fun");
-        extendedDescription = "Note: Adding and removing quotes requires the \"Manage Messages\" permission.";
+        extendedDescription = "Note: Adding, editing, and removing quotes requires the \"Manage Messages\" permission.";
         exDescPos = ExtendedPosition.AFTER;
     }
 
@@ -96,11 +100,11 @@ public class Quote extends Command {
                             try {
                                 int quoteNumber = Integer.valueOf(event.getArgs()[1]);
                                 if (settings.getQuotes().getList().size() >= quoteNumber && quoteNumber > 0) {
-                                    String old_quote = settings.getQuotes().getQuote(quoteNumber - 1);
+                                    String oldQuote = settings.getQuotes().getQuote(quoteNumber - 1);
                                     Questionnaire.newQuestionnaire(event)
-                                    .addQuestion(event.getString("command.fun.quote.edit", old_quote), QuestionType.STRING)
+                                    .addQuestion(event.getString("command.fun.quote.edit", oldQuote), QuestionType.STRING)
                                     .execute(results -> {
-                                        settings.getQuotes().editQuote(quoteNumber - 1,results.getAnswer(0).toString());
+                                        settings.getQuotes().editQuote(quoteNumber - 1, results.getAnswer(0).toString());
                                         settings.save();
                                         channel.sendMessage(event.getString("command.fun.quote.editsuccess", quoteNumber)).queue();
                                     });
@@ -143,15 +147,16 @@ public class Quote extends Command {
                 case "search":
                     if (event.getArgs().length > 1) {
                         String searchString = event.combineArgs(1);
-                        size = (settings.getQuotes() == null ? 0 : settings.getQuotes().search(searchString).size());
+                        QuoteManager quotes = settings.getQuotes();
+                        size = (quotes == null ? 0 : quotes.search(searchString).size());
                         if (size != 0) {
                             Paginator.Builder builder = new Paginator.Builder();
                             for (int i = 0; i < size; i++) {
-                                String quote = settings.getQuotes().search(searchString).get(i);
+                                String quote = quotes.search(searchString).get(i);
                                 builder.addItems(quote.length() > 200 ? quote.substring(0, 200) + "..." : quote);
                             }
 
-                            builder.setText(event.getString("command.fun.quote.matches", "`" + searchString + "`"))
+                            builder.setText(event.getString("command.fun.quote.matches", size, "`" + searchString + "`"))
                                     .setEventWaiter(KekBot.waiter)
                                     .setColor(event.getGuild().getSelfMember().getColor())
                                     .setItemsPerPage(10)
@@ -171,7 +176,25 @@ public class Quote extends Command {
                         channel.sendMessage(event.getString("command.fun.quote.matchnoargs")).queue();
                     }
                     break;
-                    
+                case "dump":
+                    StringBuilder dumper = new StringBuilder();
+                    List<String> quotes = settings.getQuotes().getList();
+                    String endl = System.getProperty("line.separator");
+                    if (quotes.size() < 1) {
+                        channel.sendMessage(event.getString("command.fun.quote.noquotes")).queue();
+                        return;
+                    }
+                    for (int i = 0; i < quotes.size(); i++) {
+                        //This line is gross leave me alone
+                        dumper.append((i + 1) + ". ").append(quotes.get(i)).append(endl);
+                    }
+                    try {
+                        byte[] dump = dumper.toString().getBytes("UTF-8");
+                        channel.sendFile(dump, "Quotes.txt").content(event.getString("command.fun.quote.dump")).queue();
+                    } catch (UnsupportedEncodingException e) {
+                        throwException(e, event);
+                    }
+                    break;
                 default:
                     int toGet;
                     try {
