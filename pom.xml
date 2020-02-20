@@ -6,7 +6,7 @@
 
     <groupId>com.godson</groupId>
     <artifactId>kekbot</artifactId>
-    <version>1.6.1</version>
+    <version>1.6.1-BETA1</version>
 
     <repositories>
         <repository>
@@ -83,7 +83,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>4.0.0_70</version>
+            <version>4.1.1_108</version>
         </dependency>
 
         <dependency>
@@ -119,13 +119,13 @@
         <dependency>
             <groupId>org.twitter4j</groupId>
             <artifactId>twitter4j-core</artifactId>
-            <version>4.0.6</version>
+            <version>4.0.7</version>
         </dependency>
 
         <dependency>
             <groupId>org.twitter4j</groupId>
             <artifactId>twitter4j-stream</artifactId>
-            <version>4.0.6</version>
+            <version>4.0.7</version>
         </dependency>
 
         <dependency>

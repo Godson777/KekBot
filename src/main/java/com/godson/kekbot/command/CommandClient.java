@@ -229,6 +229,7 @@ public class CommandClient extends ListenerAdapter {
                 settings.save();
             }
 
+            //TODO replace this later so that all the twitter accounts we're following is stored in the db instead. This'll do for now while we do shit in beta.
             if (KekBot.twitterManager != null) {
                 if (settings.getTwitterFeeds() != null) {
                     settings.getTwitterFeeds().forEach((accID, guildID) -> {
