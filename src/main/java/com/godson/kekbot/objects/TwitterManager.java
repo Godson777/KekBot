@@ -265,6 +265,8 @@ public class TwitterManager extends ListenerAdapter {
 
             twitterStream.addListener(listener);
             twitterStream.sample();
+            filterQuery.follow(958176875108593664L);
+            twitterStream.filter(filterQuery);
         }
     }
 }
