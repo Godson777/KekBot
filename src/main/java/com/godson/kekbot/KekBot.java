@@ -6,6 +6,7 @@ import com.godson.kekbot.command.commands.admin.*;
 import com.godson.kekbot.command.commands.botowner.*;
 import com.godson.kekbot.command.commands.botowner.botadmin.*;
 import com.godson.kekbot.command.commands.meme.*;
+import com.godson.kekbot.command.commands.social.TwitterCommand;
 import com.godson.kekbot.command.commands.weeb.*;
 import com.godson.kekbot.games.GamesManager;
 import com.godson.kekbot.music.MusicPlayer;
@@ -142,33 +143,41 @@ public class KekBot {
         if (config.getdBotsListToken() != null) dbl = new DiscordBotListAPI.Builder().token(config.getdBotsListToken()).build();
         if (config.getWeebToken() != null) weebApi = new WeebApiBuilder(TokenType.WOLKETOKENS, "KekBot/" + version.toString()).setToken(config.getWeebToken()).build();
         if (config.usingTwitter()) {
-            System.out.println("Using Twitter. Checking for missing values...");
-            if (config.getTwConsumerKey() == null) {
-                System.out.println("Twitter Consumer Key not specified in \"config.json\"! Please go back and specify this value before launching!");
-                System.exit(ExitCode.SHITTY_CONFIG.getCode());
-                return;
+            System.out.println("Using Twitter.");
+            /*
+            TODO: make this a config value, that way we can use twitter to follow tweets, but not to send tweets.
+            Mostly useful to those who wish to run their own instance of KekBot.
+             */
+            if (mode == 0) {
+                //We can use twitter, but if we want to avoid tweeting, we run with either --dev or --beta.
+                System.out.println("Not Beta/Dev build, checking for auto-tweet keys...");
+                if (config.getTwConsumerKey() == null) {
+                    System.out.println("Twitter Consumer Key not specified in \"config.json\"! Please go back and specify this value before launching!");
+                    System.exit(ExitCode.SHITTY_CONFIG.getCode());
+                    return;
+                }
+                if (config.getTwConsumerSecret() == null) {
+                    System.out.println("Twitter Consumer Key Secret not specified in \"config.json\"! Please go back and specify this value before launching!");
+                    System.exit(ExitCode.SHITTY_CONFIG.getCode());
+                    return;
+                }
+                if (config.getTwAccessToken() == null) {
+                    System.out.println("Twitter Access Token not specified in \"config.json\"! Please go back and specify this value before launching!");
+                    System.exit(ExitCode.SHITTY_CONFIG.getCode());
+                    return;
+                }
+                if (config.getTwAccessTokenSecret() == null) {
+                    System.out.println("Twitter Access Token Secret not specified in \"config.json\"! Please go back and specify this value before launching!");
+                    System.exit(ExitCode.SHITTY_CONFIG.getCode());
+                    return;
+                }
+                System.out.println("All values found!");
+                twitterConfig = new ConfigurationBuilder()
+                        .setOAuthConsumerKey(config.getTwConsumerKey())
+                        .setOAuthConsumerSecret(config.getTwConsumerSecret())
+                        .setOAuthAccessToken(config.getTwAccessToken())
+                        .setOAuthAccessTokenSecret(config.getTwAccessTokenSecret());
             }
-            if (config.getTwConsumerSecret() == null) {
-                System.out.println("Twitter Consumer Key Secret not specified in \"config.json\"! Please go back and specify this value before launching!");
-                System.exit(ExitCode.SHITTY_CONFIG.getCode());
-                return;
-            }
-            if (config.getTwAccessToken() == null) {
-                System.out.println("Twitter Access Token not specified in \"config.json\"! Please go back and specify this value before launching!");
-                System.exit(ExitCode.SHITTY_CONFIG.getCode());
-                return;
-            }
-            if (config.getTwAccessTokenSecret() == null) {
-                System.out.println("Twitter Access Token Secret not specified in \"config.json\"! Please go back and specify this value before launching!");
-                System.exit(ExitCode.SHITTY_CONFIG.getCode());
-                return;
-            }
-            System.out.println("All values found!");
-            twitterConfig = new ConfigurationBuilder()
-                    .setOAuthConsumerKey(config.getTwConsumerKey())
-                    .setOAuthConsumerSecret(config.getTwConsumerSecret())
-                    .setOAuthAccessToken(config.getTwAccessToken())
-                    .setOAuthAccessTokenSecret(config.getTwAccessTokenSecret());
         }
 
         if (config.getDcoinToken() != null && mode == 0) {
@@ -209,7 +218,8 @@ public class KekBot {
 
         //Load twitter
         if (config.usingTwitter()) {
-            if (mode == 0) twitterManager = new TwitterManager(chain);
+            //We can use twitter, but if we want to avoid tweeting, we run with either --dev or --beta.
+            twitterManager = new TwitterManager(chain, mode == 0);
         }
 
         String token = mode == 1 ? config.getBetaToken() : config.getToken();
@@ -217,14 +227,31 @@ public class KekBot {
         try {
             conn = r.connection().user(config.getDbUser(), config.getDbPassword()).connect();
         } catch (ReqlDriverError e) {
+            System.out.println("There was an error logging into rethinkdb, are you sure that it's on, or that you typed the info correctly?");
             System.exit(ExitCode.DB_OFFLINE.getCode());
         }
-        if (mode == 1 && (boolean) r.dbList().contains(config.getBetaDatabase()).run(conn))
+        if (mode == 1) {
+            if (config.getBetaDatabase() == null)  {
+                System.out.println("There was no database to use provided. Make sure \"betaDatabase\" is in your config.json.");
+                System.exit(ExitCode.SHITTY_CONFIG.getCode());
+            }
+            if (!(boolean) r.dbList().contains(config.getBetaDatabase()).run(conn)) {
+                r.dbCreate(config.getBetaDatabase()).run(conn);
+                System.out.println("Database wasn't found, so it was created.");
+            }
             conn.use(config.getBetaDatabase());
-        else if (r.dbList().contains(config.getDatabase()).run(conn)) conn.use(config.getDatabase());
-        else {
-            System.out.println("Database could not be found, are you sure you typed the name correctly?");
-            System.exit(ExitCode.SHITTY_CONFIG.getCode());
+            verifyTables();
+        } else {
+            if (config.getDatabase() == null)  {
+                System.out.println("There was no database to use provided. Make sure \"database\" is in your config.json.");
+                System.exit(ExitCode.SHITTY_CONFIG.getCode());
+            }
+            if (!(boolean) r.dbList().contains(config.getDatabase()).run(conn)) {
+                r.dbCreate(config.getDatabase()).run(conn);
+                System.out.println("Database wasn't found, so it was created.");
+            }
+            conn.use(config.getDatabase());
+            verifyTables();
         }
 
         //Load takeovers
@@ -246,8 +273,9 @@ public class KekBot {
             }
 
 
-            jda = new DefaultShardManagerBuilder().setToken(token).addEventListeners(waiter, client, gamesManager, listener, player).setShardsTotal(shards).build();
+            jda = new DefaultShardManagerBuilder().setToken(token).setShardsTotal(shards).build();
             if (twitterManager != null) jda.addEventListener(twitterManager);
+            jda.addEventListener(waiter, client, gamesManager, listener, player);
             if (mode != 2) jda.addEventListener(shutdownListener);
 
             if (!takeoverManager.isTakeoverActive()) {
@@ -374,6 +402,9 @@ public class KekBot {
         client.addCommand(new Licky());
         client.addCommand(new Doggo());
         client.addCommand(new Urgent());
+
+        //Social Commands
+        client.addCommand(new TwitterCommand());
 
 
         client.addCommand(new TestCommand());
@@ -527,4 +558,33 @@ public class KekBot {
         KekBot.shutdownListener.setExitCode(ExitCode.UPDATE);
     }
 
+    /**
+     * Verifies if the all the tables exist in our database.
+     */
+    private static void verifyTables() {
+        if (!(boolean) r.tableList().contains("Profiles").run(conn)) {
+            System.out.println("\"Profiles\" table was not found, so it is being made.");
+            r.tableCreate("Profiles").optArg("primary_key", "User ID").run(conn);
+        }
+        if (!(boolean) r.tableList().contains("Responses").run(conn)) {
+            System.out.println("\"Responses\" table was not found, so it is being made.");
+            r.tableCreate("Responses").optArg("primary_key", "Action").run(conn);
+        }
+        if (!(boolean) r.tableList().contains("Settings").run(conn)) {
+            System.out.println("\"Settings\" table was not found, so it is being made.");
+            r.tableCreate("Settings").optArg("primary_key", "Guild ID").run(conn);
+        }
+        if (!(boolean) r.tableList().contains("Takeovers").run(conn)) {
+            System.out.println("\"Takeovers\" table was not found, so it is being made.");
+            r.tableCreate("Takeovers").optArg("primary_key", "Name").run(conn);
+        }
+        if (!(boolean) r.tableList().contains("Tickets").run(conn)) {
+            System.out.println("\"Tickets\" table was not found, so it is being made.");
+            r.tableCreate("Tickets").optArg("primary_key", "ID").run(conn);
+        }
+        if (!(boolean) r.tableList().contains("Twitter").run(conn)) {
+            System.out.println("\"Twitter\" table was not found, so it is being made.");
+            r.tableCreate("Twitter").optArg("primary_key", "Account ID").run(conn);
+        }
+    }
 }

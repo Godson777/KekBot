@@ -1,6 +1,7 @@
 package com.godson.kekbot.command;
 
 import com.godson.kekbot.KekBot;
+import com.godson.kekbot.objects.TwitterManager;
 import com.godson.kekbot.util.Utils;
 import com.godson.kekbot.settings.Config;
 import com.godson.kekbot.settings.Settings;
@@ -114,7 +115,7 @@ public class CommandClient extends ListenerAdapter {
     }
 
     public void undisableUser(String ID) {
-        if (disabledUsers.containsKey(ID)) disabledUsers.remove(ID);
+        disabledUsers.remove(ID);
     }
 
     public void disableMember(String guildID, String userID) {
@@ -228,6 +229,13 @@ public class CommandClient extends ListenerAdapter {
                 settings.save();
             }
 
+            if (KekBot.twitterManager != null) {
+                if (settings.getTwitterFeeds() != null) {
+                    settings.getTwitterFeeds().forEach((accID, guildID) -> {
+                        KekBot.twitterManager.registerFollow(Long.parseLong(accID), guild.getIdLong());
+                    });
+                }
+            }
             if (settings.getPrefix() != null) setCustomPrefix(guild.getId(), settings.getPrefix());
             if (settings.getLocale() != null) setCustomLocale(guild.getId(), settings.getLocale());
         });

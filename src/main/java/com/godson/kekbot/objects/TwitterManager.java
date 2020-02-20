@@ -1,11 +1,12 @@
 package com.godson.kekbot.objects;
 
 import com.godson.kekbot.KekBot;
-import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.responses.Action;
 import com.godson.kekbot.settings.Config;
+import com.godson.kekbot.settings.Settings;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.internal.utils.tuple.Pair;
@@ -14,11 +15,8 @@ import twitter4j.*;
 
 import java.awt.*;
 import java.io.UnsupportedEncodingException;
-import java.sql.Time;
 import java.time.Instant;
-import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
@@ -27,89 +25,108 @@ import java.util.concurrent.TimeUnit;
 
 public class TwitterManager extends ListenerAdapter {
 
+    //The following variables pertain to KekBot's markov chain tweets.
     private final MarkovChain chain;
     private final ScheduledExecutorService tweeter = new ScheduledThreadPoolExecutor(2);
     private Instant lastTweet;
     private boolean firstTweet = false;
-    private final Twitter twitter = TwitterFactory.getSingleton();
+    public final Twitter twitter = TwitterFactory.getSingleton();
+    //A list of statuses we wrote to overwrite KekBot's scheduled markov tweets.
     private final List<Pair<Instant, StatusUpdate>> statuses = new ArrayList<>();
+    private final int initialDelay = 60;
+    private final int subsequentDelay = 30;
+    private final boolean tweeting;
+    //This concludes the variables needed for KekBot's markov chain tweets.
 
+    //The following variables pertain to the Twitter feed functionality.
     private Map<Long, Message> currentTweets = new HashMap<>();
-    TwitterStream twitterStream = new TwitterStreamFactory().getInstance();
-    long[] ids = new long[]{958176875108593664L, 610103342L, 2996678026L, 624995324L, 1475679589L, 845418771896524801L, 762996861447860224L};
+    private TwitterStream twitterStream = new TwitterStreamFactory().getInstance();
+    FilterQuery filterQuery = new FilterQuery();
+    /*
+    Despite the name of the variable, this isn't a list of OUR followers, this is a list of accounts WE'RE following,
+    along with the guilds that requested us to follow them.
+     */
+    Map<Long, Set<Long>> twitterFollows = new HashMap<>();
     StatusListener listener = new StatusListener() {
         @Override
         public void onStatus(Status status) {
             //We do need this tho
             if (status.isRetweet()) return;
-            if (Arrays.stream(ids).noneMatch(id -> id == status.getUser().getId())) return;
+            if (twitterFollows.keySet().stream().noneMatch(id -> id == status.getUser().getId())) return;
+            if (status.getInReplyToScreenName() != null) return;
 
-            EmbedBuilder builder = new EmbedBuilder();
-            builder.setThumbnail(status.getUser().getProfileImageURL());
-            builder.setColor(Color.RED);
-            builder.setTitle("New tweet by: " + status.getUser().getName(), "https://twitter.com/" + status.getUser().getScreenName() + "/status/" + status.getId());
-            builder.setAuthor("@" + status.getUser().getScreenName());
-            builder.setTimestamp(Instant.now());
-            if (status.getMediaEntities().length > 0) builder.setImage(status.getMediaEntities()[0].getMediaURL());
-            builder.setDescription(status.getText());
-
-            KekBot.jda.getTextChannelById("327379946794254338").sendMessage(builder.build()).queue(m -> currentTweets.put(status.getId(), m));
-        }
-
-        @Override
-        public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {
-            //We may not need this
-            if (currentTweets.containsKey(statusDeletionNotice.getStatusId())) {
-                Message m = currentTweets.get(statusDeletionNotice.getStatusId());
-                EmbedBuilder builder = new EmbedBuilder();
-                builder.setColor(Color.GRAY);
-                builder.setTimestamp(m.getTimeCreated());
-                builder.setTitle("This tweet was removed from Twitter.");
-                m.editMessage(builder.build()).queue();
-                currentTweets.remove(statusDeletionNotice.getStatusId());
+            for (Long guildID : twitterFollows.get(status.getUser().getId())) {
+                if (!Settings.getSettings(guildID.toString()).isTwitterFeedEnabled()) continue;
+                TextChannel channel = KekBot.jda.getGuildById(guildID).getTextChannelById(Settings.getSettings(guildID.toString()).getTwitterFeedChannel(Long.toString(status.getUser().getId())));
+                if (channel == null) {
+                    Settings.getSettings(guildID.toString()).unfollowTwitterAccount(Long.toString(status.getUser().getId())).save();
+                } else {
+                    channel.sendMessage("New Tweet from " + status.getUser().getName() + ": " + "https://twitter.com/" + status.getUser().getScreenName() + "/status/" + status.getId()).queue();
+                }
             }
         }
 
         @Override
+        public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {
+            //Ignore
+        }
+
+        @Override
         public void onTrackLimitationNotice(int i) {
-            //We may not need this
+            //Ignore
         }
 
         @Override
         public void onScrubGeo(long l, long l1) {
-            //We may not need this
+            //Ignore
         }
 
         @Override
         public void onStallWarning(StallWarning stallWarning) {
-            //We may not need this
+            //Ignore
         }
 
         @Override
         public void onException(Exception e) {
-            //We may not need this
+            //Ignore
         }
     };
-    private final int initialDelay = 60;
-    private final int subsequentDelay = 30;
 
-    public TwitterManager(MarkovChain chain) {
+    public TwitterManager(MarkovChain chain, boolean tweeting) {
         this.chain = chain;
-        tweeter.schedule(() -> {
-            tweeter.scheduleAtFixedRate(() -> {
-                Instant now = Instant.now();
-                Optional<Pair<Instant, StatusUpdate>> status = statuses.stream().filter(s -> now.isAfter(s.getLeft())).findFirst();
-                if (status.isPresent()) {
-                    tweet(status.get().getRight());
-                    statuses.remove(status.get());
-                } else {
-                    tweet();
-                }
-            }, 0, subsequentDelay, TimeUnit.MINUTES);
-            firstTweet = true;
-        }, initialDelay, TimeUnit.MINUTES);
-        lastTweet = Instant.now();
-        tweet("KekBot has started up. Please wait an hour before expecting more high quality™ tweets.\n\n" + Instant.now().toString());
+        this.tweeting = tweeting;
+        if (tweeting) {
+            tweeter.schedule(() -> {
+                tweeter.scheduleAtFixedRate(() -> {
+                    Instant now = Instant.now();
+                    Optional<Pair<Instant, StatusUpdate>> status = statuses.stream().filter(s -> now.isAfter(s.getLeft())).findFirst();
+                    if (status.isPresent()) {
+                        tweet(status.get().getRight());
+                        statuses.remove(status.get());
+                    } else {
+                        tweet();
+                    }
+                }, 0, subsequentDelay, TimeUnit.MINUTES);
+                firstTweet = true;
+            }, initialDelay, TimeUnit.MINUTES);
+            lastTweet = Instant.now();
+            tweet("KekBot has started up. Please wait an hour before expecting more high quality™ tweets.\n\n" + Instant.now().toString());
+        }
+    }
+
+    public void registerFollow(long accID, long guildID) {
+        int follows = twitterFollows.size();
+        if (!twitterFollows.containsKey(accID)) {
+            Set<Long> guilds = new HashSet<Long>();
+            guilds.add(guildID);
+            twitterFollows.put(accID, guilds);
+        } else {
+            twitterFollows.get(accID).add(guildID);
+        }
+        if (follows != twitterFollows.size()) {
+            filterQuery.follow(twitterFollows.keySet().stream().mapToLong(l -> l).toArray());
+            twitterStream.filter(filterQuery);
+        }
     }
 
     private void tweet() {
@@ -203,6 +220,24 @@ public class TwitterManager extends ListenerAdapter {
         return estimate;
     }
 
+    public User lookupUser(String name) throws TwitterException {
+        try {
+            return twitter.lookupUsers(name).get(0);
+        } catch (TwitterException e) {
+            if (e.resourceNotFound()) return null;
+            else throw e;
+        }
+    }
+
+    public User lookupID(String ID) throws TwitterException {
+        try {
+            return twitter.lookupUsers(Long.parseLong(ID)).get(0);
+        } catch (TwitterException e) {
+            if (e.resourceNotFound()) return null;
+            else throw e;
+        }
+    }
+
     /**
      *
      * @param time The time we'll be tweeting the status.
@@ -221,7 +256,7 @@ public class TwitterManager extends ListenerAdapter {
     public void shutdown(String reason) {
         tweeter.shutdown();
         twitterStream.shutdown();
-        tweet("KekBot is shutting down. (Reason: " + reason + ")");
+        if (tweeting) tweet("KekBot is shutting down. (Reason: " + reason + ")");
     }
 
     @Override
@@ -230,9 +265,6 @@ public class TwitterManager extends ListenerAdapter {
 
             twitterStream.addListener(listener);
             twitterStream.sample();
-            FilterQuery filterQuery = new FilterQuery();
-            filterQuery.follow(ids);
-            twitterStream.filter(filterQuery);
         }
     }
 }

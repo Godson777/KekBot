@@ -8,8 +8,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Settings {
     @SerializedName("Guild ID")
@@ -26,8 +25,12 @@ public class Settings {
     private QuoteManager quotes = new QuoteManager();
     @SerializedName("Free Roles")
     private List<String> freeRoles = new ArrayList<>();
+    @SerializedName("Twitter Feeds")
+    private Map<String, String> twitterFeeds = new HashMap<>();
     @SerializedName("Anti-Ad")
     private boolean antiAd = false;
+    @SerializedName("Twitter Feed Enabled")
+    private boolean twitterFeed = false;
     @SerializedName("Update Channel ID")
     private String updateChannelID;
     @SerializedName("Locale")
@@ -129,12 +132,18 @@ public class Settings {
                 .with("Free Roles", freeRoles == null ? new ArrayList<Role>() : freeRoles)
                 .with("Anti-Ad", antiAd)
                 .with("Update Channel ID", updateChannelID)
-                .with("Locale", locale == null ? "en_US" : locale);
+                .with("Locale", locale == null ? "en_US" : locale)
+                .with("Twitter Feeds", twitterFeeds == null ? new HashMap<String, String>() : twitterFeeds)
+                .with("Twitter Feed Enabled", twitterFeed);
 
         if (KekBot.r.table("Settings").get(guildID).run(KekBot.conn) == null) {
             KekBot.r.table("Settings").insert(settings).run(KekBot.conn);
         } else {
-            KekBot.r.table("Settings").get(guildID).update(settings).run(KekBot.conn);
+            if (twitterFeeds.size() < (long) KekBot.r.table("Settings").get(guildID).getField("Twitter Feeds").count().run(KekBot.conn)) {
+                KekBot.r.table("Settings").get(guildID).replace(settings).run(KekBot.conn);
+            } else {
+                KekBot.r.table("Settings").get(guildID).update(settings).run(KekBot.conn);
+            }
         }
     }
 
@@ -202,5 +211,39 @@ public class Settings {
 
     public boolean isAntiAdEnabled() {
         return antiAd;
+    }
+
+    public Map<String, String> getTwitterFeeds() {
+        return twitterFeeds;
+    }
+
+    public boolean isTwitterFeedEnabled() {
+        return twitterFeed;
+    }
+
+    public Settings toggleTwitterFeed(boolean twitterFeed) {
+        this.twitterFeed = twitterFeed;
+        return this;
+    }
+
+    public Settings followTwitterAccount(String accID, String channelID)  {
+        if (twitterFeeds == null) twitterFeeds = new HashMap<>();
+        if (!twitterFeeds.containsKey(accID)) twitterFeeds.put(accID, channelID);
+        return this;
+    }
+
+    public Settings unfollowTwitterAccount(String accID)  {
+        if (twitterFeeds == null) twitterFeeds = new HashMap<>();
+        twitterFeeds.remove(accID);
+        return this;
+    }
+
+    public boolean isFollowingTwitterAccount(String accID) {
+        if (twitterFeeds == null) twitterFeeds = new HashMap<>();
+         return twitterFeeds.keySet().stream().anyMatch(id -> id.equals(accID));
+    }
+
+    public String getTwitterFeedChannel(String accID) {
+        return twitterFeeds.get(accID);
     }
 }

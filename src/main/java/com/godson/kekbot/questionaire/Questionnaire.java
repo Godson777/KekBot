@@ -5,6 +5,7 @@ import com.godson.kekbot.util.LocaleUtils;
 import com.godson.kekbot.command.CommandEvent;
 import com.google.gson.internal.Primitives;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -14,7 +15,9 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.api.requests.RestAction;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -23,6 +26,8 @@ public class Questionnaire {
     private final List<Question> questions = new ArrayList<>();
     private final EventWaiter waiter = KekBot.waiter;
     private final List<Object> answers = new ArrayList<>();
+    private final List<Message> messages = new ArrayList<>();
+    private Message question;
     private final Map<Question, List<String>> choices = new HashMap<>();
     private boolean skipQuestionMessage = false;
     private boolean skipOnRepeat = false;
@@ -30,6 +35,8 @@ public class Questionnaire {
     private boolean includeCancel = true;
     private String customErrorMessage;
     private boolean useRawInput = false;
+    private boolean useEmbed = false;
+    private Color embedColor = Color.WHITE;
 
     //Guild Info:
     private final Guild guild;
@@ -158,6 +165,17 @@ public class Questionnaire {
         return this;
     }
 
+    public Questionnaire asEmbed() {
+        useEmbed = true;
+        return this;
+    }
+
+    public Questionnaire asEmbed(Color color) {
+        useEmbed = true;
+        embedColor = color;
+        return this;
+    }
+
     public void execute(Consumer<Results> results) {
         KekBot.getCommandClient().registerQuestionnaire(channel.getId(), user.getId());
         this.results = results;
@@ -166,7 +184,14 @@ public class Questionnaire {
 
     private void execute(int i) {
         Question question = questions.get(i);
-        if (!skipQuestionMessage) channel.sendMessage(question.getMessage() + (includeCancel ? " " + LocaleUtils.getString("questionnaire.cancelmessage", locale, "`" + "cancel" + "`") : "")).queue();
+        if (!skipQuestionMessage) {
+            if (useEmbed) {
+                EmbedBuilder builder = new EmbedBuilder();
+                builder.setDescription(question.getMessage() + (includeCancel ? " " + LocaleUtils.getString("questionnaire.cancelmessage", locale, "`" + "cancel" + "`") : ""));
+                builder.setColor(embedColor);
+                channel.sendMessage(builder.build()).queue(s -> this.question = s);
+            } else channel.sendMessage(question.getMessage() + (includeCancel ? " " + LocaleUtils.getString("questionnaire.cancelmessage", locale, "`" + "cancel" + "`") : "")).queue(s -> this.question = s);
+        }
         //here comes some crazy shit
         waiter.waitForEvent(Event.class, e -> {
             if (e instanceof GuildMessageReceivedEvent)
@@ -176,18 +201,31 @@ public class Questionnaire {
         }, e -> {
             if (e instanceof GuildMessageReceivedEvent) {
                 String message = (useRawInput ? ((GuildMessageReceivedEvent) e).getMessage().getContentRaw() : ((GuildMessageReceivedEvent) e).getMessage().getContentDisplay());
-                RestAction<Message> errorMessage = ((GuildMessageReceivedEvent) e).getChannel().sendMessage((!customErrorMessageEnabled ? LocaleUtils.getString("questionnaire.error", locale) : customErrorMessage));
+                RestAction<Message> errorMessage;
+                if (useEmbed) {
+                    EmbedBuilder builder = new EmbedBuilder();
+                    builder.setDescription((!customErrorMessageEnabled ? LocaleUtils.getString("questionnaire.error", locale) : customErrorMessage));
+                    builder.setColor(embedColor);
+                    errorMessage = ((GuildMessageReceivedEvent) e).getChannel().sendMessage(builder.build());
+                } else errorMessage = ((GuildMessageReceivedEvent) e).getChannel().sendMessage((!customErrorMessageEnabled ? LocaleUtils.getString("questionnaire.error", locale) : customErrorMessage));
                 if (message.equalsIgnoreCase("cancel")) {
-                    ((GuildMessageReceivedEvent) e).getChannel().sendMessage(LocaleUtils.getString("questionnaire.cancelled", locale)).queue();
+                    if (useEmbed) {
+                        EmbedBuilder builder = new EmbedBuilder();
+                        builder.setDescription(LocaleUtils.getString("questionnaire.cancelled", locale));
+                        builder.setColor(embedColor);
+                        ((GuildMessageReceivedEvent) e).getChannel().sendMessage(builder.build()).queue();
+                    } else ((GuildMessageReceivedEvent) e).getChannel().sendMessage(LocaleUtils.getString("questionnaire.cancelled", locale)).queue();
                     KekBot.getCommandClient().unregisterQuestionnaire(channel.getId(), user.getId());
                 } else {
                     switch (question.getType()) {
                         case STRING:
                             answers.add(message);
+                            messages.add(((GuildMessageReceivedEvent) e).getMessage());
                             break;
                         case INT:
                             try {
                                 answers.add(Integer.valueOf(message));
+                                messages.add(((GuildMessageReceivedEvent) e).getMessage());
                             } catch (NumberFormatException e1) {
                                 if (skipOnRepeat) skipQuestionMessage = true;
                                 errorMessage.queue();
@@ -198,6 +236,7 @@ public class Questionnaire {
                         case DOUBLE:
                             try {
                                 answers.add(Double.valueOf(message));
+                                messages.add(((GuildMessageReceivedEvent) e).getMessage());
                             } catch (NumberFormatException e1) {
                                 if (skipOnRepeat) skipQuestionMessage = true;
                                 errorMessage.queue();
@@ -214,6 +253,7 @@ public class Questionnaire {
                                 return;
                             } else {
                                 answers.add(choice.get());
+                                messages.add(((GuildMessageReceivedEvent) e).getMessage());
                             }
                             break;
                         case YES_NO_STRING:
@@ -224,9 +264,13 @@ public class Questionnaire {
                                 execute(i);
                                 return;
                             } else {
-                                if (yesNoChoice.get().equalsIgnoreCase("y") || yesNoChoice.get().equalsIgnoreCase("yes"))
+                                if (yesNoChoice.get().equalsIgnoreCase("y") || yesNoChoice.get().equalsIgnoreCase("yes")) {
                                     answers.add(true);
-                                else answers.add(false);
+                                    messages.add(((GuildMessageReceivedEvent) e).getMessage());
+                                } else {
+                                    answers.add(false);
+                                    messages.add(((GuildMessageReceivedEvent) e).getMessage());
+                                }
                             }
                     }
                     if (i + 1 != questions.size()) {
@@ -243,7 +287,12 @@ public class Questionnaire {
             }
         }, timeout, timeoutUnit, () -> {
             KekBot.getCommandClient().unregisterQuestionnaire(channel.getId(), user.getId());
-            channel.sendMessage(LocaleUtils.getString("questionnaire.noinput", locale) + " " + LocaleUtils.getString("questionnaire.cancelled", locale)).queue();
+            if (useEmbed) {
+                EmbedBuilder builder = new EmbedBuilder();
+                builder.setColor(embedColor);
+                builder.setDescription(LocaleUtils.getString("questionnaire.noinput", locale) + " " + LocaleUtils.getString("questionnaire.cancelled", locale));
+                channel.sendMessage(builder.build()).queue();
+            } else channel.sendMessage(LocaleUtils.getString("questionnaire.noinput", locale) + " " + LocaleUtils.getString("questionnaire.cancelled", locale)).queue();
         });
     }
 
@@ -254,6 +303,8 @@ public class Questionnaire {
     public class Results {
         private Questionnaire questionnaire;
         private List<Object> answers;
+        private List<Message> messages;
+        private Message question;
         private Guild guild;
         private TextChannel channel;
         private User user;
@@ -266,6 +317,8 @@ public class Questionnaire {
             this.guild = questionnaire.guild;
             this.channel = questionnaire.channel;
             this.user = questionnaire.user;
+            this.messages = questionnaire.messages;
+            this.question = questionnaire.question;
         }
 
         public Object getAnswer(int i) {
@@ -274,6 +327,14 @@ public class Questionnaire {
 
         public <T> T getAnswerAsType(int i, Class<T> classOfT) {
             return Primitives.wrap(classOfT).cast(answers.get(i));
+        }
+
+        public Message getMessage(int i) {
+            return messages.get(i);
+        }
+
+        public Message getQuestion() {
+            return question;
         }
 
         public List<Object> getAnswers() {
