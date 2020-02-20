@@ -85,7 +85,7 @@ public class TwitterCommand extends Command {
             switch (choice.get()) {
                 case 1:
                     //Check if we haven't reached our max feeds yet.
-                    if (Settings.getSettings(event.getGuild()).getTwitterFeeds().size() == 3) {
+                    if (Settings.getSettings(event.getGuild()).getTwitterFeeds() != null && Settings.getSettings(event.getGuild()).getTwitterFeeds().size() == 3) {
                         AtomicInteger finalChoice = new AtomicInteger(0);
                         ButtonMenu.Builder builder = new ButtonMenu.Builder();
                         builder.setEventWaiter(KekBot.waiter);
