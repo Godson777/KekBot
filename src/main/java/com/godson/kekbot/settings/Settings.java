@@ -139,7 +139,8 @@ public class Settings {
         if (KekBot.r.table("Settings").get(guildID).run(KekBot.conn) == null) {
             KekBot.r.table("Settings").insert(settings).run(KekBot.conn);
         } else {
-            if (twitterFeeds.size() < (long) KekBot.r.table("Settings").get(guildID).getField("Twitter Feeds").count().run(KekBot.conn)) {
+            boolean doFeedsExist = KekBot.r.table("Settings").get(guildID).getField("Twitter Feeds").run(KekBot.conn) != null;
+            if (doFeedsExist && twitterFeeds.size() < (long) KekBot.r.table("Settings").get(guildID).getField("Twitter Feeds").count().run(KekBot.conn)) {
                 KekBot.r.table("Settings").get(guildID).replace(settings).run(KekBot.conn);
             } else {
                 KekBot.r.table("Settings").get(guildID).update(settings).run(KekBot.conn);
