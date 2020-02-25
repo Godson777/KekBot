@@ -264,9 +264,9 @@ public class TwitterManager extends ListenerAdapter {
         if (event.getJDA().getShardInfo().getShardId() == event.getJDA().getShardInfo().getShardTotal() - 1) {
 
             twitterStream.addListener(listener);
-            twitterStream.sample();
             filterQuery.follow(958176875108593664L);
             twitterStream.filter(filterQuery);
+            twitterStream.sample();
         }
     }
 }

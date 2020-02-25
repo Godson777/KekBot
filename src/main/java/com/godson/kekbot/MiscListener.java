@@ -1,5 +1,6 @@
 package com.godson.kekbot;
 
+import com.godson.kekbot.profile.Profile;
 import com.godson.kekbot.settings.Config;
 import com.godson.kekbot.settings.Settings;
 import com.godson.kekbot.util.LocaleUtils;
@@ -9,6 +10,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberLeaveEvent;
@@ -43,6 +45,11 @@ public class MiscListener extends ListenerAdapter {
         //Send stats to the important sites.
         Utils.sendStats(event.getJDA());
 
+        //IT'S TIME TO TEST OUR PROFILE FIXER
+        for (User user : event.getJDA().getUsers()) {
+            if (!Profile.hasProfile(user)) continue;
+            Profile.huntProfile(user).save();
+        }
     }
 
     @Override

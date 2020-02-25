@@ -11,7 +11,7 @@ public class CustomEmote {
             "<:thonkang:319056771027304448>",
             "\uD83E\uDD14"};
     private final static String[] DANCES = {"<a:duane:403114999578361856>", "<a:pbjtime:404578308009885702>", "<a:BowserDance:404580609113980929>"};
-    private final static String TOPKEK = "<:topkek:317825573441503243>";
+    private final static String TOPKEK = "<:topkek:680961149826629632>";
     private final static String[] TROPHIES = {"<:GoldTrophy:363572128592822272>", "<:SilverTrophy:363572121928204299>", "<:BronzeTrophy:363572119101112320>"};
     private final static String[] LOADING =
             {"<a:loading:438621485985169408>",
@@ -30,8 +30,8 @@ public class CustomEmote {
     }
 
     public static String printPrice(double price) {
-        if (price % 1 == 0) return (int) price + TOPKEK;
-        else return price + TOPKEK;
+        if (price % 1 == 0) return TOPKEK + (int) price;
+        else return TOPKEK + price;
     }
 
     public static String printTopKek() {

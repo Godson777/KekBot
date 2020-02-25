@@ -13,7 +13,7 @@ import java.util.List;
 
 public class LootBox {
     public enum Rarity {
-        COMMON(175), RARE(45), EPIC(20), LEGENDARY(5), GRAND(0.5);
+        COMMON(175), RARE(30), EPIC(10), LEGENDARY(3), GRAND(0.3);
 
         private double chance;
 
@@ -30,6 +30,29 @@ public class LootBox {
         }
     }
 
+    private Rarity rarity;
+
+
+    private static RandomCollection<Rarity> rarityRNG = new RandomCollection<Rarity>()
+            .add(Rarity.COMMON.chance, Rarity.COMMON)
+            .add(Rarity.RARE.chance, Rarity.RARE)
+            .add(Rarity.EPIC.chance, Rarity.EPIC)
+            .add(Rarity.LEGENDARY.chance, Rarity.LEGENDARY)
+            .add(Rarity.GRAND.chance, Rarity.GRAND);
+
+    public LootBox() {
+        rarity = rarityRNG.next();
+    }
+
+    public LootBox(Rarity rarity) {
+        this.rarity = rarity;
+    }
+
+    public Rarity getRarity() {
+        return rarity;
+    }
+
+    //Rewards
     public static abstract class Reward {
         private Rarity rarity;
 
@@ -97,21 +120,22 @@ public class LootBox {
         }
     }
 
-    private Rarity rarity;
+    public static class TokenReward extends Reward {
 
+        private Token token;
 
-    private static RandomCollection<Rarity> rarityRNG = new RandomCollection<Rarity>()
-            .add(Rarity.COMMON.chance, Rarity.COMMON)
-            .add(Rarity.RARE.chance, Rarity.RARE)
-            .add(Rarity.EPIC.chance, Rarity.EPIC)
-            .add(Rarity.LEGENDARY.chance, Rarity.LEGENDARY)
-            .add(Rarity.GRAND.chance, Rarity.GRAND);
+        public TokenReward(Rarity rarity, Token token) {
+            super(rarity);
+            this.token = token;
+        }
 
-    public LootBox() {
-        rarity = rarityRNG.next();
-    }
-
-    public Rarity getRarity() {
-        return rarity;
+        @Override
+        public boolean getReward(Profile profile) {
+            if (!profile.hasToken(token)) {
+                profile.addToken(token);
+                profile.save();
+                return true;
+            } return false;
+        }
     }
 }

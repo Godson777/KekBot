@@ -37,7 +37,12 @@ public class RewardManager {
                         break;
                     //If KXP:
                     case "KXP":
+                        //add a new KXP reward:
                         rewards.add(new LootBox.KXPReward(LootBox.Rarity.valueOf(rarity), Integer.valueOf(value)));
+                        break;
+                    case "TOKEN":
+                        //add a new token reward:
+                        rewards.add(new LootBox.TokenReward(LootBox.Rarity.valueOf(rarity), Token.valueOf(value)));
                         break;
                 }
             }

@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 
 public class Profile {
     @SerializedName("User ID")
-    private long userID;
+    private String userID;
     @SerializedName("Token")
     private Token token;
     @SerializedName("Tokens")
@@ -66,7 +66,7 @@ public class Profile {
      * @param userID The {@link User user's} ID.
      */
     private Profile(long userID) {
-        this.userID = userID;
+        this.userID = String.valueOf(userID);
     }
 
     /**
@@ -104,24 +104,6 @@ public class Profile {
      */
     public boolean hasBackgroundEquipped() {
         return currentBackgroundID != null;
-    }
-
-    /**
-     * Checks if the user has a profile saved in a file.
-     * @param user The user we're checking for.
-     * @return The boolean value to represent this check.
-     */
-    public static boolean checkForProfile(User user) {
-        return new File("profiles/" + user.getId() + ".json").exists();
-    }
-
-    /**
-     * Checks if the user has a profile saved in a file.
-     * @param userID The user's ID we're checking for.
-     * @return The boolean value to represent this check.
-     */
-    public static boolean checkForProfile(long userID) {
-        return new File("profiles/" + userID + ".json").exists();
     }
 
     /*
@@ -200,8 +182,8 @@ public class Profile {
         card.setFont(ProfileUtils.sideBar);
         card.drawString("LVL " + level, 87, 252);
         card.drawImage(kxpBar, 46, 262, kxpBar.getWidth(), kxpBar.getHeight(), null);
-        card.drawImage(topkek, 60, 314, 51, 51, null);
-        card.drawString(shortenNumber(topkeks), 116, 351);
+        card.drawImage(topkek, 50, 314, 51, 51, null);
+        card.drawString(shortenNumber(topkeks), 106, 351);
 
         //Draw other important texts.
         card.drawString("Tokens: ", 251, 264);
@@ -209,7 +191,7 @@ public class Profile {
         //Draw playlists.
         card.setFont(ProfileUtils.topBarBio);
         List<Playlist> playlists = getPlaylists().stream().filter(playlist -> !playlist.isHidden()).collect(Collectors.toList());
-        for (int i = 0; i < (playlists.size() > 5 ? 5 : playlists.size()); i++) {
+        for (int i = 0; i < (Math.min(playlists.size(), 5)); i++) {
             Playlist playlist = playlists.get(i);
             card.drawString(playlist.getName() + " (" + Utils.convertMillisToHMmSs(playlist.getTotalLength()) + ")", 251, 490 + (20 * i));
         }
@@ -217,7 +199,7 @@ public class Profile {
         if (badge != null) card.drawImage(badge.drawBadge(), 43, 435, 145, 145, null);
 
         //Draw Tokens
-        for (int i = 0; i < (tokens.size() < 6 ? tokens.size() : 6); i++) {
+        for (int i = 0; i < (Math.min(tokens.size(), 6)); i++) {
             card.drawImage(getTokens().get(i).drawToken(), (265 + (120 * (i))), 295, 100, 100, null);
         }
 
@@ -259,10 +241,13 @@ public class Profile {
      */
     private BufferedImage drawKXP() throws IOException {
         BufferedImage outline = ImageIO.read(new File("resources/profile/bar.png"));
+        BufferedImage fill = ImageIO.read(new File("resources/profile/barFull.png"));
         BufferedImage base = new BufferedImage(outline.getWidth(), outline.getHeight(), outline.getType());
         Graphics2D kxpBar = base.createGraphics();
-        kxpBar.setColor(Color.GREEN);
-        kxpBar.fillRect(4, 3, (int) (142 * ((double) KXP / (double) maxKXP)), 33);
+        Shape resetClip = kxpBar.getClip();
+        kxpBar.clipRect(0, 0, (int) (150 * ((double) KXP / (double) maxKXP)), 39);
+        kxpBar.drawImage(fill, 0, 0, null);
+        kxpBar.setClip(resetClip);
         kxpBar.drawImage(outline, 0, 0, null);
         kxpBar.setFont(ProfileUtils.sideBar);
         //Prepare KXP/maxKXP text
@@ -624,6 +609,10 @@ public class Profile {
         daily = time.toInstant().getEpochSecond();
     }
 
+    public User getUser() {
+        return user;
+    }
+
     /**
      * A static method used to grab a profile object based on a user object.
      * @param user The user.
@@ -632,9 +621,24 @@ public class Profile {
     public static Profile getProfile(User user) {
         Gson gson = new Gson();
         Profile profile;
-        if (KekBot.r.table("Profiles").get(user.getIdLong()).run(KekBot.conn) != null) profile = gson.fromJson((String) KekBot.r.table("Profiles").get(user.getIdLong()).toJson().run(KekBot.conn), Profile.class);
+        if (KekBot.r.table("Profiles").get(user.getId()).run(KekBot.conn) != null) profile = gson.fromJson((String) KekBot.r.table("Profiles").get(user.getId()).toJson().run(KekBot.conn), Profile.class);
         else profile = new Profile(user.getIdLong());
         profile.user = user;
+        return profile;
+    }
+
+    public static boolean hasProfile(User user) {
+        if (KekBot.r.table("Profiles").get(user.getIdLong()).run(KekBot.conn) != null) return true;
+        return false;
+    }
+
+    public static Profile huntProfile(User user) {
+        Gson gson = new Gson();
+        Profile profile;
+        profile = gson.fromJson((String) KekBot.r.table("Profiles").get(user.getIdLong()).toJson().run(KekBot.conn), Profile.class);
+        profile.user = user;
+        KekBot.r.table("Profiles").get(user.getIdLong()).delete().run(KekBot.conn);
+        profile.userID = user.getId();
         return profile;
     }
 
