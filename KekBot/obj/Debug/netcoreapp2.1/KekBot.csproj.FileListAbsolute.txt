@@ -1,0 +1,10 @@
+C:\Users\Godson\IdeaProjects\kekbot\KekBot\KekBot\bin\Debug\netcoreapp2.1\KekBot.deps.json
+C:\Users\Godson\IdeaProjects\kekbot\KekBot\KekBot\bin\Debug\netcoreapp2.1\KekBot.runtimeconfig.json
+C:\Users\Godson\IdeaProjects\kekbot\KekBot\KekBot\bin\Debug\netcoreapp2.1\KekBot.runtimeconfig.dev.json
+C:\Users\Godson\IdeaProjects\kekbot\KekBot\KekBot\bin\Debug\netcoreapp2.1\KekBot.dll
+C:\Users\Godson\IdeaProjects\kekbot\KekBot\KekBot\obj\Debug\netcoreapp2.1\KekBot.csprojAssemblyReference.cache
+C:\Users\Godson\IdeaProjects\kekbot\KekBot\KekBot\obj\Debug\netcoreapp2.1\KekBot.AssemblyInfoInputs.cache
+C:\Users\Godson\IdeaProjects\kekbot\KekBot\KekBot\obj\Debug\netcoreapp2.1\KekBot.AssemblyInfo.cs
+C:\Users\Godson\IdeaProjects\kekbot\KekBot\KekBot\bin\Debug\netcoreapp2.1\KekBot.pdb
+C:\Users\Godson\IdeaProjects\kekbot\KekBot\KekBot\obj\Debug\netcoreapp2.1\KekBot.dll
+C:\Users\Godson\IdeaProjects\kekbot\KekBot\KekBot\obj\Debug\netcoreapp2.1\KekBot.pdb
