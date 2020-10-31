@@ -37,6 +37,7 @@ import me.duncte123.weebJava.types.TokenType;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.sharding.DefaultShardManager;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.api.entities.Icon;
@@ -246,7 +247,7 @@ public class KekBot {
             }
 
 
-            jda = new DefaultShardManagerBuilder().setToken(token).addEventListeners(waiter, client, gamesManager, listener, player).setShardsTotal(shards).build();
+            jda = DefaultShardManagerBuilder.createDefault(token).addEventListeners(waiter, client, gamesManager, listener, player).setShardsTotal(shards).build();
             if (twitterManager != null) jda.addEventListener(twitterManager);
             if (mode != 2) jda.addEventListener(shutdownListener);
 
