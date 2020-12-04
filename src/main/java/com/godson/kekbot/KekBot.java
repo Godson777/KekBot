@@ -42,6 +42,7 @@ import net.dv8tion.jda.api.sharding.DefaultShardManager;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.api.entities.Icon;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.apache.commons.lang3.StringUtils;
 import org.discordbots.api.client.DiscordBotListAPI;
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -248,7 +249,12 @@ public class KekBot {
             }
 
 
-            jda = DefaultShardManagerBuilder.createDefault(token).enableIntents(GatewayIntent.GUILD_MEMBERS).addEventListeners(waiter, client, gamesManager, listener, player).setShardsTotal(shards).build();
+            jda = DefaultShardManagerBuilder.createDefault(token)
+                    .enableIntents(GatewayIntent.GUILD_MEMBERS)
+                    .setMemberCachePolicy(MemberCachePolicy.ALL)
+                    .addEventListeners(waiter, client, gamesManager, listener, player)
+                    .setShardsTotal(shards)
+                    .build();
             if (twitterManager != null) jda.addEventListener(twitterManager);
             if (mode != 2) jda.addEventListener(shutdownListener);
 
