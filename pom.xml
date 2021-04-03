@@ -19,6 +19,11 @@
             <url>https://jcenter.bintray.com</url>
         </repository>
         <repository>
+            <id>com.sedmelluq</id>
+            <name>sedmelluq</name>
+            <url>https://dl.bintray.com/sedmelluq/com.sedmelluq</url>
+        </repository>
+        <repository>
             <id>oss.sonatype.org</id>
             <name>Sonatype Snapshot Repository</name>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
@@ -77,7 +82,7 @@
         <dependency>
             <groupId>com.sedmelluq</groupId>
             <artifactId>lavaplayer</artifactId>
-            <version>1.3.73</version>
+            <version>1.3.75</version>
         </dependency>
 
         <dependency>
