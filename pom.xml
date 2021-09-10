@@ -24,6 +24,11 @@
             <url>https://dl.bintray.com/sedmelluq/com.sedmelluq</url>
         </repository>
         <repository>
+            <id>dv8tion</id>
+            <name>m2-dv8tion</name>
+            <url>https://m2.dv8tion.net/releases</url>
+        </repository>
+        <repository>
             <id>oss.sonatype.org</id>
             <name>Sonatype Snapshot Repository</name>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
@@ -82,7 +87,7 @@
         <dependency>
             <groupId>com.sedmelluq</groupId>
             <artifactId>lavaplayer</artifactId>
-            <version>1.3.75</version>
+            <version>1.3.78</version>
         </dependency>
 
         <dependency>
