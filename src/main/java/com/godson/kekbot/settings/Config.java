@@ -254,7 +254,36 @@ public class Config {
             br.close();
         } catch (FileNotFoundException e) {
             System.out.println("config.json not found! What have you done with it?!");
-            // TODO: generate new config
+            // make an empty config object
+            Config temp = new Config();
+            // fill it with placeholder values
+            temp.token = "bot token";
+            temp.betaToken = "(optional) beta bot token";
+            temp.APIip = "localhost";
+            temp.database = "database name";
+            temp.betaDatabase = "(optional) database name for beta bot";
+            temp.dbUser = "db user name";
+            temp.dbPassword = "db password";
+            temp.dApiToken = "(optional) discord bot list token";
+            temp.dBotsListToken = "(optional) another bot list token";
+            temp.dListBotsToken = "(optional) yet another bot list token";
+            temp.carbonToken = "(optional) carbon bot list token";
+            temp.dcoinToken = "(optional) discoin token";
+            temp.botOwner = "your discord id";
+            temp.shards = 1;
+            temp.joinLogChannel = "(optional) id of join log channel";
+            temp.ticketChannel = "(optional) channel for tickets";
+            temp.twitterChannel = "(optional) channel for tweets";
+            temp.weebToken = "(optional) weeb sh token";
+            temp.twitter = false;
+            temp.twAccessToken = "(optional) twitter access token";
+            temp.twConsumerKey = "(optional) twitter consumerkey";
+            temp.twConsumerSecret = "(optional) twitter consumer secret";
+            temp.twAccessTokenSecret = "(optional) twitter access secret token";
+            temp.botAdmins.add("(optional) id of bot admin");
+            temp.botMods.add("(optional) id of bot mod");
+            temp.save();
+            System.out.println("Oh well, I just made a blank config file for you!");
             System.exit(ExitCode.SHITTY_CONFIG.getCode());
         } catch (IOException e) {
             e.printStackTrace();
