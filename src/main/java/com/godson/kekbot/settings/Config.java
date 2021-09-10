@@ -254,6 +254,7 @@ public class Config {
             br.close();
         } catch (FileNotFoundException e) {
             System.out.println("config.json not found! What have you done with it?!");
+            // TODO: generate new config
             System.exit(ExitCode.SHITTY_CONFIG.getCode());
         } catch (IOException e) {
             e.printStackTrace();
