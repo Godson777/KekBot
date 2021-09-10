@@ -226,8 +226,19 @@ public class KekBot {
             conn.use(config.getBetaDatabase());
         else if (r.dbList().contains(config.getDatabase()).run(conn)) conn.use(config.getDatabase());
         else {
-            System.out.println("Database could not be found, are you sure you typed the name correctly?");
-            System.exit(ExitCode.SHITTY_CONFIG.getCode());
+            System.out.println("Database could not be found, creating new one...");
+            // pick what db to make based on mode and if beta exists (yes im checking again because idk how else to do this)
+            r.dbCreate(mode == 1 && (boolean) r.dbList().contains(config.getBetaDatabase()).run(conn)? config.getBetaDatabase() : config.getDatabase()).run(conn);
+            conn.use(mode == 1? config.getBetaDatabase() : config.getDatabase());
+            // make tables because yes
+            r.tableCreate("Profiles").optArg("primary_key", "User ID").run(conn);
+            r.tableCreate("Responses").optArg("primary_key", "Action").run(conn);
+            r.tableCreate("Settings").optArg("primary_key", "Guild ID").run(conn);
+            r.tableCreate("Takeovers").optArg("primary_key", "Name").run(conn);
+            r.tableCreate("Tickets").optArg("primary_key", "ID").run(conn);
+            r.tableCreate("Twitter").optArg("primary_key", "Account ID").run(conn);
+            System.out.println("Database created!");
+            //System.exit(ExitCode.SHITTY_CONFIG.getCode());
         }
 
         //Load takeovers
