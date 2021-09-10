@@ -10,3 +10,5 @@ KekBot is a friendly meme and community based bot! Designed completely from the 
 KekBot is also open-source, meaning that anyone interesting in coding their own bots (or trying to selfhost KekBot) can easily dig through the code, and see just how it ticks. 
 
 That said, there is little to no documentation on what most of the code does, or how to go about hosting the bot by yourself, this started out as a project for me to learn Java, and as a result you may find code that is not the most optimal. However, I feel like it can still serve as a good learning point for someone getting a feel for the Java language as there's plenty of room for experimentation if you decide to play around with KekBot's code.
+
+KekBot relies on [RethinkDB](https://rethinkdb.com/) for storing data. If you intend to play around with KekBot's code and running it yourself, you'll need to install and run it on your machine, otherwise KekBot ***will not start*** and instead simply give up and question its life choices.
