@@ -38,7 +38,6 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import net.dv8tion.jda.api.sharding.DefaultShardManager;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.api.entities.Icon;
@@ -143,7 +142,8 @@ public class KekBot {
         Config config = Config.getConfig();
 
         if (config.getdBotsListToken() != null) dbl = new DiscordBotListAPI.Builder().token(config.getdBotsListToken()).build();
-        if (config.getWeebToken() != null) weebApi = new WeebApiBuilder(TokenType.WOLKETOKENS, "KekBot/" + version.toString()).setToken(config.getWeebToken()).build();
+//        if (config.getWeebToken() != null) weebApi = new WeebApiBuilder(TokenType.WOLKETOKENS, "KekBot/" + version.toString()).setToken(config.getWeebToken()).build();
+        if (config.getWeebToken() != null) weebApi = new WeebApiBuilder(TokenType.WOLKETOKENS).setBotInfo("KekBot", version.toString(), "").setToken(config.getWeebToken()).build();
         if (config.usingTwitter()) {
             System.out.println("Using Twitter. Checking for missing values...");
             if (config.getTwConsumerKey() == null) {

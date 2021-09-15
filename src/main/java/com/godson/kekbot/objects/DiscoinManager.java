@@ -33,7 +33,7 @@ public class DiscoinManager {
                         builder.setTitle("Discoin Transaction Recieved!");
                         builder.addField("Amount", transaction.getAmount() + " " + transaction.getFrom().getId() + " -> " + transaction.getPayout() + CustomEmote.printTopKek(), false);
                         builder.addField("Transaction ID", "[" + transaction.getId() + "](" + url + "transactions/" + transaction.getId() + ")", false);
-                        c.sendMessage(builder.build()).queue();
+                        c.sendMessageEmbeds(builder.build()).queue();
                     });
                     //user.openPrivateChannel().queue(c -> c.sendMessage("Woohoo! You just got paid " + CustomEmote.printPrice(transaction.getPayout()) + " from Discoin! (Transaction ID: " + transaction.getId() + ")").queue());
                     profile.addTopKeks(transaction.getPayout());

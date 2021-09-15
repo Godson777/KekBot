@@ -134,7 +134,7 @@ public class EmbedPaginator extends Menu {
 
         if(showPageNumbers)
             ebuilder.setFooter("Page " + pageNum + "/" + pages + (embed.getFooter() != null ? " | " + embed.getFooter().getText() : "") , null);
-        mbuilder.setEmbed(ebuilder.build());
+        mbuilder.setEmbeds(ebuilder.build());
         return mbuilder.build();
     }
 

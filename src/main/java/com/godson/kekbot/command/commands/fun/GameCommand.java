@@ -96,7 +96,7 @@ public class GameCommand extends Command {
                                 .addField(event.getString("command.fun.game.lobby.status"), getGameStatus(game, event.getLocale()), false)
                                 .addField(event.getString("command.fun.game.lobby.players"), StringUtils.join(game.players.stream().map(user -> game.getPlayerNumber(user) + ". " + user.getName()).collect(Collectors.toList()), "\n"), false);
 
-                        channel.sendMessage(embed.build()).queue();
+                        channel.sendMessageEmbeds(embed.build()).queue();
                     }
                     break;
                 case "join":

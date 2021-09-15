@@ -100,7 +100,7 @@ public class Stats extends Command {
         }
         builder.setColor(event.getSelfMember().getColor() != null ? event.getSelfMember().getColor() : Color.RED);
 
-        event.getChannel().sendMessage(builder.build()).queue();
+        event.getChannel().sendMessageEmbeds(builder.build()).queue();
     }
 
     private String shortenMemory(long mem) {

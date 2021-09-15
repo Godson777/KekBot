@@ -111,7 +111,7 @@ public class PagedSelectionMenu extends Menu {
             mbuilder.append(this.text.apply(pageNum, this.pages));
         }
 
-        mbuilder.setEmbed(ebuilder.build());
+        mbuilder.setEmbeds(ebuilder.build());
 
         return mbuilder.build();
     }

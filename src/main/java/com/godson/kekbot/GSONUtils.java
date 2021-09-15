@@ -1,9 +1,6 @@
 package com.godson.kekbot;
 
 import com.godson.kekbot.objects.UDictionary;
-import com.godson.kekbot.responses.Action;
-import com.godson.kekbot.responses.Responder;
-import com.godson.kekbot.responses.ResponseSuggestions;
 import com.godson.kekbot.settings.*;
 import com.google.gson.Gson;
 import com.mashape.unirest.http.HttpResponse;
