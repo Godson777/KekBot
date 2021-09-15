@@ -37,8 +37,7 @@ public class DELET extends Command {
         if (!isMention(event.combineArgs()) && event.combineArgs().equals("this")) {
             event.getChannel().sendTyping().queue();
             EmbedBuilder builder = new EmbedBuilder();
-            ImageConfig image = new ImageConfig.Builder().setType("delet_this").setNsfwMode(event.getTextChannel().isNSFW() ? NSFWMode.ALLOW_NSFW : NSFWMode.DISALLOW_NSFW).build();
-            builder.setImage(KekBot.weebApi.getRandomImage(image).execute().getUrl());
+            builder.setImage(KekBot.weebApi.getRandomImage(new ImageConfig.Builder().setType("delet_this").setNsfwMode(event.getTextChannel().isNSFW() ? NSFWMode.ALLOW_NSFW : NSFWMode.DISALLOW_NSFW).build()).execute().getUrl());
             builder.setFooter("Powered by Weeb.sh!", null);
             event.getChannel().sendMessageEmbeds(builder.build()).queue();
             return;
