@@ -4,6 +4,7 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,7 +14,7 @@ public class RewardManager {
     static {
         try {
             //Get list of rewards from txt file.
-            List<String> rewardsFile = FileUtils.readLines(new File("resources/lootbox/rewards.txt"));
+            List<String> rewardsFile = FileUtils.readLines(new File("resources/lootbox/rewards.txt"), StandardCharsets.UTF_8);
             //For each reward specified in file:
             for (String line : rewardsFile) {
                 //Rewards in text format goes as follows:
@@ -28,7 +29,7 @@ public class RewardManager {
                     //If topkek:
                     case "TOPKEK":
                         //add a new TopKek reward:
-                        rewards.add(new LootBox.TopKekReward(LootBox.Rarity.valueOf(rarity), Integer.valueOf(value)));
+                        rewards.add(new LootBox.TopKekReward(LootBox.Rarity.valueOf(rarity), Integer.parseInt(value)));
                         break;
                     //If background:
                     case "BG":
@@ -37,7 +38,7 @@ public class RewardManager {
                         break;
                     //If KXP:
                     case "KXP":
-                        rewards.add(new LootBox.KXPReward(LootBox.Rarity.valueOf(rarity), Integer.valueOf(value)));
+                        rewards.add(new LootBox.KXPReward(LootBox.Rarity.valueOf(rarity), Integer.parseInt(value)));
                         break;
                 }
             }

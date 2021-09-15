@@ -181,9 +181,9 @@ public class TrackScheduler extends AudioEventAdapter {
         if (skip == 1) builder.append("Skipped to next track.");
         if (skip == 2) builder.append("Due to popular vote, this track was skipped.");
         if (repeat != 2) {
-            builder.setEmbed(embedTrack(queue.element().getKey().getInfo(), queue.element().getValue()));
+            builder.setEmbeds(embedTrack(queue.element().getKey().getInfo(), queue.element().getValue()));
         } else {
-            builder.setEmbed(embedTrack(getCurrentRepeatTrack().getKey().getInfo(), getCurrentRepeatTrack().getValue()));
+            builder.setEmbeds(embedTrack(getCurrentRepeatTrack().getKey().getInfo(), getCurrentRepeatTrack().getValue()));
         }
         return builder.build();
     }
@@ -192,9 +192,9 @@ public class TrackScheduler extends AudioEventAdapter {
         MessageBuilder builder = new MessageBuilder();
         builder.append(note);
         if (repeat != 2) {
-            builder.setEmbed(embedTrack(queue.element().getKey().getInfo(), queue.element().getValue()));
+            builder.setEmbeds(embedTrack(queue.element().getKey().getInfo(), queue.element().getValue()));
         } else {
-            builder.setEmbed(embedTrack(getCurrentRepeatTrack().getKey().getInfo(), getCurrentRepeatTrack().getValue()));
+            builder.setEmbeds(embedTrack(getCurrentRepeatTrack().getKey().getInfo(), getCurrentRepeatTrack().getValue()));
         }
         return builder.build();
     }

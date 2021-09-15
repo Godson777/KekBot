@@ -5,6 +5,7 @@ import com.godson.kekbot.util.Utils;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandCategories;
 import com.godson.kekbot.command.CommandEvent;
+import me.duncte123.weebJava.configs.ImageConfig;
 import me.duncte123.weebJava.types.NSFWMode;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
@@ -36,9 +37,10 @@ public class DELET extends Command {
         if (!isMention(event.combineArgs()) && event.combineArgs().equals("this")) {
             event.getChannel().sendTyping().queue();
             EmbedBuilder builder = new EmbedBuilder();
-            builder.setImage(KekBot.weebApi.getRandomImage("delet_this", event.getTextChannel().isNSFW() ? NSFWMode.ALLOW_NSFW : NSFWMode.DISALLOW_NSFW).execute().getUrl());
+            ImageConfig image = new ImageConfig.Builder().setType("delet_this").setNsfwMode(event.getTextChannel().isNSFW() ? NSFWMode.ALLOW_NSFW : NSFWMode.DISALLOW_NSFW).build();
+            builder.setImage(KekBot.weebApi.getRandomImage(image).execute().getUrl());
             builder.setFooter("Powered by Weeb.sh!", null);
-            event.getChannel().sendMessage(builder.build()).queue();
+            event.getChannel().sendMessageEmbeds(builder.build()).queue();
             return;
         }
 

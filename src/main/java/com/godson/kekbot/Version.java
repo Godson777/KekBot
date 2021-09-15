@@ -66,8 +66,7 @@ public class Version {
                 if (this.getPatchVersion() > version.getPatchVersion()) {
                     return true;
                 } else if (this.getPatchVersion() == version.getPatchVersion()) {
-                    if (this.getBetaVersion() > version.getBetaVersion())
-                        return true;
+                    return this.getBetaVersion() > version.getBetaVersion();
                 }
             }
         }

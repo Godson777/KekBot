@@ -240,7 +240,7 @@ public class ShopCommand extends Command {
                                                 EmbedBuilder embedBuilder = new EmbedBuilder();
                                                 embedBuilder.setDescription("Done! You should be receiving `" + transaction.getPayout() + "` in the currency you selected shortly." +
                                                         "\n[You can check your receipt by clicking on me!](" + url + "transactions/" + transaction.getId() + ")");
-                                                event.getChannel().sendMessage(embedBuilder.build()).queue();
+                                                event.getChannel().sendMessageEmbeds(embedBuilder.build()).queue();
                                             } catch (IOException e) {
                                                 e.printStackTrace();
                                             } catch (UnauthorizedException e) {

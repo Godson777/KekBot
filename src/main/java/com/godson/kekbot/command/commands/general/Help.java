@@ -78,7 +78,7 @@ public class Help extends Command {
 
         if (found) {
             if (event.getSelfMember().hasPermission(event.getTextChannel(), Permission.MESSAGE_EMBED_LINKS))
-                event.getChannel().sendMessage(getCommandHelp(event, command.get())).queue();
+                event.getChannel().sendMessageEmbeds(getCommandHelp(event, command.get())).queue();
             else
                 event.getChannel().sendMessage(getCommandHelpPlain(event, command.get())).queue();
         } else event.getChannel().sendMessage(event.getString("command.general.help.commandnotfound")).queue();
