@@ -30,11 +30,8 @@ public class TakeoverManager {
         Cursor<org.json.simple.JSONObject> cursor = KekBot.r.table("Takeovers").run(KekBot.conn);
         List<org.json.simple.JSONObject> takeovers = cursor.bufferedItems();
         cursor.close();
-        takeovers.forEach(takeover -> this.takeovers.add(new Gson().fromJson(takeover.toJSONString(), Takeover.class)));
-//        com.rethinkdb.net.Result<Object> result = KekBot.r.table("Takeovers").run(KekBot.conn);
-//        List<Object> takeover = result.toList();
-//        result.close();
-//        takeover.forEach(takeoverT -> this.takeovers.add(new Gson().fromJson(result.toString(), Takeover.class)));
+        Gson gson = new Gson();
+        takeovers.forEach(takeover -> this.takeovers.add(gson.fromJson(takeover.toJSONString(), Takeover.class)));
 
         File currentTakeover = new File("takeover");
         takeoverActive = currentTakeover.exists();
