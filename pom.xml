@@ -87,7 +87,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>4.3.0_324</version>
+            <version>4.3.0_335</version>
         </dependency>
 
         <dependency>
@@ -182,7 +182,7 @@
             <!-- jsoup HTML parser library @ http://jsoup.org/ -->
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-            <version>1.14.2</version>
+            <version>1.14.3</version>
         </dependency>
     </dependencies>
 
