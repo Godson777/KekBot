@@ -258,7 +258,7 @@ public class Config {
             temp.dbUser = "db user name";
             temp.dbPassword = "db password";
             temp.dApiToken = "(optional) discord bot list token";
-            temp.topGGToken = "(optional) another bot list token";
+            temp.topGGToken = "(optional) top.gg bot list token";
             temp.carbonToken = "(optional) carbon bot list token";
             temp.dcoinToken = "(optional) discoin token";
             temp.botOwner = "your discord id";
@@ -269,7 +269,7 @@ public class Config {
             temp.weebToken = "(optional) weeb sh token";
             temp.twitter = false;
             temp.twAccessToken = "(optional) twitter access token";
-            temp.twConsumerKey = "(optional) twitter consumerkey";
+            temp.twConsumerKey = "(optional) twitter consumer key";
             temp.twConsumerSecret = "(optional) twitter consumer secret";
             temp.twAccessTokenSecret = "(optional) twitter access secret token";
             temp.botAdmins.add("(optional) id of bot admin");
