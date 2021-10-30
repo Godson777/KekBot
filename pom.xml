@@ -141,7 +141,7 @@
         <dependency>
             <groupId>com.github.DiscordBotList</groupId>
             <artifactId>DBL-Java-Wrapper</artifactId>
-            <version>4b27930</version>
+            <version>19abf1</version>
         </dependency>
 
         <dependency>
