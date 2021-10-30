@@ -16,7 +16,7 @@ public class LMGTFY extends Command {
     @Override
     public void onExecuted(CommandEvent event) {
         if (event.getArgs().length > 0) {
-            event.getChannel().sendMessage("http://lmgtfy.com/?q=" + event.combineArgs().replace(" ", "+")).queue();
+            event.getChannel().sendMessage("https://lmgtfy.com/?q=" + event.combineArgs().replace(" ", "+")).queue();
         } else event.getChannel().sendMessage(event.getString("command.general.google.noargs")).queue();
     }
 }

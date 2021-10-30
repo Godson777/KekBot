@@ -21,8 +21,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import org.apache.commons.math3.util.Precision;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -222,35 +220,34 @@ public class ShopCommand extends Command {
                             discoinBuilder.setItemsPerPage(10);
                             discoinBuilder.setText("Welcome to the Discoin Association's currency converter! You can convert your topkeks to another bot's currency, and vice versa!\n\nSelect the currency you wish to convert to.");
                             discoinBuilder.addUsers(event.getAuthor());
-                            discoinBuilder.setSelectionAction((me, currency) -> {
-                                Questionnaire.newQuestionnaire(event)
-                                        .addQuestion("How many topkeks do you want to convert?", QuestionType.DOUBLE)
-                                        .includeCancel(true)
-                                        .execute(results -> {
-                                            double amount = results.getAnswerAsType(0, double.class);
-                                            Profile profile = Profile.getProfile(event.getAuthor());
-                                            if (!profile.canSpend(amount)) {
-                                                event.getChannel().sendMessage("You don't have that many topkeks.\n\nTransaction Canceled.").queue();
-                                                return;
-                                            }
-                                            try {
-                                                Discoin4J.Transaction transaction = KekBot.discoin.makeTransaction(event.getAuthor().getId(), amount, currencies.stream().filter(c -> !c.getId().equals("KEK")).sorted(Comparator.comparing(Discoin4J.Currency::getId)).collect(Collectors.toList()).get(currency - 1).getId());
-                                                profile.spendTopKeks(amount);
-                                                profile.save();
-                                                EmbedBuilder embedBuilder = new EmbedBuilder();
-                                                embedBuilder.setDescription("Done! You should be receiving `" + transaction.getPayout() + "` in the currency you selected shortly." +
-                                                        "\n[You can check your receipt by clicking on me!](" + url + "transactions/" + transaction.getId() + ")");
-                                                event.getChannel().sendMessageEmbeds(embedBuilder.build()).queue();
-                                            } catch (IOException e) {
-                                                e.printStackTrace();
-                                            } catch (UnauthorizedException e) {
-                                                event.getChannel().sendMessage(unauthorized).queue();
-                                            } catch (GenericErrorException e) {
-                                                event.getChannel().sendMessage("Yikes! I've found an error that shouldn't exist! Report this to the bot owner with the `ticket` command right away! `" + e.getMessage() + "`").queue();
-                                                throwException(e, event);
-                                            }
-                                        });
-                            });
+                            discoinBuilder.setSelectionAction((me, currency) ->
+                                    Questionnaire.newQuestionnaire(event)
+                                            .addQuestion("How many topkeks do you want to convert?", QuestionType.DOUBLE)
+                                            .includeCancel(true)
+                                            .execute(results -> {
+                                                double amount = results.getAnswerAsType(0, double.class);
+                                                Profile profile = Profile.getProfile(event.getAuthor());
+                                                if (!profile.canSpend(amount)) {
+                                                    event.getChannel().sendMessage("You don't have that many topkeks.\n\nTransaction Canceled.").queue();
+                                                    return;
+                                                }
+                                                try {
+                                                    Discoin4J.Transaction transaction = KekBot.discoin.makeTransaction(event.getAuthor().getId(), amount, currencies.stream().filter(c -> !c.getId().equals("KEK")).sorted(Comparator.comparing(Discoin4J.Currency::getId)).collect(Collectors.toList()).get(currency - 1).getId());
+                                                    profile.spendTopKeks(amount);
+                                                    profile.save();
+                                                    EmbedBuilder embedBuilder = new EmbedBuilder();
+                                                    embedBuilder.setDescription("Done! You should be receiving `" + transaction.getPayout() + "` in the currency you selected shortly." +
+                                                            "\n[You can check your receipt by clicking on me!](" + url + "transactions/" + transaction.getId() + ")");
+                                                    event.getChannel().sendMessageEmbeds(embedBuilder.build()).queue();
+                                                } catch (IOException e) {
+                                                    e.printStackTrace();
+                                                } catch (UnauthorizedException e) {
+                                                    event.getChannel().sendMessage(unauthorized).queue();
+                                                } catch (GenericErrorException e) {
+                                                    event.getChannel().sendMessage("Yikes! I've found an error that shouldn't exist! Report this to the bot owner with the `ticket` command right away! `" + e.getMessage() + "`").queue();
+                                                    throwException(e, event);
+                                                }
+                                            }));
                             discoinBuilder.build().display(event.getChannel());
                         } catch (IOException e) {
                             throwException(e, event);

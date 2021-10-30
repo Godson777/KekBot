@@ -4,8 +4,8 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class WaifuManager {
-    private Map<String, Integer> waifus = new HashMap<>();
-    private Random random = new Random();
+    private final Map<String, Integer> waifus = new HashMap<>();
+    private final Random random = new Random();
 
     public WaifuManager() {
         Timer timer = new Timer();

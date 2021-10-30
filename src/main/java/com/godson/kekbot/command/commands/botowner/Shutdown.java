@@ -3,7 +3,6 @@ package com.godson.kekbot.command.commands.botowner;
 import com.godson.kekbot.ExitCode;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.command.Command;
-import com.godson.kekbot.command.CommandCategories;
 import com.godson.kekbot.command.CommandEvent;
 
 public class Shutdown extends Command {

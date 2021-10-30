@@ -26,10 +26,16 @@ public class Avatar extends Command {
             if (isMention(event.combineArgs())) {
                 event.getChannel().sendMessage(event.getMentionedUsers().get(0).getAvatarUrl() + size).queue();
             } else {
-                List<Member> search = event.getGuild().getMembersByName(event.combineArgs(), true);
-                if (search.size() == 0) search = event.getGuild().getMembersByNickname(event.combineArgs(), true);
-                if (search.size() > 0) event.getChannel().sendMessage(search.get(0).getUser().getAvatarUrl() + size).queue();
-                else event.getChannel().sendMessage(event.getString("command.fun.avatar.nouser")).queue();
+                try {
+                    Member search = event.getGuild().getMemberById(Long.parseLong(event.combineArgs()));
+                    if (search != null) event.getChannel().sendMessage(search.getUser().getAvatarUrl() + size).queue();
+                    else throw new NumberFormatException();
+                } catch (NumberFormatException e) {
+                    List<Member> search = event.getGuild().getMembersByName(event.combineArgs(), true);
+                    if (search.size() == 0) search = event.getGuild().getMembersByEffectiveName(event.combineArgs(), true);
+                    if (search.size() > 0) event.getChannel().sendMessage(search.get(0).getUser().getAvatarUrl() + size).queue();
+                    else event.getChannel().sendMessage(event.getString("command.fun.avatar.nouser")).queue();
+                }
             }
         } else {
             event.getChannel().sendMessage(event.getMessage().getAuthor().getAvatarUrl() + size).queue();

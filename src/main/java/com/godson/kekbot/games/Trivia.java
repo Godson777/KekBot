@@ -13,18 +13,18 @@ import java.util.concurrent.*;
 
 public class Trivia extends Game {
 
-    private Map<String, List<TriviaQuestion>> questions = new HashMap<>();
-    private Map<User, Integer> playerPoints = new HashMap<>();
-    private Random random = new Random();
+    private final Map<String, List<TriviaQuestion>> questions = new HashMap<>();
+    private final Map<User, Integer> playerPoints = new HashMap<>();
+    private final Random random = new Random();
 
     private boolean roundActive = false;
     private int round = 0;
-    private int maxRounds = 15;
-    private int roundDuration = 10;
+    private final int maxRounds = 15;
+    private final int roundDuration = 10;
     private TriviaQuestion currentQuestion;
-    private List<TriviaQuestion> previousQuestions = new ArrayList<>();
+    private final List<TriviaQuestion> previousQuestions = new ArrayList<>();
 
-    private ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService timer = Executors.newSingleThreadScheduledExecutor();
     private ScheduledFuture<?> scheduledFuture = null;
 
     public Trivia(TextChannel channel) {
@@ -105,7 +105,7 @@ public class Trivia extends Game {
                         .append(":` ").append(playerPoints.get(player));
                 builder.append("\n");
             }
-            channel.sendMessage(result + "\n\nGame over! Here are the results:\n\n" + builder.toString()).queue();
+            channel.sendMessage(result + "\n\nGame over! Here are the results:\n\n" + builder).queue();
             endGame(winners.get(0), playerPoints.get(winners.get(0)), playerPoints.get(winners.get(0)) / 2);
             return;
         }

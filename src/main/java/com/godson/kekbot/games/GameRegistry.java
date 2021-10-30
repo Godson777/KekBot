@@ -5,7 +5,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import java.util.*;
 
 public class GameRegistry {
-    private Map<String, Integer> registeredGames = new HashMap<>();
+    private final Map<String, Integer> registeredGames = new HashMap<>();
 
     /**
      * Ghetto way of getting game objects.
@@ -24,11 +24,11 @@ public class GameRegistry {
      * @param aliases The name/aliases for the game.
      */
     private void registerGame(int id, String... aliases) {
-        for (int i = 0; i < aliases.length; i++) {
-            if (registeredGames.containsKey(aliases[i])) {
+        for (String alias : aliases) {
+            if (registeredGames.containsKey(alias)) {
                 throw new IllegalArgumentException("There is already a game registered with this name/alias.");
             }
-            registeredGames.put(aliases[i], id);
+            registeredGames.put(alias, id);
         }
     }
 

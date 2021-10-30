@@ -31,9 +31,9 @@ public class TwitterManager extends ListenerAdapter {
     private final List<Pair<Instant, StatusUpdate>> statuses = new ArrayList<>();
 
     private final Map<Long, Message> currentTweets = new HashMap<>();
-    TwitterStream twitterStream = new TwitterStreamFactory().getInstance();
+    private final TwitterStream twitterStream = new TwitterStreamFactory().getInstance();
     long[] ids = new long[]{958176875108593664L, 610103342L, 2996678026L, 624995324L, 1475679589L, 845418771896524801L, 762996861447860224L};
-    StatusListener listener = new StatusListener() {
+    private final StatusListener listener = new StatusListener() {
         @Override
         public void onStatus(Status status) {
             //We do need this tho

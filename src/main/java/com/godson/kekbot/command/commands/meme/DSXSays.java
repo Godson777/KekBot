@@ -2,20 +2,14 @@ package com.godson.kekbot.command.commands.meme;
 
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
-import com.godson.kekbot.command.TextImageCommand;
 import com.godson.kekbot.util.ImageUtils;
-import com.godson.kekbot.util.Utils;
 
 import javax.imageio.ImageIO;
-import javax.net.ssl.SSLHandshakeException;
 import java.awt.*;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.*;
 
 //Requested by a few friends I met in the sm4sh modding scene
 public class DSXSays extends Command {
@@ -24,8 +18,6 @@ public class DSXSays extends Command {
         name = "dsxsays";
         description = "Makes DSX say a thing. Who's DSX? Who knows?";
         usage.add("dsxsays <text>");
-
-
     }
 
     @Override

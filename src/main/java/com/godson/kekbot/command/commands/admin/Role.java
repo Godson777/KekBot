@@ -70,8 +70,8 @@ public class Role extends Command {
                 } else {
                     List<User> users = event.getMentionedUsers();
                     net.dv8tion.jda.api.entities.Role role = event.getGuild().getRolesByName(args[0], true).get(0);
-                    List<String> success = new ArrayList<String>();
-                    List<String> exist = new ArrayList<String>();
+                    List<String> success = new ArrayList<>();
+                    List<String> exist = new ArrayList<>();
                     for (User user : users) {
                         Member member = event.getGuild().getMember(user);
                         if (!member.getRoles().contains(role)) {
@@ -135,8 +135,8 @@ public class Role extends Command {
                 } else {
                     List<User> users = event.getMentionedUsers();
                     net.dv8tion.jda.api.entities.Role role = event.getGuild().getRolesByName(args[0], true).get(0);
-                    List<String> success = new ArrayList<String>();
-                    List<String> exist = new ArrayList<String>();
+                    List<String> success = new ArrayList<>();
+                    List<String> exist = new ArrayList<>();
                     //Iterate through every user pinged.
                     for (User user : users) {
                         Member member = event.getGuild().getMember(user);

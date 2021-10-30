@@ -162,7 +162,7 @@ public class GameCommand extends Command {
                                 if (event.getArgs().length >= 2) {
                                     double bet;
                                     try {
-                                        bet = Double.valueOf(event.getArgs()[1]);
+                                        bet = Double.parseDouble(event.getArgs()[1]);
                                     } catch (NumberFormatException e) {
                                         channel.sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getLocale(), event.getArgs()[1])).queue();
                                         return;
@@ -175,7 +175,7 @@ public class GameCommand extends Command {
                                         if (event.getArgs().length >= 3) {
                                             double bet;
                                             try {
-                                                bet = Double.valueOf(event.getArgs()[2]);
+                                                bet = Double.parseDouble(event.getArgs()[2]);
                                             } catch (NumberFormatException e) {
                                                 channel.sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getLocale(), event.getArgs()[2])).queue();
                                                 return;

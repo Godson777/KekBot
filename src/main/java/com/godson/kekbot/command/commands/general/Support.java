@@ -14,7 +14,7 @@ public class Support extends Command {
         cooldownScope = CooldownScope.USER_GUILD;
     }
 
-    private String invite = "https://discord.gg/3nbqavE";
+    private final String invite = "https://discord.gg/3nbqavE";
 
     @Override
     public void onExecuted(CommandEvent event) {

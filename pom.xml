@@ -41,7 +41,7 @@
             <dependency>
                 <groupId>org.glassfish.jersey</groupId>
                 <artifactId>jersey-bom</artifactId>
-                <version>3.0.2</version>
+                <version>3.0.3</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -49,10 +49,11 @@
     </dependencyManagement>
 
     <dependencies>
+        <!-- Uncomment out if on Java 11+ (required for eval command) -->
 <!--        <dependency>-->
-<!--            <groupId>org.reflections</groupId>-->
-<!--            <artifactId>reflections</artifactId>-->
-<!--            <version>0.9.12</version>-->
+<!--            <groupId>org.openjdk.nashorn</groupId>-->
+<!--            <artifactId>nashorn-core</artifactId>-->
+<!--            <version>15.3</version>-->
 <!--        </dependency>-->
 
         <dependency>
@@ -63,6 +64,11 @@
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-moxy</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.glassfish.jersey.inject</groupId>
+            <artifactId>jersey-hk2</artifactId>
         </dependency>
 
         <dependency>
@@ -87,7 +93,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>4.3.0_335</version>
+            <version>4.3.0_339</version>
         </dependency>
 
         <dependency>
@@ -141,7 +147,6 @@
         <dependency>
             <groupId>me.duncte123</groupId>
             <artifactId>weebJava</artifactId>
-<!--            <version>2.2.0_29</version>-->
             <version>3.0.1_4</version>
         </dependency>
 
@@ -149,7 +154,6 @@
             <groupId>com.rethinkdb</groupId>
             <artifactId>rethinkdb-driver</artifactId>
             <version>2.4.0</version>
-<!--            <version>2.4.4</version>-->
         </dependency>
 
         <dependency>
@@ -159,12 +163,6 @@
             <scope>compile</scope>
             <type>pom</type>
         </dependency>
-
-<!--        <dependency>-->
-<!--            <groupId>com.github.twitch4j</groupId>-->
-<!--            <artifactId>twitch4j</artifactId>-->
-<!--            <version>1.5.1</version>-->
-<!--        </dependency>-->
 
         <dependency>
             <groupId>com.mashape.unirest</groupId>
@@ -193,7 +191,7 @@
     </properties>
 
     <build>
-        <finalName>kekbot</finalName>
+        <finalName>${project.artifactId}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

@@ -15,20 +15,20 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class Game {
-    private String gameName;
+    private final String gameName;
     private int minNumberOfPlayers = 0;
-    private int maxNumberOfPlayers;
-    private boolean hasAI;
+    private final int maxNumberOfPlayers;
+    private final boolean hasAI;
     private boolean isReady = false;
     private boolean reachedMinimum = false;
     boolean isTranslatable = true;
     boolean canQuit = true;
     private boolean betsEnabled;
     public List<User> players = new ArrayList<>();
-    private List<Integer> winnerIDs = new ArrayList<>();
-    private Map<User, Integer> playerNumber = new HashMap<>();
+    private final List<Integer> winnerIDs = new ArrayList<>();
+    private final Map<User, Integer> playerNumber = new HashMap<>();
     public TextChannel channel;
-    private BetManager bets;
+    private final BetManager bets;
     //This'll only be used in games that require the multiplier. See Snail Race and Russian Roulette as good examples.
     double multiplier = 1;
 
@@ -138,7 +138,7 @@ public abstract class Game {
                     builder.append(stateEarnings(winner, topkeks * multiplier, KXP, (bets.hasPlayerBets() ? new Bonus(betEarnings, "Won Bet") : null), (multiplier > 1 ? new Bonus(Precision.round(topkeks * (multiplier - 1), 2), multiplier + "x Multiplier") : null))).append("\n");
                 }
                 profile.save();
-            } else {
+            //} else {
                 //Do nothing for now. This will be changed later.
                 //profile.lostGame();
                 //profile.save();
@@ -161,7 +161,7 @@ public abstract class Game {
         for (User player : players) {
             //Get player's profile.
             if (winners.contains(player)) break;
-            else ; //lose++
+            //else ; //lose++
         }
         for (int i = 0; i < winners.size(); i++) {
             Profile profile = Profile.getProfile(winners.get(i));

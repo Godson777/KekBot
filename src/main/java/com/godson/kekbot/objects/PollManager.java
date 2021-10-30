@@ -11,9 +11,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class PollManager {
-    private Map<Guild, Poll> polls = new HashMap<>();
-    private Map<Guild, TimerTask> pollTriggers = new HashMap<>();
-    private Timer timer = new Timer();
+    private final Map<Guild, Poll> polls = new HashMap<>();
+    private final Map<Guild, TimerTask> pollTriggers = new HashMap<>();
+    private final Timer timer = new Timer();
 
     public PollManager() {}
 
@@ -32,7 +32,7 @@ public class PollManager {
                     for (int i = 0; i < poll.getOptions().length; i++) {
                         builder.append("**").append(poll.getOptions()[i]).append(":** ").append(poll.getVotes()[i]).append("\n");
                     }
-                    channel.sendMessage(event.getString("poll.finished") + "\n\n" + builder.toString()).queue();
+                    channel.sendMessage(event.getString("poll.finished") + "\n\n" + builder).queue();
                     polls.remove(guild);
                     pollTriggers.remove(guild);
                 }

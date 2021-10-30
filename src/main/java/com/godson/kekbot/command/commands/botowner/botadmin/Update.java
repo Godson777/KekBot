@@ -20,11 +20,11 @@ public class Update extends Command {
         Version latest = Utils.getLatestVersion(KekBot.version.getBetaVersion() > 0);
 
         if (!latest.isHigherThan(KekBot.version) && !event.getMessage().getContentRaw().contains("--forced")) {
-            event.getChannel().sendMessage("KekBot is currently running the latest version. (" + KekBot.version.toString() + ")").queue();
+            event.getChannel().sendMessage("KekBot is currently running the latest version. (" + KekBot.version + ")").queue();
             return;
         }
 
-        event.getChannel().sendMessage("Update found! (Current: " + KekBot.version.toString() + " | Latest: " + latest.toString() + ") Updating...").queue();
+        event.getChannel().sendMessage("Update found! (Current: " + KekBot.version + " | Latest: " + latest + ") Updating...").queue();
         KekBot.update();
     }
 }

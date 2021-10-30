@@ -28,7 +28,7 @@ public class Pay extends Command {
                 if (event.getArgs().length > 1) {
                     double toPay;
                     try {
-                        BigDecimal bd = new BigDecimal(Double.valueOf(event.getArgs()[1]));
+                        BigDecimal bd = new BigDecimal(Double.parseDouble(event.getArgs()[1]));
                         bd = bd.setScale(2, RoundingMode.HALF_UP);
                         toPay = bd.doubleValue();
                     } catch (NumberFormatException e) {

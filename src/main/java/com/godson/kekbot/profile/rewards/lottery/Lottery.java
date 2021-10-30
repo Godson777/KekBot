@@ -14,15 +14,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class Lottery {
-    private int ticketPrice = 10;
-    private int ticketMax = 10;
+    private final int ticketPrice = 10;
+    private final int ticketMax = 10;
     private int pot = 0;
     private int ticketsCount = 0;
-    private long lengthOfLottery = TimeUnit.HOURS.toMillis(4);
-    private List<LotteryTicket> ballot = new ArrayList<>();
-    private List<Pair<User, Integer>> winners = new ArrayList<>();
+    private final long lengthOfLottery = TimeUnit.HOURS.toMillis(4);
+    private final List<LotteryTicket> ballot = new ArrayList<>();
+    private final List<Pair<User, Integer>> winners = new ArrayList<>();
 
-    private Random random = new Random();
+    private final Random random = new Random();
     private Timer timer = new Timer();
     private TimerTask draw;
     private long nextExecutionTime;
@@ -44,11 +44,11 @@ public class Lottery {
     }
 
     private boolean canUserPurchaseTicket(User gambler) {
-        return ballot.stream().filter(ticket -> !ticket.isJackpot() && ticket.getGambler().equals(gambler)).collect(Collectors.toList()).size() < ticketMax;
+        return ballot.stream().filter(ticket -> !ticket.isJackpot() && ticket.getGambler().equals(gambler)).count() < ticketMax;
     }
 
     private int getOwnedTickets(User gambler) {
-        return this.ballot.stream().filter(ticket -> !ticket.isJackpot() && ticket.getGambler().equals(gambler)).collect(Collectors.toList()).size();
+        return (int) this.ballot.stream().filter(ticket -> !ticket.isJackpot() && ticket.getGambler().equals(gambler)).count();
     }
 
     public String printStats(User gambler, Guild guild) {

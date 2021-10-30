@@ -17,7 +17,7 @@ public class RIP extends Command {
     @Override
     public void onExecuted(CommandEvent event) {
         if (event.getArgs().length > 0) {
-            event.getChannel().sendMessage("http://ripme.xyz/#" + event.combineArgs().replace(" ", "%20")).queue();
+            event.getChannel().sendMessage("https://ripme.xyz/#" + event.combineArgs().replace(" ", "%20")).queue();
         } else event.getChannel().sendMessage("Wait, so who is kill?").queue();
     }
 }

@@ -18,7 +18,7 @@ public class Lean extends Command {
 
     @Override
     public void onExecuted(CommandEvent event) {
-        File leans[] = new File("resources/lean").listFiles();
+        File[] leans = new File("resources/lean").listFiles();
         Random random = new Random();
         int index = random.nextInt(leans.length);
         event.getChannel().sendTyping().queue();

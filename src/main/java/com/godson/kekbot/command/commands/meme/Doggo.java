@@ -1,7 +1,6 @@
 package com.godson.kekbot.command.commands.meme;
 
 import com.godson.kekbot.command.CommandCategories;
-import com.godson.kekbot.command.ImageCommand;
 import com.godson.kekbot.command.TextImageCommand;
 import com.godson.kekbot.util.ImageUtils;
 

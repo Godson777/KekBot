@@ -11,7 +11,6 @@ import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.internal.utils.Checks;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -149,9 +148,7 @@ public class ShopMenu extends Menu {
     }
 
     private void waitReaction(Message m, int pageNum) {
-        this.waiter.waitForEvent(MessageReactionAddEvent.class, (e) -> {
-            return this.isValidReaction(m, e, pageNum);
-        }, (e) -> {
+        this.waiter.waitForEvent(MessageReactionAddEvent.class, (e) -> this.isValidReaction(m, e, pageNum), (e) -> {
             if (e.getReaction().getReactionEmote().getName().equals(SELECTION_CANCEL)) {
                 m.clearReactions().queue();
             } else {
@@ -159,9 +156,7 @@ public class ShopMenu extends Menu {
                 m.delete().queue();
             }
 
-        }, this.timeout, this.unit, () -> {
-            this.finalAction.accept(m);
-        });
+        }, this.timeout, this.unit, () -> this.finalAction.accept(m));
     }
 
     private boolean isValidReaction(Message m, MessageReactionAddEvent e, int pageNum) {

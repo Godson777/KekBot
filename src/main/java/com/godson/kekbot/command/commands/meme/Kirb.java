@@ -21,7 +21,7 @@ public class Kirb extends Command {
 
     @Override
     public void onExecuted(CommandEvent event) {
-        File kirbs[] = new File("resources/kirb").listFiles();
+        File[] kirbs = new File("resources/kirb").listFiles();
         Random random = new Random();
         int index = random.nextInt(kirbs.length);
         event.getChannel().sendTyping().queue();

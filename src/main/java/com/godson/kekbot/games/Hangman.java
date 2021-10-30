@@ -1,6 +1,5 @@
 package com.godson.kekbot.games;
 
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -21,18 +20,18 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 
 public class Hangman extends Game {
-    private List<String> words = new ArrayList<>();
-    private List<Character> guessedLetters = new ArrayList<>();
-    private List<User> eliminatedPlayers = new ArrayList<>();
-    private Map<User, Integer> playerPoints = new HashMap<>();
+    private final List<String> words = new ArrayList<>();
+    private final List<Character> guessedLetters = new ArrayList<>();
+    private final List<User> eliminatedPlayers = new ArrayList<>();
+    private final Map<User, Integer> playerPoints = new HashMap<>();
     private String word;
     private char[] letters;
     private char[] board;
     private int penalty = 0;
     private int turn;
-    private Random random = new Random();
+    private final Random random = new Random();
 
-    private Font font = new Font("Calibri", Font.BOLD, 63);
+    private final Font font = new Font("Calibri", Font.BOLD, 63);
 
 
     public Hangman(TextChannel channel) {

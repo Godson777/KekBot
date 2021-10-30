@@ -17,7 +17,7 @@ public class BotMod extends Command {
 
     @Override
     public void onExecuted(CommandEvent event) {
-        String args[] = event.getArgs();
+        String[] args = event.getArgs();
         Config config = Config.getConfig();
         if (args.length > 0) {
             switch (args[0].toLowerCase()) {

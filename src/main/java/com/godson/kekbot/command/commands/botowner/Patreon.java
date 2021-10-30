@@ -1,7 +1,6 @@
 package com.godson.kekbot.command.commands.botowner;
 
 import com.godson.kekbot.command.Command;
-import com.godson.kekbot.command.CommandCategories;
 import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.settings.Config;
 

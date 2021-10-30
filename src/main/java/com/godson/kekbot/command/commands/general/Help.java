@@ -11,7 +11,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class Help extends Command {
@@ -120,7 +119,7 @@ public class Help extends Command {
         builder.append("\n\n--\n\n")
                 .append("Pro Tip: Enable \"Embed Links\" for me, so I can send cleaner styled messages for commands like this one!\n\n")
                 .append("--\n\n")
-                .append("KekBot v" + KekBot.version).append("\n")
+                .append("KekBot v").append(KekBot.version).append("\n")
                 .append("```");
         return builder.toString();
     }

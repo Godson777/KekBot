@@ -3,9 +3,6 @@ package com.godson.kekbot.command.commands;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.objects.MarkovChain;
-import twitter4j.Twitter;
-import twitter4j.TwitterException;
-import twitter4j.TwitterFactory;
 
 public class MarkovTest extends Command {
 

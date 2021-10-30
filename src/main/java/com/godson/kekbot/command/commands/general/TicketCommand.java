@@ -177,7 +177,7 @@ public class TicketCommand extends Command {
                     break;
                 default:
                     String t = event.combineArgs();
-                    String ticketInfo[] = t.split("\\u007C", 2);
+                    String[] ticketInfo = t.split("\\u007C", 2);
                     ticketInfo[0] = Utils.removeWhitespaceEdges(ticketInfo[0]);
                     if (ticketInfo.length == 1) {
                         event.getChannel().sendMessage("Contents of your ticket must be seperated with the vertical line ( **|** ). `Example: \"Title|Contents\"`").queue();

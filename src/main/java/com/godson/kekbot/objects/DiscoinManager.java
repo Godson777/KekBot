@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 public class DiscoinManager {
     private ScheduledExecutorService service = Executors.newScheduledThreadPool(5);
     String url = "https://dash.discoin.zws.im/#/";
-    private Runnable completeTransactions = () -> {
+    private final Runnable completeTransactions = () -> {
         try {
             List<Discoin4J.Transaction> transactions = KekBot.discoin.getPendingTransactions("KEK");
             for (Discoin4J.Transaction transaction : transactions) {

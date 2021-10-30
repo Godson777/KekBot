@@ -8,7 +8,6 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.internal.JDAImpl;
 import net.dv8tion.jda.internal.requests.Requester;
 import okhttp3.*;
 import org.json.JSONObject;
@@ -127,13 +126,13 @@ public class Utils {
      * @param jda The instance of JDA (or shard) to send stats from.
      */
     public static void sendStats(JDA jda) {
-        OkHttpClient client = ((JDAImpl) jda).getHttpClient();
+        OkHttpClient client = jda.getHttpClient();
         Config config = Config.getConfig();
         String carbonToken = config.getCarbonToken();
-        String botsListToken = config.getdBotsListToken();
+        String topGGToken = config.getTopGGToken();
         String botsToken = config.getdApiToken();
-        String dListBotsToken = config.getdListBotsToken();
 
+        // Carbonitex
         if (carbonToken != null) {
             FormBody.Builder bodyBuilder = new FormBody.Builder().add("key", carbonToken).add("servercount", Integer.toString(jda.getGuilds().size()));
 
@@ -158,15 +157,16 @@ public class Utils {
             });
         }
 
-        if (botsListToken != null) {
+        // Top.gg
+        if (topGGToken != null) {
             JSONObject body = new JSONObject().put("server_count", jda.getGuilds().size());
             if (jda.getShardInfo() != null)
                 body.put("shard_id", jda.getShardInfo().getShardId()).put("shard_count", jda.getShardInfo().getShardTotal());
 
             Request.Builder builder = new Request.Builder()
                     .post(RequestBody.create(Requester.MEDIA_TYPE_JSON, body.toString()))
-                    .url("https://discordbots.org/api/bots/" + jda.getSelfUser().getId() + "/stats")
-                    .header("Authorization", botsListToken)
+                    .url("https://top.gg/api/bots/" + jda.getSelfUser().getId() + "/stats")
+                    .header("Authorization", topGGToken)
                     .header("Content-Type", "application/json");
 
             client.newCall(builder.build()).enqueue(new Callback() {
@@ -182,14 +182,16 @@ public class Utils {
             });
         }
 
+        // Discord Bots
         if (botsToken != null) {
             JSONObject body = new JSONObject().put("server_count", jda.getGuilds().size());
 
-            if (jda.getShardInfo() != null) body.put("shard_id", jda.getShardInfo().getShardId()).put("shard_count", jda.getShardInfo().getShardTotal());
+            if (jda.getShardInfo() != null)
+                body.put("shard_id", jda.getShardInfo().getShardId()).put("shard_count", jda.getShardInfo().getShardTotal());
 
             Request.Builder builder = new Request.Builder()
                     .post(RequestBody.create(Requester.MEDIA_TYPE_JSON, body.toString()))
-                    .url("https://bots.discord.pw/api/bots/" + jda.getSelfUser().getId() + "/stats")
+                    .url("https://discord.bots.gg/api/v1/bots/" + jda.getSelfUser().getId() + "/stats")
                     .header("Authorization", botsToken)
                     .header("Content-Type", "application/json");
 
@@ -201,26 +203,6 @@ public class Utils {
 
                 @Override
                 public void onFailure(Call call, IOException e) {
-                }
-            });
-        }
-
-        if (dListBotsToken != null) {
-            JSONObject body = new JSONObject().put("token", dListBotsToken).put("servers", KekBot.jda.getGuilds());
-
-            Request.Builder builder = new Request.Builder().post(RequestBody.create(Requester.MEDIA_TYPE_JSON, body.toString()))
-                    .url("https://bots.discordlist.net/api")
-                    .header("Content-Tytpe", "application/json");
-
-            client.newCall(builder.build()).enqueue(new Callback() {
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    response.close();
-                }
-
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    //Do nothing for now.
                 }
             });
         }
@@ -391,14 +373,12 @@ public class Utils {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T[] increaseArraySize(T original[], int newLength) {
+    public static <T> T[] increaseArraySize(T[] original, int newLength) {
 
         //Assuming original[0] isn't null.
         T[] t = (T[]) Array.newInstance(original[0].getClass(), newLength);
 
-        for (int i = 0; i < original.length; i++){
-            t[i] = original[i];
-        }
+        System.arraycopy(original, 0, t, 0, original.length);
 
         return t;
     }

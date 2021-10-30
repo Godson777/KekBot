@@ -2,13 +2,10 @@ package com.godson.kekbot.command.commands.botowner;
 
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.command.Command;
-import com.godson.kekbot.command.CommandCategories;
 import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.settings.Config;
 import com.jagrosh.jdautilities.menu.Paginator;
 import net.dv8tion.jda.api.entities.User;
-
-import java.util.stream.Collectors;
 
 public class BotAdmin extends Command {
 
@@ -20,7 +17,7 @@ public class BotAdmin extends Command {
 
     @Override
     public void onExecuted(CommandEvent event) {
-        String args[] = event.getArgs();
+        String[] args = event.getArgs();
         Config config = Config.getConfig();
         if (args.length > 0) {
             switch (args[0].toLowerCase()) {

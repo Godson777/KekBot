@@ -1,8 +1,5 @@
 package com.godson.kekbot.objects;
 
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.List;

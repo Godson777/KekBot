@@ -35,7 +35,7 @@ public class Profile {
     @SerializedName("Tokens")
     private List<Token> tokens = new ArrayList<>();
     @SerializedName("Backgrounds")
-    private List<String> backgrounds = new ArrayList<String>();
+    private List<String> backgrounds = new ArrayList<>();
     @SerializedName("Current Background ID")
     private String currentBackgroundID;
     @SerializedName("Badge")
@@ -191,10 +191,10 @@ public class Profile {
             card.setFont(ProfileUtils.topBarBio);
             String tempBio = bio;
             while (card.getFont().getStringBounds(tempBio, card.getFontRenderContext()).getWidth() > 736) {
-                tempBio = tempBio.substring(0, tempBio.lastIndexOf(" ", tempBio.length()));
+                tempBio = tempBio.substring(0, tempBio.lastIndexOf(" "));
             }
             card.drawString(Utils.removeWhitespaceEdges(tempBio), 249, 175);
-            if (bio.length() > tempBio.length()) card.drawString(Utils.removeWhitespaceEdges(bio.substring(tempBio.length(), bio.length())), 249, 175 + card.getFontMetrics().getHeight());
+            if (bio.length() > tempBio.length()) card.drawString(Utils.removeWhitespaceEdges(bio.substring(tempBio.length())), 249, 175 + card.getFontMetrics().getHeight());
         }
         //Draw Levels, XP, topkeks, playlists and their badge (if they have one).
         card.setFont(ProfileUtils.sideBar);

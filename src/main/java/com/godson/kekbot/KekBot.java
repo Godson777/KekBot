@@ -59,7 +59,7 @@ import java.util.*;
 import java.util.concurrent.*;
 
 public class KekBot {
-    //Seting configs, and resources.
+    //Setting configs, and resources.
     public static int shards = Config.getConfig().getShards();
     public static ShardManager jda;
     public static final Version version = new Version(1, 6, 1);
@@ -141,7 +141,7 @@ public class KekBot {
         //Load config
         Config config = Config.getConfig();
 
-        if (config.getdBotsListToken() != null) dbl = new DiscordBotListAPI.Builder().token(config.getdBotsListToken()).build();
+        if (config.getTopGGToken() != null) dbl = new DiscordBotListAPI.Builder().token(config.getTopGGToken()).build();
 //        if (config.getWeebToken() != null) weebApi = new WeebApiBuilder(TokenType.WOLKETOKENS, "KekBot/" + version.toString()).setToken(config.getWeebToken()).build();
         if (config.getWeebToken() != null) weebApi = new WeebApiBuilder(TokenType.WOLKETOKENS).setBotInfo("KekBot", version.toString(), "").setToken(config.getWeebToken()).build();
         if (config.usingTwitter()) {
@@ -228,8 +228,8 @@ public class KekBot {
         else {
             System.out.println("Database could not be found, creating new one...");
             // pick what db to make based on mode and if beta exists (yes im checking again because idk how else to do this)
-            r.dbCreate(mode == 1 && (boolean) r.dbList().contains(config.getBetaDatabase()).run(conn)? config.getBetaDatabase() : config.getDatabase()).run(conn);
-            conn.use(mode == 1? config.getBetaDatabase() : config.getDatabase());
+            r.dbCreate(mode == 1 && (boolean) r.dbList().contains(config.getBetaDatabase()).run(conn) ? config.getBetaDatabase() : config.getDatabase()).run(conn);
+            conn.use(mode == 1 ? config.getBetaDatabase() : config.getDatabase());
             // make tables because yes
             r.tableCreate("Profiles").optArg("primary_key", "User ID").run(conn);
             r.tableCreate("Responses").optArg("primary_key", "Action").run(conn);

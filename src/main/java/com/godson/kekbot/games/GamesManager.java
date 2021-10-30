@@ -14,8 +14,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class GamesManager extends ListenerAdapter {
-    private Map<Long, Game> activeGames = new HashMap<>();
-    private GameRegistry gameRegistry = new GameRegistry();
+    private final Map<Long, Game> activeGames = new HashMap<>();
+    private final GameRegistry gameRegistry = new GameRegistry();
 
     public Game getGame(TextChannel channel) {
         return activeGames.get(Long.valueOf(channel.getId()));
@@ -107,11 +107,7 @@ public class GamesManager extends ListenerAdapter {
     }
 
     public void shutdown(String reason) {
-        Iterator<Map.Entry<Long, Game>> itr = activeGames.entrySet().iterator();
-
-        while(itr.hasNext())
-        {
-            Map.Entry<Long, Game> entry = itr.next();
+        for (Map.Entry<Long, Game> entry : activeGames.entrySet()) {
             entry.getValue().getBets().declareTie();
             entry.getValue().channel.sendMessage("This game was ended due to KekBot shutting down with the reason: `" + reason + "` (Don't worry, any bets made were all returned.)").queue();
         }

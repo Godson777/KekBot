@@ -75,7 +75,6 @@ public class CommandClient extends ListenerAdapter {
     }
 
     public void setCustomLocale(String guildID, String locale) {
-
         if (customLocales.containsKey(guildID)) {
             if (locale.equals(customLocales.get(guildID))) return;
 
@@ -153,15 +152,14 @@ public class CommandClient extends ListenerAdapter {
         return 0;
     }
 
-    public void applyCooldown(String name, int seconds)
-    {
+    public void applyCooldown(String name, int seconds) {
         cooldowns.put(name, OffsetDateTime.now().plusSeconds(seconds));
     }
 
     public void cleanCooldowns() {
         OffsetDateTime now = OffsetDateTime.now();
         cooldowns.keySet().stream().filter((str) -> (cooldowns.get(str).isBefore(now)))
-                .collect(Collectors.toList()).stream().forEach(str -> cooldowns.remove(str));
+                .collect(Collectors.toList()).stream().forEach(cooldowns::remove);
     }
 
     public String getPrefix(String guildID) {
@@ -234,10 +232,9 @@ public class CommandClient extends ListenerAdapter {
     }
 
     public void onMessageReceived(MessageReceivedEvent event) {
-        if(event.getAuthor().isBot())
-            return;
+        if (event.getAuthor().isBot()) return;
 
-        String parts[] = null;
+        String[] parts = null;
         String rawContent = event.getMessage().getContentRaw().replace("@everyone", "@\u200Beveryone").replace("@here", "@\u200Bhere");
         if (event.isFromType(ChannelType.TEXT)) {
             if (rawContent.startsWith(event.getGuild().getSelfMember().getAsMention()) || rawContent.startsWith("<@!" + event.getJDA().getSelfUser().getId() + ">"))
@@ -266,7 +263,6 @@ public class CommandClient extends ListenerAdapter {
                 if (command != null) {
                     CommandEvent cevent = new CommandEvent(event, args, this);
                     command.run(cevent);
-                    return;
                 }
             }
         }
@@ -274,7 +270,7 @@ public class CommandClient extends ListenerAdapter {
 
     @Override
     public void onGuildJoin(GuildJoinEvent event) {
-        if(event.getGuild().getSelfMember().getTimeJoined().plusMinutes(10).isBefore(OffsetDateTime.now()))
+        if (event.getGuild().getSelfMember().getTimeJoined().plusMinutes(10).isBefore(OffsetDateTime.now()))
             return;
 
         if (!Config.getConfig().getBlockedUsers().containsKey(event.getGuild().getOwner().getUser().getId()) || (Config.getConfig().getBlockedUsers().containsKey(event.getGuild().getOwner().getUser().getId()) && Config.getConfig().getBlockedUsers().get(event.getGuild().getOwner().getUser().getId()) < 2)) {

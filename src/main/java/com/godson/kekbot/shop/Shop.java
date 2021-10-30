@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class Shop<T> {
-    protected List<T> inventory = new ArrayList<T>();
-    private Map<T, Integer> limitedQuantity = new HashMap<>();
+    protected List<T> inventory = new ArrayList<>();
+    private final Map<T, Integer> limitedQuantity = new HashMap<>();
 
     protected final ShelfType shelfType;
     protected final int height;
@@ -71,8 +71,8 @@ public abstract class Shop<T> {
     protected enum ShelfType {
         SHELF_3("resources/shop/3shelf.png", 3);
 
-        private String file;
-        private int shelves;
+        private final String file;
+        private final int shelves;
 
         ShelfType(String file, int shelves) {
             this.file = file;

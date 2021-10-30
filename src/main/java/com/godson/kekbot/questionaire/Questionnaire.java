@@ -120,7 +120,7 @@ public class Questionnaire {
 
     public Questionnaire addQuestion(String message, QuestionType type) {
         //Allows addition of other "Types" that require more params.
-        if (type.equals(QuestionType.CHOICE_STRING)) {
+        if (type.equals(QuestionType.CHOICE_STRING) || type.equals(QuestionType.YES_NO_STRING)) {
             String method = "";
             //Add any new "types" to this switch, as well as the method used to create questions of that type.
             switch (type) {
@@ -252,13 +252,11 @@ public class Questionnaire {
     }
 
     public class Results {
-        private Questionnaire questionnaire;
-        private List<Object> answers;
-        private Guild guild;
-        private TextChannel channel;
-        private User user;
-        private CommandEvent event;
-
+        private final Questionnaire questionnaire;
+        private final List<Object> answers;
+        private final Guild guild;
+        private final TextChannel channel;
+        private final User user;
 
         Results(Questionnaire questionnaire) {
             this.questionnaire = questionnaire;

@@ -197,7 +197,7 @@ public class Takeover extends Command {
                                                         Questionnaire.newQuestionnaire(results1)
                                                                 .addQuestion("Enter a response for " + action.name() + ".", QuestionType.STRING)
                                                                 .execute(results2 -> {
-                                                                    List<String> numberSlots = new ArrayList<String>();
+                                                                    List<String> numberSlots = new ArrayList<>();
                                                                     String response = results2.getAnswerAsType(0, String.class);
                                                                     for (int i = 0; i < finalAction.getBlanksNeeded(); i++) {
                                                                         numberSlots.add("{" + (i + 1) + "}");
@@ -417,7 +417,7 @@ public class Takeover extends Command {
         Questionnaire.newQuestionnaire(event)
                 .addQuestion("Now, for responses. Let's start with a response for " + action[0], QuestionType.STRING)
                 .execute(results -> {
-                    List<String> numberSlots = new ArrayList<String>();
+                    List<String> numberSlots = new ArrayList<>();
                     String response = results.getAnswerAsType(0, String.class);
                     for (int i = 0; i < action[0].getBlanksNeeded(); i++) {
                         numberSlots.add("{" + (i + 1) + "}");

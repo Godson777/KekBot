@@ -1,7 +1,6 @@
 package com.godson.kekbot.command.commands.meme;
 
 import com.godson.kekbot.util.ImageUtils;
-import com.godson.kekbot.util.Utils;
 import com.godson.kekbot.command.*;
 
 import javax.imageio.ImageIO;
@@ -11,11 +10,9 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.*;
 import java.util.Arrays;
-
 
 public class Kaede extends Command {
 
@@ -31,9 +28,7 @@ public class Kaede extends Command {
     @Override
     public void onExecuted(CommandEvent event) throws Throwable {
         String filename = "kaededab";
-        boolean reboot = false;
-
-        if (event.combineArgs().contains("--reboot")) reboot = true;
+        boolean reboot = event.combineArgs().contains("--reboot");
 
         String[] args = event.getArgs();
 
@@ -68,15 +63,9 @@ public class Kaede extends Command {
                     }
 
                     event.getChannel().sendFile(generate(check, reboot), filename + ".png").queue();
-                } catch (MalformedURLException | UnknownHostException | IllegalArgumentException | FileNotFoundException e) {
-                    try {
-                        event.getChannel().sendFile(generate(event.combineArgs().replace("--reboot", ""), reboot), filename + ".png").queue();
-                    } catch (IllegalArgumentException e1) {
-                        event.getChannel().sendMessage(event.getString("command.textimage.texttoolong")).queue();
-                    }
                 } catch (SSLHandshakeException | SocketException e) {
                     event.getChannel().sendMessage(event.getString("command.textimage.unabletoconnect")).queue();
-                } catch (IOException e) {
+                } catch (IllegalArgumentException | IOException e) {
                     try {
                         event.getChannel().sendFile(generate(event.combineArgs().replace("--reboot", ""), reboot), filename + ".png").queue();
                     } catch (IllegalArgumentException e1) {

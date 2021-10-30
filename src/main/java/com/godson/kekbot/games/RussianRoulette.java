@@ -17,10 +17,10 @@ import java.util.stream.Collectors;
 
 public class RussianRoulette extends Game {
 
-    private List<User> alive = new ArrayList<>();
-    private List<Boolean> bullets = new ArrayList<>();
-    private Random random = new Random();
-    private ScheduledExecutorService timer = new ScheduledThreadPoolExecutor(1);
+    private final List<User> alive = new ArrayList<>();
+    private final List<Boolean> bullets = new ArrayList<>();
+    private final Random random = new Random();
+    private final ScheduledExecutorService timer = new ScheduledThreadPoolExecutor(1);
     private int round = 0;
     private int noDeaths = 0;
 
@@ -98,18 +98,12 @@ public class RussianRoulette extends Game {
         if (round % players.size() == 0) Precision.round(multiplier += (players.size() > 5 ? .4 : .2), 2);
         //Let's list our remaining players, and start the round.
         channel.sendMessage("Round " + round + "!\nPlayers remaining:\n\n" + StringUtils.join(alive.stream().map(User::getAsMention).collect(Collectors.toList()), ", ") + "\n\nRound starting in 5 seconds...")
-                .queue(s -> {
-                    timer.schedule(this::startRound, 5, TimeUnit.SECONDS);
-                });
+                .queue(s -> timer.schedule(this::startRound, 5, TimeUnit.SECONDS));
     }
 
     private void startRound() {
         channel.sendMessage((noDeaths > 0 ? "We've gone " + noDeaths + (noDeaths > 1 ? " rounds" : " round") + " without a death.\n\n" : "") + starts[random.nextInt(starts.length)] + (multiplier > 1 ? " **" + getString("game.multiplier", multiplier) + "**" : "")
-                + "\n\n" + getPrepMessage(0)).queue(m -> {
-            timer.schedule(() -> {
-                shoot(0, m);
-            }, 3, TimeUnit.SECONDS);
-        });
+                + "\n\n" + getPrepMessage(0)).queue(m -> timer.schedule(() -> shoot(0, m), 3, TimeUnit.SECONDS));
     }
 
     private String getPrepMessage(int player) {
@@ -124,9 +118,8 @@ public class RussianRoulette extends Game {
                 timer.schedule(this::prepareRound, 5, TimeUnit.SECONDS);
             });
         } else {
-            message.editMessage(message.getContentRaw() + " *click.* " + misfires[random.nextInt(misfires.length)]).queue(m -> {
-                timer.schedule(() -> nextShot(player, m), 3, TimeUnit.SECONDS);
-            });
+            message.editMessage(message.getContentRaw() + " *click.* " + misfires[random.nextInt(misfires.length)])
+                    .queue(m -> timer.schedule(() -> nextShot(player, m), 3, TimeUnit.SECONDS));
         }
 
 
@@ -142,11 +135,7 @@ public class RussianRoulette extends Game {
         }
 
         loadGun();
-        message.editMessage(message.getContentRaw() + "\n" + getPrepMessage(nextPlayer)).queue(m -> {
-            timer.schedule(() -> {
-                shoot(nextPlayer, m);
-            }, 3, TimeUnit.SECONDS);
-        });
+        message.editMessage(message.getContentRaw() + "\n" + getPrepMessage(nextPlayer)).queue(m -> timer.schedule(() -> shoot(nextPlayer, m), 3, TimeUnit.SECONDS));
     }
 
     private void loadGun() {

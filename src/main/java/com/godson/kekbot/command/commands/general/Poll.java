@@ -34,11 +34,11 @@ public class Poll extends Command {
         if (!manager.guildHasPoll(event.getGuild())) {
             if (event.getArgs().length > 0) {
                 String combinedArgs = event.combineArgs();
-                String timeSplit[] = combinedArgs.split("\\u007c", 2);
+                String[] timeSplit = combinedArgs.split("\\u007c", 2);
                 if (timeSplit.length == 1) {
                     event.getChannel().sendMessage(event.getString("command.general.poll.notime")).queue();
                 } else {
-                    String pollVariables[] = timeSplit[1].split("\\u007c");
+                    String[] pollVariables = timeSplit[1].split("\\u007c");
                     long time = 0;
                     String timeStr = Utils.removeWhitespaceEdges(pollVariables[0]);
                     String[] split = timeStr.split(":");
@@ -72,7 +72,7 @@ public class Poll extends Command {
                                     if (!formattedOption.equals("")) list.add(formattedOption);
                                 }
                             }
-                            String options[] = list.toArray(EMPTY_STRING_ARRAY);
+                            String[] options = list.toArray(EMPTY_STRING_ARRAY);
                             if (options.length != 1) {
                                 PollManager.Poll poll = manager.createPoll(event, time, Utils.removeWhitespaceEdges(combinedArgs.substring(0, combinedArgs.indexOf("|"))), options);
                                 StringBuilder builder = new StringBuilder();
@@ -80,7 +80,7 @@ public class Poll extends Command {
                                     builder.append(i + 1).append(". ").append("**").append(poll.getOptions()[i]).append("**").append("\n");
                                 }
                                 event.getChannel().sendMessage(event.getString("command.general.poll.start", event.getAuthor().getName(), event.getClient().getPrefix(event.getGuild().getId()) + "vote <number>!") + "\n\n" +
-                                        "__**" + poll.getTitle() + "**__\n\n" + builder.toString()).queue();
+                                        "__**" + poll.getTitle() + "**__\n\n" + builder).queue();
                             } else {
                                 event.getChannel().sendMessage(event.getString("command.general.poll.oneoption")).queue();
                             }
@@ -96,7 +96,7 @@ public class Poll extends Command {
                     builder.append(i+1).append(".").append("**").append(poll.getOptions()[i]).append("**").append("\n");
                 }
                 event.getChannel().sendMessage( event.getString("command.general.poll.currentpoll", poll.getCreator().getName() + "#" + poll.getCreator().getDiscriminator()) + "\n\n" +
-                        poll.getTitle() + "\n" + builder.toString()).queue();
+                        poll.getTitle() + "\n" + builder).queue();
             } else {
                 switch (event.getArgs()[0]) {
                     case "stop":
@@ -134,12 +134,12 @@ public class Poll extends Command {
                 if (event.getArgs().length == 0) return;
                 PollManager.Poll poll = manager.getGuildsPoll(event.getGuild());
                 try {
-                    poll.castVote(Integer.valueOf(event.getArgs()[0]) - 1, event.getAuthor());
+                    poll.castVote(Integer.parseInt(event.getArgs()[0]) - 1, event.getAuthor());
                     event.getMessage().addReaction("\u2705").queue();
                 } catch (NumberFormatException e) {
                     event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getLocale(), "`" + event.getArgs()[0] + "`")).queue();
                 } catch (IllegalArgumentException e) {
-                    event.getChannel().sendMessage(event.getString("command.general.poll.vote.samevote", event.getAuthor().getAsMention(), "`" + poll.getOptions()[Integer.valueOf(event.getArgs()[0]) - 1] + "`")).queue();
+                    event.getChannel().sendMessage(event.getString("command.general.poll.vote.samevote", event.getAuthor().getAsMention(), "`" + poll.getOptions()[Integer.parseInt(event.getArgs()[0]) - 1] + "`")).queue();
                 } catch (ArrayIndexOutOfBoundsException e) {
                     event.getChannel().sendMessage(event.getString("command.general.poll.vote.invalidoption")).queue();
                 }

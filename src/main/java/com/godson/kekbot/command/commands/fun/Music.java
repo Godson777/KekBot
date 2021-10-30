@@ -12,11 +12,8 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Stream;
 
 public class Music extends Command {
 
@@ -139,7 +136,7 @@ public class Music extends Command {
                 }
 
                 try {
-                    int volume = Integer.valueOf(args[1]);
+                    int volume = Integer.parseInt(args[1]);
                     KekBot.player.setVolume(event, volume);
                 } catch (NumberFormatException e) {
                     event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getLocale(), args[1])).queue();
@@ -157,7 +154,7 @@ public class Music extends Command {
                     return;
                 }
                 try {
-                    int toSkip = Integer.valueOf(args[1]);
+                    int toSkip = Integer.parseInt(args[1]);
                     KekBot.player.skipTrack(event, toSkip);
                 } catch (NumberFormatException e) {
                     KekBot.player.skipTrack(event);
@@ -175,7 +172,7 @@ public class Music extends Command {
                     return;
                 }
                 try {
-                    int skipTo = Integer.valueOf(args[1]);
+                    int skipTo = Integer.parseInt(args[1]);
                     KekBot.player.skipToTrack(event, skipTo);
                 } catch (NumberFormatException e) {
                     event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getLocale(), "`" + args[1] + "`")).queue();
@@ -198,7 +195,7 @@ public class Music extends Command {
                     return;
                 }
                 try {
-                    int toRemove = Integer.valueOf(args[1]) - 1;
+                    int toRemove = Integer.parseInt(args[1]) - 1;
                     KekBot.player.removeTrack(event, toRemove);
                 } catch (NumberFormatException e) {
                     event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getLocale(), "`" + args[1] + "`")).queue();
