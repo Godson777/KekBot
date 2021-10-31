@@ -1,7 +1,6 @@
 package com.godson.kekbot.games;
 
 import com.godson.kekbot.CustomEmote;
-import com.godson.kekbot.util.LocaleUtils;
 import com.godson.kekbot.util.Utils;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -14,13 +13,13 @@ import java.util.concurrent.*;
 public class SnailRace extends Game {
     private Message race;
     private int[] snails;
-    private int[] movements = {-1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3};
+    private final int[] movements = {-1, -1, -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3};
     private int[] move;
-    private Timer timer = new Timer();
-    private Random random = new Random();
+    private final Timer timer = new Timer();
+    private final Random random = new Random();
     private long startTime;
     private boolean finished = false;
-    private List<User> winners = new ArrayList<>();
+    private final List<User> winners = new ArrayList<>();
     private final String snail = "\uD83D\uDC0C";
     private final String flag = "\uD83C\uDFF4";
 
@@ -59,7 +58,7 @@ public class SnailRace extends Game {
 
     private String positionSnail(int pos, int placement) {
         String line = "------------------------------------------------------------";
-        return line.substring(0, pos) + snail + line.substring(pos, line.length()) + (placement == 0 ? flag : CustomEmote.getTrophy(placement - 1));
+        return line.substring(0, pos) + snail + line.substring(pos) + (placement == 0 ? flag : CustomEmote.getTrophy(placement - 1));
     }
 
     private int getPlacement(User player) {

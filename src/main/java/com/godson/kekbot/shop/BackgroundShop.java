@@ -47,7 +47,7 @@ public class BackgroundShop extends Shop<Background> {
 
         int maxPages = getNumberOfPages();
 
-        BufferedImage images[] = new BufferedImage[maxPages];
+        BufferedImage[] images = new BufferedImage[maxPages];
 
         List<byte[]> entireShop = new ArrayList<>();
 

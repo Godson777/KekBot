@@ -2,7 +2,6 @@ package com.godson.kekbot.command.commands.botowner;
 
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.command.Command;
-import com.godson.kekbot.command.CommandCategories;
 import com.godson.kekbot.command.CommandEvent;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -26,7 +25,7 @@ public class GetInvite extends Command {
             if (guild != null) {
                 for (TextChannel channel : guild.getTextChannels()) {
                     try {
-                        channel.createInvite().setMaxUses(1).setMaxAge(10L, TimeUnit.MINUTES).queue(invite -> event.getTextChannel().sendMessage("http://discord.gg/" + invite.getCode()).queue());
+                        channel.createInvite().setMaxUses(1).setMaxAge(10L, TimeUnit.MINUTES).queue(invite -> event.getTextChannel().sendMessage("https://discord.gg/" + invite.getCode()).queue());
                         break;
                     } catch (PermissionException e) {
                         if (channel == guild.getTextChannels().get(guild.getTextChannels().size() - 1)) {

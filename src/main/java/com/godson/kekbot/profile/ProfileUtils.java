@@ -20,11 +20,11 @@ public class ProfileUtils {
         String tempBio = bio;
         try {
             while (test.getFont().getStringBounds(tempBio, test.getFontRenderContext()).getWidth() > 736) {
-                tempBio = tempBio.substring(0, tempBio.lastIndexOf(" ", tempBio.length()));
+                tempBio = tempBio.substring(0, tempBio.lastIndexOf(" "));
             }
         } catch (StringIndexOutOfBoundsException e) {
             return false;
         }
-        return tempBio.length() == bio.length() || test.getFont().getStringBounds(Utils.removeWhitespaceEdges(bio.substring(tempBio.length(), bio.length())), test.getFontRenderContext()).getWidth() < 736;
+        return tempBio.length() == bio.length() || test.getFont().getStringBounds(Utils.removeWhitespaceEdges(bio.substring(tempBio.length())), test.getFontRenderContext()).getWidth() < 736;
     }
 }

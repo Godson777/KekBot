@@ -37,7 +37,7 @@ public class Responses extends Command {
                     }
                     String response = event.combineArgs(2);
                     try {
-                        List<String> numberSlots = new ArrayList<String>();
+                        List<String> numberSlots = new ArrayList<>();
                         for (int i = 0; i < Action.valueOf(args[1]).getBlanksNeeded(); i++) {
                             numberSlots.add("{" + (i + 1) + "}");
                         }
@@ -67,7 +67,7 @@ public class Responses extends Command {
                         return;
                     }
                     try {
-                        int toRemove = Integer.valueOf(args[2]) - 1;
+                        int toRemove = Integer.parseInt(args[2]) - 1;
                         Action action = Action.valueOf(args[1]);
                         if (toRemove > KekBot.getResponses(action).size()) {
                             event.getChannel().sendMessage("Number provided is larger than the current length of responses for that action.").queue();

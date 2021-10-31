@@ -20,7 +20,7 @@ public class YouTried extends Command {
 
     @Override
     public void onExecuted(CommandEvent event) {
-        File stars[] = new File("resources/youtried").listFiles();
+        File[] stars = new File("resources/youtried").listFiles();
         Random random = new Random();
         int index = random.nextInt(stars.length);
         event.getChannel().sendTyping().queue();

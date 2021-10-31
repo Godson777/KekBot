@@ -6,7 +6,6 @@ import com.godson.kekbot.command.CommandEvent;
 
 public class Changelog extends Command {
 
-
     public Changelog() {
         name = "changelog";
         description = "Shows you the changelogs for this version of KekBot.";

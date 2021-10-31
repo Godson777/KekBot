@@ -26,7 +26,7 @@ public class Gabe extends Command {
     public void onExecuted(CommandEvent event) throws Throwable {
         boolean reboot = (Arrays.stream(event.getArgs()).anyMatch(s -> s.equalsIgnoreCase("--reboot")));
 
-        File gabes[] = Arrays.stream(new File(reboot ? "resources/sound/gabe/reboot" : "resources/sound/gabe").listFiles()).filter(file -> !file.isDirectory()).toArray(File[]::new);
+        File[] gabes = Arrays.stream(new File(reboot ? "resources/sound/gabe/reboot" : "resources/sound/gabe").listFiles()).filter(file -> !file.isDirectory()).toArray(File[]::new);
         Random random = new Random();
         int index = random.nextInt(gabes.length);
         Optional<VoiceChannel> voiceChannel = event.getGuild().getVoiceChannels().stream().filter(c -> c.getMembers().contains(event.getMember())).findFirst();

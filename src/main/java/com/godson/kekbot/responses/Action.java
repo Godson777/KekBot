@@ -55,8 +55,8 @@ public enum Action {
         this.unlocalizedMessage = unlocalizedMessage;
     }
 
-    private int blanks;
-    private String unlocalizedMessage;
+    private final int blanks;
+    private final String unlocalizedMessage;
 
     public int getBlanksNeeded() {
         return blanks;

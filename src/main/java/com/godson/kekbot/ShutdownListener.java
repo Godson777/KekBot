@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.ShutdownEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -48,7 +49,7 @@ public class ShutdownListener extends ListenerAdapter {
     }
 
     @Override
-    public void onReady(ReadyEvent event) {
+    public void onReady(@NotNull ReadyEvent event) {
         if (KekBot.jda.getShardsQueued() > 0 && rebootedShard == null) return;
         if (softReboot) softReboot = false;
         if (channelID != null) {
@@ -59,7 +60,7 @@ public class ShutdownListener extends ListenerAdapter {
     }
 
     @Override
-    public void onShutdown(ShutdownEvent event) {
+    public void onShutdown(@NotNull ShutdownEvent event) {
         if (softReboot) return;
         System.exit(exitCode.getCode());
     }

@@ -2,6 +2,7 @@ package com.godson.kekbot.command.commands.weeb;
 
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
+import me.duncte123.weebJava.configs.ImageConfig;
 import me.duncte123.weebJava.models.WeebApi;
 import me.duncte123.weebJava.types.NSFWMode;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -22,9 +23,9 @@ public class WeebCommand extends Command {
         event.getChannel().sendTyping().queue();
         EmbedBuilder builder = new EmbedBuilder();
         builder.setTitle(event.getString(message));
-        builder.setImage(api.getRandomImage(type, event.getTextChannel().isNSFW() ? NSFWMode.ALLOW_NSFW : NSFWMode.DISALLOW_NSFW).execute().getUrl());
+        builder.setImage(api.getRandomImage(new ImageConfig.Builder().setType(type).setNsfwMode(event.getTextChannel().isNSFW() ? NSFWMode.ALLOW_NSFW : NSFWMode.DISALLOW_NSFW).build()).execute().getUrl());
         builder.setFooter("Powered by Weeb.sh!", null);
-        event.getChannel().sendMessage(builder.build()).queue();
+        event.getChannel().sendMessageEmbeds(builder.build()).queue();
     }
 
     public static class MentionCommand extends WeebCommand {
@@ -40,13 +41,12 @@ public class WeebCommand extends Command {
                 return;
             }
 
-
             event.getChannel().sendTyping().queue();
             EmbedBuilder builder = new EmbedBuilder();
             builder.setTitle(event.getString(message, event.getMentionedUsers().get(0).getName(), event.getAuthor().getName()));
-            builder.setImage(api.getRandomImage(type, event.getTextChannel().isNSFW() ? NSFWMode.ALLOW_NSFW : NSFWMode.DISALLOW_NSFW).execute().getUrl());
+            builder.setImage(api.getRandomImage(new ImageConfig.Builder().setType(type).setNsfwMode(event.getTextChannel().isNSFW() ? NSFWMode.ALLOW_NSFW : NSFWMode.DISALLOW_NSFW).build()).execute().getUrl());
             builder.setFooter("Powered by Weeb.sh!", null);
-            event.getChannel().sendMessage(builder.build()).queue();
+            event.getChannel().sendMessageEmbeds(builder.build()).queue();
         }
     }
 }

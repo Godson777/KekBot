@@ -1,9 +1,6 @@
 package com.godson.kekbot;
 
 import com.godson.kekbot.objects.UDictionary;
-import com.godson.kekbot.responses.Action;
-import com.godson.kekbot.responses.Responder;
-import com.godson.kekbot.responses.ResponseSuggestions;
 import com.godson.kekbot.settings.*;
 import com.google.gson.Gson;
 import com.mashape.unirest.http.HttpResponse;
@@ -21,8 +18,9 @@ public class GSONUtils {
     public static UDictionary getUDResults(String word) {
         UDictionary uDictionary = new UDictionary();
         try {
-            HttpResponse<String> response = Unirest.get("https://mashape-community-urban-dictionary.p.mashape.com/define?term=" + word)
-                    .header("X-Mashape-Key", "ceU4edWIr7mshi68Xs4IQYUQ7XgTp1ILJUgjsnsO4Qf4MOc543")
+            HttpResponse<String> response = Unirest.get("https://mashape-community-urban-dictionary.p.rapidapi.com/define?term=" + word)
+                    .header("x-rapidapi-host", "mashape-community-urban-dictionary.p.rapidapi.com")
+                    .header("x-rapidapi-key", "E5INE1iy8hmshT83qlwXZbNm4a1Ip1EF2AejsnPkszBpJQqxFY")
                     .header("Accept", "text/plain")
                     .asString();
             BufferedReader br = new BufferedReader(new InputStreamReader(response.getRawBody()));

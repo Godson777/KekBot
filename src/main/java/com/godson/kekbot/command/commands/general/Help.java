@@ -11,7 +11,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class Help extends Command {
@@ -78,7 +77,7 @@ public class Help extends Command {
 
         if (found) {
             if (event.getSelfMember().hasPermission(event.getTextChannel(), Permission.MESSAGE_EMBED_LINKS))
-                event.getChannel().sendMessage(getCommandHelp(event, command.get())).queue();
+                event.getChannel().sendMessageEmbeds(getCommandHelp(event, command.get())).queue();
             else
                 event.getChannel().sendMessage(getCommandHelpPlain(event, command.get())).queue();
         } else event.getChannel().sendMessage(event.getString("command.general.help.commandnotfound")).queue();
@@ -120,7 +119,7 @@ public class Help extends Command {
         builder.append("\n\n--\n\n")
                 .append("Pro Tip: Enable \"Embed Links\" for me, so I can send cleaner styled messages for commands like this one!\n\n")
                 .append("--\n\n")
-                .append("KekBot v" + KekBot.version).append("\n")
+                .append("KekBot v").append(KekBot.version).append("\n")
                 .append("```");
         return builder.toString();
     }

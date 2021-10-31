@@ -22,21 +22,21 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class TicTacToe extends Game {
-    private int[] board = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+    private final int[] board = {0, 0, 0, 0, 0, 0, 0, 0, 0};
     private int turn;
-    private Random random = new Random();
+    private final Random random = new Random();
 
     //AI STUFF
-    private HashMap<Integer, int[]> secondarySlots = new HashMap<>();
-    private HashMap<Integer, HashMap<Integer, Integer>> tertiarySlots = new HashMap<>();
-    private int[] primarySlots = {
+    private final HashMap<Integer, int[]> secondarySlots = new HashMap<>();
+    private final HashMap<Integer, HashMap<Integer, Integer>> tertiarySlots = new HashMap<>();
+    private final int[] primarySlots = {
             0, /* skipping 1 */ 2,
             /* skipping 3*/ 4, /* skipping 5 */
             6, /* skipping 7 */ 8
     };
 
     //Board Drawing Stuff
-    private BufferedImage[] tokens = new BufferedImage[3];
+    private final BufferedImage[] tokens = new BufferedImage[3];
     private BufferedImage player1;
     private BufferedImage player2;
 
@@ -102,7 +102,7 @@ public class TicTacToe extends Game {
     public void acceptInputFromMessage(Message message) {
         String contents = message.getContentRaw();
         try {
-            int slot = Integer.valueOf(contents);
+            int slot = Integer.parseInt(contents);
             fillSlot(slot-1, message.getAuthor());
         } catch (NumberFormatException e) {
             //do nothing.

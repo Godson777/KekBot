@@ -38,14 +38,12 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import net.dv8tion.jda.api.sharding.DefaultShardManager;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.api.entities.Icon;
 import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.apache.commons.lang3.StringUtils;
 import org.discordbots.api.client.DiscordBotListAPI;
-import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import twitter4j.conf.ConfigurationBuilder;
@@ -60,7 +58,7 @@ import java.util.*;
 import java.util.concurrent.*;
 
 public class KekBot {
-    //Seting configs, and resources.
+    //Setting configs, and resources.
     public static int shards = Config.getConfig().getShards();
     public static ShardManager jda;
     public static final Version version = new Version(1, 6, 1);
@@ -77,7 +75,6 @@ public class KekBot {
     public static boolean dev;
     public static WeebApi weebApi;
     public static DiscordBotListAPI dbl;
-    private static HttpServer server;
 
     //Twitter config
     public static ConfigurationBuilder twitterConfig;
@@ -112,13 +109,13 @@ public class KekBot {
     }
 
     // Base URI the Grizzly HTTP server will listen on
-    private static HttpServer startServer(int mode) {
+    private static void startServer(int mode) {
         String BASE_URI = Config.getConfig().getAPIip();
         if (mode == 1) BASE_URI = Config.getConfig().getAPIip() + "test/";
         if (mode == 2) BASE_URI = "http://localhost:8081/myapp/";
         final ResourceConfig rc = new ResourceConfig().packages("com.godson.kekbot.api");
 
-        return GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), rc);
+        GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), rc);
     }
 
     public static void main(String[] args) throws LoginException {
@@ -133,7 +130,7 @@ public class KekBot {
                 KekBot.dev = true;
             }
         }
-        server = startServer(mode);
+        startServer(mode);
         setupOptionalResources(mode);
         startBot(mode);
     }
@@ -142,8 +139,8 @@ public class KekBot {
         //Load config
         Config config = Config.getConfig();
 
-        if (config.getdBotsListToken() != null) dbl = new DiscordBotListAPI.Builder().token(config.getdBotsListToken()).build();
-        if (config.getWeebToken() != null) weebApi = new WeebApiBuilder(TokenType.WOLKETOKENS, "KekBot/" + version.toString()).setToken(config.getWeebToken()).build();
+        if (config.getTopGGToken() != null) dbl = new DiscordBotListAPI.Builder().token(config.getTopGGToken()).build();
+        if (config.getWeebToken() != null) weebApi = new WeebApiBuilder(TokenType.WOLKETOKENS).setBotInfo("KekBot", version.toString(), "").setToken(config.getWeebToken()).build();
         if (config.usingTwitter()) {
             System.out.println("Using Twitter. Checking for missing values...");
             if (config.getTwConsumerKey() == null) {
@@ -228,8 +225,8 @@ public class KekBot {
         else {
             System.out.println("Database could not be found, creating new one...");
             // pick what db to make based on mode and if beta exists (yes im checking again because idk how else to do this)
-            r.dbCreate(mode == 1 && (boolean) r.dbList().contains(config.getBetaDatabase()).run(conn)? config.getBetaDatabase() : config.getDatabase()).run(conn);
-            conn.use(mode == 1? config.getBetaDatabase() : config.getDatabase());
+            r.dbCreate(mode == 1 && (boolean) r.dbList().contains(config.getBetaDatabase()).run(conn) ? config.getBetaDatabase() : config.getDatabase()).run(conn);
+            conn.use(mode == 1 ? config.getBetaDatabase() : config.getDatabase());
             // make tables because yes
             r.tableCreate("Profiles").optArg("primary_key", "User ID").run(conn);
             r.tableCreate("Responses").optArg("primary_key", "Action").run(conn);

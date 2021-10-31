@@ -3,17 +3,14 @@ package com.godson.kekbot.command.commands.botowner;
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
-import com.godson.kekbot.questionaire.QuestionType;
 import com.godson.kekbot.questionaire.Questionnaire;
 import com.godson.kekbot.responses.Action;
 import net.dv8tion.jda.api.entities.Message;
 import twitter4j.StatusUpdate;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
-import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 
 public class Tweet extends Command {
@@ -35,7 +32,7 @@ public class Tweet extends Command {
         //Converts 1st argument to integer.
         int toSkip;
         try {
-             toSkip = Integer.valueOf(event.getArgs()[0]);
+             toSkip = Integer.parseInt(event.getArgs()[0]);
         } catch (NumberFormatException e) {
             event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getLocale(), "`" + event.getArgs()[0] + "`")).queue();
             return;

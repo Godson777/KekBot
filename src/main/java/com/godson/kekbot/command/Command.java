@@ -2,15 +2,12 @@ package com.godson.kekbot.command;
 
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.responses.Action;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.internal.utils.PermissionUtil;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
@@ -212,12 +209,8 @@ public abstract class Command {
     protected void throwException(Throwable t, CommandEvent event, String description) {
         String endl = System.getProperty("line.separator");
         String s = KekBot.respond(Action.EXCEPTION_THROWN, event.getLocale()) + endl + endl + "Description: " + description + endl + "Command: " + this.name + endl + endl + ExceptionUtils.getStackTrace(t);
-        try {
-            byte[] b = s.getBytes("UTF-8");
-            event.getChannel().sendFile(b, "traceback.txt").content("An error has occurred! This should be reported to the dev right away! Use the `" + event.getPrefix() + "ticket` command to do so, don't forget to show this file, too.").queue();
-        } catch (UnsupportedEncodingException e1) {
-            e1.printStackTrace();
-        }
+        byte[] b = s.getBytes(StandardCharsets.UTF_8);
+        event.getChannel().sendFile(b, "traceback.txt").content("An error has occurred! This should be reported to the dev right away! Use the `" + event.getPrefix() + "ticket` command to do so, don't forget to show this file, too.").queue();
     }
 
     public String getExtendedDescription() {
@@ -236,7 +229,7 @@ public abstract class Command {
 
     public static class Category {
         private final String name;
-        private String failMessage;
+        private final String failMessage;
         private final Predicate<CommandEvent> predicate;
 
         public Category(String name) {
@@ -290,13 +283,13 @@ public abstract class Command {
 
         DM, GUILD, BOTH;
 
-        CommandState() {};
+        CommandState() {}
     }
 
     protected enum CommandPermission {
         USER, MOD, ADMIN, OWNER;
 
-        CommandPermission() {};
+        CommandPermission() {}
     }
 
     protected enum ExtendedPosition {

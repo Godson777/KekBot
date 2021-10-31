@@ -19,7 +19,7 @@ public class CustomEmote {
                     "<a:loading3:438621490053775370>",
                     "<a:loading4:438621490162958337>",
                     "<a:loading5:438621512807874560>"};
-    private static Random random = new Random();
+    private static final Random random = new Random();
 
     public static String think() {
         return THINKINGS[random.nextInt(THINKINGS.length)];

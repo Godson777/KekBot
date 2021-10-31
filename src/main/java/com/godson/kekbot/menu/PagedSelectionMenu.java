@@ -2,7 +2,6 @@ package com.godson.kekbot.menu;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.menu.Menu;
-import com.jagrosh.jdautilities.menu.Paginator;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -97,7 +96,7 @@ public class PagedSelectionMenu extends Menu {
             StringBuilder sbuilder = new StringBuilder();
 
             for(k = start; k < end; ++k) {
-                sbuilder.append("\n").append("`" + (k + 1) + ".` ").append(this.choices.get(k));
+                sbuilder.append("\n").append("`").append(k + 1).append(".` ").append(this.choices.get(k));
             }
 
             ebuilder.setDescription(sbuilder.toString());
@@ -111,7 +110,7 @@ public class PagedSelectionMenu extends Menu {
             mbuilder.append(this.text.apply(pageNum, this.pages));
         }
 
-        mbuilder.setEmbed(ebuilder.build());
+        mbuilder.setEmbeds(ebuilder.build());
 
         return mbuilder.build();
     }
@@ -186,9 +185,7 @@ public class PagedSelectionMenu extends Menu {
     }
 
     private void waitReaction(Message m, int pageNum) {
-        this.waiter.waitForEvent(MessageReactionAddEvent.class, (e) -> {
-            return this.isValidReaction(m, e, pageNum);
-        }, (e) -> {
+        this.waiter.waitForEvent(MessageReactionAddEvent.class, (e) -> this.isValidReaction(m, e, pageNum), (e) -> {
             if (e.getReaction().getReactionEmote().getName().equals(SELECTION_CANCEL)) {
                 this.finalAction.accept(m);
                 m.clearReactions().queue();
@@ -197,9 +194,7 @@ public class PagedSelectionMenu extends Menu {
                 selectionAction.accept(m, this.getNumber(e.getReaction().getReactionEmote().getName()) + (itemsPerPage * (pageNum - 1)));
             }
 
-        }, this.timeout, this.unit, () -> {
-            this.finalAction.accept(m);
-        });
+        }, this.timeout, this.unit, () -> this.finalAction.accept(m));
     }
 
     private boolean isValidReaction(Message m, MessageReactionAddEvent e, int pageNum) {

@@ -2,29 +2,23 @@ package com.godson.kekbot.objects;
 
 import com.godson.kekbot.KekBot;
 import com.godson.kekbot.responses.Action;
-import com.godson.kekbot.responses.Responder;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
-import com.rethinkdb.gen.ast.ReqlObject;
-import com.rethinkdb.gen.ast.Table;
 import com.rethinkdb.model.MapObject;
 import com.rethinkdb.net.Cursor;
 import net.dv8tion.jda.api.entities.Icon;
 import org.apache.commons.io.FileUtils;
-import org.json.simple.JSONObject;
 
-import java.awt.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class TakeoverManager {
 
     @SerializedName("Takeovers")
-    private List<Takeover> takeovers = new ArrayList<>();
+    private final List<Takeover> takeovers = new ArrayList<>();
     @SerializedName("Takeover Active")
     private boolean takeoverActive;
     @SerializedName("Current Takeover")
@@ -33,11 +27,12 @@ public class TakeoverManager {
 
 
     public TakeoverManager() {
-        Cursor cursor = KekBot.r.table("Takeovers").run(KekBot.conn);
-        List<JSONObject> takeovers = cursor.bufferedItems();
+        Cursor<org.json.simple.JSONObject> cursor = KekBot.r.table("Takeovers").run(KekBot.conn);
+        List<org.json.simple.JSONObject> takeovers = cursor.bufferedItems();
         cursor.close();
         Gson gson = new Gson();
         takeovers.forEach(takeover -> this.takeovers.add(gson.fromJson(takeover.toJSONString(), Takeover.class)));
+
         File currentTakeover = new File("takeover");
         takeoverActive = currentTakeover.exists();
         if (takeoverActive) {
@@ -129,7 +124,7 @@ public class TakeoverManager {
 
         public Takeover() {
             games = new ArrayList<>();
-            responses = new HashMap<Action, List<String>>();
+            responses = new HashMap<>();
         }
 
         public String getName() {

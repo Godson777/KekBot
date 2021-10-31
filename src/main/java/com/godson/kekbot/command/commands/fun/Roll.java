@@ -31,7 +31,7 @@ public class Roll extends Command {
             event.getChannel().sendMessage(Utils.emojify(String.valueOf(defaultDie))).queue();
         } else {
             try {
-                specifiedDie = random.nextInt(Integer.valueOf(event.getArgs()[0]));
+                specifiedDie = random.nextInt(Integer.parseInt(event.getArgs()[0]));
                 event.getChannel().sendMessage(Utils.emojify(String.valueOf(specifiedDie))).queue();
             } catch (NumberFormatException e) {
                 event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getLocale(), "`" + event.getArgs()[0] + "`")).queue();

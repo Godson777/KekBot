@@ -4,10 +4,6 @@ import com.google.gson.annotations.SerializedName;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 
-import java.text.SimpleDateFormat;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.*;
 
 public class Ticket {
@@ -128,7 +124,7 @@ public class Ticket {
     public enum TicketStatus {
         OPEN("Open"), AWAITING_REPLY("Sent Reply"), RECEIVED_REPLY("Recieved Reply");
 
-        private String name;
+        private final String name;
 
         TicketStatus(String name) {
             this.name = name;
@@ -140,10 +136,10 @@ public class Ticket {
     }
 
     public class TicketReply {
-        private String userID;
-        private String message;
-        private long timeCreated;
-        private boolean adminReply;
+        private final String userID;
+        private final String message;
+        private final long timeCreated;
+        private final boolean adminReply;
 
         private TicketReply(String userID, String message, boolean adminReply) {
             this.userID = userID;

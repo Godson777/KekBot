@@ -220,8 +220,8 @@ public class Gru extends Command {
 
                 //WOO CENTERING THE TEXT VERTICALLY LIKE A BITCH!
                 Rectangle2D r2D = graphics.getFont().getStringBounds(split[0], graphics.getFontRenderContext());
-                int rWidth = (int) Math.round(270);
-                int rHeight = (int) Math.round(totalY);
+                int rWidth = Math.round(270);
+                int rHeight = Math.round(totalY);
                 int rX = (int) Math.round(r2D.getX());
                 int rY = (int) Math.round(r2D.getY());
                 int a = (270 / 2) - (rWidth / 2) - rX;

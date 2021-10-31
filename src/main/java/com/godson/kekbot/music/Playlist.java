@@ -9,7 +9,7 @@ import java.util.List;
 
 public class Playlist {
     private String name;
-    private List<KAudioTrackInfo> tracks = new ArrayList<>();
+    private final List<KAudioTrackInfo> tracks = new ArrayList<>();
     private boolean hidden = false;
 
     public Playlist(String name) {

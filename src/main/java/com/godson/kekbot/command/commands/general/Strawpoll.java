@@ -30,7 +30,7 @@ public class Strawpoll extends Command {
     public void onExecuted(CommandEvent event) {
         if (event.getArgs().length > 0) {
             String combinedArgs = event.combineArgs();
-            String pollVariables[] = combinedArgs.split("\\u007c");
+            String[] pollVariables = combinedArgs.split("\\u007c");
             if (pollVariables.length == 1) {
                 event.getChannel().sendMessage(event.getString("command.general.poll.nooptions")).queue();
             } else {
@@ -42,7 +42,7 @@ public class Strawpoll extends Command {
                         list.add(option);
                     }
                 }
-                String options[] = list.toArray(EMPTY_STRING_ARRAY);
+                String[] options = list.toArray(EMPTY_STRING_ARRAY);
                 SPoll poll = new SPoll(pollVariables[0]).withOptions(options).isMulti(false);
                 Gson gson = new GsonBuilder().setPrettyPrinting().create();
                 String json = gson.toJson(poll);

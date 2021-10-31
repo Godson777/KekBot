@@ -28,7 +28,7 @@ public class LotteryCommand extends Command {
                 if (event.getArgs().length > 1) {
                     int tickets;
                     try {
-                        tickets = Integer.valueOf(event.getArgs()[1]);
+                        tickets = Integer.parseInt(event.getArgs()[1]);
                     } catch (NumberFormatException e) {
                         event.getChannel().sendMessage(KekBot.respond(Action.NOT_A_NUMBER, event.getLocale(), "`" + event.getArgs()[1] + "`")).queue();
                         return;

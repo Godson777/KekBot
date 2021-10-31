@@ -493,7 +493,7 @@ public class MusicPlayer extends ListenerAdapter {
 
     private void connectToUsersVoiceChannel(CommandEvent event) {
         AudioManager audioManager = event.getGuild().getAudioManager();
-        if (!audioManager.isConnected() && !audioManager.isAttemptingToConnect()) {
+        if (!audioManager.isConnected()) {
             Optional<VoiceChannel> voiceChannel = event.getGuild().getVoiceChannels().stream().filter(c -> c.getMembers().contains(event.getEvent().getMember())).findFirst();
             if (!voiceChannel.isPresent()) {
                 event.getTextChannel().sendMessage(KekBot.respond(Action.GET_IN_VOICE_CHANNEL, event.getLocale())).queue();

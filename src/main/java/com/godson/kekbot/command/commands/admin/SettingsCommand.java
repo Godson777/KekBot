@@ -1,7 +1,6 @@
 package com.godson.kekbot.command.commands.admin;
 
 import com.godson.kekbot.KekBot;
-import com.godson.kekbot.settings.Config;
 import com.godson.kekbot.util.LocaleUtils;
 import com.godson.kekbot.TriConsumer;
 import com.godson.kekbot.util.Utils;
@@ -22,7 +21,7 @@ import java.util.stream.Collectors;
 
 public class SettingsCommand extends Command {
 
-    private Map<String, Setting> settings = new HashMap<>();
+    private final Map<String, Setting> settings = new HashMap<>();
 
     public SettingsCommand(boolean twitter) {
         name = "settings";
@@ -86,7 +85,7 @@ public class SettingsCommand extends Command {
                         return;
                     }
 
-                    String roles[] = role.split("\\u007c", 2);
+                    String[] roles = role.split("\\u007c", 2);
 
                     if (roles.length > 1) {
                         int added = 0;

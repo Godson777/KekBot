@@ -16,13 +16,11 @@ public class ImageUtils {
             if (graphics.getFont().getStringBounds(word, graphics.getFontRenderContext()).getWidth() > maxWidth) {
                 return false;
             }
-            if (graphics.getFont().getStringBounds(test + " " + word, graphics.getFontRenderContext()).getWidth() <= maxWidth)
-                test.append(word).append(" ");
-            else {
+            if (graphics.getFont().getStringBounds(test + " " + word, graphics.getFontRenderContext()).getWidth() > maxWidth) {
                 text.append(test).append("\n");
                 test.delete(0, test.length());
-                test.append(word).append(" ");
             }
+            test.append(word).append(" ");
         }
         text.append(test);
 
@@ -36,9 +34,9 @@ public class ImageUtils {
         String[] split = text.toString().split("\n");
 
         //For loop to determine total height of all text.
-        for (int i = 0; i < split.length; i++) {
+        for (String s : split) {
             totalHeight += graphics.getFontMetrics().getHeight();
-            Rectangle2D temp = graphics.getFontMetrics().getStringBounds(split[i], graphics);
+            Rectangle2D temp = graphics.getFontMetrics().getStringBounds(s, graphics);
             if (temp.getWidth() > highestWidth) highestWidth = (int) Math.round(temp.getWidth());
         }
 

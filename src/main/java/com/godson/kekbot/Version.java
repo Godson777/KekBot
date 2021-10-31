@@ -3,10 +3,10 @@ package com.godson.kekbot;
 import com.godson.kekbot.util.Utils;
 
 public class Version {
-    private int majorVersion;
-    private int minorVersion;
-    private int patchVersion;
-    private int betaVersion;
+    private final int majorVersion;
+    private final int minorVersion;
+    private final int patchVersion;
+    private final int betaVersion;
 
     public Version(int majorVersion, int minorVersion, int patchVersion, int betaVersion) {
         this.majorVersion = majorVersion;
@@ -66,8 +66,7 @@ public class Version {
                 if (this.getPatchVersion() > version.getPatchVersion()) {
                     return true;
                 } else if (this.getPatchVersion() == version.getPatchVersion()) {
-                    if (this.getBetaVersion() > version.getBetaVersion())
-                        return true;
+                    return this.getBetaVersion() > version.getBetaVersion();
                 }
             }
         }

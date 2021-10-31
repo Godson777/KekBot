@@ -17,7 +17,7 @@ import java.util.Random;
 
 public class Daily extends Command {
 
-    private Random random = new Random();
+    private final Random random = new Random();
 
     public Daily() {
         name = "daily";
@@ -36,7 +36,7 @@ public class Daily extends Command {
         //Temporarily outdated, will remake the daily bonus feature in a later update.
         /*if (Config.getConfig().getdBotsListToken() != null) {
             try {
-                Document document = Jsoup.connect("https://discordbots.org/api/bots/213151748855037953/check?userId=" + event.getAuthor().getId())
+                Document document = Jsoup.connect("https://top.gg/api/bots/213151748855037953/check?userId=" + event.getAuthor().getId())
                         .userAgent("Mozilla/5.0").ignoreContentType(true)
                         .header("Authorization", Config.getConfig().getdBotsListToken())
                         .get();
@@ -48,7 +48,7 @@ public class Daily extends Command {
                     claimDaily(true, profile, event);
                 } else {
                     Questionnaire.newQuestionnaire(event)
-                            .addYesNoQuestion(event.getString("command.fun.daily.notvoted", "https://discordbots.org/bot/213151748855037953"))
+                            .addYesNoQuestion(event.getString("command.fun.daily.notvoted", "https://top.gg/bot/213151748855037953"))
                             .execute(results -> {
                                 if (!results.getAnswerAsType(0, boolean.class)) {
                                     event.getChannel().sendMessage(event.getString("command.fun.daily.vote")).queue();

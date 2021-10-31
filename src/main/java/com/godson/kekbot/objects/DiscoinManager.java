@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 public class DiscoinManager {
     private ScheduledExecutorService service = Executors.newScheduledThreadPool(5);
     String url = "https://dash.discoin.zws.im/#/";
-    private Runnable completeTransactions = () -> {
+    private final Runnable completeTransactions = () -> {
         try {
             List<Discoin4J.Transaction> transactions = KekBot.discoin.getPendingTransactions("KEK");
             for (Discoin4J.Transaction transaction : transactions) {
@@ -33,7 +33,7 @@ public class DiscoinManager {
                         builder.setTitle("Discoin Transaction Recieved!");
                         builder.addField("Amount", transaction.getAmount() + " " + transaction.getFrom().getId() + " -> " + transaction.getPayout() + CustomEmote.printTopKek(), false);
                         builder.addField("Transaction ID", "[" + transaction.getId() + "](" + url + "transactions/" + transaction.getId() + ")", false);
-                        c.sendMessage(builder.build()).queue();
+                        c.sendMessageEmbeds(builder.build()).queue();
                     });
                     //user.openPrivateChannel().queue(c -> c.sendMessage("Woohoo! You just got paid " + CustomEmote.printPrice(transaction.getPayout()) + " from Discoin! (Transaction ID: " + transaction.getId() + ")").queue());
                     profile.addTopKeks(transaction.getPayout());

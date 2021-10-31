@@ -7,8 +7,6 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import net.dv8tion.jda.api.entities.Guild;
 
-import java.util.concurrent.*;
-
 public class ErrorScheduler extends AudioEventAdapter {
     private final AudioPlayer player;
     private final Guild guild;

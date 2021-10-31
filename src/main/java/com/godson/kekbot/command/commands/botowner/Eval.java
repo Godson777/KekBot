@@ -1,7 +1,6 @@
 package com.godson.kekbot.command.commands.botowner;
 
 import com.godson.kekbot.command.Command;
-import com.godson.kekbot.command.CommandCategories;
 import com.godson.kekbot.command.CommandEvent;
 
 import javax.script.ScriptEngine;
@@ -38,7 +37,7 @@ public class Eval extends Command {
                                 event.combineArgs() +
                                 "}" +
                                 "})();");
-                event.getChannel().sendMessage(out == null ? "`Success! (Unless you're trying to find an object, then it failed...)`" : "`" + out.toString() + "`").queue();
+                event.getChannel().sendMessage(out == null ? "`Success! (Unless you're trying to find an object, then it failed...)`" : "`" + out + "`").queue();
             } catch (ScriptException e) {
                 event.getChannel().sendMessage("```js\n" + e.getMessage() + "```").queue();
             } catch (Exception e) {

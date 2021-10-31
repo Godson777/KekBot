@@ -168,7 +168,7 @@ public class ProfileCommand extends Command {
                                     case "topkeks":
                                         if (event.getArgs().length >= 4) {
                                             try {
-                                                double toGive = Double.valueOf(event.getArgs()[3]);
+                                                double toGive = Double.parseDouble(event.getArgs()[3]);
                                                 if (event.getArgs().length >= 5) {
                                                     User user = KekBot.jda.getUserById(event.getArgs()[4]);
 
@@ -191,7 +191,7 @@ public class ProfileCommand extends Command {
                                     case "KXP":
                                         if (event.getArgs().length >= 4) {
                                             try {
-                                                int toGive = Integer.valueOf(event.getArgs()[3]);
+                                                int toGive = Integer.parseInt(event.getArgs()[3]);
                                                 if (event.getArgs().length >= 5) {
                                                     User user = KekBot.jda.getUserById(event.getArgs()[4]);
 
@@ -272,7 +272,7 @@ public class ProfileCommand extends Command {
                                     case "topkeks":
                                         if (event.getArgs().length >= 4) {
                                             try {
-                                                double toTake = Double.valueOf(event.getArgs()[3]);
+                                                double toTake = Double.parseDouble(event.getArgs()[3]);
                                                 if (event.getArgs().length >= 5) {
                                                     User user = KekBot.jda.getUserById(event.getArgs()[4]);
 
@@ -296,7 +296,7 @@ public class ProfileCommand extends Command {
                                     case "KXP":
                                         if (event.getArgs().length >= 4) {
                                             try {
-                                                int toTake = Integer.valueOf(event.getArgs()[3]);
+                                                int toTake = Integer.parseInt(event.getArgs()[3]);
                                                 if (event.getArgs().length >= 5) {
                                                     User user = KekBot.jda.getUserById(event.getArgs()[4]);
 
@@ -379,7 +379,7 @@ public class ProfileCommand extends Command {
                                     case "topkeks":
                                         if (event.getArgs().length >= 4) {
                                             try {
-                                                double toSet = Double.valueOf(event.getArgs()[3]);
+                                                double toSet = Double.parseDouble(event.getArgs()[3]);
                                                 if (event.getArgs().length >= 5) {
                                                     User user = KekBot.jda.getUserById(event.getArgs()[4]);
 
@@ -402,7 +402,7 @@ public class ProfileCommand extends Command {
                                     case "KXP":
                                         if (event.getArgs().length >= 4) {
                                             try {
-                                                int toSet = Integer.valueOf(event.getArgs()[3]);
+                                                int toSet = Integer.parseInt(event.getArgs()[3]);
                                                 if (event.getArgs().length >= 5) {
                                                     User user = KekBot.jda.getUserById(event.getArgs()[4]);
 

@@ -90,19 +90,16 @@ public class MyPlaylist extends Command {
                                         .addQuestion(event.getString("command.fun.myplaylist.modify.intro", "*view*"), QuestionType.STRING)
                                         .includeCancel(false)
                                         .execute(results1 -> {
-                                            switch (results1.getAnswer(0).toString()) {
-                                                case "view":
-                                                    listPlaylists(results1, 1, profile);
-                                                    break;
-                                                default:
-                                                    Optional<Playlist> potentialPlaylist = profile.getPlaylists().stream().filter(playlist1 -> playlist1.getName().equalsIgnoreCase(results1.getAnswer(0).toString())).findFirst();
-                                                    if (potentialPlaylist.isPresent()) {
-                                                        Playlist playlist = potentialPlaylist.get();
-                                                        confirmDelete(results1, playlist, profile);
-                                                    } else {
-                                                        event.getChannel().sendMessage(event.getString("command.fun.myplaylist.invalidplaylist")).queue();
-                                                    }
-                                                    break;
+                                            if ("view".equals(results1.getAnswer(0).toString())) {
+                                                listPlaylists(results1, 1, profile);
+                                            } else {
+                                                Optional<Playlist> potentialPlaylist = profile.getPlaylists().stream().filter(playlist1 -> playlist1.getName().equalsIgnoreCase(results1.getAnswer(0).toString())).findFirst();
+                                                if (potentialPlaylist.isPresent()) {
+                                                    Playlist playlist = potentialPlaylist.get();
+                                                    confirmDelete(results1, playlist, profile);
+                                                } else {
+                                                    event.getChannel().sendMessage(event.getString("command.fun.myplaylist.invalidplaylist")).queue();
+                                                }
                                             }
                                         });
                             }
@@ -114,19 +111,16 @@ public class MyPlaylist extends Command {
                                 Questionnaire.newQuestionnaire(results)
                                         .addQuestion(event.getString("command.fun.myplaylist.modify.intro", "*view*"), QuestionType.STRING)
                                         .execute(results1 -> {
-                                            switch (results1.getAnswer(0).toString()) {
-                                                case "view":
-                                                    listPlaylists(results1, 2, profile);
-                                                    break;
-                                                default:
-                                                    Optional<Playlist> potentialPlaylist = profile.getPlaylists().stream().filter(playlist1 -> playlist1.getName().equalsIgnoreCase(results1.getAnswer(0).toString())).findFirst();
-                                                    if (potentialPlaylist.isPresent()) {
-                                                        Playlist playlist = potentialPlaylist.get();
-                                                        editPlaylist(results1, playlist, profile);
-                                                    } else {
-                                                        event.getChannel().sendMessage(event.getString("command.fun.myplaylist.invalidplaylist")).queue();
-                                                    }
-                                                    break;
+                                            if ("view".equals(results1.getAnswer(0).toString())) {
+                                                listPlaylists(results1, 2, profile);
+                                            } else {
+                                                Optional<Playlist> potentialPlaylist = profile.getPlaylists().stream().filter(playlist1 -> playlist1.getName().equalsIgnoreCase(results1.getAnswer(0).toString())).findFirst();
+                                                if (potentialPlaylist.isPresent()) {
+                                                    Playlist playlist = potentialPlaylist.get();
+                                                    editPlaylist(results1, playlist, profile);
+                                                } else {
+                                                    event.getChannel().sendMessage(event.getString("command.fun.myplaylist.invalidplaylist")).queue();
+                                                }
                                             }
                                         });
                             }

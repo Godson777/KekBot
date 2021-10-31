@@ -75,7 +75,7 @@ public class Quote extends Command {
                     if (event.getMember().hasPermission(Permission.MESSAGE_MANAGE)) {
                         if (event.getArgs().length > 1) {
                             try {
-                                int quoteNumber = Integer.valueOf(event.getArgs()[1]);
+                                int quoteNumber = Integer.parseInt(event.getArgs()[1]);
                                 if (settings.getQuotes().getList().size() >= quoteNumber) {
                                     String quote = settings.getQuotes().getQuote(quoteNumber - 1);
                                     settings.getQuotes().removeQuote(quoteNumber - 1);
@@ -117,7 +117,7 @@ public class Quote extends Command {
                 default:
                     int toGet;
                     try {
-                        toGet = Integer.valueOf(event.getArgs()[0]) - 1;
+                        toGet = Integer.parseInt(event.getArgs()[0]) - 1;
                         if (settings.getQuotes().getList().size() > toGet && toGet >= 0) {
                             String quote = settings.getQuotes().getQuote(toGet);
                             while (quote.length() > 2000) {

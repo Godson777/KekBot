@@ -1,15 +1,9 @@
 package com.godson.kekbot.command.commands.general;
 
-import com.godson.kekbot.KekBot;
 import com.godson.kekbot.command.Command;
 import com.godson.kekbot.command.CommandEvent;
 
-import java.time.Clock;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalField;
-import java.util.TimeZone;
 
 public class Ping extends Command {
 

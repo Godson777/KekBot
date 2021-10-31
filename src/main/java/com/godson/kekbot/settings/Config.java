@@ -22,8 +22,7 @@ public class Config {
     private String dbPassword;
     //Tokens for bot lists
     private String dApiToken;
-    private String dListBotsToken;
-    private String dBotsListToken;
+    private String topGGToken;
     private String carbonToken;
     private String dcoinToken;
     //Bot Owner's User ID
@@ -45,10 +44,10 @@ public class Config {
     private String twAccessTokenSecret;
     private boolean twitter = false;
 
-    private List<String> botAdmins = new ArrayList<>();
-    private List<String> botMods = new ArrayList<>();
-    private Map<String, Integer> blockedUsers = new HashMap<>();
-    private List<String> patrons = new ArrayList<>();
+    private final List<String> botAdmins = new ArrayList<>();
+    private final List<String> botMods = new ArrayList<>();
+    private final Map<String, Integer> blockedUsers = new HashMap<>();
+    private final List<String> patrons = new ArrayList<>();
 
     public String getDatabase() {
         if (database != null) return database;
@@ -161,19 +160,11 @@ public class Config {
     }
 
     /**
-     * Gets token for the DiscordList Bots website.
-     * @return The token.
-     */
-    public String getdListBotsToken() {
-        return dListBotsToken;
-    }
-
-    /**
      * Gets token for the Discord Bots List website.
      * @return The token.
      */
-    public String getdBotsListToken() {
-        return dBotsListToken;
+    public String getTopGGToken() {
+        return topGGToken;
     }
 
     /**
@@ -248,6 +239,8 @@ public class Config {
     public static Config getConfig() {
         Config config = new Config();
         try {
+            File configDir = new File("config");
+            if (!configDir.exists()) configDir.mkdir();
             BufferedReader br = new BufferedReader(new FileReader("config/config.json"));
             Gson gson = new Gson();
             config = gson.fromJson(br, Config.class);
@@ -265,8 +258,7 @@ public class Config {
             temp.dbUser = "db user name";
             temp.dbPassword = "db password";
             temp.dApiToken = "(optional) discord bot list token";
-            temp.dBotsListToken = "(optional) another bot list token";
-            temp.dListBotsToken = "(optional) yet another bot list token";
+            temp.topGGToken = "(optional) top.gg bot list token";
             temp.carbonToken = "(optional) carbon bot list token";
             temp.dcoinToken = "(optional) discoin token";
             temp.botOwner = "your discord id";
@@ -277,7 +269,7 @@ public class Config {
             temp.weebToken = "(optional) weeb sh token";
             temp.twitter = false;
             temp.twAccessToken = "(optional) twitter access token";
-            temp.twConsumerKey = "(optional) twitter consumerkey";
+            temp.twConsumerKey = "(optional) twitter consumer key";
             temp.twConsumerSecret = "(optional) twitter consumer secret";
             temp.twAccessTokenSecret = "(optional) twitter access secret token";
             temp.botAdmins.add("(optional) id of bot admin");

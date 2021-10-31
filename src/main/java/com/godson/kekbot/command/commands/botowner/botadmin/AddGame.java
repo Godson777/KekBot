@@ -1,7 +1,6 @@
 package com.godson.kekbot.command.commands.botowner.botadmin;
 
 import com.godson.kekbot.command.Command;
-import com.godson.kekbot.command.CommandCategories;
 import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.settings.Config;
 import net.dv8tion.jda.api.entities.TextChannel;

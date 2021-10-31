@@ -12,12 +12,12 @@ import java.util.List;
 import java.util.Map;
 
 public class BetManager {
-    private Map<User, Pair<Integer, Double>> spectators = new HashMap<>();
-    private Map<User, Double> players = new HashMap<>();
+    private final Map<User, Pair<Integer, Double>> spectators = new HashMap<>();
+    private final Map<User, Double> players = new HashMap<>();
     private final double spectatorMultiplier = 1.35;
     private double playerPot;
-    private boolean spectatorsEnabled;
-    private boolean playersEnabled;
+    private final boolean spectatorsEnabled;
+    private final boolean playersEnabled;
 
     public BetManager(boolean playersEnabled, boolean spectatorsEnabled) {
         this.playersEnabled = playersEnabled;

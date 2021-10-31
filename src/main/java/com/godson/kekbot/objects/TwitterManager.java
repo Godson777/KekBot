@@ -1,7 +1,6 @@
 package com.godson.kekbot.objects;
 
 import com.godson.kekbot.KekBot;
-import com.godson.kekbot.command.CommandEvent;
 import com.godson.kekbot.responses.Action;
 import com.godson.kekbot.settings.Config;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -13,12 +12,9 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import twitter4j.*;
 
 import java.awt.*;
-import java.io.UnsupportedEncodingException;
-import java.sql.Time;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
@@ -34,10 +30,10 @@ public class TwitterManager extends ListenerAdapter {
     private final Twitter twitter = TwitterFactory.getSingleton();
     private final List<Pair<Instant, StatusUpdate>> statuses = new ArrayList<>();
 
-    private Map<Long, Message> currentTweets = new HashMap<>();
-    TwitterStream twitterStream = new TwitterStreamFactory().getInstance();
+    private final Map<Long, Message> currentTweets = new HashMap<>();
+    private final TwitterStream twitterStream = new TwitterStreamFactory().getInstance();
     long[] ids = new long[]{958176875108593664L, 610103342L, 2996678026L, 624995324L, 1475679589L, 845418771896524801L, 762996861447860224L};
-    StatusListener listener = new StatusListener() {
+    private final StatusListener listener = new StatusListener() {
         @Override
         public void onStatus(Status status) {
             //We do need this tho
@@ -53,7 +49,7 @@ public class TwitterManager extends ListenerAdapter {
             if (status.getMediaEntities().length > 0) builder.setImage(status.getMediaEntities()[0].getMediaURL());
             builder.setDescription(status.getText());
 
-            KekBot.jda.getTextChannelById("327379946794254338").sendMessage(builder.build()).queue(m -> currentTweets.put(status.getId(), m));
+            KekBot.jda.getTextChannelById("327379946794254338").sendMessageEmbeds(builder.build()).queue(m -> currentTweets.put(status.getId(), m));
         }
 
         @Override
@@ -65,7 +61,7 @@ public class TwitterManager extends ListenerAdapter {
                 builder.setColor(Color.GRAY);
                 builder.setTimestamp(m.getTimeCreated());
                 builder.setTitle("This tweet was removed from Twitter.");
-                m.editMessage(builder.build()).queue();
+                m.editMessageEmbeds(builder.build()).queue();
                 currentTweets.remove(statusDeletionNotice.getStatusId());
             }
         }
@@ -134,12 +130,8 @@ public class TwitterManager extends ListenerAdapter {
 
             //Otherwise, throw everything into a traceback.txt file, and send it to chat for monitoring.
             String s = KekBot.respond(Action.EXCEPTION_THROWN, KekBot.getCommandClient().getDefaultLocale()) + endl + endl + ExceptionUtils.getStackTrace(e);
-            try {
-                byte[] b = s.getBytes("UTF-8");
-                KekBot.jda.getTextChannelById(Config.getConfig().getTwitterChannel()).sendFile(b, "traceback.txt").content("Failed to send tweet. Traceback: ").queue();
-            } catch (UnsupportedEncodingException e1) {
-                e1.printStackTrace();
-            }
+            byte[] b = s.getBytes(StandardCharsets.UTF_8);
+            KekBot.jda.getTextChannelById(Config.getConfig().getTwitterChannel()).sendFile(b, "traceback.txt").content("Failed to send tweet. Traceback: ").queue();
         }
     }
 
@@ -158,12 +150,8 @@ public class TwitterManager extends ListenerAdapter {
 
             //Otherwise, throw everything into a traceback.txt file, and send it to chat for monitoring.
             String s = KekBot.respond(Action.EXCEPTION_THROWN, KekBot.getCommandClient().getDefaultLocale()) + endl + endl + ExceptionUtils.getStackTrace(e);
-            try {
-                byte[] b = s.getBytes("UTF-8");
-                KekBot.jda.getTextChannelById(Config.getConfig().getTwitterChannel()).sendFile(b, "traceback.txt").content("Failed to send tweet. Traceback: ").queue();
-            } catch (UnsupportedEncodingException e1) {
-                e1.printStackTrace();
-            }
+            byte[] b = s.getBytes(StandardCharsets.UTF_8);
+            KekBot.jda.getTextChannelById(Config.getConfig().getTwitterChannel()).sendFile(b, "traceback.txt").content("Failed to send tweet. Traceback: ").queue();
         }
     }
 
@@ -182,12 +170,8 @@ public class TwitterManager extends ListenerAdapter {
 
             //Otherwise, throw everything into a traceback.txt file, and send it to chat for monitoring.
             String s = KekBot.respond(Action.EXCEPTION_THROWN, KekBot.getCommandClient().getDefaultLocale()) + endl + endl + ExceptionUtils.getStackTrace(e);
-            try {
-                byte[] b = s.getBytes("UTF-8");
-                KekBot.jda.getTextChannelById(Config.getConfig().getTwitterChannel()).sendFile(b, "traceback.txt").content("Failed to send tweet. Traceback: ").queue();
-            } catch (UnsupportedEncodingException e1) {
-                e1.printStackTrace();
-            }
+            byte[] b = s.getBytes(StandardCharsets.UTF_8);
+            KekBot.jda.getTextChannelById(Config.getConfig().getTwitterChannel()).sendFile(b, "traceback.txt").content("Failed to send tweet. Traceback: ").queue();
         }
     }
 

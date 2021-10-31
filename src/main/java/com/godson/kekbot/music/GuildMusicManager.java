@@ -1,6 +1,5 @@
 package com.godson.kekbot.music;
 
-import com.godson.kekbot.KekBot;
 import com.godson.kekbot.command.CommandEvent;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
@@ -8,7 +7,6 @@ import net.dv8tion.jda.api.entities.User;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class GuildMusicManager {

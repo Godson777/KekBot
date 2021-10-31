@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 public class TicketManager {
 
-    private static Gson gson = new Gson();
+    private static final Gson gson = new Gson();
     private static final Timer timer = new Timer();
 
     public static void addTicket(Ticket ticket) {
@@ -64,7 +64,7 @@ public class TicketManager {
         if (replier != null) eBuilder.setThumbnail(Utils.getUserAvatarURL(replier));
         else eBuilder.setThumbnail("https://discordapp.com/assets/dd4dbc0016779df1378e7812eabaa04d.png");
         eBuilder.setTimestamp(Instant.ofEpochMilli(System.currentTimeMillis()));
-        KekBot.jda.getUserById(ticket.getAuthorID()).openPrivateChannel().queue(ch -> ch.sendMessage("You have received a reply for your ticket. (`" + ticket.getID() + "`) Use `$ticket view " + ticket.getID() + "` to view your ticket and its replies.").embed(eBuilder.build()).queue());
+        KekBot.jda.getUserById(ticket.getAuthorID()).openPrivateChannel().queue(ch -> ch.sendMessage("You have received a reply for your ticket. (`" + ticket.getID() + "`) Use `$ticket view " + ticket.getID() + "` to view your ticket and its replies.").setEmbeds(eBuilder.build()).queue());
         ticket.setStatus(Ticket.TicketStatus.AWAITING_REPLY);
         ticket.addReply(replier, response, true);
         KekBot.r.table("Tickets").get(ticket.getID()).update(KekBot.r.hashMap("Replies", ticket.getReplies()).with("Status", ticket.getStatus().name())).run(KekBot.conn);
@@ -82,7 +82,7 @@ public class TicketManager {
 
     public static List<Ticket> getTickets() {
         if (!(boolean) KekBot.r.table("Tickets").isEmpty().run(KekBot.conn)) {
-            Cursor cursor = KekBot.r.table("Tickets").run(KekBot.conn);
+            Cursor<org.json.simple.JSONObject> cursor = KekBot.r.table("Tickets").run(KekBot.conn);
             List<org.json.simple.JSONObject> list = cursor.bufferedItems();
             List<Ticket> tickets = new ArrayList<>();
             list.forEach(json -> tickets.add(gson.fromJson(json.toJSONString(), Ticket.class)));
